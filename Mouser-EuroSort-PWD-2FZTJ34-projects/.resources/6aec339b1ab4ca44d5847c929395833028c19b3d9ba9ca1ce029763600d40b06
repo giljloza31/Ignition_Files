@@ -104,6 +104,7 @@ def validate(action="sync"):
 
 	return ok
 
+
 def _run_ps(action, push=False, forcePush=False, actor="gateway"):
 	log = _log()
 
@@ -112,22 +113,8 @@ def _run_ps(action, push=False, forcePush=False, actor="gateway"):
 	projectName = system.project.getProjectName()
 	gatewayName = system.net.getHostName()
 
-	# Use absolute PowerShell path (important for SYSTEM)
-	powershell = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-
-	# Always dump stdout/stderr to a known-good location
-	out_dir = r"C:\Windows\Temp\IgnitionGitSync"
-	if not os.path.isdir(out_dir):
-		os.makedirs(out_dir)
-	
-
-	out_file = os.path.join(out_dir, "ps_launch.txt")
-
-	# Build PS args (NoProfile + NonInteractive helps a lot under SYSTEM)
-	ps_args = [
-		powershell,
-		"-NoProfile",
-		"-NonInteractive",
+	cmd = [
+		"powershell.exe",
 		"-ExecutionPolicy", "Bypass",
 		"-File", ps1,
 		"-Source", str(source),
@@ -143,24 +130,25 @@ def _run_ps(action, push=False, forcePush=False, actor="gateway"):
 	]
 
 	if push:
-		ps_args.append("-Push")
+		cmd.append("-Push")
 	if forcePush:
-		ps_args.append("-ForcePush")
+		cmd.append("-ForcePush")
 
-	log.info("GitSync executing: action=%s push=%s forcePush=%s gateway=%s project=%s"
-	         % (action, push, forcePush, gatewayName, projectName))
+	log.info(
+		"GitSync executing: action=%s push=%s forcePush=%s gateway=%s project=%s"
+		% (action, push, forcePush, gatewayName, projectName)
+	)
 	log.info("GitSync launching PS1=%r RepoRoot=%r Source=%r" % (ps1, reporoot, source))
 
-	# Wrap with cmd.exe so we can redirect stdout/stderr to a file
-	# (system.util.execute doesn't always show PowerShell errors cleanly)
-	cmdline = ' '.join(['"%s"' % a if " " in a else a for a in ps_args])
-	cmd = ["cmd.exe", "/c", cmdline + ' >> "%s" 2>&1' % out_file]
-
 	def _do():
-		system.util.execute(cmd)
-		
+		try:
+			system.util.execute(cmd)
+		except Exception as e:
+			log.error("GitSync PowerShell execution failed (%s). cmd=%r" % (e, cmd))
 
 	system.util.invokeAsynchronous(_do)
+
+
 def handle_publish_update():
 	"""
 	Gateway Event Script: Project -> Update
