@@ -4,6 +4,7 @@
 # - Gateway Event Scripts -> Project -> Update (armed publish)
 # - Tag Change scripts -> ForceSnapshotNow / ForcePushNow
 
+
 import os
 import system
 
@@ -14,6 +15,7 @@ BASE = "[Mouser]Mouser/System/Config/GitSync/"
 DEFAULT_SOURCE   = r"C:\Program Files\Inductive Automation\Ignition\data\projects"
 DEFAULT_REPOROOT = r"C:\Ignition_Files"
 DEFAULT_PS1      = r"C:\IgnitionTools\sync_commit.ps1"
+
 
 def _log():
 	return system.util.getLogger("GitSync")
