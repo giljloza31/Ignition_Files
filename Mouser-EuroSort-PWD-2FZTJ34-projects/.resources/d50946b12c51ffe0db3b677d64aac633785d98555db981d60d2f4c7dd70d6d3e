@@ -15,6 +15,7 @@ DEFAULT_SOURCE   = r"C:\Program Files\Inductive Automation\Ignition\data\project
 DEFAULT_REPOROOT = r"C:\Ignition_Files"
 DEFAULT_PS1      = r"C:\IgnitionTools\sync_commit.ps1"
 
+
 def _log():
 	return system.util.getLogger("GitSync")
 
@@ -199,7 +200,6 @@ def handle_force_trigger(trigger_tag_path):
 	if not validate(action="force"):
 		_reset_trigger()
 		return
-
 
 	# Force actions push by default (snapshot + force-push both push)
 	_run_ps(action=action, push=True, forcePush=is_force_push, actor="gateway")

@@ -15,6 +15,7 @@ DEFAULT_SOURCE   = r"C:\Program Files\Inductive Automation\Ignition\data\project
 DEFAULT_REPOROOT = r"C:\Ignition_Files"
 DEFAULT_PS1      = r"C:\IgnitionTools\sync_commit.ps1"
 
+
 def _log():
 	return system.util.getLogger("GitSync")
 
