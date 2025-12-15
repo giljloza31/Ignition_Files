@@ -7,6 +7,7 @@
 import os
 import system
 
+
 # Tag provider is the customer name, and the folder structure is:
 # [Mouser]Mouser/System/Config/GitSync/...
 BASE = "[Mouser]Mouser/System/Config/GitSync/"
@@ -30,6 +31,7 @@ def _read_tag(path, default=None):
 		_log().error("Tag read failed: %s (%s)" % (path, e))
 		return default
 		
+
 def _write_tag(path, value):
 	try:
 		system.tag.writeBlocking([path], [value])
