@@ -1,0 +1,147 @@
+{
+  "custom": {},
+  "params": {
+    "Full_Count": "value",
+    "Induct_Count": "value",
+    "Jam_Count": "value",
+    "Lane_Name": "Lane 01"
+  },
+  "propConfig": {
+    "params.Full_Count": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Induct_Count": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Jam_Count": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Lane_Name": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 51,
+      "width": 131
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Full_Count"
+        },
+        "position": {
+          "height": 21.99,
+          "width": 40.78,
+          "x": 80.1,
+          "y": 26.2
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "text": 0,
+          "textStyle": {
+            "color": "#180404",
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Jam_Count"
+        },
+        "position": {
+          "height": 21.99,
+          "width": 38.51,
+          "x": 45.6,
+          "y": 26.2
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "text": 0,
+          "textStyle": {
+            "color": "#180404",
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane_Name"
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "50% -22%"
+          },
+          "width": 88,
+          "x": 21.5
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Lane_Name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Induct_Count",
+          "tooltip": {
+            "enabled": true,
+            "text": "Divert Count"
+          }
+        },
+        "position": {
+          "height": 22,
+          "width": 38.51,
+          "x": 9.9,
+          "y": 26.22
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "text": 0,
+          "textStyle": {
+            "color": "#180404",
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

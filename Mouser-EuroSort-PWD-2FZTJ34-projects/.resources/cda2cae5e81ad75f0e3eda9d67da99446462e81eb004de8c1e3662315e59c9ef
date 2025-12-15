@@ -1,0 +1,309 @@
+from shared.tools.thread import async
+from shared.tools.global import ExtraGlobal
+from shared.pwd.Mouser.HSL.Marriage import MarriageProcess
+from shared.pwd.Mouser.HSL.Manifest import ManifestProcess
+from shared.pwd.Mouser.HSL.Print_Request import PrintProcess
+from shared.pwd.Mouser.HSL.Verify import VerifyProcess
+
+from datetime import datetime
+from pymongo import MongoClient
+import re
+
+marriage_process = MarriageProcess()
+manifest_process = ManifestProcess()
+print_process = PrintProcess()
+verify_process = VerifyProcess()
+# Production uri
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+
+# Development PC
+#uri = 'mongodb://PWD:PWDllc123!@localhost:27017/'
+
+OPCSERVER = 'Ignition OPC-UA Server'
+
+MongoDB = MongoClient(uri)
+db=MongoDB.ignition
+
+logger = system.util.getLogger('HighSpeedLine')
+loggerprint = system.util.getLogger('print')
+loggerver = system.util.getLogger('verify')
+def get_next_index(self,name):
+	pipeline = [
+	    {'$match': {'area': name}},
+	    {'$group': {'_id': "$area", 'max_seq': {'$max': "$seq"}}},
+	    {'$project': {'_id': 0, 'seq': {'$add': ["$max_seq", 1]}}}
+	]
+	
+	result = list(db.counter.aggregate(pipeline))
+	if result:
+		new_seq = result[0]['seq']
+	else:
+		new_seq = 1
+	
+	# Update the document with the new sequence
+	db.counter.update({'area': name}, {'$set': {'seq': new_seq}}, upsert=True)
+	
+	return new_seq
+		
+def cursorToList(cursor):
+	listcursor = []
+	for i in range(cursor.count()):
+		listcursor.append(cursor.next())
+	return listcursor
+
+	
+@async(name='HSL_Manifest_Marriage_gather_data')	
+def HSL_gather_data(source_path):
+	induct_start_time = datetime.now() # Start Clock to see process times
+	
+	# Creating tag path for reading and writing path
+	Get_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	Got_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	
+	# Clear data for fresh data
+	data = {}
+	check_payload_status = False
+	check_weight_status = False
+	check_lpn_status = False
+	check_ibn_status = False
+	marry_process_results = False
+	manifest_payload_status = False
+	
+	# read in values
+	incomming_payload, recieved_indexId, marriage_toggle, mongoDB_enabled = [
+		qv.value for qv in system.tag.readBlocking([
+			Get_parent_dest + '/' + 'IGNHSLManifestPayload_Send',
+			Get_parent_dest + '/' + 'HSLMANIndexID',
+			Get_parent_dest + '/' + 'IGN_HSLMarriage_Enabled',
+			Get_parent_dest + '/' + 'MongoDB_Enabled',
+		])]
+		
+	marriage_toggle = bool(marriage_toggle)
+	# create the baseline of data
+	data.update({
+		'induct_start_time':induct_start_time,
+		'induct_paylaod':incomming_payload,
+		'induct_indexId':recieved_indexId,
+		'marriage_toggle':marriage_toggle,
+		'verification_barcode':None,
+		'tracking_barcode':None
+	})
+	
+	
+	# Check to see if incomming payload is correct
+	data,check_payload_status = marriage_process.check_payload(payload = data['induct_paylaod'],data=data)
+	
+	# If check_payload_status check LPN 
+	if check_payload_status:
+		data,check_weight_status = marriage_process.check_weight(weight = data['induct_weight'],data=data)
+		# If check_weight_status check LPN 
+		if check_weight_status:
+			data,check_lpn_status = marriage_process.check_lpn(lpn_string=data['induct_LPN'],data=data)
+		
+		
+			# If check_lpn_status check IBN
+			if marriage_toggle and check_lpn_status:
+				data,check_ibn_status = marriage_process.check_ibn(ibn_string=data['induct_IBN'],data=data)
+				
+				if check_ibn_status:
+					data,marry_process_results = marriage_process.marry_process(data=data)
+					
+					if marry_process_results:
+						data,manifest_payload_status = manifest_process.manifest_payload(data=data)
+			
+			elif not marriage_toggle and check_lpn_status:
+				data,manifest_payload_status = manifest_process.manifest_payload(data=data)
+	
+	
+
+	
+	data.update({
+		'total_induct_time':(datetime.now() - data['induct_start_time']).total_seconds() * 1000
+		})
+	
+	
+	check_query = db.HSL_info.find(filter={'induct_LPN':data['induct_LPN']})
+	check_results = cursorToList(check_query)
+	check_query.close()
+	
+	if check_results:
+		
+		filter_condition={'induct_LPN':data['induct_LPN']}
+		update = {"$set":data}
+		db.HSL_info.update(filter_condition,update)
+	
+	else:
+		db.HSL_info.insert(data)
+	
+	if not bool(mongoDB_enabled):
+		COMMAND = 'Manifest'
+		ExtraGlobal.stash(data, label = data['induct_LPN'], scope=COMMAND, lifespan=7200)
+
+	
+	itemPath = 'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLManIndexID'
+	
+	system.opc.writeValue(OPCSERVER, itemPath, int(data['induct_indexId']))
+	
+#	logger.info('data: %s'%data)
+	Got_parent_dest += '/'
+	
+	system.tag.writeBlocking(*zip(*[
+		(Got_parent_dest + 'IGNReturnedHSLManIndexID', data['induct_indexId']),
+		(Got_parent_dest + 'VerificationBarcodeReturned', data['verification_barcode']),
+		(Got_parent_dest + 'IGN_LPN_Returned',data['induct_LPN']),
+		(Got_parent_dest + 'IGN_Weight_Returned',data['induct_weight']),
+		(Got_parent_dest + 'IGN_IBN_Returned',data['induct_IBN']),
+		(Got_parent_dest + 'Response_Code',data['reason_num'])
+	]))
+	
+	
+
+@async(name='HSL_get_print_gather_data')
+def get_print(source_path,printerId):
+	"""Handles HSL print requests."""
+	Get_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	Got_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	
+	# read in values
+	incomming_payload, recieved_indexId, mongo_toggle = [
+		qv.value for qv in system.tag.readBlocking([
+			source_path,
+			Get_parent_dest + '/' + 'IndexID_RequestPrn%s'%printerId,
+			Get_parent_dest + '/' + 'MongoDB_Enabled'
+		])]	
+	system.tag.writeBlocking(*zip(*[
+		(source_path, '')
+	]))	
+	data = {
+		'print_payload': incomming_payload,
+		'print_start_time': datetime.now(),
+		'print_indexId': recieved_indexId,
+		'printerId':printerId
+		}
+	loggerprint.trace('%s'%incomming_payload)
+	mongo_toggle = bool(mongo_toggle)
+	data,check_payload_status = print_process.check_payload(payload = incomming_payload,data=data)
+	
+	# If check_payload then check DB
+	if mongo_toggle and check_payload_status:
+		data,mongo_lookup_status = print_process.mongo_lookup(data=data)
+			
+		if mongo_lookup_status and data['PrintLabel'] != '':
+			loggerprint.trace('%s'%data['print_indexId'])
+			data,send_to_printer_status = print_process.send_to_printer(data=data,printerId=int(printerId),indexId=data['print_indexId'])
+		else:
+			itemPaths = [
+			'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLPrintIndexID',
+			'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLPrintResult[%s]'%recieved_indexId
+			]
+			
+			opcValues = [data['print_indexId'], 2]
+			system.opc.writeValues(OPCSERVER, itemPaths, opcValues)	
+			
+	
+
+	
+
+
+
+	
+	# PLC Data Read
+	dbtime_path = 'ns=1;s=[L3100ERS2_Autoship_Mezz]ManifestResponseTime[%s]'%data['print_indexId']
+	plcData = system.opc.readValue('Ignition OPC-UA Server', dbtime_path)
+	
+	data.update({
+	'ManifestResponseTime': plcData.value
+	})
+	
+	if data['print_LPN'] not in ['NOREAD','NODATA']:
+		filter_condition={'induct_LPN':data['print_LPN']}
+		update = {"$set":data}
+		db.HSL_info.update(filter_condition,update)
+	
+	Got_parent_dest  += '/'
+	system.tag.writeBlocking(*zip(*[
+		(Got_parent_dest + 'IGNReturnedHSLPrintIndexID', data['print_indexId']),
+		(Got_parent_dest + 'IGN_LPN_Returned',data['print_LPN']),
+		(Got_parent_dest + 'Response_Code',data['reason_num']),
+		(Got_parent_dest + 'Printer_Results', data.get('printer_results',2)),
+#		(source_path, '')
+#		
+	]))
+	
+@async(name='HSL_verify_gather_data')	
+def HSL_Verify(source_path):
+	
+	Get_parent_dest = '/'.join(source_path.split('/')[:-2]+['Get_Data'])
+	Got_parent_dest = '/'.join(source_path.split('/')[:-2]+['Got_Data'])
+	
+	incomming_payload,indexID, mongo_toggle= [
+	qv.value for qv in system.tag.readBlocking([
+		Get_parent_dest + '/' + 'IGNSendHSLVerifyPayload',
+		Get_parent_dest + '/' + 'HSL_VerifyIndexID',
+		Get_parent_dest + '/' + 'MongoDB_Enabled',
+	])]
+	mongo_toggle = bool(mongo_toggle)
+	data = {
+		'verify_payload':incomming_payload,
+		'verify_indexId':indexID,
+		'verify_start_time': datetime.now()
+		}
+		
+	loggerver.trace('%s'%incomming_payload)
+	# Check for matching payload
+	data,check_payload_status = verify_process.check_payload(payload = incomming_payload,data = data)
+	
+	# If check_payload_status then check tracking 
+	if check_payload_status:
+		data,check_tracking_status = verify_process.check_tracking(data = data)
+		
+		# If check_tracking_status then check LPN
+		if check_tracking_status:
+			data,check_lpn_status = verify_process.check_lpn(data = data)
+			
+			# If check_lpn_status them verify against lookup
+			if check_lpn_status:
+				data = verify_process.verify_lookup(data=data)
+				
+	
+	
+	itemPaths = [
+			'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNHSLVerifyResult[%s]' %(indexID),
+			'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLVerifyIndexID'
+		]
+	system.opc.writeValues(OPCSERVER, itemPaths, [data['reason_num'],int(indexID)])
+	
+
+	
+	dbtime = [
+		'ns=1;s=[L3100ERS2_Autoship_Mezz]Program:HSL_Print_Program.VerifyResponseTime[%s]'%(int(indexID)),
+		'ns=1;s=[L3100ERS2_Autoship_Mezz]Program:HSL_Print_Program.LOTAR_History[%s]'%(int(indexID)),
+		'ns=1;s=[L3100ERS2_Autoship_Mezz]Program:HSL_Print_Program.PrintResponseTime[%s]'%(int(indexID))
+	]
+	
+	plcData = system.opc.readValues('Ignition OPC-UA Server', dbtime)
+	data.update({
+		'VerifyResponseTime':plcData[0].value,
+		'LOTAR_History':plcData[1].value,
+		'PrintResponseTime':plcData[2].value
+	})
+	
+
+	
+	lpn = data.get('verify_LPN',data.get('induct_lpn',''))
+	filter_condition={'induct_LPN':lpn}
+	update = {"$set":data}
+	db.HSL_info.update(filter_condition,update)
+	
+	verification = data.get('verify_orderNbr','') if data.get('verify_orderNbr','')!='' else data.get('verify_tracking','')
+	
+	Got_parent_dest += '/'
+	system.tag.writeBlocking(*zip(*[
+		(Got_parent_dest + 'IGNReturnedHSLVerifyIndexID', int(indexID)),
+		(Got_parent_dest + 'IGNHSLVerifyResult', data['reason_num']),
+		(Got_parent_dest + 'IGN_LPN_Returned', lpn),
+		(Got_parent_dest + 'verification', verification),
+		
+		
+		]))			
+	

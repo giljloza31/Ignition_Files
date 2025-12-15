@@ -1,0 +1,43 @@
+"""
+	Standardize how timestamps are generated
+
+"""
+from com.inductiveautomation.ignition.common.model.values import BasicQualifiedValue
+from java.util import Date
+
+import datetime
+
+
+
+def format_iso8601(timestamp=None):
+	# default null case for NOW
+	if timestamp is None:
+		return format_iso8601(datetime.datetime.now())
+	# Python's most commonly used format
+	elif isinstance(timestamp, datetime.datetime):
+		return timestamp.isoformat()[:23]
+	# Ignition's most commonly used format
+	elif isinstance(timestamp, Date):
+		return timestamp.toInstant().toString()[:23]
+	# (tag) qualified value
+	elif isinstance(timestamp, BasicQualifiedValue):
+		# admittedly, this is a bit dumb to write
+		# but it's nice to just throw a tag qv at this
+		return format_iso8601(timestamp.timestamp)
+	# epoch millis
+	elif isinstance(timestamp, long):
+		return format_iso8601(Date(timestamp))
+	
+	else:
+		raise ValueError("Not configured to make sense of this timestamp: %r" % (timestamp,))
+
+
+
+def datetime_from_iso8601(timestamp, sep=' '):
+	format_string = "%Y-%m-%d" + sep + "%H:%M:%S.%f"
+	return datetime.datetime.strptime(timestamp, format_string)
+
+
+def timedelta_since_iso8601(past_timestamp, sep=' '):
+	past = datetime_from_iso8601(past_timestamp, sep)
+	return datetime.datetime.now() - past

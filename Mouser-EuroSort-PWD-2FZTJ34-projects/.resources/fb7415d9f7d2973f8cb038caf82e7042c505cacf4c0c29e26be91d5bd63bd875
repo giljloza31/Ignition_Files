@@ -1,0 +1,164 @@
+"""Search barcodes in the database(s)
+"""
+
+import re
+from java.text import SimpleDateFormat
+from java.util import Date
+
+# Reformat the timestamp
+# Generate the format engine object...
+iso8601ish = SimpleDateFormat('yyyy-MM-dd hh:mm:ss.SSS')
+
+# Create a function for convenience
+def convertDateToString(timestamp):
+	"""Given a Java Date object, this will reformat it 
+	  as a string of the format "YYYY-MM-DD HH:mm:ss".
+	"""
+	return iso8601ish.format(timestamp)
+
+
+def searchTableGroup(searchTerm, locationTablePrefix, locationPrefixAlias, sqlColumnMap, searchAlias='Barcode', columnOrder=None, dbConnection='SQLServer'):
+	"""Search the database for a barcode string
+	
+	Implicitly, we assume these results will be merged into a dataset with the following headers:
+	  resultHeader = ["Barcode", "BoxID", "Route", "TimeStamp", "Location"]
+	  and assume all columns are strings (force formatting before returning)
+
+	This aggressively scans a database:
+	 - first getting all the tables that look like the locationTablePrefix
+	 - then scan all the tables that look like that prefix, returning results based on the sqlColumnMap
+	 
+	Example input:
+	  - searchTerm = "Test Code 2"
+	  - locationTablePrefix  = "ne_receiving_lane_"
+	  - locationPrefixAlias = "NE Recieving Lane"
+	  - sqlColumnMap = {
+			"Barcode": "BarcodeLane",
+			"CarrierID": "CarrierIDLane",
+			"Route": "DestinationLane",
+			"Time Stamp": "TimeStamp",
+			}
+	"""
+
+	###########################################################################
+	# SEARCH FOR TABLE NAMES		
+	
+	# Next, we will check each for the lane's transaction group table,
+	# and because we don't know how many there will be, we'll ask the database.
+	
+	# Get the tables for the lanes. We'll ask the database for the list, 
+	# since it may change.
+	
+	# Replace the * glob with % for sql pattern matching
+	# (NOTE: was "#table_prefix" was literal names and "table_prefix_" searched all matches!
+	#        but now it is always a pattern: "table_prefix" matches ONLY the table named "table_prefix"
+	#        and "table_prefix_*" matches anything that starts with that name (like "table_prefix_1"))
+	locationTablePrefix = locationTablePrefix.replace('*', '%')
+	
+	laneTableQuery = """
+		select table_name
+		from information_schema.tables
+		where table_name like ?
+		"""
+	results = system.db.runPrepQuery(laneTableQuery,[locationTablePrefix], dbConnection)
+	
+	# Convert to a simple list. This will be what we iterate over.
+	tables = [row[0] for row in results]
+	
+	# We will want to get the lane info from the table name,
+	# but we want to make it human formatted, so we'll pull the info
+	# by pattern matching
+	# See the source/testing at https://regex101.com/r/ljhCXN/2
+	locationTablePattern = re.compile("""
+		^%s                  # all table names start with locationTablePrefix
+		(?P<index>[0-9]+)?   # Capture the number and call it "index"
+		(?P<qualifier>\w+)?  # Capture any additional info (if it's there) as "qualifier"
+		""" % locationTablePrefix.replace('%', ''), re.I + re.X) # IFF we have a pattern, it'll end with "%"
+	
+	###########################################################################
+	# SEARCH TABLES FOR BARCODES
+	
+	# Loop over all the tables, checking each for the barcode
+	resultData = []
+	for tablename in tables:
+	
+		# Get the lane info and generate a Location Name for the query
+		# (in case it's not _strictly_ a name like "table_prefix_999Qualifier"
+		try:
+			locationInfo = locationTablePattern.match(tablename).groupdict()
+		# If there's no match, then assume it's a literal (or a bad pattern)
+		except:
+			locationInfo = {
+				'index': '',
+				'qualifier': ''
+			}
+		
+		locationInfo['location alias'] = locationPrefixAlias
+		
+		locationName = locationPrefixAlias
+			
+		if locationInfo['index']:
+			locationName += ' ' + locationInfo['index'].capitalized()
+				
+		if locationInfo['qualifier']:
+			locationName += ' ' + locationInfo['qualifier'].capitalized()
+
+				
+		# Generate the query... (we need to supply the table name before - can't be a parameter)
+		# Get the column definitions from the tableSqlMap as well.
+		columnDefs = []
+		for alias, columnName in sqlColumnMap.items():
+			columnDefs.append('%s as "%s"' % (columnName, alias))
+			
+		# Create a working copy of the column map reference
+		# This starts as just columns, but by the end holds all the query data.
+		tableSqlMap = sqlColumnMap.copy()
+		
+		# Update the mapping dictionary so we can fill in the blanks below
+		# First, join the label entries (with spacing to line up nicely...)
+		tableSqlMap['Column Defs'] =  '				,	'.join(columnDefs) 
+
+		# Then add the table name so we can fill that in.
+		tableSqlMap['Table Name'] = tablename
+
+		# Finally filter on the column that we're searching
+		tableSqlMap['Search Column'] = tableSqlMap[searchAlias]
+
+		barcodeQuery = """
+			select 	%(Column Defs)s
+				,	? as "Location"
+			from %(Table Name)s
+			where %(Search Column)s like ?
+			""" % tableSqlMap
+			
+		# ... and run it!
+		results = system.db.runPrepQuery(barcodeQuery, [locationName, searchTerm] , dbConnection)
+	
+		# Add any matches to the resultData list directly
+		for row in results:
+			# convert the row into a simple list of entries
+			result_headers = [name for name in results.getColumnNames()]
+			
+			dataRow = []
+			
+			# Enforce an ordering, if given, otherwise just use what you have
+			if not columnOrder:
+				columnOrder = result_headers
+			
+			# Now build the row based on the column ordering provided
+			for columnName in columnOrder:
+				# Get the value in the result for the column of interest
+				value = row[result_headers.index(columnName)]
+				
+				# Format values for better display later (if type is right)
+				if isinstance(value, Date):
+					value = convertDateToString(value)
+#				elif isinstance(value, (str, unicode)):
+#					value = value.capitalize()
+			
+				dataRow.append(value)
+
+			# ... and append to our dataset
+			resultData.append(dataRow)
+				
+	return resultData

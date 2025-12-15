@@ -1,0 +1,403 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 238,
+      "width": 674
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "y": 43
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#AAAAAA",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Disabled",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 134,
+          "y": 43
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFFFFF",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Enabled/Empty",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 268,
+          "y": 43
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#00D900",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Occupied",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 402,
+          "y": 43
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFFF00",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Full",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 536,
+          "y": 43
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FF0000",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Faulted",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_4"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "y": 74.9974
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#00FFFF",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Queued",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_5"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 134,
+          "y": 75
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FF6600",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Filtered",
+          "textStyle": {
+            "color": "#FFFFFF",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_6"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 268,
+          "y": 75
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#3944BC",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Releasing/Open",
+          "textStyle": {
+            "color": "#FFFFFF",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_7"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 402,
+          "y": 75
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FD3DB5",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Sensor Full",
+          "textStyle": {
+            "color": "#FFFFFF",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_8"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 536,
+          "y": 75
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#C28DAE",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Processing",
+          "textStyle": {
+            "color": "#FFFFFF",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_9"
+        },
+        "position": {
+          "height": 32,
+          "width": 192,
+          "x": 239.99478149414062,
+          "y": 10.984789123535156
+        },
+        "props": {
+          "text": "Chute Color Meanings",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_15"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 1,
+          "y": 142
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#AAAAAA",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Off",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_16"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 135,
+          "y": 142
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFFFFF",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Running",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_17"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 269,
+          "y": 142
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#CCCCFF",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Stand-By",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_19"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 537,
+          "y": 142
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FF0000",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Faulted",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_20"
+        },
+        "position": {
+          "height": 32,
+          "width": 228,
+          "x": 226.48478149414063,
+          "y": 109.9721875
+        },
+        "props": {
+          "text": "Conveyor Color Meanings",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_10"
+        },
+        "position": {
+          "height": 32,
+          "width": 135,
+          "x": 402.995,
+          "y": 142.984
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFFF00",
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "text": "Full",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

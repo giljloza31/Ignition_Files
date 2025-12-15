@@ -1,0 +1,218 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 212,
+      "width": 374
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "UserID_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 151,
+          "y": 24
+        },
+        "propConfig": {
+          "props.text": {
+            "onChange": {
+              "enabled": null,
+              "script": "\t\n\ttext \u003d currentValue.value\n\t\n\tself.props.text \u003d text.upper()"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Enter USERID"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "User_Label"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 71,
+          "x": 64,
+          "y": 26
+        },
+        "props": {
+          "text": "UserID:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Password_Label"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 82,
+          "x": 53,
+          "y": 64
+        },
+        "props": {
+          "text": "Password:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "UserPassword_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 151,
+          "y": 62
+        },
+        "props": {
+          "placeholder": "Enter Password"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "UserRole_Entry"
+        },
+        "position": {
+          "height": 36,
+          "width": 150,
+          "x": 151,
+          "y": 106
+        },
+        "props": {
+          "options": [
+            {
+              "label": "Operator",
+              "value": 0
+            },
+            {
+              "label": "Administrator",
+              "value": 1
+            },
+            {
+              "label": "Maintance",
+              "value": 2
+            },
+            {
+              "label": "PWD",
+              "value": 3
+            }
+          ],
+          "placeholder": {
+            "text": "Select Role"
+          }
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "Role_Label"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 82,
+          "x": 53,
+          "y": 109
+        },
+        "props": {
+          "text": "Role:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tuserID \u003d self.getSibling(\"UserID_Entry\").props.text\n\tpassword \u003d self.getSibling(\"UserPassword_Entry\").props.text\n\tuserRole_Num \u003d self.getSibling(\"UserRole_Entry\").props.value\n\tuserRole_Name \u003d self.getSibling(\"UserRole_Entry\").props.options[userRole_Num].label\n\terrorMessage \u003d \u0027User already in table\u0027\n\t#see if user exists \n\tqueryCount \u003d \u0027\u0027\u0027\n\t\tSelect Count(UserID) as Count\n\t\tFrom UserLogin\n\t\tWhere UserID \u003d ?\n\t\t\u0027\u0027\u0027\n\t\n\tcountResults \u003d system.db.runPrepQuery(queryCount, [userID], \u0027SQLServer\u0027)\n\t\n\tcount \u003d countResults[0][\u0027Count\u0027]\n\t\n\t\n\tif count \u003d\u003d 0:\n\t\tqueryInsert \u003d \u0027\u0027\u0027\n\t\t\tInsert into UserLogin\n\t\t\t(UserID,Password,UserRole_Num,UserRole_String,Timestamp)\n\t\t\tValues (?,?,?,?,?)\n\t\t\t\u0027\u0027\u0027\n\t\tqueryValues \u003d [\n\t\tuserID,password,userRole_Num,userRole_Name,system.date.now()\n\t\t]\n\t\tsystem.db.runPrepUpdate(queryInsert, queryValues,\u0027SQLServer\u0027)\n\t\n\telse:\n\t\tsystem.perspective.openPopup(\u0027SortationError\u0027, \u0027Popups/QPS_Sortation/Error\u0027,params \u003d {\u0027ErrorMessage\u0027:errorMessage})\n\t\n\t\n\t\n\tself.getSibling(\"UserID_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"UserPassword_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"UserRole_Entry\").props.value \u003d \u0027\u0027\n\tsystem.perspective.closePopup(\u0027Add_User\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Add User"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 71,
+          "y": 159
+        },
+        "props": {
+          "text": "Add User"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Add_User",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/QPS_Sortation/Add_User",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Cancel"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 221,
+          "y": 159
+        },
+        "props": {
+          "primary": false,
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

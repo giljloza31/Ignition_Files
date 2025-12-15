@@ -1,0 +1,15 @@
+import socket
+
+
+
+			
+	#Priner IP address
+host = '10.0.194.162'
+port = 9100
+
+	
+#Printer Communications
+printer = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+printer.connect((host,port))
+
+#ZPL format of label

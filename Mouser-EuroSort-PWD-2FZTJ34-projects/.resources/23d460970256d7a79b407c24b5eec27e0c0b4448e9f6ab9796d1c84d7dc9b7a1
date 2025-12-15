@@ -1,0 +1,115 @@
+"""
+	Event and message dispatching
+	
+	Hook in handlers to deal with incoming messages from
+	the EuroSort API.
+	
+	Consider subclassing and overriding the following:
+	- handle_request
+	- handle_scan
+	
+	Note the others are there for completeness and won't be used. Ever.
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.base    import EuroSorterBase
+from eurosort.enums   import *
+from eurosort.utility import WrappedConsumer
+from eurosort.sorterdata.core import SorterDataWrapper
+
+from shared.tools.error import python_full_stack
+from collections import deque
+
+#from shared.tools.global import ExtraGlobal
+
+#class DispatchVerification(EuroSor♥terDispatch):
+#	"""Verify that the REQUEST gets a VERIFY
+#	
+#	Uses ExtraGlobal to decouple the events from the driver.
+#	"""
+
+
+
+class EuroSorterDispatch(EuroSorterBase):
+
+	MAX_PENDING_REQUESTS = 1000
+
+	def __init__(self, *args, **kwargs):
+	
+		super(EuroSorterDispatch, self).__init__(*args, **kwargs)
+
+		self._registered_handlers = {
+			MessageType.REQUEST  : self.handle_request, 
+			MessageType.SCAN     : self.handle_scan,
+			MessageType.VERIFY   : self.handle_verify,
+			MessageType.EXCEPTION: self.handle_exception,
+		}
+		
+		self._wrapped_dispatch       = WrappedConsumer(self._dispatch)
+		self._wrapped_dispatch_error = WrappedConsumer(self._dispatch_error)
+
+
+	def _dispatch(self, sorterData):
+		# sanity check
+		self._check_connection_status()
+	
+		sorter_data = SorterDataWrapper(sorterData, source=self)
+		
+		handler = self._registered_handlers.get(
+				sorter_data.message_type,      # resolve handler
+				self.handle_unhandled          # or just fail somehow
+			)
+		
+		self.logger.trace('Dispatch {message_type} with {handler}: {sorter_data}', message_type=sorter_data.message_type)
+	
+		try:
+			handler(sorter_data)
+		except Exception as error:
+			self.logger.error(python_full_stack())
+#			self.logger.error(repr(error))
+
+
+		try:
+			self.logger.trace('---- Check: {message_type} [{length} x {width} x {height}]', 
+				message_type=sorter_data.message_type,
+				length=sorter_data.length, width=sorter_data.width, height=sorter_data.height, )
+		except Exception as error:
+			self.logger.error(python_full_stack())
+
+
+	def _dispatch_error(self, error_message):
+		self.logger.error(error_message)
+		raise NotImplementedError
+
+
+	def handle_request(self, sorter_data):
+		self.logger.trace('Handling {message_type}: {sorter_data}', message_type=sorter_data.message_type)
+
+	def handle_scan(self, sorter_data):
+		self.logger.trace('Handling {message_type}: {sorter_data}', message_type=sorter_data.message_type)
+
+	def handle_verify(self, sorter_data):
+		if sorter_data.message_code in FAILURE_MESSAGES:
+			self.logger.error('Failure noted in VERIFY: {code!r}', code = sorter_data.message_code)
+		elif sorter_data.message_code not in MessageCode:
+			self.logger.error('Uncaught code: {message_type}: {code!r}',
+				message_type=sorter_data.message_type,
+				code = sorter_data.message_code, )
+		else:
+			self.logger.trace('Handling {message_type}: {sorter_data}', message_type=sorter_data.message_type)
+
+	def handle_exception(self, sorter_data):
+		self.logger.trace('Handling {message_type}: {sorter_data}', message_type=sorter_data.message_type)
+
+	def handle_unhandled(self, sorter_data):
+		raise NotImplementedError('MessageType not handled: %r' % (sorter_data))
+
+
+	def _register_callbacks(self):
+		self.euroSortInterface.registerDataArrivedCallback(self._wrapped_dispatch)
+		self.euroSortInterface.registerExceptionCallback(self._wrapped_dispatch_error)
+
+	def _unregister_callbacks(self):
+		self.euroSortInterface.removeDataArrivedCallback(self._wrapped_dispatch)
+		self.euroSortInterface.removeExceptionCallback(self._wrapped_dispatch_error)
+

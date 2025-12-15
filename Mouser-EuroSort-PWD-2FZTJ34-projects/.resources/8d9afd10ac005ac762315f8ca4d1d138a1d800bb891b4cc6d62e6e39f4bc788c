@@ -1,0 +1,3661 @@
+{
+  "custom": {},
+  "params": {
+    "Action": false,
+    "Status": 1
+  },
+  "propConfig": {
+    "params.Action": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]CP13-14-LowerMezz/Controls/HMI_CP14_On_PB"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Status": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]CP13-14-LowerMezz/Controls/CP13_Status"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "ConvName": "CP13_TH4"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 419,
+          "x": 963.5,
+          "y": 133.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP13_TH4_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP13_TH3"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 562,
+          "width": 42,
+          "x": 968.86,
+          "y": 164.875
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP13_TH3_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "transform": "translate(188.72 115.89) rotate(90)",
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": "-115.39",
+                      "y": "116.39"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "transform": "translate(156.93 147.49) rotate(90)",
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": "-146.99",
+                          "y": "147.99"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "transform": "translate(220.5 84.1) rotate(90)",
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": "-83.5",
+                          "y": "148.08"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Vert",
+                  "name": "Straight_Vert",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 72.92 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP13_TH2"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 265,
+          "x": 718.5,
+          "y": 699.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP13_TH2_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP14_M4_1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 286,
+          "x": 266.639,
+          "y": 39.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP14_M4_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP13_TH6"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 104,
+          "width": 42,
+          "x": 1196,
+          "y": 39.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP13_TH6_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "transform": "translate(188.72 115.89) rotate(90)",
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": "-115.39",
+                      "y": "116.39"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "transform": "translate(156.93 147.49) rotate(90)",
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": "-146.99",
+                          "y": "147.99"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "transform": "translate(220.5 84.1) rotate(90)",
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": "-83.5",
+                          "y": "148.08"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Vert",
+                  "name": "Straight_Vert",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 72.92 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP14_M4_2"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 211,
+          "x": 549.139,
+          "y": 39.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP14_M4_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP14_M-3"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 204,
+          "x": 755.139,
+          "y": 39.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP14_M3_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP14_MT1_1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 211,
+          "x": 550.5,
+          "y": 133.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP14_MT1_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP14_MT1_2"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 211,
+          "x": 756.5,
+          "y": 133.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP14_MT1_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP14_MT2"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 286,
+          "x": 268.5,
+          "y": 133.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP14_MT2_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP13_TH5"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 469,
+          "x": 1354,
+          "y": 133.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP13_TH5_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP13_TH1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 42,
+          "width": 358,
+          "x": 366,
+          "y": 699.125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_ConveyorStatus/IGN_CP13_TH1_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "height": "71.83",
+                      "id": "Main",
+                      "name": "Main",
+                      "style": {},
+                      "type": "rect",
+                      "width": "303.6",
+                      "x": ".5",
+                      "y": ".59"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "height": "8.44",
+                          "id": "Rail",
+                          "name": "Rail",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".5",
+                          "y": "63.98"
+                        },
+                        {
+                          "height": "8.44",
+                          "id": "Rail-2",
+                          "name": "Rail-2",
+                          "style": {
+                            "classes": "ConveyorColors/Rails"
+                          },
+                          "type": "rect",
+                          "width": "303.42",
+                          "x": ".59",
+                          "y": ".5"
+                        }
+                      ],
+                      "id": "Rails",
+                      "name": "Rails",
+                      "type": "group"
+                    }
+                  ],
+                  "id": "Straight_Horz",
+                  "name": "Straight_Horz",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Conveyor",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 72.92"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP13_ESPC01"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 49,
+          "rotate": {
+            "angle": 270
+          },
+          "width": 23,
+          "x": 378.38,
+          "y": 656.255
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_EStop/IGN_CP13_TH1_ESPC01_Status"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.EStopName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP13_ESPC02"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 49,
+          "rotate": {
+            "angle": 270
+          },
+          "width": 23,
+          "x": 378,
+          "y": 735.125
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_EStop/IGN_CP13_TH1_ESPC02_Status"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.EStopName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP14_ESPC01"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 49,
+          "rotate": {
+            "angle": 270
+          },
+          "width": 23,
+          "x": 282,
+          "y": 91.255
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_EStop/IGN_CP14_M4_ESPC01_Status"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.EStopName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP14_ESPC02"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 49,
+          "rotate": {
+            "angle": 270
+          },
+          "width": 23,
+          "x": 282,
+          "y": 170.255
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CP13-14-LowerMezz/CP13-14-LowerMezz_EStop/IGN_CP14_M4_ESPC02_Status"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.EStopName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Button",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 176,
+          "width": 141,
+          "x": 55.96,
+          "y": 27.7517
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M722.48,308.87l1,14.34-1.13.88s.27,10.93-9.59,10.93-9.6-10.93-9.6-10.93l-1.13-.88,1-14.34Z",
+                  "name": "ButtonMount",
+                  "transform": "translate(-701.93 -308.75)",
+                  "type": "path"
+                }
+              ],
+              "name": "ButtonBackground",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "ButtonMessage-2",
+                  "points": "19.51 12.53 20.45 11.99 19.66 1.28 10.85 1.28 2.04 1.28 1.25 11.99 2.2 12.53 19.51 12.53",
+                  "type": "polygon"
+                }
+              ],
+              "name": "ButtonMessage",
+              "style": {
+                "classes": "",
+                "fill": "#F0F0F0",
+                "stroke": "#000000",
+                "strokeWidth": ".255"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonBorder-2",
+                  "r": "9.73",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonBorder",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonColor",
+                  "r": "8.15",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonLight",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 21.7 26.84"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 37.39,
+          "width": 103.46,
+          "x": 73.66,
+          "y": 38.2817
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 26,
+            "textAlign": "center"
+          },
+          "text": "POWER"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "plcPath": "ns\u003d1;s\u003d[]",
+          "status": true
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\tself.view.params.Action \u003d True\n\t\n\tsleep(1)\n\t\n\tself.view.params.Action \u003d False\n\t\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "DivertLane_POWER"
+        },
+        "position": {
+          "height": 108.51,
+          "width": 106.21,
+          "x": 73.61,
+          "y": 84.9417
+        },
+        "propConfig": {
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "view.params.Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "ButtonStyles/MCP/Solid_Grey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ButtonStyles/MCP/Solid_Grey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ButtonStyles/MCP/Solid_White"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ButtonStyles/MCP/Solid_Blue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ButtonStyles/MCP/Flash_Yellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ButtonStyles/MCP/Solid_White"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ButtonStyles/MCP/Solid_Red"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "height": 80,
+            "icon": {
+              "path": "material/power_settings_new"
+            },
+            "width": 60
+          },
+          "style": {
+            "borderBottomLeftRadius": 80,
+            "borderBottomRightRadius": 80,
+            "borderStyle": "solid",
+            "borderTopLeftRadius": 80,
+            "borderTopRightRadius": 80,
+            "borderWidth": 2,
+            "color": "#BABABA",
+            "fontSize": 20
+          },
+          "text": "",
+          "textStyle": {
+            "fontSize": ""
+          }
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

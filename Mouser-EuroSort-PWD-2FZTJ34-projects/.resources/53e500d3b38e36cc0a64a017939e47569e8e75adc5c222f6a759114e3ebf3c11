@@ -1,0 +1,197 @@
+{
+  "custom": {},
+  "params": {
+    "VFDName": "AR503",
+    "path": "[Mouser]Mouser/Yellow/AutostoreInbound/VFD"
+  },
+  "propConfig": {
+    "params.VFDName": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.path": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 137,
+      "width": 298
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Hz"
+        },
+        "position": {
+          "height": 36,
+          "width": 190,
+          "x": 9.75,
+          "y": 6.600000000000023
+        },
+        "props": {
+          "text": "High Speed Hz:",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Hz_NumericEntryField-1"
+        },
+        "position": {
+          "height": 36,
+          "width": 66,
+          "x": 211.75,
+          "y": 6.6
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{view.params.VFDName}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Hz_HighSpeed"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 22
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Hz_0"
+        },
+        "position": {
+          "height": 36,
+          "width": 190,
+          "x": 9.75,
+          "y": 48.6
+        },
+        "props": {
+          "text": "Medium Speed Hz:",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Hz_NumericEntryField-3"
+        },
+        "position": {
+          "height": 36,
+          "width": 66,
+          "x": 211.75,
+          "y": 48.6
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{view.params.VFDName}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Hz_MediumSpeed"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 22
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Hz_1"
+        },
+        "position": {
+          "height": 36,
+          "width": 190,
+          "x": 9.75,
+          "y": 90.6
+        },
+        "props": {
+          "text": "Low Speed Hz:",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Hz_NumericEntryField-5"
+        },
+        "position": {
+          "height": 36,
+          "width": 66,
+          "x": 211.75,
+          "y": 90.6
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{view.params.VFDName}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Hz_LowSpeed"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 22
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": 9.75,
+      "y": 42.59375
+    },
+    "type": "ia.container.coord"
+  }
+}

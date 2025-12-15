@@ -1,0 +1,175 @@
+from datetime import datetime
+from shared.tools.global import ExtraGlobal
+from system.net import httpClient
+from Database import db_access
+import base64
+import re
+import system
+
+db_name = 'MongoWCS'
+
+BARCODE_SEPARATOR = ','
+#lifespan_time = 60 # 60 secs of time
+#lifespan_time = 60*60 # one hour of lifespan
+lifespan_time = 60*60*24 # one day of lifespan
+#lifespan_time = 60*60*24*30 # one month of lifespan
+#lifespan_time = 60*60*24*30*12  #one year of lifespan'''
+
+
+cached_scope = 'HighSpeedLine'
+MAN_PAYLOAD_PATTERN = re.compile(r"""
+    ^
+    (?P<indexid>\d{3})
+    \|
+    (?P<lpn>.*)
+    \|
+    (?P<weight>.*)
+    \|
+    (?P<ibn>.*)
+    $
+""", re.VERBOSE)
+
+MAN_ERROR_LIST = {
+    1:  'Success',
+    2: 'Received incorrect payload',
+    3: 'Received no weight',
+    4: 'Found No LPN',
+    5:  'Found Multiple LPNs',
+    6: 'Found No IBN',
+    7:  'Found No valid IBN',
+    8:  'API Failed - Failed to connect',
+    9:  'API Failed - Failed to connect',
+    10:  'No Label Returned',
+    11:  'Could not decode',
+    14: 'Unexplained Error',
+}
+
+class ManifestProcess(object):
+	def __init__(self):
+		super(ManifestProcess,self).__init__()
+		
+	def _update_error_state(self, code):
+		
+		self.data.update({
+			'reason_num': code,
+			'reason': MAN_ERROR_LIST.get(code,'Unexplained'),
+			})
+			
+	def update_ZPL_File(self, ZPL_File):
+		
+		replacements = {
+			'^LH0,0\r\n^PR4,4,2^FS\r^PON\r^LS25\n': '^LH0,0\r\n^PR120,8,2^FS\r^PON\r^LS5^LT-35\n',
+			'^MD30^PW800^PON': '^MD0^PW800^POI',
+			'^PW812\r\n^CI13\r\n^LH0,0\r\n^PR4,4,2^FS\r^POI\r^LS25\n': '^PW812\r\n^CI13\r\n^LH0,0\r\n^PR1),8,2^FS\r^POI\r^LS0^LT-35',
+			'^LH20,20\n^FO468,4': '^LH0,20\n^FO468,4',
+			'^LH0,100\n^PR6,4,2\n^FS\n^POI\n^LS25': '^LH25,50\n^PR12,8,2\n^FS\n^POI\n^LS0',
+			'^PR12^MD30^PW800^PON^CI13^LH0,20\n': '^PR12,8,2^MD0^PW800^POI^CI13^LH0,20\n',
+			'^LH0,0\n^PR6,4,2\n^FS\n^POI\n^LS25\n': '^LH0,0\n^PR12,8,2\n^FS\n^POI\n^LS0\n',
+			'^XA\n^LL1218\n^PW812\n^PON\n^LH0,0\n^CI27\n': '^XA\n^LL1218\n^PW812\n^POI^PR12,8,2\n^LH0,0^LS0^LT15\n^CI27\n'
+			}
+			
+		for find, replace in replacements.items():
+			if find in ZPL_File:
+				ZPL_File = ZPL_File.replace(find, replace)
+				break
+			return ZPL_File
+			
+	def decode_label(self, label):
+		try:
+			label_data = base64.b64decode(label)
+			return label_data.decode('utf-8')
+		except:
+			return ''
+			
+	def send_manifest_request(self):
+		
+		status = False
+		api_payload = {
+			'type': 'ship',
+			'weight': str(self.data.get('induct_weight', '')),
+			'deviceId': 9
+			}
+		endpoint = "http://wcs01:8085/ws/v1/orders/{0}".format(self.data.get('induct_LPN', ''))
+		
+		try:
+			if not self.simulated:
+				response = client.put(endpoint, data=api_payload)
+				results = response.json
+			else:
+				results = {
+					'statusCode': 0,
+					'label': 'Testing',
+					'desc': 'Testing API results',
+					'verificationBarcode': '1Z0000000000000005',
+					'orderNbr': '123456789'
+					}
+					
+			status_code = results.get('statusCode', 999)
+			
+			if int(status_code) != 258:
+				if not getattr(self, 'simulated', False):
+					
+					# check if there is a returned label
+					zpl_file = results.get('label', '')
+					if not zpl_file:
+						verification_barcode = ''
+						order_nbr = ''
+						printer_results = 2
+						reason_num = 10
+						count_increment = 'Failed Manifest'
+						
+					zpl_file = self.decode_label(results.get('label', ''))
+					
+					zpl_file = self.update_ZPL_File(zpl_file)
+					
+				else:
+					zpl_file = results['label']
+					
+				
+				verification_barcode = results['verificationBarcode']
+					
+				order_nbr = results['orderNbr']
+				printer_results = 1
+				reason_num = 1
+				count_increment = 'Passed Manifest'
+				
+			else:
+				zpl_file = ''
+				verification_barcode = results.get('verificationBarcode', '')
+				order_nbr = results.get('orderNbr', '')
+				printer_results = 2
+				reason_num = 10
+				count_increment = 'Failed Manifest'
+				
+		except:
+			zpl_file = ''
+			verification_barcode = ''
+			order_nbr = ''
+			printer_results = 2
+			reason_num = 1
+			count_increment = 'Passed Manifest'
+			
+		if reason_num == 1:
+			status = True
+		
+		self.data.update({
+			'print_label': zpl_file,
+			'verification_barcode': verification_barcode,
+			'order_nbr': order_nbr,
+			'printer_results': printer_results,
+			})
+		
+		induction_data= {
+				"lpn":					self.data['lpn'],
+				"order_nbr":			self.data.get('order_nbr',''),
+				"print_label":			self.data.get('print_label', ''),
+				"verification_barcode":	self.data.get('verification_barcode',''),
+				"printer_results":		self.data.get('printer_results', 2)
+				}
+				
+		ExtraGlobal.stash(induction_data,self.data['lpn'],cached_scope,lifespan_time)
+		self._update_error_state(reason_num)
+		self.induct_counts.update({
+			count_increment:self.induct_counts[count_increment]+1
+			})
+		return status

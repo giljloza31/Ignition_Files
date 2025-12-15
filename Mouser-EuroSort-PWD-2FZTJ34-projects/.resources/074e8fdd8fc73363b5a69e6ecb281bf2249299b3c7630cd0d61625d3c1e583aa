@@ -1,0 +1,2 @@
+def doGet(request, session):
+	return wcs.api.dispatch.route_webdev(request)

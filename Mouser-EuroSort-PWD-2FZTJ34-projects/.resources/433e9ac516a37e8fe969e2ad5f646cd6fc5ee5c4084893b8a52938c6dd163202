@@ -1,0 +1,3 @@
+SELECT *
+FROM UserLogin
+ORDER BY userindx ASC

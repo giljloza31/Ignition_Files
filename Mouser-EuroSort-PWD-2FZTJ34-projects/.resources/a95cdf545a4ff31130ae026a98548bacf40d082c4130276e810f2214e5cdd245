@@ -1,0 +1,7 @@
+
+def openOnDesktop(windowPath, desktopName):
+	if desktopName in system.gui.getDesktopHandles():
+		system.nav.desktop(desktopName).openWindow(windowPath)
+	else:
+		# Create as a new desktop. The desktop will open the windows listed above.
+		system.gui.openDesktop(windows=[windowPath], title=desktopName, handle=desktopName)

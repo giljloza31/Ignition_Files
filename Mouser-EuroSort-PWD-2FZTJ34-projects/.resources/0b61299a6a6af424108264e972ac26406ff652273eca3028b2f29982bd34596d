@@ -1,0 +1,130 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 154,
+      "width": 362
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Delete_User",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/QPS_Sortation/Delete_User",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Cancel"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 211.5,
+          "y": 87
+        },
+        "props": {
+          "primary": false,
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tuserID \u003d self.getSibling(\"UserID_Entry\").props.value\n\t#see if user exists \n\n\t\n\tqueryDelete \u003d \u0027\u0027\u0027\n\t\tDelete From UserLogin\n\t\tWhere UserID \u003d ?\n\t\t\u0027\u0027\u0027\n\tqueryValues \u003d [\n\tuserID\n\t]\n\tsystem.db.runPrepUpdate(queryDelete, queryValues,\u0027SQLServer\u0027)\n\n\t\n\t\n\t\n\tself.getSibling(\"UserID_Entry\").props.value \u003d \u0027\u0027\n\tsystem.perspective.closePopup(\u0027Delete_User\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Delete User"
+        },
+        "position": {
+          "height": 34,
+          "width": 99,
+          "x": 61.5,
+          "y": 87
+        },
+        "props": {
+          "text": "Delete User"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "User_Label"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 71,
+          "x": 44,
+          "y": 33
+        },
+        "props": {
+          "text": "UserID:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "UserID_Entry"
+        },
+        "position": {
+          "height": 36,
+          "width": 178,
+          "x": 131,
+          "y": 27
+        },
+        "propConfig": {
+          "props.options": {
+            "binding": {
+              "config": {
+                "polling": {
+                  "enabled": true,
+                  "rate": "30"
+                },
+                "queryPath": "QPS_Sortation/Get_UserList"
+              },
+              "type": "query"
+            }
+          }
+        },
+        "props": {
+          "value": "GIL"
+        },
+        "type": "ia.input.dropdown"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

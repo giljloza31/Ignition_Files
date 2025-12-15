@@ -1,0 +1,1129 @@
+{
+  "custom": {},
+  "params": {
+    "Alarms": 0,
+    "AreaName": "High Speed Line",
+    "AreaStatus": 0,
+    "Estops": 0,
+    "FaultTime": 0,
+    "Full": 0,
+    "Jams": 0,
+    "Location": "HSL",
+    "NoRead": 0,
+    "OffTime": 0,
+    "OnTime": 0,
+    "Recirc": 0,
+    "RunTime": 0,
+    "Scan1": {
+      "Noread": 0,
+      "Scans": 0
+    },
+    "Scan2": {
+      "Noread": 0,
+      "Scans": 0
+    },
+    "Scans": 0,
+    "SystemStarts": 0
+  },
+  "propConfig": {
+    "params.Alarms": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.AreaName": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.AreaStatus": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Estops": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.FaultTime": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Full": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Jams": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Location": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.NoRead": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.OffTime": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.OnTime": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Recirc": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.RunTime": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Scan1": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Scan2": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Scans": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.SystemStarts": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 265,
+      "width": 590
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Area"
+        },
+        "position": {
+          "height": 32,
+          "width": 182,
+          "x": 203,
+          "y": 9
+        },
+        "propConfig": {
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "view.params.AreaStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "KPI/Background/Title_Background_Grey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "KPI/Background/Title_Background_Grey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "KPI/Background/Title_Background_Green"
+                    },
+                    {
+                      "input": 2,
+                      "output": "KPI/Background/Title_Background_Red"
+                    },
+                    {
+                      "input": 3,
+                      "output": "KPI/Background/Title_Background_Flash_Yellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "KPI/Background/Title_Background_Blue"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.AreaName"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {},
+          "textStyle": {
+            "classes": "KPI/Title_Text"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "ActiveAlarmsLabel"
+        },
+        "position": {
+          "height": 32,
+          "width": 133,
+          "x": 63,
+          "y": 51
+        },
+        "props": {
+          "text": "Active Alarms:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "ActiveAlarmsInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 203,
+          "y": 53
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[System]Gateway/UptimeSeconds"
+              },
+              "transforms": [
+                {
+                  "code": "\t# use eventValue in a script\n\n\t\n\t\n\talarms \u003d system.alarm.queryStatus(journalName\u003d\"Journal\",state\u003d[\u0027ActiveUnacked\u0027],all_properties\u003d[(\"Location\",\"\u003d\",self.view.params.Location)]) \t\n\t\n\treturn len(alarms)\n\t\n\t",
+                  "type": "script"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemOntimeLabel"
+        },
+        "position": {
+          "height": 27,
+          "width": 154,
+          "x": 41,
+          "y": 83
+        },
+        "props": {
+          "text": "System On Time:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemOntimeInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 203,
+          "y": 83
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.OnTime"
+              },
+              "transforms": [
+                {
+                  "code": "\timport datetime\n\t\n\tdef convert_ms_to_time(milliseconds):\n\t    # Convert milliseconds to seconds and microseconds\n\t    seconds, ms \u003d divmod(milliseconds, 1000)\n\t    \n\t    # Convert seconds to hours, minutes, and seconds\n\t    time_format \u003d str(datetime.timedelta(seconds\u003dseconds))\n\t    \n\t    # Append the milliseconds part\n\t    return time_format.format(\u0027ms:03d\u0027)\n\t\n\t# Example usage\n\tmilliseconds \u003d value\n\tformatted_time \u003d convert_ms_to_time(milliseconds)\n\treturn formatted_time",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemOfftimeLabel"
+        },
+        "position": {
+          "height": 27,
+          "width": 154,
+          "x": 41,
+          "y": 113
+        },
+        "props": {
+          "text": "System Off Time:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemOfftimeInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 203,
+          "y": 113
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.OffTime"
+              },
+              "transforms": [
+                {
+                  "code": "\timport datetime\n\t\n\tdef convert_ms_to_time(milliseconds):\n\t    # Convert milliseconds to seconds and microseconds\n\t    seconds, ms \u003d divmod(milliseconds, 1000)\n\t    \n\t    # Convert seconds to hours, minutes, and seconds\n\t    time_format \u003d str(datetime.timedelta(seconds\u003dseconds))\n\t    \n\t    # Append the milliseconds part\n\t    return time_format.format(\u0027ms:03d\u0027)\n\t\n\t# Example usage\n\tmilliseconds \u003d value\n\tformatted_time \u003d convert_ms_to_time(milliseconds)\n\treturn formatted_time",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemFaulttimeLabel"
+        },
+        "position": {
+          "height": 27,
+          "width": 154,
+          "x": 42,
+          "y": 144
+        },
+        "props": {
+          "text": "System Fault Time:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemFaulttimeInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 203,
+          "y": 144
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.FaultTime"
+              },
+              "transforms": [
+                {
+                  "code": "\timport datetime\n\t\n\tdef convert_ms_to_time(milliseconds):\n\t    # Convert milliseconds to seconds and microseconds\n\t    seconds, ms \u003d divmod(milliseconds, 1000)\n\t    \n\t    # Convert seconds to hours, minutes, and seconds\n\t    time_format \u003d str(datetime.timedelta(seconds\u003dseconds))\n\t    \n\t    # Append the milliseconds part\n\t    return time_format.format(\u0027ms:03d\u0027)\n\t\n\t# Example usage\n\tmilliseconds \u003d value\n\tformatted_time \u003d convert_ms_to_time(milliseconds)\n\treturn formatted_time",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemRunTimeLabel"
+        },
+        "position": {
+          "height": 27,
+          "width": 193,
+          "x": 4,
+          "y": 175
+        },
+        "props": {
+          "text": "System Total Run Time:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemRunTimeInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 203,
+          "y": 175
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.RunTime"
+              },
+              "transforms": [
+                {
+                  "code": "\timport datetime\n\t\n\tdef convert_ms_to_time(milliseconds):\n\t    # Convert milliseconds to seconds and microseconds\n\t    seconds, ms \u003d divmod(milliseconds, 1000)\n\t    \n\t    # Convert seconds to hours, minutes, and seconds\n\t    time_format \u003d str(datetime.timedelta(seconds\u003dseconds))\n\t    \n\t    # Append the milliseconds part\n\t    return time_format.format(\u0027ms:03d\u0027)\n\t\n\t# Example usage\n\tmilliseconds \u003d value\n\tformatted_time \u003d convert_ms_to_time(milliseconds)\n\treturn formatted_time",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "full_count"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 423,
+          "y": 144
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Full"
+              },
+              "type": "property"
+            },
+            "onChange": {
+              "enabled": null,
+              "script": "\tfrom datetime import timedelta\n\timport system\n\t\n\t# Query the alarm journal\n\talarms \u003d system.alarm.queryJournal(\n\t    journalName\u003d\"Journal\",\n\t    all_properties\u003d[(\"Location\", \"\u003d\", \"HSL\")]\n\t)\n\t\n\t# List to store event durations\n\tevent_durations \u003d []\n\t\n\t# Dictionary to track active alarms\n\tevent_start_times \u003d {}\n\t\n\tfor alarm in alarms:\n\t\tevent_id \u003d alarm.get(\u0027eventId\u0027)\n\t\tstate \u003d str(alarm.get(\u0027state\u0027))\n\t\tactive_time \u003d alarm.get(\u0027activeTime\u0027)\n\t\tclear_time \u003d alarm.get(\u0027clearTime\u0027)\n\t\tsource \u003d str(alarm.get(\u0027source\u0027))\n\t\n\t\n\t\tif state \u003d\u003d \u0027Active, Unacknowledged\u0027 and source.endswith(\u0027Full\u0027):  # Alarm started\n\t\t\tevent_start_times[event_id] \u003d active_time\n\t\n\t\telif state \u003d\u003d \u0027Cleared, Unacknowledged\u0027 and event_id in event_start_times and source.endswith(\u0027Full\u0027):  # Alarm cleared\n\t\t\tstart_time \u003d event_start_times.pop(event_id)\n\t        \n\t\t\t# Ensure timestamps are in Ignition Date format\n\t\t\tif start_time and clear_time:\n\t\t\t\t# Compute time difference in seconds\n\t\t\t\ttime_difference \u003d system.date.secondsBetween(start_time, clear_time)\n\t\t\t\tevent_durations.append(time_difference)  # Store in list\n\t\n\t# Compute the average time spent clearing alarms\n\tif event_durations:\n\t\tavg_seconds \u003d sum(event_durations) / len(event_durations)  # Average time in seconds\n\t\tavg_time \u003d timedelta(seconds\u003dint(avg_seconds))  # Convert to timedelta\n\t\n\t\t# Format as HH:MM:SS\n\t\tavg_time_str \u003d str(avg_time)\n\telse:\n\t\tavg_time_str \u003d \"00:00:00\"\n\t\n\t\n\t\n\t# Return or store the result as needed\n\tself.getSibling(\"full_time\").props.text \u003d avg_time_str"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "JamsLabel"
+        },
+        "position": {
+          "height": 27,
+          "width": 95,
+          "x": 320,
+          "y": 113
+        },
+        "props": {
+          "text": "# of Jams:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Jams_count"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 423,
+          "y": 113
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Jams"
+              },
+              "type": "property"
+            },
+            "onChange": {
+              "enabled": null,
+              "script": "\tfrom datetime import timedelta\n\timport system\n\t\n\t# Query the alarm journal\n\talarms \u003d system.alarm.queryJournal(\n\t    journalName\u003d\"Journal\",\n\t    all_properties\u003d[(\"Location\", \"\u003d\", \"HSL\")]\n\t)\n\t\n\t# List to store event durations\n\tevent_durations \u003d []\n\t\n\t# Dictionary to track active alarms\n\tevent_start_times \u003d {}\n\t\n\tfor alarm in alarms:\n\t\tevent_id \u003d alarm.get(\u0027eventId\u0027)\n\t\tstate \u003d str(alarm.get(\u0027state\u0027))\n\t\tactive_time \u003d alarm.get(\u0027activeTime\u0027)\n\t\tclear_time \u003d alarm.get(\u0027clearTime\u0027)\n\t\tsource \u003d str(alarm.get(\u0027source\u0027))\n\t\n\t\n\t\tif state \u003d\u003d \u0027Active, Unacknowledged\u0027 and source.endswith(\u0027Fault\u0027):  # Alarm started\n\t\t\tevent_start_times[event_id] \u003d active_time\n\t\n\t\telif state \u003d\u003d \u0027Cleared, Unacknowledged\u0027 and event_id in event_start_times and source.endswith(\u0027Full\u0027):  # Alarm cleared\n\t\t\tstart_time \u003d event_start_times.pop(event_id)\n\t        \n\t\t\t# Ensure timestamps are in Ignition Date format\n\t\t\tif start_time and clear_time:\n\t\t\t\t# Compute time difference in seconds\n\t\t\t\ttime_difference \u003d system.date.secondsBetween(start_time, clear_time)\n\t\t\t\tevent_durations.append(time_difference)  # Store in list\n\t\n\t# Compute the average time spent clearing alarms\n\tif event_durations:\n\t\tavg_seconds \u003d sum(event_durations) / len(event_durations)  # Average time in seconds\n\t\tavg_time \u003d timedelta(seconds\u003dint(avg_seconds))  # Convert to timedelta\n\t\n\t\t# Format as HH:MM:SS\n\t\tavg_time_str \u003d str(avg_time)\n\telse:\n\t\tavg_time_str \u003d \"00:00:00\"\n\t\n\t\n\t\n\t# Return or store the result as needed\n\tself.getSibling(\"jam_time\").props.text \u003d avg_time_str"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "FullLabel"
+        },
+        "position": {
+          "height": 27,
+          "width": 80,
+          "x": 336,
+          "y": 144
+        },
+        "props": {
+          "text": "# of Full:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "EstopsLabel"
+        },
+        "position": {
+          "height": 27,
+          "width": 111,
+          "x": 304,
+          "y": 83
+        },
+        "props": {
+          "text": "# of Estops:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Estop_count"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 423,
+          "y": 83
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Estops"
+              },
+              "type": "property"
+            },
+            "onChange": {
+              "enabled": null,
+              "script": "\tfrom datetime import timedelta\n\timport system\n\t\n\t# Query the alarm journal\n\talarms \u003d system.alarm.queryJournal(\n\t    journalName\u003d\"Journal\",\n\t    all_properties\u003d[(\"Location\", \"\u003d\", \"HSL\")]\n\t)\n\t\n\t# List to store event durations\n\tevent_durations \u003d []\n\t\n\t# Dictionary to track active alarms\n\tevent_start_times \u003d {}\n\t\n\tfor alarm in alarms:\n\t\tevent_id \u003d alarm.get(\u0027eventId\u0027)\n\t\tstate \u003d str(alarm.get(\u0027state\u0027))\n\t\tactive_time \u003d alarm.get(\u0027activeTime\u0027)\n\t\tclear_time \u003d alarm.get(\u0027clearTime\u0027)\n\t\tsource \u003d str(alarm.get(\u0027source\u0027))\n\t\n\t\n\t\tif state \u003d\u003d \u0027Active, Unacknowledged\u0027 and source.endswith(\u0027EStop\u0027):  # Alarm started\n\t\t\tevent_start_times[event_id] \u003d active_time\n\t\n\t\telif state \u003d\u003d \u0027Cleared, Unacknowledged\u0027 and event_id in event_start_times and source.endswith(\u0027Full\u0027):  # Alarm cleared\n\t\t\tstart_time \u003d event_start_times.pop(event_id)\n\t        \n\t\t\t# Ensure timestamps are in Ignition Date format\n\t\t\tif start_time and clear_time:\n\t\t\t\t# Compute time difference in seconds\n\t\t\t\ttime_difference \u003d system.date.secondsBetween(start_time, clear_time)\n\t\t\t\tevent_durations.append(time_difference)  # Store in list\n\t\n\t# Compute the average time spent clearing alarms\n\tif event_durations:\n\t\tavg_seconds \u003d sum(event_durations) / len(event_durations)  # Average time in seconds\n\t\tavg_time \u003d timedelta(seconds\u003dint(avg_seconds))  # Convert to timedelta\n\t\n\t\t# Format as HH:MM:SS\n\t\tavg_time_str \u003d str(avg_time)\n\telse:\n\t\tavg_time_str \u003d \"00:00:00\"\n\t\n\t\n\t\n\t# Return or store the result as needed\n\tself.getSibling(\"Estop_time\").props.text \u003d avg_time_str"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemStartslabel"
+        },
+        "position": {
+          "height": 32,
+          "width": 133,
+          "x": 283,
+          "y": 51
+        },
+        "props": {
+          "text": "System Starts:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SystemStartsInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 423,
+          "y": 53
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.SystemStarts"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "RecircInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 423.5,
+          "y": 175
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Recirc"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "RecircLabel"
+        },
+        "position": {
+          "height": 27,
+          "width": 106,
+          "x": 311.5,
+          "y": 175
+        },
+        "props": {
+          "text": "# of Recirc:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OEELabel"
+        },
+        "position": {
+          "height": 27,
+          "width": 193,
+          "x": 4,
+          "y": 206
+        },
+        "props": {
+          "text": "System OEE(%):",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OEEInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 203,
+          "y": 206
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.RunTime"
+              },
+              "transforms": [
+                {
+                  "code": "\ttry:\n\t\tonTime \u003d float(self.view.params.OnTime)\n\t\trunTime \u003d float(value)\n\t\tif runTime \u003d\u003d 0:\n\t\t\treturn 0.0\n\t\treturn round((onTime/runTime*100),2)\n\texcept ValueError:\n\t\treturn 0.0",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Scan2_RateOutput"
+        },
+        "position": {
+          "height": 27,
+          "width": 54,
+          "x": 530,
+          "y": 230
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Scan2.Scans"
+              },
+              "transforms": [
+                {
+                  "code": "\ttry:\n\t\tnoread \u003d float(self.view.params.Scan1.Noread)\n\t\ttotal_scans \u003d float(value)\n\t\t\n\t\tif total_scans \u003d\u003d 0:\n\t\t    result \u003d 0.0\n\t\telse:\n\t\t    result \u003d 100 - (noread / total_scans) * 100\n\texcept ValueError:\n\t\tresult \u003d 0.0\n\t\t\n\t\t\n\treturn round(result,2)",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Scan2_NoReadInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 54,
+          "x": 476,
+          "y": 230
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Scan2.Noread"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Scan2Input"
+        },
+        "position": {
+          "height": 27,
+          "width": 54,
+          "x": 422,
+          "y": 230
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Scan2.Scans"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "FullLabel_1"
+        },
+        "position": {
+          "height": 27,
+          "width": 80,
+          "x": 334.5,
+          "y": 231
+        },
+        "props": {
+          "text": "Scan 2:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Scan1Input"
+        },
+        "position": {
+          "height": 27,
+          "width": 54,
+          "x": 422,
+          "y": 204
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Scan1.Scans"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Scan1_NoReadInput"
+        },
+        "position": {
+          "height": 27,
+          "width": 54,
+          "x": 476,
+          "y": 204
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Scan1.Noread"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Scan1_RateOutput"
+        },
+        "position": {
+          "height": 27,
+          "width": 54,
+          "x": 530,
+          "y": 204
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Scan1.Scans"
+              },
+              "transforms": [
+                {
+                  "code": "\ttry:\n\t\tnoread \u003d float(self.view.params.Scan1.Noread)\n\t\ttotal_scans \u003d float(value)\n\t\t\n\t\tif total_scans \u003d\u003d 0:\n\t\t    result \u003d 0.0\n\t\telse:\n\t\t    result \u003d 100 - (noread / total_scans) * 100\n\texcept ValueError:\n\t\tresult \u003d 0.0\n\t\t\n\t\t\n\treturn round(result,2)",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "FullLabel_0"
+        },
+        "position": {
+          "height": 27,
+          "width": 80,
+          "x": 334,
+          "y": 203
+        },
+        "props": {
+          "text": "Scan 1:",
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "full_time"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 503,
+          "y": 142
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "text": 0,
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "jam_time"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 503,
+          "y": 112
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "text": 0,
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Estop_time"
+        },
+        "position": {
+          "height": 27,
+          "width": 74,
+          "x": 503,
+          "y": 82
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "text": 0,
+          "textStyle": {
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": 63,
+      "y": 9
+    },
+    "props": {
+      "style": {
+        "classes": "Borders/borders"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

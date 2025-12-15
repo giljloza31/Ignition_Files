@@ -1,0 +1,740 @@
+{
+  "custom": {},
+  "params": {
+    "mode": "create",
+    "username": ""
+  },
+  "propConfig": {
+    "params.mode": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.username": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 475,
+      "width": 650
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 30,
+          "width": 200,
+          "x": 6.5,
+          "y": 30
+        },
+        "props": {
+          "style": {
+            "textAlign": "right"
+          },
+          "text": "Username:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 30,
+          "width": 200,
+          "x": 6.5,
+          "y": 60
+        },
+        "props": {
+          "style": {
+            "textAlign": "right"
+          },
+          "text": "First Name:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 30,
+          "width": 200,
+          "x": 6.5,
+          "y": 120
+        },
+        "props": {
+          "style": {
+            "textAlign": "right"
+          },
+          "text": "Email:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "height": 30,
+          "width": 200,
+          "x": 6.5,
+          "y": 90
+        },
+        "props": {
+          "style": {
+            "textAlign": "right"
+          },
+          "text": "Last Name:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "height": 30,
+          "width": 200,
+          "x": 6.5,
+          "y": 180
+        },
+        "props": {
+          "style": {
+            "textAlign": "right"
+          },
+          "text": "SMS:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_4"
+        },
+        "position": {
+          "height": 30,
+          "width": 200,
+          "x": 6.5,
+          "y": 150
+        },
+        "props": {
+          "style": {
+            "textAlign": "right"
+          },
+          "text": "Phone:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "invalidUser": false,
+          "userTaken": false
+        },
+        "meta": {
+          "name": "tbUserName"
+        },
+        "position": {
+          "height": 30,
+          "width": 250,
+          "x": 211.5,
+          "y": 30
+        },
+        "propConfig": {
+          "props.enabled": {
+            "binding": {
+              "config": {
+                "expression": "({view.params.mode} \u003d \"Create\")"
+              },
+              "type": "expr"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.username}"
+              },
+              "transforms": [
+                {
+                  "code": "\tif self.view.params.mode \u003d\u003d \"Edit\":\n\t\treturn value\n\telse:\n\t\treturn \"\"",
+                  "type": "script"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Username"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "Label_5"
+        },
+        "position": {
+          "height": 100,
+          "width": 200,
+          "x": 6.5,
+          "y": 210
+        },
+        "props": {
+          "style": {
+            "textAlign": "right"
+          },
+          "text": "Roles:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "tbFirstName"
+        },
+        "position": {
+          "height": 30,
+          "width": 250,
+          "x": 211.5,
+          "y": 60
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.username}"
+              },
+              "transforms": [
+                {
+                  "code": "\tif self.view.params.mode \u003d\u003d \"Edit\":\n\t\tuser \u003d system.user.getUser(\"default\", value)\n\t\tfirstName \u003d user.get(\"firstname\")\n\t\t\n\t\treturn firstName\n\telse:\n\t\treturn \"\"",
+                  "type": "script"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "First Name"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "tbLastName"
+        },
+        "position": {
+          "height": 30,
+          "width": 250,
+          "x": 211.5,
+          "y": 90
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.username}"
+              },
+              "transforms": [
+                {
+                  "code": "\tif self.view.params.mode \u003d\u003d \"Edit\":\n\t\tuser \u003d system.user.getUser(\"default\", value)\n\t\tlastName \u003d user.get(\"lastname\")\n\t\t\n\t\treturn lastName\n\telse:\n\t\treturn \"\"",
+                  "type": "script"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Last Name"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "tbEmail"
+        },
+        "position": {
+          "height": 30,
+          "width": 250,
+          "x": 211.5,
+          "y": 120
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.username}"
+              },
+              "transforms": [
+                {
+                  "code": "\temail\u003d \"\"\n\tif self.view.params.mode \u003d\u003d \"Edit\":\n\t\tuser \u003d system.user.getUser(\"default\", value)\n\t\tcontactStr \u003d user.getContactInfo()\n\t\tif contactStr:\n\t\t\tfor ci in contactStr:\n\t\t\t\tif ci.getContactType() \u003d\u003d \u0027email\u0027:\n\t\t\t\t\temail \u003d ci.getValue()\n\t\t\n\treturn email",
+                  "type": "script"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Email"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "tbPhone"
+        },
+        "position": {
+          "height": 30,
+          "width": 250,
+          "x": 211.5,
+          "y": 150
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.username"
+              },
+              "transforms": [
+                {
+                  "code": "\tphone \u003d \"\"\n\tif self.view.params.mode \u003d\u003d \"Edit\":\n\t\tuser \u003d system.user.getUser(\"default\", value)\n\t\tcontactStr \u003d user.getContactInfo()\n\t\tif contactStr:\n\t\t\tfor ci in contactStr:\n\t\t\t\tif ci.getContactType() \u003d\u003d \u0027phone\u0027:\n\t\t\t\t\tphone \u003d ci.getValue()\n\treturn phone",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Phone"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "tbSMS"
+        },
+        "position": {
+          "height": 30,
+          "width": 250,
+          "x": 211.5,
+          "y": 180
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.username"
+              },
+              "transforms": [
+                {
+                  "code": "\tsms \u003d \"\"\n\tif self.view.params.mode \u003d\u003d \"Edit\":\n\t\tuser \u003d system.user.getUser(\"default\", value)\n\t\tcontactStr \u003d user.getContactInfo()\n\t\tif contactStr:\n\t\t\tfor ci in contactStr:\n\t\t\t\tif ci.getContactType() \u003d\u003d \u0027sms\u0027:\n\t\t\t\t\tsms \u003d ci.getValue()\n\treturn sms",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "SMS"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "ddlRoles"
+        },
+        "position": {
+          "height": 100,
+          "width": 250,
+          "x": 211.5,
+          "y": 210
+        },
+        "propConfig": {
+          "props.options": {
+            "binding": {
+              "config": {
+                "path": "view.params.username"
+              },
+              "transforms": [
+                {
+                  "code": "\toptions \u003d []\n\troles \u003d system.user.getRoles(\"default\")\n\tfor role in roles:\n\t\toptions.append({\"value\":role,\"label\":role})\n\treturn options",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.value": {
+            "binding": {
+              "config": {
+                "path": "view.params.username"
+              },
+              "transforms": [
+                {
+                  "code": "\tif self.view.params.mode \u003d\u003d \"Edit\":\n\t\tuser \u003d system.user.getUser(\"default\", value)\n\t\trolesStr \u003d str(user.getRoles()).replace(\u0027[\u0027,\u0027\u0027).replace(\u0027]\u0027,\u0027\u0027)\n\t\troles \u003d []\n\t\tif rolesStr !\u003d \u0027\u0027:\n\t\t\tfor role in rolesStr.split(\u0027,\u0027):\n\t\t\t\troles.append(role)\n\t\telse:\n\t\t\treturn None\n\t\treturn roles\n\telse:\n\t\treturn \"\"",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "multiSelect": true
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\t################################################################################################################################################\n\t##################################################################REVISION HISTORY##############################################################\n\t################################################################################################################################################\n\t##REV\t\tDATE\t\t\tAUTHOR\t\t\t\t\t\t\tDESCRIPTION\n\t##--------\t--------\t\t---------------------------\t\t-------------------------------------------------------------------------------------\n\t##1.0.0\t\t10-Dec-2020\t\tJon Mohler - RoviSys\t\t\tInitial Script\n\t##1.1.0\t\t08-Aug-2021\t\tAlex Pritt - RoviSys\t\t\tImplementation of Inductive feedback\n\t##1.1.1\t\t18-Oct-2021\t\tAlex Pritt - RoviSys\t\t\tImplementation of additional feedback (bug fixes)\n\t##1.1.2\t    24-Oct-2021\t\tJustin Vaught - RoviSys \t\tEnabled deletion of contact info if a contact field is blanked out in edit dialog\n\t################################################################################################################################################\n\t\n\t####################################\n\t##CODE TO EDIT EXISTING USER\n\t####################################\n\tif self.view.params.mode \u003d\u003d \"Edit\":\n\t\t# Reset invalid user, username taken, and blank password bits on each instance open\n\t\tself.getSibling(\"tbUserName\").custom.invalidUser \u003d False\n\t\tself.getSibling(\"tbUserName\").custom.userTaken \u003d False\n\t\tself.getSibling(\"PasswordField\").custom.blankPassword \u003d False\n\t\n\t\t##Get User Info\n\t\tuser \u003d system.user.getUser(\"default\", str(self.view.params.username))\n\t\t##Update basic stuff\n\t\tusername \u003d self.getSibling(\"tbUserName\").props.text\n\t\tusernameCheck \u003d system.user.getUser(\"default\", str(username))\n\t\tisAlphanumeric \u003d username.isalnum()\n\t\t\n\t\tif usernameCheck and (self.view.params.username !\u003d username): # Check that username is same as current user being edited\n\t\t\tself.getSibling(\"tbUserName\").custom.userTaken \u003d True\n\t\t\t\n\t\tif not isAlphanumeric: # Check that username is alphanumeric\n\t\t\tself.getSibling(\"tbUserName\").custom.invalidUser \u003d True\n\t\t\t\n\t\tif not (self.getSibling(\"tbUserName\").custom.invalidUser) and not self.getSibling(\"tbUserName\").custom.userTaken:\n\t\t\tpasswordField \u003d self.getSibling(\"PasswordField\").props.text\n\t\t\tconfirmPasswordField \u003d self.getSibling(\"PasswordField_0\").props.text\n\t\t\tif (passwordField !\u003d \"\") and (confirmPasswordField !\u003d \"\") and (passwordField \u003d\u003d confirmPasswordField):\n\t\t\t\tself.getSibling(\"PasswordField\").custom.invalidPassword \u003d False\n\t\t\t\tself.getSibling(\"PasswordField\").custom.blankPassword \u003d False\n\t\t\t\tuser.set(\"password\", self.getSibling(\"PasswordField\").props.text)\n\t\t\telif passwordField \u003d\u003d \"\" and confirmPasswordField \u003d\u003d \"\":\n\t\t\t\tself.getSibling(\"PasswordField\").custom.blankPassword \u003d True\n\t\t\t\tself.getSibling(\"PasswordField\").custom.invalidPassword \u003d False\n\t\t\telse:\n\t\t\t\tself.getSibling(\"PasswordField\").custom.invalidPassword \u003d True\n\t\t\t\tself.getSibling(\"PasswordField\").custom.blankPassword \u003d False\n\t\t\t\t\n\t\t\tinvalidPassword \u003d self.getSibling(\"PasswordField\").custom.invalidPassword\n\t\t\tblankPassword \u003d self.getSibling(\"PasswordField\").custom.blankPassword\n\t\t\tinvalid \u003d self.getSibling(\"tbUserName\").custom.invalidUser\n\t\t\ttaken \u003d self.getSibling(\"tbUserName\").custom.userTaken\n\t\t\tchangePass \u003d self.getSibling(\"Checkbox\").props.selected\n\t\t\t# If passwords pass validation and match, can actually edit user\n\t\t\tif (not invalid and not taken) and ((not invalidPassword and not blankPassword) or (changePass \u003d\u003d False)):\n\t\t\t\tself.props.enabled \u003d True\n\t\t\t\tuser.set(\"username\", username)\n\t\t\t\tuser.set(\"firstname\", self.getSibling(\"tbFirstName\").props.text)\n\t\t\t\tuser.set(\"lastname\", self.getSibling(\"tbLastName\").props.text)\n\t\t\t\tself.getSibling(\"PasswordField\").custom.blankPassword \u003d False\n\t\t\t\t\n\t\t\t\t##Update or Add Contact Info\n\t\t\t\tformEmail \u003d self.getSibling(\"tbEmail\").props.text\n\t\t\t\tformSMS \u003d self.getSibling(\"tbSMS\").props.text\n\t\t\t\tformPhone \u003d self.getSibling(\"tbPhone\").props.text\n\t\t\t\t\t\t\t\t\t\n\t\t\t\tnewCI \u003d {}\n\t\t\t\tnewCI[\"email\"] \u003d formEmail\n\t\t\t\tnewCI[\"sms\"] \u003d formSMS\n\t\t\t\tnewCI[\"phone\"] \u003d formPhone\n\t\t\t\tfor info in user.contactInfo:\n\t\t\t\t\tif info.contactType in newCI:\n\t\t\t\t\t\tinfo.value \u003d newCI.pop(info.contactType)\n\t\t\t\tif newCI:\n\t\t\t\t\tuser.addContactInfo(newCI)\n\t\t\t\t\n\t\t\t\tif formEmail \u003d\u003d \"\":\n\t\t\t\t\tuser.removeContactInfo(\"email\", \"\")\n\t\t\t\tif formSMS \u003d\u003d \"\":\n\t\t\t\t\tuser.removeContactInfo(\"sms\", \"\")\n\t\t\t\tif formPhone \u003d\u003d \"\":\n\t\t\t\t\tuser.removeContactInfo(\"phone\", \"\")\t\t\t\t\n\t\t\t\t\n\t\t\t\t##Update Roles\n\t\t\t\tcurRoles \u003d user.getRoles()\n\t\t\t\tformRoles \u003d self.getSibling(\"ddlRoles\").props.value\n\t\t\t\t\n\t\t\t\t# First check there are any roles in the first place\n\t\t\t\tif formRoles is not None:\n\t\t\t\t\tif curRoles is not None:\n\t\t\t\t\t\t#Iterate over the roles that are selected\n\t\t\t\t\t\tfor role in formRoles:\n\t\t\t\t\t\t\t#If they\u0027re in the current roles, remove them, no changes needed\n\t\t\t\t\t\t\tif role in curRoles:\n\t\t\t\t\t\t\t\tcurRoles.remove(role)\n\t\t\t\t\t\t\t#Else, add that role to the user\n\t\t\t\t\t\t\telse:\n\t\t\t\t\t\t\t\tuser.addRole(role)\n\t\t\t\t\t\n\t\t\t\t#If there\u0027s anything left in curRoles, remove them from the user, they were deleted\n\t\t\t\tfor oldRole in curRoles:\n\t\t\t\t\tuser.removeRole(oldRole)\n\t\t\t\t\n\t\t\t\t# finally save the edits\n\t\t\t\tsystem.user.editUser(\"default\", user)\n\t\t\t\n\t\t\t\t##Send a message to the table to refresh its data binding, then exit\n\t\t\t\tsystem.perspective.sendMessage(\"refreshBinding\", payload \u003d {\"refreshUserTable\":\"true\"}, scope \u003d \"session\")\n\t\t\t\tsystem.perspective.sendMessage(\"deselectUser\", payload \u003d {\"deselectCurrentUser\":\"true\"}, scope \u003d \"session\")\n\t\t\t\tsystem.perspective.closePopup(\u0027\u0027)\n\t####################################\n\t##CODE TO ADD NEW USER\n\t####################################\n\telif self.view.params.mode \u003d\u003d \"Create\":\n\t\t# Reset invalid user, username taken, and blank password bits on each instance open\n\t\tself.getSibling(\"tbUserName\").custom.invalidUser \u003d False\n\t\tself.getSibling(\"tbUserName\").custom.userTaken \u003d False\n\t\tself.getSibling(\"PasswordField\").custom.blankPassword \u003d False\n\t\n\t\t# Get new user and set username\n\t\tusername \u003d self.getSibling(\"tbUserName\").props.text\n\t\tnewUser \u003d system.user.getNewUser(\"default\", username)\n\t\tusernameCheck \u003d system.user.getUser(\"default\", str(username))\n\t\tisAlphanumeric \u003d username.isalnum()\n\t\t\n\t\tif usernameCheck:  # Check that username is not already in use\n\t\t\tself.getSibling(\"tbUserName\").custom.userTaken \u003d True\n\t\t\t\n\t\tif not isAlphanumeric: # Check that username is alphanumeric\n\t\t\tself.getSibling(\"tbUserName\").custom.invalidUser \u003d True\n\t\t\t\n\t\tif not (self.getSibling(\"tbUserName\").custom.invalidUser) and not (self.getSibling(\"tbUserName\").custom.userTaken):\t\n\t\t\t#Set first and last name\n\t\t\tnewUser.set(\"firstname\", self.getSibling(\"tbFirstName\").props.text)\n\t\t\tnewUser.set(\"lastname\", self.getSibling(\"tbLastName\").props.text)\n\t\t\t#Add Contact Info\n\t\t\tformEmail \u003d self.getSibling(\"tbEmail\").props.text\n\t\t\tformSMS \u003d self.getSibling(\"tbSMS\").props.text\n\t\t\tformPhone \u003d self.getSibling(\"tbPhone\").props.text\n\t\t\tnewCI \u003d {}\n\t\t\tif formEmail:\n\t\t\t\tnewCI[\"email\"] \u003d formEmail\n\t\t\tif formSMS:\n\t\t\t\tnewCI[\"sms\"] \u003d formSMS\n\t\t\tif formPhone:\n\t\t\t\tnewCI[\"phone\"] \u003d formPhone\n\t\t\tnewUser.addContactInfo(newCI)\n\t\t\t\n\t\t\t# Password logic\n\t\t\tpasswordField \u003d self.getSibling(\"PasswordField\").props.text\n\t\t\tconfirmPasswordField \u003d self.getSibling(\"PasswordField_0\").props.text\n\t\t\tif (passwordField !\u003d \"\") and (confirmPasswordField !\u003d \"\") and (passwordField \u003d\u003d confirmPasswordField):\n\t\t\t\tself.getSibling(\"PasswordField\").custom.invalidPassword \u003d False\n\t\t\t\tself.getSibling(\"PasswordField\").custom.blankPassword \u003d False\n\t\t\t\tnewUser.set(\"password\", self.getSibling(\"PasswordField\").props.text)\n\t\t\telif passwordField \u003d\u003d \"\" and confirmPasswordField \u003d\u003d \"\":\n\t\t\t\tself.getSibling(\"PasswordField\").custom.blankPassword \u003d True\n\t\t\t\tself.getSibling(\"PasswordField\").custom.invalidPassword \u003d False\n\t\t\telse:\n\t\t\t\tself.getSibling(\"PasswordField\").custom.invalidPassword \u003d True\n\t\t\t\tself.getSibling(\"PasswordField\").custom.blankPassword \u003d False\n\t\t\t\n\t\t\t#Add Roles\n\t\t\t#Update Roles\n\t\t\tformRoles \u003d self.getSibling(\"ddlRoles\").props.value\n\t\t\t\n\t\t\t#Iterate over the roles that are selected\n\t\t\tfor role in formRoles:\n\t\t\t\tnewUser.addRole(role)\n\t\t\t\t\n\t\t\t#Finally Save the user\n\t\t\tinvalidPassword \u003d self.getSibling(\"PasswordField\").custom.invalidPassword\n\t\t\tblankPassword \u003d self.getSibling(\"PasswordField\").custom.blankPassword\n\t\t\tinvalid \u003d self.getSibling(\"tbUserName\").custom.invalidUser\n\t\t\ttaken \u003d self.getSibling(\"tbUserName\").custom.userTaken\n\t\t\tif not invalidPassword and not blankPassword and not invalid and not taken:\n\t\t\t\tsystem.user.addUser(\"default\", newUser)\n\t\n\t\t\t\t#Send a message to the table to refresh its data binding, then exit\n\t\t\t\tsystem.perspective.sendMessage(\"refreshBinding\", payload \u003d {\"refreshUserTable\":\"true\"}, scope \u003d \"session\")\n\t\t\t\tsystem.perspective.closePopup(\u0027\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 30,
+          "width": 400,
+          "x": 106.5,
+          "y": 415
+        },
+        "props": {
+          "text": "Save Changes and Exit"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label_6"
+        },
+        "position": {
+          "height": 30,
+          "width": 200,
+          "x": 6.5,
+          "y": 310
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "({view.params.mode} \u003d \"Create\") || ({view.params.mode} \u003d \"Edit\")"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "right"
+          },
+          "text": "Password:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_7"
+        },
+        "position": {
+          "height": 30,
+          "width": 200,
+          "x": 6.5,
+          "y": 340
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "({view.params.mode} \u003d \"Create\") || ({view.params.mode} \u003d \"Edit\")"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "right"
+          },
+          "text": "Repeat Password"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "blankPassword": false,
+          "invalidPassword": false
+        },
+        "meta": {
+          "name": "PasswordField"
+        },
+        "position": {
+          "height": 30,
+          "width": 279,
+          "x": 211.5,
+          "y": 310
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "({view.params.mode} \u003d \"Create\") || ({view.params.mode} \u003d \"Edit\")"
+              },
+              "type": "expr"
+            }
+          },
+          "props.enabled": {
+            "binding": {
+              "config": {
+                "expression": "({view.params.mode} \u003d \"Create\") || ({view.params.mode} \u003d \"Edit\" \u0026\u0026 {../Checkbox.props.selected} \u003d True)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Password"
+        },
+        "type": "ia.input.password-field"
+      },
+      {
+        "meta": {
+          "name": "PasswordField_0"
+        },
+        "position": {
+          "height": 30,
+          "width": 279,
+          "x": 211.5,
+          "y": 340
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "({view.params.mode} \u003d \"Create\") || ({view.params.mode} \u003d \"Edit\")"
+              },
+              "type": "expr"
+            }
+          },
+          "props.enabled": {
+            "binding": {
+              "config": {
+                "expression": "({view.params.mode} \u003d \"Create\") || ({view.params.mode} \u003d \"Edit\" \u0026\u0026 {../Checkbox.props.selected} \u003d True)"
+              },
+              "type": "expr"
+            }
+          },
+          "props.style.borderColor": {
+            "binding": {
+              "config": {
+                "expression": "{../PasswordField.props.text} \u003d {../PasswordField_0.props.text}"
+              },
+              "transforms": [
+                {
+                  "fallback": "#000000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "#808080"
+                    },
+                    {
+                      "input": false,
+                      "output": "#FF0000"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Repeat Password",
+          "style": {
+            "borderStyle": "solid"
+          }
+        },
+        "type": "ia.input.password-field"
+      },
+      {
+        "meta": {
+          "name": "Label_8"
+        },
+        "position": {
+          "height": 56,
+          "width": 105,
+          "x": 521,
+          "y": 310
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{../PasswordField.custom.invalidPassword} \u003d True"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "color": "#FF0000",
+            "fontSize": 12,
+            "textAlign": "center"
+          },
+          "text": "Passwords do not match"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_9"
+        },
+        "position": {
+          "height": 30,
+          "width": 180,
+          "x": 461,
+          "y": 30
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{../tbUserName.custom.userTaken} \u003d True"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "color": "#FF0000",
+            "fontSize": 12,
+            "textAlign": "Center"
+          },
+          "text": "Username already taken"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_10"
+        },
+        "position": {
+          "height": 82,
+          "width": 135,
+          "x": 506,
+          "y": 297
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{../PasswordField.custom.blankPassword} \u003d True"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "color": "#FF0000",
+            "fontSize": 12,
+            "textAlign": "center"
+          },
+          "text": "Password cannot be blank"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_11"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% -40%"
+          },
+          "width": 165,
+          "x": 461,
+          "y": 30
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{../tbUserName.custom.invalidUser} \u003d True"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "color": "#FF0000",
+            "fontSize": 12,
+            "textAlign": "Center"
+          },
+          "text": "Username must be alphanumeric"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\t# resetting password fields when enabling/disabling password change checkbox\n\tself.getSibling(\"PasswordField\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"PasswordField_0\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"Label_8\").meta.visible \u003d False\n\tself.getSibling(\"Label_10\").meta.visible \u003d False"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Checkbox"
+        },
+        "position": {
+          "height": 41,
+          "width": 167,
+          "x": 252.5,
+          "y": 370
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "({view.params.mode} \u003d \"Edit\")"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "text": "Change Password"
+        },
+        "type": "ia.input.checkbox"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,20 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+from eurosort.enums import ButtonID
+
+
+
+class SorterDataButtons(SorterDataBase):
+
+	@property
+	def button_id(self):
+		return self._javaObject.buttonID
+
+	@button_id.setter
+	def button_id(self, new_button_id):
+		self._javaObject.buttonID = self._coerce_enum(ButtonID, new_button_id)

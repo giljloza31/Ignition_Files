@@ -1,0 +1,44 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 1080,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "EmbeddedView"
+        },
+        "position": {
+          "size": "large"
+        },
+        "props": {
+          "path": "Main Views/TTI System/Breakout - Large View"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "EmbeddedView_0"
+        },
+        "props": {
+          "path": "Main Views/TTI System/Breakout - Small View v2",
+          "useDefaultViewHeight": true,
+          "useDefaultViewWidth": true
+        },
+        "type": "ia.display.view"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "breakpoint": 1200
+    },
+    "type": "ia.container.breakpt"
+  }
+}

@@ -1,0 +1,128 @@
+"""
+	Thread and thread pool context sampling
+	
+"""
+
+
+from shared.data.types.enum import Enum
+from shared.data.types.dictslots import DictSlotsMixin
+from shared.data.types.mixins import ImmutableDictMixin
+
+from shared.tools.monitoring.context.python.stacktrace import StackTrace as Python_StackTrace
+from shared.tools.monitoring.context.python.caller import PythonScriptContextProbe as Python_Contexts
+from shared.tools.monitoring.context.java.stacktrace import StackTrace as Java_StackTrace
+
+from shared.data.sample import TimedSampleFrame
+
+from shared.tools.thread import findThreads
+
+from random import shuffle
+import re
+
+
+__all__ = ['ThreadState', 'ThreadSnapshot', 'ThreadPoolSample']
+
+
+class ThreadState(Enum):
+	"""Enum to reduce memory allocated"""
+	NEW = 'new'
+	RUNNABLE = 'runnable'
+	BLOCKED = 'blocked'
+	WAITING = 'waiting'
+	TIMED_WAITING = 'timed_waiting'
+	TERMINATED = 'terminated'
+
+
+
+class ThreadSnapshot(
+		ImmutableDictMixin,
+		DictSlotsMixin,
+	):
+	__slots__ = ('name', 'state', 
+				 'priority', 'id', 'group', 'is_daemon',
+				 'python_stacktrace', 'java_stacktrace',
+				 'contexts',
+				)
+	
+	def __init__(self, java_thread):
+		self.id 	   = java_thread.getId()
+		self.name      = java_thread.getName()
+		self.state     = ThreadState[str(java_thread.getState())]
+
+		self.priority  = int(java_thread.getPriority())
+		self.is_daemon = java_thread.isDaemon()
+
+		self.group = None
+		self.java_stacktrace = None
+		self.python_stacktrace = None
+
+		# note that the Python frame is IN MOTION
+		# attempt to extract context, but know that it 
+		# MAY NOT correlate with the stack trace!
+		self.contexts = {}
+		
+		if self.state is not ThreadState.TERMINATED:
+			self.group = java_thread.getThreadGroup().getName()
+			if self.state is not ThreadState.NEW:
+				with Java_StackTrace(java_thread, with_raw=True) as java_stacktrace:
+					self.java_stacktrace = java_stacktrace
+				with Python_StackTrace(java_thread, with_raw=True) as python_stacktrace:
+					self.python_stacktrace = python_stacktrace
+					self.contexts.update(Python_Contexts(self.python_stacktrace))
+		
+		self.filter_entries()
+
+
+	def filter_entries(self):
+		self.java_stacktrace.filter_entries()
+		self.python_stacktrace.filter_entries()
+
+	def __repr__(self):
+		return '<TS %(name)s %(state)s>' % self
+
+
+
+class ThreadPoolSample(
+		TimedSampleFrame
+	):
+	"""Sample snapshots of all threads over a limited duration window.
+	
+	Usage example:
+	
+		with ThreadPoolSample() as population:
+			for sample in population:
+				pass
+	"""
+	DEFAULT_CAPTURE_THREAD_PATTERN_STRING = '.*'
+	
+	IGNORE_THREAD_PATTERN = re.compile(
+		# https://regex101.com/r/NGMxSC/2
+		r"""^(
+   		    DestroyJavaVM
+		  | IPC .+ Thread
+		 # | Chromium .+
+		)$""", re.I + re.X)
+		
+	def __init__(self, duration, thread_name_pattern=None):
+		if not thread_name_pattern:
+			thread_name_pattern = self.DEFAULT_CAPTURE_THREAD_PATTERN_STRING
+		self.capture_thread_pattern_string = re.compile(thread_name_pattern, re.I + re.X)
+		super(ThreadPoolSample, self).__init__(duration)
+		
+	
+	def gather_pool(self):
+		# gather all threads
+		threads = findThreads(self.capture_thread_pattern_string)
+		self._population_size = len(threads)
+		
+		shuffle(threads)
+		
+		for thread in threads:
+			thread_name = thread.getName()
+			
+			# skip any disallowed
+			if self.IGNORE_THREAD_PATTERN.match(thread_name):
+				continue
+			
+			yield ThreadSnapshot(thread)
+

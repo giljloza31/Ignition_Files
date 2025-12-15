@@ -1,0 +1,3 @@
+Select TOP( :Topvalue )*
+From  Tracking_Table 
+Order By  inductindx DESC

@@ -1,0 +1,16 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 20000,
+      "width": 20000
+    }
+  },
+  "root": {
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

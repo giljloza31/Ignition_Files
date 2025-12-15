@@ -1,0 +1,763 @@
+"""
+	Extraction utilities and supporting functions
+	
+	Some operations are used frequently or repeated enough to be factored out.
+	
+	Note that SQL can be used via the POORSQL_BINARY_PATH
+	  Download the binary from http://architectshack.com/PoorMansTSqlFormatter.ashx
+	  It's a phenominal utility that brilliantly normalizes SQL code.
+	  Have friends/coworkers/peers who missed an indent? This will prevent
+	  a diff utility from tripping up on that.
+"""
+
+
+import sys, os, shutil
+
+from shared.data.yaml.core import dump 
+from textwrap import dedent
+
+from array import array
+from java.util import Date, ArrayList, HashMap
+
+import re
+from ast import literal_eval
+
+# https://regex101.com/r/OY4foV/2
+JAVA_REPR_FORMAT = re.compile('(?P<class>[a-z0-9_.]+)(?P<variant>\$[a-z0-9_]+)?\[(?P<arguments>.+,?)+\]', re.I)
+
+
+from fnmatch import fnmatch as glob_match
+import re
+
+RE_FLAG_MAP = {
+	'i': re.IGNORECASE,
+	'l': re.LOCALE,
+	'm': re.MULTILINE,
+	's': re.DOTALL,
+	'u': re.UNICODE,
+	'x': re.VERBOSE,
+}
+# include upper case flagging
+for flag in RE_FLAG_MAP:
+	RE_FLAG_MAP[flag.upper()] = RE_FLAG_MAP[flag]
+
+def pattern_match(pattern, string, re_flags=0):
+	# regex starts and ends with a whack
+	if pattern.startswith('/'):
+		assert pattern.count('/') >= 2, 'Signal pattern is regex by using the following format: "/pattern/re.flags"'
+		pattern, _, flags = pattern[1:].rpartition('/')
+		return re.match(pattern, string, re_flags + sum(
+			RE_FLAG_MAP[flag] for flag in flags
+		)) is not None
+	else:
+		return glob_match(string, pattern)
+
+def pattern_filter(pattern, iterable, re_flags=0):
+	return [value 
+		for value 
+		in iterable 
+		if pattern_match(pattern, value, re_flags)
+	]
+
+
+
+# Taken from the Metatools library, copied here for convenience
+def getDesignerContext(anchor=None):
+	"""Attempts to grab the Ignition designer context.
+	This is most easily done with a Vision object, like a window.
+	If no object is provided as a starting point, it will attempt to 
+	  get one from the designer context.
+	"""
+	from com.inductiveautomation.ignition.designer import IgnitionDesigner
+
+	if anchor is None:
+		
+		try:
+			return IgnitionDesigner.getFrame().getContext()
+		except:
+			for windowName in system.gui.getWindowNames():
+				try:
+					anchor = system.gui.getWindow(windowName)
+					break
+				except:
+					pass
+			else:
+				raise LookupError("No open windows were found, so no context was derived by default.")
+			
+	try:
+		anchor = anchor.source
+	except AttributeError:
+		pass
+		# Just making sure we've a live object in the tree, not just an event object
+		
+	for i in range(50):
+		if anchor.parent is None: 
+			break
+		else:
+			anchor = anchor.parent
+			
+		if isinstance(anchor,IgnitionDesigner):
+			break
+	else:
+		raise RuntimeError("No Designer Context found in this object's heirarchy")
+		
+	context = anchor.getContext()
+	return context
+
+
+def prepare_repo(source, is_global=False, purge=True):	
+	project_name = '' if is_global else system.tag.read('[System]Client/System/ProjectName').value
+	# get config from git setup if enabled
+	if getProperty(source, 'Enable Git', 'selected'):
+		config = {
+			'semantic_path':     getProperty(source, 'Git Configuration', 'SemanticRepoPath'),
+			'artifact_path':     getProperty(source, 'Git Configuration', 'ArtifactRepoPath'),
+			'include_semantics': True, # no longer reasonably optional
+			'include_artifacts': True, # no longer reasonably optional
+			
+			'resource_type':      source.resource_type,			
+			'resource_type_path': source.resource_path,			
+			'project_name': project_name,
+		}
+	# otherwise just dump to a folder
+	else:
+		config = {
+			'semantic_subdirectory':     getProperty(source, 'Direct Configuration/Semantic Directory', 'text'),
+			'artifact_subdirectory':     getProperty(source, 'Direct Configuration/Artifact Directory', 'text'),
+
+			'semantic_path':     getProperty(source, 'Direct Configuration', 'SemanticPath'),
+			'artifact_path':     getProperty(source, 'Direct Configuration', 'ArtifactPath'),
+			'include_semantics': getProperty(source, 'Direct Configuration/Dump Semantics', 'selected'),
+			'include_artifacts': getProperty(source, 'Direct Configuration/Dump Artifacts', 'selected'),
+			
+			'resource_type':      source.resource_type,			
+			'resource_type_path': source.resource_path,			
+			'project_name': project_name,
+		}
+	
+	if project_name:
+		config['semantic_root'] = '%(semantic_path)s/%(project_name)s/%(resource_type_path)s' % config
+		config['artifact_root'] = '%(artifact_path)s/%(project_name)s/%(resource_type_path)s' % config
+	else:
+		config['semantic_root'] = '%(semantic_path)s/%(resource_type_path)s' % config
+		config['artifact_root'] = '%(artifact_path)s/%(resource_type_path)s' % config
+
+
+	# Purge for removal tracking
+	if config['include_semantics']:
+		purge_destination(config['semantic_root'])
+	if config['include_artifacts']:
+		purge_destination(config['artifact_root'])
+
+	return config
+
+def purge_destination(destination):
+	if not os.path.exists(destination):
+		return
+	if os.path.isdir(destination):
+		for subdir in os.listdir(destination):
+			# skip hidden files
+			if subdir.startswith('.'):
+				continue
+			target = destination + '/' + subdir
+			if os.path.isdir(target):
+				try:
+					shutil.rmtree(target)
+				except OSError:
+					print 'Target folder not completely purged - check for open files in "%s"' % target
+			else:
+				try:
+					os.remove(target)
+				except OSError:
+					print 'Target file not purged - check if open/locked "%s"' % target
+		shutil.rmtree(destination)
+	else:
+		os.remove(destination)
+
+
+from com.inductiveautomation.factorypmi.application import FPMIWindow
+
+def getRootContainer(component):
+	try:
+		while not isinstance(component.getParent().getParent().getParent(), FPMIWindow):
+			component = component.getParent()
+		assert component.getName() == 'Root Container'
+		return component
+	except:
+		return None
+
+
+def getProperty(component, path, property_name):
+	if not path.startswith('.'):
+		cursor = getRootContainer(component)
+	else:
+		cursor = component
+	if path.startswith('/'):
+		path = path[1:]
+		
+	for step in path.split('/'):
+		if step == '.':
+			pass
+		elif step == '..':
+			cursor = cursor.getParent()
+		else:
+			cursor = cursor.getComponent(step)
+	
+	if property_name in [str(prop) for prop in cursor.getProperties()]:
+		return cursor.getPropertyValue(property_name)
+	else:
+		return getattr(cursor, property_name)
+
+
+def setStatus(message='', status_component=None):
+	if status_component is None:
+		raise NotImplementedError('Status updates are not resolved to a thing yet...')
+
+	try:
+		message = (message or 'Awaiting work...')
+		if len(message) > 45:
+			message = '%s...%s' % (message[:25], message[-15:])
+		status_component.text = message
+#			status_component.text = '\n'.join(wrap(
+#				(message or 'Awaiting work...'),
+#				width=40,
+#				))
+	except:
+		pass
+
+
+# Poor SQL Formatter
+# It's GNU AFFERO GENERAL PUBLIC LICENSE Version 3
+#   so we *could* distribute it right here. But not everyone is Windows.
+# So instead the option is right here.
+SQL_FORMATTER_URL = 'http://architectshack.com/GetFile.aspx?Page=PoorMansTSqlFormatter&File=SqlFormatter.1.6.10.zip'
+SQL_FORMATTER_FILENAME = 'SqlFormatter.exe'
+SQL_FORMATTER_SIGNATURE = 'b4b3b52ba5ed0aeaa94e11089a517966b415752278eb9106157c1f4a8b86aa5d'
+
+
+def get_sql_formatter_binary(download_if_missing=False):
+	# binary not already buffered in temp dir - find and load
+	import re, os, zipfile, urlparse
+	from hashlib import sha256
+	
+	name = SQL_FORMATTER_FILENAME
+	signature = SQL_FORMATTER_SIGNATURE
+	binary = None
+
+	try:
+#		name, binary, signature = zip(*getProperty(self, '.', 'sqlFormatterBinary').data)[0]
+		bin_path = os.path.join(tempfile.gettempdir(), name)
+		if os.path.exists(bin_path):
+			file_pointer = open(jar, 'rb')
+			binary_data = file_pointer.read()
+			file_pointer.close()
+				
+			assert sha256(binary_data).hexdigest() == signature, 'Signature mismatch for %s - will not use untrustworthy files.' % name
+			return bin_path
+	except:
+		return None
+	
+	# https://regex101.com/r/Z87Ku4/2/
+	path_pattern = re.compile(r"""
+		^( (?P<url>https?://)
+		 | (?P<file>[a-z]:[/\\])
+		 | (?P<relpath>\.\.?[/\\])
+		 | (?P<nfs>//[a-z]+)
+		 | (?P<unknown>.) # eval'd last - catch-all
+		 )""", re.X + re.I)
+	
+	if not binary and download_if_missing:
+		binary = SQL_FORMATTER_URL
+	else:
+		return None
+		 
+	# Otherwise resolve the jar
+	ref_type = [t for t,v 
+				in path_pattern.match(binary).groupdict().items() 
+				if v is not None
+			   ][0]
+ 
+	if ref_type == 'url':
+		zip_data = urllib2.urlopen(binary).read()
+		
+		zip_path = os.path.join(tempfile.gettempdir(), name + '.zip')
+		zf_bin_ptr = open(zip_path, 'wb')
+		zf_bin_ptr.write(zip_data)
+		zf_bin_ptr.close()
+		
+		# grab the file from the zip
+		zf_ptr = zipfile.ZipFile(zip_path, 'r')
+		binary_data = zf_ptr.read(name)
+		zf_ptr.close()
+	elif ref_type in ('file', 'relpath', 'nfs'):
+		file_pointer = open(binary, 'rb')
+		binary_data = file_pointer.read()
+		file_pointer.close()
+	elif ref_type == 'unknown':
+		# Assume this is, in fact, a base 64 encoded payload
+		binary_data = base64.decode(binary)
+	else:
+		raise ValueError("Uh... what is this: %s" % ref_type)
+		
+	assert sha256(binary_data).hexdigest() == signature, 'Signature mismatch for %s - will not hotload untrustworthy files.' % name
+	
+	try:
+		file_pointer = open(bin_path, 'wb')
+		file_pointer.write(binary_data)
+	finally:
+		file_pointer.close()
+	
+	return bin_path
+	
+SQL_FORMATTER_BINARY_PATH = get_sql_formatter_binary()
+		
+# from https://stackoverflow.com/a/165662/13229100
+from subprocess import Popen, PIPE, STDOUT
+
+def format_sql(raw_sql):
+	"""Normalize the SQL so it is consistent for diffing"""
+	if not SQL_FORMATTER_BINARY_PATH:
+		return raw_sql
+		
+	try:			
+		sql_formatter = Popen(
+			[SQL_FORMATTER_BINARY_PATH,
+			], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+			
+		formatted = sql_formatter.communicate(input=raw_sql)[0]
+
+		# normalize (woo windows)
+		return formatted.replace('\r\n', '\n').strip()
+	except:
+		return raw_sql
+
+
+
+import java.awt.color.ICC_ColorSpace
+COLOR_SPACES = {
+    getattr(java.awt.color.ICC_ColorSpace, attr): attr.partition('_')[2]
+    for attr 
+    in dir(java.awt.color.ICC_ColorSpace) 
+    if attr.startswith('TYPE_') or attr.startswith('CS_')
+}
+
+import java.awt.Point, java.awt.Dimension, java.util.UUID
+
+BASE_TYPES = set([bool, float, int, long, None, str, unicode])
+
+COERSION_MAP = {
+	java.awt.Point: lambda v: {'x': v.getX(), 'y': v.getY()},
+	java.awt.Dimension: lambda v: {'width': v.getWidth(), 'height': v.getHeight()},
+	java.util.UUID: lambda v: str(v),
+	java.awt.color.ICC_ColorSpace: lambda v: COLOR_SPACES.get(v.getType(), v),
+	}
+
+
+def coerceValue(value, default=str):
+	if type(value) in BASE_TYPES:
+		return value
+	else:
+		return COERSION_MAP.get(type(value), default)(value)
+
+
+#ptd = propsetToDict = lambda ps: dict([(p.getName(), ps.get(p)) for p in ps.getProperties()])
+
+def propsetToDict(property_set, recurse=False, coersion=coerceValue, visited=None):
+	if visited is None: 
+		visited = set()
+	elif property_set in visited:
+		return None
+	
+	result_dict = {}
+	for prop in property_set.getProperties():
+		value = property_set.get(prop)
+		
+		if recurse and not type(value) in BASE_TYPES:
+			try:
+				deep = propsetToDict(value, recurse, coersion, visited)
+			except:
+				try:
+					deep = []
+					for element in value:
+						try:
+							deep.append(propsetToDict(element, recurse, coersion, visited))
+						except:
+							deep.append(coersion(element))
+				except:
+					deep = None
+			
+			if deep:
+				value = deep
+			else:
+				value = coersion(value)			
+		else:
+			value = coersion(value)
+		
+		result_dict[prop.getName()] = value
+	
+	return result_dict
+
+
+def hashmapToDict(hashmap):
+	return dict(
+		(key, hashmap.get(key))
+		for key in hashmap.keySet()
+		)
+
+
+def serializeToXML(obj, context=None):
+	if context is None:
+		context = getDesignerContext()
+	serializer = context.createSerializer()
+	serializer.addObject(obj)
+	return serializer.serializeXML()
+	
+
+def literal_eval_arg_string(argument_string):
+	result_list = []
+	result_dict = {}
+	for arg in argument_string.split(','):
+		arg = arg.strip()
+		if '=' in arg:
+			key, _, value = arg.partition('=')
+			try:
+				result_dict[key] = literal_eval(value)
+			except:
+				result_dict[key] = str(value)
+		else:
+			try:
+				result_list.append(literal_eval(arg))
+			except:
+				result_list.append(str(arg))
+	if result_dict and result_list:
+		return {
+			'args': result_list,
+			'keywords': result_dict,
+		}
+	elif len(result_list) == 1:
+		return result_list[0]
+	elif result_dict or result_list:
+		return result_list or result_dict
+	else:
+		return None
+
+
+from java.awt.geom import GeneralPath, AffineTransform, PathIterator
+from jarray import array as jarray
+
+def get_path_coords(someShape):
+    pathIterator = someShape.getPathIterator(AffineTransform())
+    coords = jarray([0]*6, 'd')
+    path = []
+    while not pathIterator.isDone():
+        # load in the current segment
+        pathIterator.currentSegment(coords)
+        path.append(tuple(coords))
+        pathIterator.next()        
+
+    by_column = list(zip(*path))
+
+    if not any(any(paracolumn) for paracolumn in by_column[2:]):
+        return tuple(zip(*by_column[:2]))
+    else:
+        return tuple(path)
+
+
+import java.awt.Color, java.awt.color.ColorSpace
+
+BASIC_GETTERS_WHITELIST = [
+	java.awt.Color
+]
+
+
+from array import array
+
+WHITELIST_ATTRDICT_CLASS_NAME_PATTERNS = set([
+    'java.awt.color.*',
+    'java.awt.geom.*',
+    r'/java\.awt.
+    'javax.swing.border.*',
+    'javax.swing.plaf.Border*',
+    'com.inductiveautomation.ignition.client.util.gui.paints.*',
+	'com.inductiveautomation.factorypmi.application.binding.*',
+])
+
+BLACKLIST_ATTRDICT_CLASS_NAME_PATTERNS = set([
+    r'/java\.awt\.color\.(?:\w+)ColorSpace/',
+    'java.awt.geom.GeneralPath', # handled specifically elsewhere
+])
+
+
+def gather_attribute_dict(thing, 
+						  ignorable_attributes=set(), 
+						  ignorable_default_values={},
+						  skip_type_for_class=True, # not backwards compatible now
+						  visited=None,
+						  allow_recursive_resolution=True,
+						  ):
+	config = {
+		'type': repr(thing)
+	}
+	
+	recursive_closure = lambda obj: gather_attribute_dict(obj, 
+			ignorable_attributes, ignorable_default_values, skip_type_for_class, 
+			visited, allow_recursive_resolution)
+	
+	# recursion safety valve
+	if visited is None:
+		visited = {}
+
+	try:
+		# duplicate?
+		if thing in visited:
+			# try to return the previously visited value
+			return visited[thing].copy()
+			# return {} # nothing more to resolve
+		else:
+			visited[thing] = config
+	except TypeError as error:
+		# unhashable things aren't java objects, since those always are hashable (their ID is used)
+		if not 'unhashable' in error.message:
+			raise error
+
+	# allow walking deeper into complex datastructures
+	if allow_recursive_resolution:
+		if isinstance(thing, (list, tuple, array)):
+			entries = []
+			for item in thing:
+				entry = recursive_closure(item)
+				if entry == {}:
+					continue
+				if len(entry) == 1 and 'type' in entry:
+					entry = stringify(item)
+				entries.append(entry)
+			return entries
+		
+	attributes = set(dir(thing))
+	for attribute in attributes:
+		if attribute in ignorable_attributes:
+			continue
+
+		if attribute == 'declaringClass':
+			continue # always skip this since we're already capturing it
+		
+		for prefix in ('get', 'is'):
+			getter_attribute = '%s%s%s' % (prefix, attribute[0].upper(), attribute[1:])
+			if not getter_attribute in attributes:
+				continue
+			
+			try:
+				value = getattr(thing, getter_attribute)()
+				
+				try:
+					ignore_value = ignorable_default_values[attribute]
+					if value == ignore_value:
+						continue
+					if isinstance(ignore_value, dict) or not isinstance(value, PyObject):
+						if stringify(value) == ignore_value:
+							continue
+				except KeyError:
+					pass
+
+				# allow walking deeper into complex datastructures
+				if allow_recursive_resolution:
+					if isinstance(value, (list, tuple, array)):
+						if isinstance(value, array) and value.typecode == 'b':
+							continue
+						entries = []
+						for item in value:
+							entry = recursive_closure(item)
+							if entry == {}:
+								continue
+							if len(entry) == 1 and 'type' in entry:
+								entry = stringify(item)
+							entries.append(entry)
+						value = entries
+					else:
+						type_name =str(type(value))[7:-2]
+						for pattern in WHITELIST_ATTRDICT_CLASS_NAME_PATTERNS:
+							if pattern_match(pattern, type_name):
+								for blacklist in BLACKLIST_ATTRDICT_CLASS_NAME_PATTERNS:
+									if pattern_match(blacklist, type_name):
+										break
+								else:
+									value = recursive_closure(value)
+								break
+				
+				# don't save nothing
+				if value == {}:
+					continue
+				
+				config[attribute] = value
+				
+			# skip errors - these are likely elements that need things on screen when called
+			except:
+				pass
+	
+	if 'class' in config and skip_type_for_class:
+		del config['type']
+	
+	if 'class' in config:
+		del config['class']
+	
+	return config
+
+
+from shared.tools.meta import PythonFunctionArguments
+
+def _extract_matching_kwargs(function, kwargs):
+	pfa = PythonFunctionArguments(function)
+	return dict(
+		(arg, kwargs[arg])
+		for arg 
+		in pfa.args
+		if arg in kwargs
+	)
+
+
+def read_basic_getters(obj):
+    values = {}
+    for attr in dir(obj):
+        match = re.match(r'(?P<verb>is|get)(?P<name>[A-Z]\w+)',attr)
+        if match:
+            try:
+                value = getattr(obj, attr)()
+                values[match.groupdict()['name']] = stringify(value)
+            except:
+                pass
+    return values
+
+
+from shared.tools.pretty import p as pretty_printer
+from com.inductiveautomation.ignition.common import BasicDataset
+from com.inductiveautomation.ignition.common.script.builtin.DatasetUtilities import PyDataSet
+
+#	PRETTY_PRINT_TYPES = (BasicDataset, PyDataSet)
+
+# https://regex101.com/r/OY4foV/2
+JAVA_REPR_FORMAT = re.compile('(?P<class>[a-z0-9_.]+)(?:\$(?P<variant>[a-z0-9_]+))?\[(?P<arguments>.+,?)+\]', re.I)
+
+
+def stringify(obj, visited=None, **kwargs):
+	if visited is None:
+		visited = set()
+	if id(obj) in visited:
+		return '<REFERENCE-LOOP on %r>' % (obj,)
+	visited.add(id(obj))
+	
+	if isinstance(obj, (str, unicode)):
+		if obj.startswith("<type '"):
+			match = JAVA_REPR_FORMAT.match(obj[7:-2])
+		else:
+			match = JAVA_REPR_FORMAT.match(obj)
+		if match:
+			tokenized = match.groupdict().copy()
+			arg_vals = literal_eval_arg_string(tokenized.pop('arguments'))
+			if isinstance(arg_vals, dict):
+				tokenized.update(arg_vals)
+			else:
+				tokenized['value'] = arg_vals
+			if tokenized['variant'] is None:
+				del tokenized['variant']
+			return stringify(tokenized, visited, **kwargs)
+		for pattern, substitution in kwargs.get('regex_substitutions', {}).items():
+			obj = pattern.sub(substitution, obj)
+		return str(obj).replace('\r\n', '\n')
+	elif isinstance(obj, (list, tuple, array, ArrayList)):
+		return [stringify(item, visited, **kwargs) for item in obj]
+	elif isinstance(obj, dict):
+		result = dict((str(key),stringify(value, visited, **kwargs)) 
+					  for key, value 
+					  in obj.items())
+		return dict((key,value) 
+					for key, value 
+					in result.items()
+					if  not kwargs.get('skip_keys',lambda x: False)(key)
+					and not kwargs.get('skip_values',lambda x: False)(value))
+	elif isinstance(obj, HashMap):
+		return stringify(hashmapToDict(obj), visited, **kwargs)
+	elif isinstance(obj, Date):
+		return str(obj.toInstant()) # get the ISO8601 format
+	elif isinstance(obj, (BasicDataset, PyDataSet)):
+		return system.dataset.toCSV(obj, forExport=True)
+#	elif isinstance(obj, PRETTY_PRINT_TYPES):
+#		try:
+#			return str(pretty_printer(obj, listLimit=20, nestedListLimit=10, directPrint=False))
+#		except:
+#			return "Error pretty printing %s" % (repr(obj)[:100],)
+	elif isinstance(obj, GeneralPath):
+		return stringify(get_path_coords(obj), visited, **kwargs)
+	elif type(obj) in COERSION_MAP:
+		return stringify(COERSION_MAP[type(obj)](obj), visited, **kwargs)
+	# coerce java and other objects
+	elif not isinstance(obj, (int, float, bool)):
+		if any(issubclass(type(obj), basic_type) for basic_type in BASIC_GETTERS_WHITELIST):
+			return read_basic_getters(obj)
+		else:
+			type_name =str(type(obj))[7:-2]
+			for pattern in WHITELIST_ATTRDICT_CLASS_NAME_PATTERNS:
+				if pattern_match(pattern, type_name):
+					for blacklist in BLACKLIST_ATTRDICT_CLASS_NAME_PATTERNS:
+						if pattern_match(blacklist, type_name):
+							break
+					else:
+						return stringify(gather_attribute_dict(obj, 
+											**_extract_matching_kwargs(gather_attribute_dict, kwargs)),
+										 visited, **kwargs)
+			
+			# otherwise, see if we can grab some context just from the repr
+			representation = repr(obj)
+			match = JAVA_REPR_FORMAT.match(representation)
+			if match:
+				tokenized = match.groupdict().copy()
+				arg_vals = literal_eval_arg_string(tokenized.pop('arguments'))
+				if isinstance(arg_vals, dict):
+					tokenized.update(arg_vals)
+				else:
+					tokenized['value'] = arg_vals
+				if tokenized['variant'] is None:
+					del tokenized['variant']
+				return stringify(tokenized, visited, **kwargs)
+			for simplifying_getter in kwargs.get('simplifying_getters', []):
+				try:
+					return stringify(getattr(obj, simplifying_getter)(), visited, **kwargs)
+				except:
+					pass
+			return stringify(representation, visited, **kwargs)
+	return obj
+
+
+def yamlEncode(obj, **stringify_kwargs):
+	return dump(stringify(obj, **stringify_kwargs), sort_keys=True, indent=4)
+
+
+def encode(obj, **stringify_kwargs):
+	"""
+	Encodes object in a serializing format. 
+	Returns tuple of serialization format's file extention and the serialized data.
+	"""
+	return '.yaml', yamlEncode(obj, **stringify_kwargs),
+#	return '.json', system.util.jsonEncode(obj, 2),
+
+
+def filter_none(some_dict):
+	return dict((key,value) 
+				for key,value 
+				in some_dict.items() 
+				if value is not None 
+				 and value not in ({},[]) )
+
+from com.inductiveautomation.ignition.common.xmlserialization import SerializationException
+		
+def getSerializationCauses(exception):
+	"""Many objects may not be able to deserialize if imported from an 
+	  Ignition instance with additional (but locally missing) modules.
+	
+	This will drag out some of the context in an easier to scan way.
+	"""
+	causes = []
+	while exception:
+		causes.append(exception)
+		exception = exception.getCause()
+	return causes
+		

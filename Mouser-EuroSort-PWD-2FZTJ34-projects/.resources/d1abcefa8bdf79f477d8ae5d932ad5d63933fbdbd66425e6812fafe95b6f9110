@@ -1,0 +1,3 @@
+SELECT *
+FROM  RedReceiving_Divert_Table
+Order By  Route_Code Asc

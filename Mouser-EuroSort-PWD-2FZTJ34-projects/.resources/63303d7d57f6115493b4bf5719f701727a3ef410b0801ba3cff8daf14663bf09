@@ -1,0 +1,3 @@
+Select Count(Route_Code) as Count
+From Scan16_Divert_Table
+Where Route_Code = :inVarRoute

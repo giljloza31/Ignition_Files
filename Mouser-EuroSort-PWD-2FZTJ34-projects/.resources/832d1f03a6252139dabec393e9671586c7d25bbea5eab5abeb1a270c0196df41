@@ -1,0 +1,123 @@
+from shared.tools.thread import async
+import system
+from time import time as _now, sleep
+from threading import RLock
+
+class Scheduler(object):
+	"""
+	Single-thread scheduler: register callables with periods (seconds).
+	Owns exactly one @async thread; all tasks run on this thread.
+	- add(fn, every_sec, run_immediately=False, catch_up=False) -> task_id
+	- add_once(delay_sec, fn) -> task_id
+	- remove(task_id) -> bool
+	- clear()
+	"""
+	def __init__(self, name='Sched', tick_resolution=0.05):
+		self._log   = system.util.getLogger(name)
+		self._name  = name
+		self._tick  = float(tick_resolution)  # loop sleep (sec)
+		self._tasks = {}                      # task_id -> [fn, period, next_due_ts, catch_up, one_shot, name]
+		self._running = False
+		self._lock = RLock()
+		self._next_id = 1
+
+	# backwards-friendly alias if you prefer the wording
+	append_task = None  # set after class definition
+
+	def _new_id(self):
+		with self._lock:
+			tid = self._next_id
+			self._next_id += 1
+			return tid
+
+	def add(self, fn, every_sec, run_immediately=False, catch_up=False, name=None):
+		"""
+		Register a repeating task.
+		- run_immediately=True: runs on next tick (next_due = now)
+		- catch_up=True: if the loop wakes up late, run task repeatedly until it catches up;
+		                 otherwise schedule next at now+period (skip backlog)
+		Returns task_id (int)
+		"""
+		now = _now()
+		next_due = now if run_immediately else now + float(every_sec)
+		task_id = self._new_id()
+		with self._lock:
+			self._tasks[task_id] = [fn, float(every_sec), next_due, bool(catch_up), False, (name or getattr(fn, '__name__', 'task'))]
+		return task_id
+
+	def add_once(self, delay_sec, fn, name=None):
+		"""Register a one-shot task to run once after delay_sec seconds. Returns task_id."""
+		now = _now()
+		task_id = self._new_id()
+		with self._lock:
+			self._tasks[task_id] = [fn, float(delay_sec), now + float(delay_sec), False, True, (name or getattr(fn, '__name__', 'task'))]
+		return task_id
+
+	def remove(self, task_id):
+		"""Cancel a scheduled task. Returns True if removed, False if not found."""
+		with self._lock:
+			return self._tasks.pop(task_id, None) is not None
+
+	def start(self):
+		if self._running:
+			return
+		self._running = True
+
+		@async(startDelaySeconds=0.0, name=self._name, ensureOnlyOne=True)
+		def _loop():
+			self._log.info('%s started' % self._name)
+			try:
+				while self._running:
+					now = _now()
+					with self._lock:
+						items = list(self._tasks.items())  # snapshot: [(task_id, [..]), ...]
+
+					for task_id, t in items:
+						fn, period, next_due, catch_up, one_shot, tname = t
+						if now >= next_due:
+							# run the task
+							try:
+								start_ts = _now()
+								fn()
+								elapsed = _now() - start_ts
+							except Exception as e:
+								self._log.warn('Task error in %s (%s): %s' % (tname, task_id, e))
+								elapsed = 0.0  # keep loop healthy
+
+							# compute next due
+							if one_shot:
+								# remove one-shots after run
+                                # (do it under lock to avoid races)
+								with self._lock:
+									self._tasks.pop(task_id, None)
+								continue
+
+							nxt = next_due
+							if catch_up:
+								# advance in fixed steps until strictly in the future
+								while nxt <= now:
+									nxt += period
+							else:
+								# fixed delay from *now* (skip backlog)
+								nxt = now + period
+
+							# write back next_due safely
+							with self._lock:
+								entry = self._tasks.get(task_id)
+								if entry is not None:
+									entry[2] = nxt
+
+					sleep(self._tick)
+			finally:
+				self._log.info('%s stopped' % self._name)
+		_loop()
+
+	def stop(self):
+		self._running = False
+
+	def clear(self):
+		with self._lock:
+			self._tasks.clear()
+
+# alias after class is defined
+Scheduler.append_task = Scheduler.add

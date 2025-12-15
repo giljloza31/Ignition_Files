@@ -1,0 +1,125 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 132,
+      "width": 384
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Dropdown"
+        },
+        "position": {
+          "height": 36,
+          "width": 171,
+          "x": 171,
+          "y": 31
+        },
+        "propConfig": {
+          "props.options": {
+            "binding": {
+              "config": {
+                "polling": {
+                  "enabled": true,
+                  "rate": "30"
+                },
+                "queryPath": "Route/Route_Table/Get_RoutesList"
+              },
+              "type": "query"
+            }
+          }
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 8,
+          "y": 33
+        },
+        "props": {
+          "text": "Select Route:",
+          "textStyle": {
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tRoute_code \u003d self.getSibling(\"Dropdown\").props.value\n\t\n\tsystem.db.runNamedQuery(\u0027Route/Route_Table/Delete_RouteTable\u0027,{\u0027inVarRoute\u0027:Route_code,\u0027inVarTableName\u0027:\u0027Divert_Table\u0027})\n\t\n\tsystem.perspective.closePopup(\u0027deleteroute\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 73,
+          "y": 85
+        },
+        "props": {
+          "text": "Delete"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "deleteroute",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/Delete_Route",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 199,
+          "y": 85
+        },
+        "props": {
+          "primary": false,
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

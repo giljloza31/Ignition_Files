@@ -1,0 +1,52 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+
+
+
+class SorterDataMisc(SorterDataBase):
+
+	
+	@property
+	def barcode(self):
+		return self._javaObject.barcode
+	
+	@barcode.setter
+	def barcode(self, new_barcode):
+		self._javaObject.barcode = new_barcode[:255]
+
+
+	@property
+	def barcodes(self):
+		# break up compound barcodes (strip in case of nonprintable whitespace or \r)
+		return [b.strip() for b in self.barcode.split(',')]
+
+	@barcodes.setter
+	def barcodes(self, new_barcodes):
+		if isinstance(new_barcodes, (str, unicode)):
+			self.barcode = new_barcodes
+		else: # assume iterable
+			self.barcode = ','.join(new_barcodes)
+
+	
+	@property
+	def location(self):
+		return self._javaObject.location
+
+	@location.setter
+	def location(self, new_location):
+		self._javaObject.location = new_location[:100]
+
+
+	@property
+	def recirculation_count(self):
+		return self._javaObject.recirculationCount
+
+	@recirculation_count.setter
+	def recirculation_count(self, new_recirculation_count):
+		assert new_recirculation_count >= 0, 'Recirc count starts at zero and increases. Does not uncirculate. Given: %r' % (new_recirculation_count,)
+		self._javaObject.recirculationCount = new_recirculation_count

@@ -1,0 +1,140 @@
+{
+  "custom": {},
+  "params": {
+    "Full_Cnt": "value",
+    "Induct_Cnt": "value",
+    "Jam_Cnt": "value"
+  },
+  "propConfig": {
+    "params.Full_Cnt": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Induct_Cnt": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Jam_Cnt": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 87,
+      "width": 34
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Induct_Cnt",
+          "tooltip": {
+            "enabled": true,
+            "text": "Induct_Cnt"
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 32
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Induct_Cnt"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 0.5
+          },
+          "textStyle": {
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Full_Cnt",
+          "tooltip": {
+            "enabled": true,
+            "text": "Full_Cnt"
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 32,
+          "y": 28
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Full_Cnt"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 0.5
+          },
+          "textStyle": {
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Jam_Cnt",
+          "tooltip": {
+            "enabled": true,
+            "text": "Jam_Cnt"
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 32,
+          "y": 56
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Jam_Cnt"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 0.5
+          },
+          "textStyle": {
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

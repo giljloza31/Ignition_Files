@@ -1,0 +1,59 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+raise DeprecationWarning('Module is being replaced by eurosort.tracking.wcs')
+
+from database.core import (
+	db_select_record,
+	db_select_records,
+	db_update_record,
+)
+
+import datetime
+from java.util import Date
+
+
+
+def wcs_timestamp(timestamp=None):
+	if timestamp is None:
+		timestamp = datetime.datetime.now()
+	return timestamp.strftime('%Y%m%d%H%M%S')
+
+
+
+def get_issue(barcode):
+	issue = db_select_record('pconsol_issues', {'ibn': barcode})
+	if not issue:
+		return None
+	return issue
+
+
+def get_order_from_issue(issue):
+	order = db_select_record('pconsol_orders', {'order': issue['order']})
+	if not order:
+		return None
+	return order
+
+
+def get_line_from_issue(issue):
+	line = db_select_record('pconsol_lines', {'order': issue['order']})
+	if not line:
+		return None
+	return line
+
+
+#def get_wcs_location_occupied(wcs_location):
+#	return 
+
+
+def set_wcs_location_occupied(wcs_location, is_occupied=True):
+	_ = db_update_record('eurosort_location_info', dict(
+		wcs_location = wcs_location,
+		is_occupied  = is_occupied,
+		last_updated_timestamp = Date(),
+		last_updated_by = 'Ignition',
+	), ['wcs_location'])
+

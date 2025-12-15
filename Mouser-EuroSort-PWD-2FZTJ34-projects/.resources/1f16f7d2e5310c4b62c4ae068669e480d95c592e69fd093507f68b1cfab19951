@@ -1,0 +1,973 @@
+{
+  "custom": {},
+  "params": {
+    "AlarmStatus": 0,
+    "Horn_Active": true,
+    "Horn_Silent": false,
+    "Light_1": false,
+    "Light_2": true,
+    "Light_3": true,
+    "Light_4": true,
+    "Light_5": true,
+    "Silent_Horn_PB": false
+  },
+  "propConfig": {
+    "params.AlarmStatus": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Horn_Active": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Horn_Silent": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Light_1": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Light_2": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Light_3": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Light_4": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Light_5": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Silent_Horn_PB": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 199,
+      "width": 107
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Black"
+        },
+        "position": {
+          "height": 20,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 22,
+          "x": 42.5,
+          "y": 72.007
+        },
+        "propConfig": {
+          "custom.ColorLight": {
+            "binding": {
+              "config": {
+                "path": "view.params.Light_1"
+              },
+              "transforms": [
+                {
+                  "code": "\tColors \u003d {\n\t\"Black\":\u0027#000000\u0027,\n\t\"BlueDark\":\u0027#0000AC\u0027,\n\t\"BlueLight\":\u0027#0090FF\u0027,\n\t\"GreenDark\":\u0027#008000\u0027,\n\t\"GreenLight\":\u0027#8AFF8A\u0027,\n\t\"RedDark\":\u0027#800000\u0027,\n\t\"RedLight\":\u0027#FF4747\u0027,\n\t\"YellowDark\":\u0027#ACAC00\u0027,\n\t\"YellowLight\":\u0027#FFFF47\u0027\n\t}\n\t\n\tcolorLight \u003d self.meta.name\n\t\n\tif colorLight \u003d\u003d \"Black\":\n\t\treturn Colors.get(\"Black\",\u0027#000000\u0027)\n\telse:\n\t\t\n\t\tif value:\n\t\t\t\n\t\t\treturn Colors.get(\u0027%sLight\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\n\t\telse:\n\t\t\n\t\t\treturn Colors.get(\u0027%sDark\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\t\n\t\t\n\t",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ColorLight"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "fill": {},
+                  "name": "polygon",
+                  "points": "14.9 .12 307.85 .12 308.6 184 322.67 184 322.67 235.61 .76 235.61 .13 185.11 14.53 185.11 14.9 .12",
+                  "stroke": {
+                    "miterlimit": "10",
+                    "paint": "#010101",
+                    "width": "15px"
+                  },
+                  "style": {
+                    "classes": ""
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 322.8 235.73"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Green"
+        },
+        "position": {
+          "height": 20,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 22,
+          "x": 42.5,
+          "y": 57.007
+        },
+        "propConfig": {
+          "custom.ColorLight": {
+            "binding": {
+              "config": {
+                "path": "view.params.Light_2"
+              },
+              "transforms": [
+                {
+                  "code": "\tColors \u003d {\n\t\"Black\":\u0027#000000\u0027,\n\t\"BlueDark\":\u0027#0000AC\u0027,\n\t\"BlueLight\":\u0027#0090FF\u0027,\n\t\"GreenDark\":\u0027#008000\u0027,\n\t\"GreenLight\":\u0027#8AFF8A\u0027,\n\t\"RedDark\":\u0027#800000\u0027,\n\t\"RedLight\":\u0027#FF4747\u0027,\n\t\"YellowDark\":\u0027#ACAC00\u0027,\n\t\"YellowLight\":\u0027#FFFF47\u0027\n\t}\n\t\n\tcolorLight \u003d self.meta.name\n\t\n\tif colorLight \u003d\u003d \"Black\":\n\t\treturn Colors.get(\"Black\",\u0027#000000\u0027)\n\telse:\n\t\t\n\t\tif value:\n\t\t\t\n\t\t\treturn Colors.get(\u0027%sLight\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\n\t\telse:\n\t\t\n\t\t\treturn Colors.get(\u0027%sDark\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\t\n\t\t\n\t",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ColorLight"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "fill": {},
+                  "name": "polygon",
+                  "points": "14.9 .12 307.85 .12 308.6 184 322.67 184 322.67 235.61 .76 235.61 .13 185.11 14.53 185.11 14.9 .12",
+                  "stroke": {
+                    "miterlimit": "10",
+                    "paint": "#010101",
+                    "width": "15px"
+                  },
+                  "style": {
+                    "classes": ""
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 322.8 235.73"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "LightStack_Base"
+        },
+        "position": {
+          "height": 18,
+          "width": 20,
+          "x": 43.5,
+          "y": 89.587
+        },
+        "props": {
+          "elements": [
+            {
+              "name": "defs",
+              "type": "defs"
+            },
+            {
+              "elements": [
+                {
+                  "fill": {
+                    "paint": "#939598"
+                  },
+                  "height": "245.67",
+                  "name": "rect",
+                  "style": {
+                    "classes": ""
+                  },
+                  "type": "rect",
+                  "width": "101.67",
+                  "x": "97.56",
+                  "y": "71.98"
+                },
+                {
+                  "d": "m.12.12h293.09v71.83c0,4.37-3.55,7.92-7.92,7.92H6.68c-3.62,0-6.55-2.94-6.55-6.55V.12H.12Z",
+                  "fill": {
+                    "paint": "#231f20"
+                  },
+                  "name": "path",
+                  "style": {
+                    "classes": ""
+                  },
+                  "type": "path"
+                },
+                {
+                  "d": "m.13,302.03h293.09v7.69c0,4.37-3.55,7.92-7.92,7.92H6.68c-3.62,0-6.55-2.94-6.55-6.55v-9.06H.13Z",
+                  "fill": {
+                    "paint": "#231f20"
+                  },
+                  "name": "path",
+                  "style": {
+                    "classes": ""
+                  },
+                  "transform": "translate(293.34 619.68) rotate(180)",
+                  "type": "path"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 293.34 317.77"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "AudioAlarm_0"
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "angle": 180
+          },
+          "width": 19,
+          "x": 65.1,
+          "y": 65.6
+        },
+        "propConfig": {
+          "custom.AlarmActive": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Active"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "this.custom.AlarmActive"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "name": "defs",
+              "type": "defs"
+            },
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "d": "m74.15,147.63c-17.41-16.3-18.87-50-2.9-67.06l2.11,8.9c-11.38,12.15-9.98,36.5,2.78,48.44l-1.99,9.73Z",
+                      "fill": {
+                        "paint": "#000000"
+                      },
+                      "name": "path",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#010101",
+                        "width": ".25px"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "path"
+                    },
+                    {
+                      "d": "m70.18,169.83c-28.17-26.37-31.13-80.25-5.88-107.22l3.54,14.25c-17.98,19.21-15.3,58.13,5.34,77.46l-3,15.51Z",
+                      "fill": {
+                        "paint": "#000000"
+                      },
+                      "name": "path",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#010101",
+                        "width": ".25px"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "path"
+                    },
+                    {
+                      "d": "m62.1,203.74c-43-40.26-46.21-123.9-6.39-166.43l5.12,22.06c-28.37,30.3-25.2,90.71,6.31,120.21l-5.04,24.17Z",
+                      "fill": {
+                        "paint": "#000000"
+                      },
+                      "name": "path",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#010101",
+                        "width": ".25px"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "path"
+                    },
+                    {
+                      "d": "m46.93,245.22C-14.48,187.72-15.66,64.62,44.59.26l6.58,32.28c-42.92,45.85-40.82,134.72,4.19,176.85l-8.42,35.82Z",
+                      "fill": {
+                        "paint": "#000000"
+                      },
+                      "name": "path",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#010101",
+                        "width": ".25px"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "path"
+                    }
+                  ],
+                  "name": "group",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 76.27 245.46"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Mute_Bar_0"
+        },
+        "position": {
+          "height": 19,
+          "rotate": {
+            "angle": 90
+          },
+          "width": 22,
+          "x": 64.7,
+          "y": 69.6
+        },
+        "propConfig": {
+          "custom.HornSilent": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Silent"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Silent"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "fill": {
+                    "paint": "#000000"
+                  },
+                  "height": "9.91",
+                  "name": "rect",
+                  "stroke": {
+                    "miterlimit": "10",
+                    "paint": "#010101",
+                    "width": "25px"
+                  },
+                  "style": {
+                    "classes": ""
+                  },
+                  "transform": "translate(89.04 -8.16) rotate(57.38)",
+                  "type": "rect",
+                  "width": "176.72",
+                  "x": "-36.39",
+                  "y": "72.31"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 103.95 154.54"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Mute_Bar_1"
+        },
+        "position": {
+          "height": 19,
+          "rotate": {
+            "angle": 155
+          },
+          "width": 22,
+          "x": 17.6,
+          "y": 69.2039
+        },
+        "propConfig": {
+          "custom.HornSilent": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Silent"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Silent"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "fill": {
+                    "paint": "#000000"
+                  },
+                  "height": "9.91",
+                  "name": "rect",
+                  "stroke": {
+                    "miterlimit": "10",
+                    "paint": "#010101",
+                    "width": "25px"
+                  },
+                  "style": {
+                    "classes": ""
+                  },
+                  "transform": "translate(89.04 -8.16) rotate(57.38)",
+                  "type": "rect",
+                  "width": "176.72",
+                  "x": "-36.39",
+                  "y": "72.31"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 103.95 154.54"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "AudioAlarm_1"
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "angle": 0
+          },
+          "width": 19,
+          "x": 20.5,
+          "y": 65
+        },
+        "propConfig": {
+          "custom.AlarmActive": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Active"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "this.custom.AlarmActive"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "name": "defs",
+              "type": "defs"
+            },
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "d": "m74.15,147.63c-17.41-16.3-18.87-50-2.9-67.06l2.11,8.9c-11.38,12.15-9.98,36.5,2.78,48.44l-1.99,9.73Z",
+                      "fill": {
+                        "paint": "#000000"
+                      },
+                      "name": "path",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#010101",
+                        "width": ".25px"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "path"
+                    },
+                    {
+                      "d": "m70.18,169.83c-28.17-26.37-31.13-80.25-5.88-107.22l3.54,14.25c-17.98,19.21-15.3,58.13,5.34,77.46l-3,15.51Z",
+                      "fill": {
+                        "paint": "#000000"
+                      },
+                      "name": "path",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#010101",
+                        "width": ".25px"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "path"
+                    },
+                    {
+                      "d": "m62.1,203.74c-43-40.26-46.21-123.9-6.39-166.43l5.12,22.06c-28.37,30.3-25.2,90.71,6.31,120.21l-5.04,24.17Z",
+                      "fill": {
+                        "paint": "#000000"
+                      },
+                      "name": "path",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#010101",
+                        "width": ".25px"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "path"
+                    },
+                    {
+                      "d": "m46.93,245.22C-14.48,187.72-15.66,64.62,44.59.26l6.58,32.28c-42.92,45.85-40.82,134.72,4.19,176.85l-8.42,35.82Z",
+                      "fill": {
+                        "paint": "#000000"
+                      },
+                      "name": "path",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#010101",
+                        "width": ".25px"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "path"
+                    }
+                  ],
+                  "name": "group",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 76.27 245.46"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 44,
+          "rotate": {
+            "anchor": "25% 25%"
+          },
+          "width": 105,
+          "x": 0.5,
+          "y": 153.58
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.AlarmStatus"
+              },
+              "transforms": [
+                {
+                  "code": "\tstatus \u003d {\n\t0:\u0027 \u0027,\n\t1:\u0027Recirculation Jam\u0027,\n\t2:\u0027Sorter Jam\u0027,\n\t3:\u0027Sorter Induct Jam\u0027,\n\t4:\u0027Recirculation Merge Jam\u0027,\n\t5:\u0027 \u0027,\n\t6:\u0027 \u0027,\n\t7:\u0027System Fault\u0027,\n\t8:\u0027EStop Active\u0027\n\t}\n\t\n\treturn status.get(value,\u0027Unknown\u0027)",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "overflowWrap": "break-word",
+            "textAlign": "center",
+            "textOverflow": "clip"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Yellow"
+        },
+        "position": {
+          "height": 20,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 22,
+          "x": 42.5,
+          "y": 41.007
+        },
+        "propConfig": {
+          "custom.ColorLight": {
+            "binding": {
+              "config": {
+                "path": "view.params.Light_3"
+              },
+              "transforms": [
+                {
+                  "code": "\tColors \u003d {\n\t\"Black\":\u0027#000000\u0027,\n\t\"BlueDark\":\u0027#0000AC\u0027,\n\t\"BlueLight\":\u0027#0090FF\u0027,\n\t\"GreenDark\":\u0027#008000\u0027,\n\t\"GreenLight\":\u0027#8AFF8A\u0027,\n\t\"RedDark\":\u0027#800000\u0027,\n\t\"RedLight\":\u0027#FF4747\u0027,\n\t\"YellowDark\":\u0027#ACAC00\u0027,\n\t\"YellowLight\":\u0027#FFFF47\u0027\n\t}\n\t\n\tcolorLight \u003d self.meta.name\n\t\n\tif colorLight \u003d\u003d \"Black\":\n\t\treturn Colors.get(\"Black\",\u0027#000000\u0027)\n\telse:\n\t\t\n\t\tif value:\n\t\t\t\n\t\t\treturn Colors.get(\u0027%sLight\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\n\t\telse:\n\t\t\n\t\t\treturn Colors.get(\u0027%sDark\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\t\n\t\t\n\t",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ColorLight"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "fill": {},
+                  "name": "polygon",
+                  "points": "14.9 .12 307.85 .12 308.6 184 322.67 184 322.67 235.61 .76 235.61 .13 185.11 14.53 185.11 14.9 .12",
+                  "stroke": {
+                    "miterlimit": "10",
+                    "paint": "#010101",
+                    "width": "15px"
+                  },
+                  "style": {
+                    "classes": ""
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 322.8 235.73"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Red"
+        },
+        "position": {
+          "height": 20,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 22,
+          "x": 42.5,
+          "y": 25.007
+        },
+        "propConfig": {
+          "custom.ColorLight": {
+            "binding": {
+              "config": {
+                "path": "view.params.Light_4"
+              },
+              "transforms": [
+                {
+                  "code": "\tColors \u003d {\n\t\"Black\":\u0027#000000\u0027,\n\t\"BlueDark\":\u0027#0000AC\u0027,\n\t\"BlueLight\":\u0027#0090FF\u0027,\n\t\"GreenDark\":\u0027#008000\u0027,\n\t\"GreenLight\":\u0027#8AFF8A\u0027,\n\t\"RedDark\":\u0027#800000\u0027,\n\t\"RedLight\":\u0027#FF4747\u0027,\n\t\"YellowDark\":\u0027#ACAC00\u0027,\n\t\"YellowLight\":\u0027#FFFF47\u0027\n\t}\n\t\n\tcolorLight \u003d self.meta.name\n\t\n\tif colorLight \u003d\u003d \"Black\":\n\t\treturn Colors.get(\"Black\",\u0027#000000\u0027)\n\telse:\n\t\t\n\t\tif value:\n\t\t\t\n\t\t\treturn Colors.get(\u0027%sLight\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\n\t\telse:\n\t\t\n\t\t\treturn Colors.get(\u0027%sDark\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\t\n\t\t\n\t",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ColorLight"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "fill": {},
+                  "name": "polygon",
+                  "points": "14.9 .12 307.85 .12 308.6 184 322.67 184 322.67 235.61 .76 235.61 .13 185.11 14.53 185.11 14.9 .12",
+                  "stroke": {
+                    "miterlimit": "10",
+                    "paint": "#010101",
+                    "width": "15px"
+                  },
+                  "style": {
+                    "classes": ""
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 322.8 235.73"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Blue"
+        },
+        "position": {
+          "height": 20,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 22,
+          "x": 42.5,
+          "y": 9.007
+        },
+        "propConfig": {
+          "custom.ColorLight": {
+            "binding": {
+              "config": {
+                "path": "view.params.Light_5"
+              },
+              "transforms": [
+                {
+                  "code": "\tColors \u003d {\n\t\"Black\":\u0027#000000\u0027,\n\t\"BlueDark\":\u0027#0000AC\u0027,\n\t\"BlueLight\":\u0027#0090FF\u0027,\n\t\"GreenDark\":\u0027#008000\u0027,\n\t\"GreenLight\":\u0027#8AFF8A\u0027,\n\t\"RedDark\":\u0027#800000\u0027,\n\t\"RedLight\":\u0027#FF4747\u0027,\n\t\"YellowDark\":\u0027#ACAC00\u0027,\n\t\"YellowLight\":\u0027#FFFF47\u0027\n\t}\n\t\n\tcolorLight \u003d self.meta.name\n\t\n\tif colorLight \u003d\u003d \"Black\":\n\t\treturn Colors.get(\"Black\",\u0027#000000\u0027)\n\telse:\n\t\t\n\t\tif value:\n\t\t\t\n\t\t\treturn Colors.get(\u0027%sLight\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\n\t\telse:\n\t\t\n\t\t\treturn Colors.get(\u0027%sDark\u0027%(colorLight),\u0027#FFFFFF\u0027)\n\t\t\t\n\t\t\n\t",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ColorLight"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "fill": {},
+                  "name": "polygon",
+                  "points": "14.9 .12 307.85 .12 308.6 184 322.67 184 322.67 235.61 .76 235.61 .13 185.11 14.53 185.11 14.9 .12",
+                  "stroke": {
+                    "miterlimit": "10",
+                    "paint": "#010101",
+                    "width": "15px"
+                  },
+                  "style": {
+                    "classes": ""
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 322.8 235.73"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\t\n\tself.view.params.Silent_Horn_PB \u003d True\n\t\n\t\n\tsleep(1)\n\t\n\t\n\tself.view.params.Silent_Horn_PB \u003d False\n\n\t\t\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34.000000000000014,
+          "width": 100,
+          "x": 2.5,
+          "y": 115.58
+        },
+        "propConfig": {
+          "custom.AlarmActive": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Active"
+              },
+              "type": "property"
+            }
+          },
+          "custom.BlueFlashing": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Colors_Flashing.Blue"
+              },
+              "type": "tag"
+            }
+          },
+          "custom.ButtonColor": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.Horn_Silent}\u003dtrue,{this.custom.BlueFlashing},\u0027#0C7BB3\u0027)"
+              },
+              "type": "expr"
+            }
+          },
+          "custom.SilenceAlarm": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Silent"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "this.custom.AlarmActive"
+              },
+              "type": "property"
+            }
+          },
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ButtonColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.SilenceAlarm"
+              },
+              "transforms": [
+                {
+                  "fallback": "Unknown",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "Horn Silent"
+                    },
+                    {
+                      "input": false,
+                      "output": "Silence Horn"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "color": "#0C7BB3"
+            }
+          },
+          "textStyle": {
+            "color": "#000000"
+          }
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

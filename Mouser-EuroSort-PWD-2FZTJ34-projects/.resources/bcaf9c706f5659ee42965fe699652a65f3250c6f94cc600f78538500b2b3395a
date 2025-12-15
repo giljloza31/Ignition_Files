@@ -1,0 +1,473 @@
+from shared.data.types.adhoc import AdHocObject
+from shared.tools.global import ExtraGlobal
+from database.records.mongodb import select_record, update_record
+import system, re
+from threading import RLock
+# ==============================
+# Tote root accessors (per owner)
+# ==============================
+TOTE_SCOPE_KEY = 'totes'  # per-owner -> {tote_code -> tote_info}
+SERVICE_SCOPE   = 'Sort-Service'   # top-level ExtraGlobal scope where we stash per-owner maps
+# Time constants (in seconds)
+YEAR  = 365 * 24 * 60 * 60
+MONTH = 30 * 24 * 60 * 60
+WEEK  = 7 * 24 * 60 * 60
+DAY   = 24 * 60 * 60
+HOUR  = 60 * 60
+MIN   = 60
+SEC   = 1
+
+
+def define_time(period_dict):
+	time_map = {
+		'year':  YEAR,
+		'month': MONTH,
+		'week':  WEEK,
+		'day':   DAY,
+		'hour':  HOUR,
+		'min':   MIN,
+		'sec':   SEC,
+	}
+	total_seconds = 0
+	for value, unit in period_dict.items():
+		# value = numeric amount, unit = string like "hour"
+		total_seconds += value * time_map.get(str(unit).lower(), 0)
+	return total_seconds
+
+
+# Keep routers in EG for a long time (effectively until gateway restart)
+lifespan_duration = define_time({1: "day"})
+LIFESPAN = lifespan_duration
+# ==============================
+# Mongo / history configuration
+# ==============================
+MONGODB                  = "MongoWCS"
+TOTE_HISTORY_COLLECTION  = "consol_tote_tracking_logs"
+
+
+# ==============================
+# Tote helpers / configuration
+# ==============================
+TOTE_PREFIX = 'ST'
+_TOTE_RE    = re.compile(r'^ST(\d{4})$')
+def eg_set(owner, key, value, lifespan=None):
+	"""
+	Stash (persist) a value for this owner.
+	We isolate each owner's data under SERVICE_SCOPE plus an owner-specific label.
+	"""
+	label = '%s.%s' % (owner, key)
+	if lifespan is None:
+		return ExtraGlobal.stash(value, label=label, scope=SERVICE_SCOPE)
+	return ExtraGlobal.stash(value, label=label, scope=SERVICE_SCOPE, lifespan=lifespan)
+
+def eg_get(owner, key, default=None):
+	label = '%s.%s' % (owner, key)
+	return ExtraGlobal.get(label, scope=SERVICE_SCOPE, default=default)
+
+def eg_del(owner, key):
+	label = '%s.%s' % (owner, key)
+	try:
+		ExtraGlobal.trash(label, scope=SERVICE_SCOPE)
+	except Exception:
+		pass
+
+
+def _now():
+	"""Return current time as Ignition Date if available; else Python datetime."""
+	try:
+		if hasattr(system, 'date') and hasattr(system.date, 'now'):
+			return system.date.now()
+	except Exception:
+		pass
+	return datetime.now()
+
+def _format_tote_id(num):
+	"""
+	Convert int -> tote string.
+	Example: 1 -> 'ST000001'
+	"""
+	n = int(num)
+	return '%s%06d' % (TOTE_PREFIX, n)
+
+
+def _coerce_tote_code(tote_code):
+	"""
+	Normalize tote code:
+	- Accepts 'ST000123'
+	- Accepts bare int or numeric string, e.g. 123 or '123' -> 'ST000123'
+	- Always returns uppercase 'ST######'
+	"""
+	s = str(tote_code).strip().upper()
+	if not s:
+		raise ValueError('tote_code required')
+
+	m = _TOTE_RE.match(s)
+	if m:
+		return s
+
+	# If not already 'ST######', try to interpret as integer sequence
+	try:
+		n = int(s)
+	except Exception:
+		raise ValueError('Invalid tote_code: %r' % tote_code)
+
+	return _format_tote_id(n)
+
+
+# ==============================
+# Tote root accessors (per owner)
+# ==============================
+TOTE_SCOPE_KEY = 'totes'  # per-owner -> {tote_code -> tote_info}
+
+
+def _empty_tote_entry(tote):
+	"""
+	Fresh tote entry: AdHocObject/dict with standard fields.
+	"""
+	return AdHocObject(dict(
+		tote         = _coerce_tote_code(tote),
+		zone         = None,
+		route        = None,
+		destinations = {},
+		delivered    = False,
+		failure      = False,
+		reason       = None,
+		reason_code  = 0,
+		last_updated = _now()
+	))
+
+
+def _empty_tote_root():
+	"""
+	Fresh tote root: simple dict {tote_code:str -> tote_info:dict}.
+	"""
+	return {}
+
+
+def _ensure_tote_root(owner):
+	"""
+	Load the owner's tote map from EG, or create a new one if absent.
+
+	Structure:
+	    {tote_code:str -> { ... tote fields ... }}
+	"""
+	root = eg_get(owner, TOTE_SCOPE_KEY, default=None)
+	if root is None or not isinstance(root, dict):
+		root = _empty_tote_root()
+		eg_set(owner, TOTE_SCOPE_KEY, root, lifespan=LIFESPAN)
+	return root
+
+
+def _troot(owner):
+	return _ensure_tote_root(owner)
+
+
+# ==============================
+# ToteContentData
+# ==============================
+class ToteContentData(object):
+
+	def __init__(self, name, **init_config):
+		self.name   = str(name)
+		self.logger = system.util.getLogger('ToteContentData.%s' % self.name)
+		self._lock  = RLock()
+		self._initialize_tote_data(full_clear=False)
+
+	# ---- lifecycle ----
+	def _initialize_tote_data(self, full_clear=False):
+		owner = self.name
+		with self._lock:
+			if full_clear:
+				eg_del(owner, TOTE_SCOPE_KEY)
+			_ensure_tote_root(owner)
+
+	def _persist_root(self):
+		eg_set(self.name, TOTE_SCOPE_KEY, _troot(self.name), lifespan=LIFESPAN)
+
+	@property
+	def _totes(self):
+		return _troot(self.name)
+
+	def _log_event(self, msg, level='info'):
+		if level == 'warn':
+			self.logger.warn(msg)
+		elif level == 'error':
+			self.logger.error(msg)
+		else:
+			self.logger.info(msg)
+
+	# ---- basic tote accessors ----
+	def get_tote(self, tote_code, default=None):
+		"""
+		Simple read by tote_code.
+		"""
+		tc = _coerce_tote_code(tote_code)
+		return self._totes.get(tc, default)
+
+	def exists(self, tote_code):
+		"""
+		Return True if tote exists in cache.
+		"""
+		tc = _coerce_tote_code(tote_code)
+		return tc in self._totes
+
+	def initialize_tote(self, tote_code):
+		"""
+		Ensure a tote entry exists and return it.
+		Only creates when first seen.
+		"""
+		tc = _coerce_tote_code(tote_code)
+		with self._lock:
+			root = self._totes
+			info = root.get(tc)
+			if not info or not isinstance(info, dict):
+				info = _empty_tote_entry(tc)
+				root[tc] = info
+			info['last_updated'] = _now()
+			self._persist_root()
+			return info
+
+	# ==============================
+	# History helpers
+	# ==============================
+	def append_history_event(self, tote_id, event_type, **fields):
+		"""
+		Append a history event for this tote in Mongo.
+		One document per tote with an 'events' array.
+
+		event structure:
+		    {
+		        "event_type": <str>,
+		        "ts": <datetime>,
+		        ...fields
+		    }
+		"""
+		tc = _coerce_tote_code(tote_id)
+		ts = _now()
+
+		event = {'event_type': event_type, 'ts': ts}
+		event.update(fields or {})
+
+		# read existing history doc, if any
+		existing = select_record(
+			TOTE_HISTORY_COLLECTION,
+			{"tote": tc},
+			target_database=MONGODB
+		) or {}
+
+		events = existing.get('events') or []
+		events.append(event)
+
+		# snapshot of current in-memory state (if exists)
+		info = self.get_tote(tc, default={})
+		hist_doc = {
+			"tote":           tc,
+			"owner":          self.name,
+			"zone":           info.get('zone'),
+			"route":          info.get('route'),
+			"delivered":      info.get('delivered'),
+			"failure":        info.get('failure'),
+			"reason":         info.get('reason'),
+			"reason_code":    info.get('reason_code'),
+			"last_event_type": event_type,
+			"last_event_ts":   ts,
+			"events":         events
+		}
+
+		update_record(
+			TOTE_HISTORY_COLLECTION,
+			hist_doc,
+			{"tote": tc},
+			target_database=MONGODB
+		)
+
+	def finalize_tote(self, tote_id, stage, outcome='delivered', final_location=None, reason=None, extra=None):
+		"""
+		Called when tote is truly done (final chute at Scan1 OR Scan2).
+
+		- Updates flags on the in-memory tote (delivered/failure)
+		- Writes a 'finalized' history event with full current state
+		- Removes tote from ExtraGlobal cache
+		"""
+		tc = _coerce_tote_code(tote_id)
+		with self._lock:
+			info = self.get_tote(tc, default=None)
+
+			# update state flags before final history
+			if info:
+				if outcome == 'delivered':
+					info['delivered'] = True
+				elif outcome == 'failed':
+					info['failure'] = True
+				if reason is not None:
+					info['reason'] = reason
+				info['last_updated'] = _now()
+				self._persist_root()
+
+			fields = {
+				"stage":          stage,
+				"outcome":        outcome,
+				"final_location": final_location,
+				"reason":         reason
+			}
+			if extra:
+				fields.update(extra)
+
+			self.append_history_event(tc, event_type='finalized', **fields)
+
+			# remove from cache after history is written
+			root = self._totes
+			if tc in root:
+				del root[tc]
+				self._persist_root()
+
+			self._log_event("Tote %s finalized at stage=%s outcome=%s" %
+			                (tc, stage, outcome))
+
+	# ==============================
+	# Lifecycle helpers (delivered / failure / clear)
+	# ==============================
+	def mark_tote_delivered(self, tote_id, stage='Scan1', final_location=None):
+		"""
+		Mark a tote as delivered in cache and log a 'delivered' event.
+		You can call finalize_tote(...) afterwards once you're ready to wipe it.
+		"""
+		tc = _coerce_tote_code(tote_id)
+		with self._lock:
+			info = self.get_tote(tc, default=None)
+			if not info:
+				return
+
+			info['delivered']    = True
+			info['last_updated'] = _now()
+			self._persist_root()
+			self._log_event("Tote %s marked delivered" % tc)
+
+		self.append_history_event(
+			tc,
+			event_type='delivered',
+			stage=stage,
+			final_location=final_location
+		)
+
+	def mark_tote_failure(self, tote_id, stage='Scan1', reason=None, reason_code=0):
+		"""
+		Mark a tote as failed in cache and log a 'failed' event.
+		You can call finalize_tote(...) afterwards once you're ready to wipe it.
+		"""
+		tc = _coerce_tote_code(tote_id)
+		with self._lock:
+			info = self.get_tote(tc, default=None)
+			if not info:
+				return
+
+			info['failure']      = True
+			info['reason']       = reason
+			info['reason_code']  = reason_code
+			info['last_updated'] = _now()
+			self._persist_root()
+			self._log_event("Tote %s marked failure (reason=%r, code=%r)" %
+			                (tc, reason, reason_code))
+
+		self.append_history_event(
+			tc,
+			event_type='failed',
+			stage=stage,
+			reason=reason,
+			reason_code=reason_code
+		)
+
+	def clear_tote(self, tote_id):
+		"""
+		Remove a tote entirely from cache WITHOUT writing history.
+
+		Use finalize_tote(...) instead when you want a final event recorded.
+		"""
+		tc = _coerce_tote_code(tote_id)
+		with self._lock:
+			root = self._totes
+			if tc in root:
+				del root[tc]
+				self._persist_root()
+				self._log_event("Tote %s cleared from cache" % tc)
+
+	# ==============================
+	# Zone assignment / lookup
+	# ==============================
+	def assign_zone_tote(self, tote_id, zone, source='Scan51', payload=None):
+		"""
+		Assign zone to tote.
+
+		This is what Scan51 will call.
+		Also logs a 'zone_assigned' history event.
+		"""
+		tc = _coerce_tote_code(tote_id)
+		with self._lock:
+			info = self.initialize_tote(tc)
+			info['zone']         = zone
+			info['last_updated'] = _now()
+			self._persist_root()
+			self._log_event("Tote %s assigned zone=%r (source=%s)" % (tc, zone, source))
+
+		self.append_history_event(
+			tc,
+			event_type='zone_assigned',
+			stage=source,
+			zone=zone,
+			payload=payload
+		)
+		return info
+
+	def get_tote_zone(self, tote_id, default=None):
+		"""
+		Return the zone for this tote, or default if not found or zone not set.
+
+		This is what Scan1 will call before requesting route.
+		"""
+		info = self.get_tote(tote_id, default=None)
+		if not info:
+			return default
+		return info.get('zone', default)
+
+	# ==============================
+	# search / list / snapshot
+	# ==============================
+	def find_totes_by_item(self, item_id):
+		"""
+		Return a list of totes matching item_id (exact match or in 'items' list).
+
+		Each result:
+		    {"tote_code": <str>, "tote_info": <dict>}
+		"""
+		results = []
+		root = self._totes
+		for tc, info in root.items():
+			if info.get('item') == item_id or item_id in info.get('items', []):
+				results.append({'tote_code': tc, 'tote_info': info})
+		return results
+
+	def list_tote_codes(self):
+		"""
+		Return sorted list of tote codes.
+		"""
+		return sorted(self._totes.keys())
+
+	def snapshot(self, limit=None):
+		"""
+		Light snapshot for totes:
+		    {
+		        "count": <int>,
+		        "totes": [ 'ST000001', 'ST000002', ... ]
+		    }
+
+		If limit is provided, list is truncated to first `limit` sorted totes.
+		"""
+		codes = sorted(self._totes.keys())
+		if limit is not None:
+			try:
+				limit = int(limit)
+				if limit >= 0:
+					codes = codes[:limit]
+			except Exception:
+				pass
+		return {"count": len(self._totes), "totes": codes}

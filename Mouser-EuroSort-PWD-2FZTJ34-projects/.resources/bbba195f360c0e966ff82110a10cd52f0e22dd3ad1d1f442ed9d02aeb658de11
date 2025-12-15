@@ -1,0 +1,75 @@
+"""
+	Panopticon for tags - silently judge your valueChanged scripts
+	
+	The original panopticon, this variant collects and targets tag change scripts
+	to help narrow down what scripts are consuming an unfair portion of the
+	limited tag execution threads.
+
+"""
+
+from shared.tools.thread import async
+#from shared.tools.meta import getObjectByName
+
+try:
+	from shared.tools.global import ExtraGlobal
+	raise NotImplementedError('Use the custom dict for lower level / lighter weight usage')
+	
+	HISTOGRAM_CACHE = ExtraGlobal
+except:
+	HISTOGRAM_CACHE = {}
+	
+	# all cache keys are a (millis time, entry) tuple
+	# this allows 
+
+	
+@async(name='Panopticon-Tag-Monitor', ensureOnlyOne=reversed)
+def panopticon_histogram(thread_pattern='gateway-tags-eventscripts-[0-9]+', object_name='tagPath'):
+
+	from shared.tools.thread import getThreadState, findThreads
+	from shared.tools.global import ExtraGlobal
+	import time
+	from java.lang import Thread
+	
+	threads = findThreads(thread_pattern)		
+	hits = {'err': 0, 'loops': 0, 'n': len(threads), 'miss': 0}
+	lifespan = 10000
+	
+	ExtraGlobal[thread_pattern:'panopticon':lifespan] = hits
+	
+	system.util.getLogger('Panopticon').warn('Starting up on %r from %r' % (threads, Thread.currentThread()))
+
+	while True:
+		
+		time.sleep(0.001)	
+		
+		for i in range(3):
+			
+			hits['loops'] += 1
+							
+			for thread in threads:
+				try:
+					thread_state = getThreadState(thread)
+						
+					frame = thread_state.frame
+					stack = []
+					while frame:
+						stack.append(frame)
+						frame = frame.f_back
+					
+					hits['depth'] = len(stack)
+					
+					if not stack:
+						continue
+					
+					for frame in reversed(stack):
+						if object_name in frame.f_locals:
+							try:
+								hits[frame.f_locals[object_name]] += 1
+							except KeyError:
+								hits[frame.f_locals[object_name]] = 1
+							break
+					else:
+						hits['miss'] += 1
+				except:
+					hits['err'] += 1
+

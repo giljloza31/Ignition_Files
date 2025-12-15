@@ -1,0 +1,3 @@
+SELECT top(1000)*
+FROM  ReceivingScanTunnel_Induct WITH (NOLOCK)
+ORDER BY  scanned_date_time DESC

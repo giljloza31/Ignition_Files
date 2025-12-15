@@ -1,0 +1,303 @@
+"""
+	WCS feedback routines
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.base import EuroSorterBase
+from eurosort.tracking.contents import Destination, Dests
+from eurosort.routing import EuroSorterRoutingManagement
+
+from database.core import (
+	db_select_record,
+	db_select_records,
+	db_update_record,
+)
+
+import re
+import datetime
+from java.util import Date
+
+
+
+def wcs_timestamp(timestamp=None):
+	if timestamp is None:
+		timestamp = datetime.datetime.now()
+	return timestamp.strftime('%Y%m%d%H%M%S')
+
+
+#from wcs.consolidation.resolve import (
+#	get_issue, get_order_from_issue, get_line_from_issue, 
+#	set_wcs_location_occupied, wcs_timestamp,
+#)
+
+
+
+class LocationWCS(object):
+
+	# https://regex101.com/r/YxR3G4/1
+	WCS_LOCATION_PATTERN = re.compile("""^
+		(?P<sorter>[A-Z])
+		(?P<station>[0-9]{4})
+		(?P<chute>[0-9])
+		(?P<dest>[12])
+		(?P<side>[AB])
+		$""", re.X)
+
+	def parse_wcs_location(self, wcs_location):
+		match = self.WCS_LOCATION_PATTERN.match(wcs_location)
+		return Destination(**match.groupdict())
+
+	def get_wcs_location_from_destination(self, destination, dest=Dests.FRONT):
+		wcs_location = '{wcs_machine_id}{station}{chute}{dest}{side}'.format(
+			wcs_machine_id = 'A', # A == Opex
+			station        = destination.station,
+			chute          = destination.chute,
+			dest           = dest,
+			side           = destination.side,		
+		)
+		return wcs_location
+
+
+
+class MongoWCS(
+		LocationWCS, 
+		EuroSorterBase,
+	):
+
+
+	def wcs_get_issue(self, barcode):
+		issue = db_select_record('pconsol_issues', {'ibn': barcode})
+		return issue if issue else None
+
+
+	def wcs_get_order_from_issue(self, issue):
+		order = db_select_record('pconsol_orders', {'order': issue['order']})
+		return order if order else None
+
+
+	def wcs_get_issues_from_order(self, order_number):
+		issues = db_select_records('pconsol_issues', {'order': order_number})
+		return issues if issues else []
+
+
+	def wcs_get_issues_from_orders(self, order_numbers, limit_fields=None):
+		issues = db_select_records('pconsol_issues', {'order': order_numbers}, limit_fields=limit_fields)
+		return issues if issues else []
+
+
+	def wcs_get_line_from_issue(self, issue):
+		line = db_select_record('pconsol_lines', {'order': issue['order']})
+		return line if line else None
+
+
+	def wcs_set_location_occupied(self, wcs_location, is_occupied=True):
+		_ = db_update_record('eurosort_location_info', dict(
+			wcs_location = wcs_location,
+			is_occupied  = is_occupied,
+			last_updated_timestamp = Date(),
+			last_updated_by = 'Ignition',
+		), ['wcs_location'])
+
+
+	def _mark_destination_occupied(self, destination, is_occupied=True, dest=Dests.REAR):
+		destination = Destination.parse(destination) # autocoerce for now TODO: decorate!
+		
+		wcs_location = self.get_wcs_location_from_destination(destination, dest)
+		self.wcs_set_location_occupied(wcs_location, is_occupied)
+		
+		self.logger.trace('Marked location {wcs_location} as occupied: {is_occupied}')
+
+
+	def wcs_get_consol_zone(self, ibn):
+		zone_info = db_select_record('outbound_scan_sort_ibn', {'_id': ibn})
+		return zone_info if zone_info else None
+
+	def wcs_get_consol_zone_ibns(self, consol_zone):
+		assert len(consol_zone) == 3
+		zone = consol_zone[:2]
+		subzone = consol_zone[2]
+	
+		assert zone == 'ES'
+		results = db_select_records('outbound_scan_sort_ibn', {
+			'consol_zone': zone, 'consol_subzone': subzone})
+		
+		return [entry['_id'] for entry in results]
+
+
+	def wcs_get_consol_zone_info(self, consol_zone):
+		ibns = self.wcs_get_consol_zone_ibns(consol_zone)
+		issues = db_select_records('pconsol_issues', {'ibn': ibns,})
+		order_numbers = set([entry['order'] for entry in issues])
+		orders = db_select_records('pconsol_orders', {'order': list(order_numbers)})
+		lines = db_select_records('pconsol_lines', {'order': list(order_numbers)})
+	
+		return orders, lines, issues
+
+
+	def wcs_filter_untracked_issue_ibns(self, issue_ibns):
+		issues = db_select_records('pconsol_issues', {'ibn': issue_ibns,})
+		tracked_issues_ibns = set(issue['ibn'] for issue in issues)
+		return set(issue_ibns) - tracked_issues_ibns
+	
+	def wcs_filter_untracked_order_numbers(self, order_numbers):
+		orders = db_select_records('pconsol_orders', {'order': list(order_numbers)})
+		tracked_order_numbers = set(order['order'] for order in orders)
+		return set(order_numbers) - tracked_order_numbers
+
+
+	def wcs_get_order_statuses(self, order_numbers):
+		order_statuses = db_select_records('pconsol_orders', {'order': list(order_numbers)}, limit_fields=('order', 'status'))
+		return {
+				entry['order']: entry['status']
+				for entry in order_statuses
+			}
+
+
+	def wcs_get_ibn_consol_zone(self, ibn):
+		consol_zone_issue = db_select_record('outbound_scan_sort_ibn', {'_id': ibn})
+		return consol_zone_issue
+
+
+
+class WebserviceWCS(
+		LocationWCS, 
+		EuroSorterBase,
+	):
+
+	WCS_PROTOCOL = 'http'
+	WCS_HOST     = 'wcs01'
+	WCS_PORT     =  8085
+	WCS_ENDPOINT = 'ws/v1'
+
+
+	WCS_NULL_LOCATION = 'EUSRT10'
+
+
+	@property
+	def wcs_address(self):
+		return '%s://%s:%s/%s' % (
+			self.WCS_PROTOCOL, self.WCS_HOST, self.WCS_PORT, self.WCS_ENDPOINT
+		)
+	
+	
+	def notify_wcs_issue_removed(self, issue):
+		if isinstance(issue, dict):
+			issue_ibn = issue['ibn']
+		else:
+			issue_ibn = issue
+
+		wcs_location = self.WCS_NULL_LOCATION
+		timestamp = wcs_timestamp()
+	
+		payload = {
+			'userId': '',
+			'time': timestamp,
+			'deviceId': 19,
+			'ibn': issue_ibn,
+			'location': wcs_location,
+		}
+	
+		self.logger.trace('PUT to WCS for {issue_ibn} at {wcs_location} to clear from the machine - notify_wcs_issue_delivered: {json}', json =system.util.jsonEncode(payload, 2))
+	
+		response = system.net.httpPut(
+			url = self.wcs_address + '/issues/{issue}/deliver-notify'.format(issue=issue_ibn),
+			contentType='application/json',
+			putData=system.util.jsonEncode(payload, 2),
+		)
+
+
+	def notify_wcs_issue_delivered(self, issue, destination=None, dest=Dests.REAR):
+		"""Tell the WCS that the order has moved to where the operator can access it"""
+		if isinstance(issue, dict):
+			issue_ibn = issue['ibn']
+		else:
+			issue_ibn = issue
+	
+		if destination is None:
+			destination = self.locate_issue(issue_ibn)
+	
+		# don't notify on jackpot or NOREAD
+		if destination in (self._route_noread, self._route_invalid_barcode):
+			return
+	
+		wcs_location = self.get_wcs_location_from_destination(destination, dest=dest)
+		timestamp = wcs_timestamp()
+	
+		payload = {
+			'userId': '',
+			'time': timestamp,
+			'deviceId': 19,
+			'ibn': issue_ibn,
+			'location': wcs_location,
+		}
+	
+		self.logger.trace('PUT to WCS for {issue_ibn} at {wcs_location} notify_wcs_issue_delivered: {json}', json =system.util.jsonEncode(payload, 2))
+	
+		response = system.net.httpPut(
+			url = self.wcs_address + '/issues/{issue}/deliver-notify'.format(issue=issue_ibn),
+			contentType='application/json',
+			putData=system.util.jsonEncode(payload, 2),
+		)
+
+
+	def notify_wcs_order_available(self, order, destination=None):
+		"""Tell the WCS that the order has moved to where the operator can access it"""
+		if isinstance(order, dict):
+			order_number = order['order']
+		else:
+			order_number = order
+	
+		if destination is None:
+			destination = self.locate_order(order_number)
+	
+		# don't notify on jackpot or NOREAD
+		if destination in (self._route_noread, self._route_invalid_barcode):
+			return
+	
+		wcs_location = self.get_wcs_location_from_destination(destination, dest=Dests.FRONT)
+		timestamp = wcs_timestamp()
+	
+		payload = {
+			'userId': '',
+			'time': timestamp,
+			'deviceId': 19,
+			'order': order_number,
+			'location': wcs_location,
+		}
+	
+		self.logger.trace('PUT to WCS for {order_number} at {wcs_location} notify_wcs_order_available: {json}', json =system.util.jsonEncode(payload, 2))
+	
+		response = system.net.httpPut(
+			url = self.wcs_address + '/orders/{order}/move-notify'.format(order=order_number),
+			contentType='application/json',
+			putData=system.util.jsonEncode(payload, 2),
+		)
+
+#		self.logger.trace('PUT to WCS for {order_number} at {wcs_location} to move-notify: {response!r}')
+
+
+
+class EuroSorterAccessWCS(
+		WebserviceWCS,
+		MongoWCS,
+		LocationWCS,
+	):
+	pass
+
+
+
+class EuroSorterWCSRoutingExceptions(
+		EuroSorterRoutingManagement,
+		EuroSorterAccessWCS,
+	):
+
+	def handle_verify(self, sorter_data):
+		if sorter_data.destination == self._route_invalid_barcode:
+			if not issue:
+				self.logger.trace('Skipping WCS update for jackpot for invalid barcode')
+			else:
+				self.notify_wcs_issue_delivered(issue, sorter_data.destination, dest=Dests.REAR)
+			return
+	
+		super(EuroSorterWCSRoutingExceptions, self).handle_verify(sorter_data)

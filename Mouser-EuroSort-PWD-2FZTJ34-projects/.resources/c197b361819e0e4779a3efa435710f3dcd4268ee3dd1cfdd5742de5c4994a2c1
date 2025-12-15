@@ -1,0 +1,94 @@
+"""
+	Configuraation management
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+
+from eurosort.destmap   import EuroSorterDestinationMapping
+from eurosort.sorterdata.tag import TagMappingMixin
+from eurosort.utility import abspathjoin
+
+
+
+class EuroSorterConfig(
+	EuroSorterDestinationMapping,
+):
+	# follow same tag path config for control as data sink
+	ROOT_SORTER_TAG_PATH = TagMappingMixin.ROOT_SORTER_TAG_PATH
+
+
+	def __init__(self, name, endpoint_address=None, working_directory=None, **init_config):
+		self.name = name
+	
+		config_endpoint, config_working_directory = [qv.value for qv
+			in system.tag.readBlocking([
+				self.CONFIG_TAG_PATH + '/OPC Address',
+				self.CONFIG_TAG_PATH + '/Working Directory',
+			])]
+		
+		init_config['endpoint_address']  = endpoint_address  or config_endpoint
+		init_config['working_directory'] = working_directory or config_working_directory
+		
+		if not 'destination_map' in init_config:
+			init_config['destination_map'] = abspathjoin(init_config['working_directory'], 'DestMap.csv')
+		
+		if not 'log_path' in init_config:
+			init_config['log_path'] = init_config['working_directory']
+			if not init_config['log_path'].endswith('/'):
+				init_config['log_path'] += '/'
+		
+		super(EuroSorterConfig, self).__init__(name, **init_config)
+
+
+	@classmethod
+	def _config_tag_path(cls, name):
+		return '/'.join([cls.ROOT_SORTER_TAG_PATH, name, 'Config'])
+
+	@classmethod
+	def _control_tag_path(cls, name):
+		return '/'.join([cls.ROOT_SORTER_TAG_PATH, name, 'Control'])
+
+
+	@property
+	def CONFIG_TAG_PATH(self):
+		return self._config_tag_path(self.name)
+
+	@property
+	def CONTROL_TAG_PATH(self):
+		return self._control_tag_path(self.name)
+
+
+	def _read_config_tag(self, tag_name):
+		return system.tag.readBlocking([
+			self.CONFIG_TAG_PATH + '/' + tag_name
+		])[0].value
+
+	def _read_control_tag(self, tag_name):
+		return system.tag.readBlocking([
+			self.CONTROL_TAG_PATH + '/' + tag_name
+		])[0].value
+
+
+	def _write_config_tag(self, tag_name, value):
+		_ = system.tag.writeBlocking([
+			self.CONFIG_TAG_PATH + '/' + tag_name
+		], [value])
+
+	def _write_control_tag(self, tag_name, value):
+		_ = system.tag.writeBlocking([
+			self.CONTROL_TAG_PATH + '/' + tag_name
+		], [value])
+
+
+	@property
+	def connect_permissive(self):
+		return self.check_connect_permissive(self.name)
+
+	@classmethod
+	def check_connect_permissive(cls, name):
+		return system.tag.readBlocking([
+			cls._config_tag_path(name) + '/Connected',
+			])[0].value
+
+

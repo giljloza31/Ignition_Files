@@ -1,0 +1,39 @@
+"""
+	Helpers for making fussing with tags easier
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+
+
+def tag_abspath(base_tagpath, *offsets):
+	"""Resolve relative tag paths (that contain arbitrary '..' entries)"""
+	if base_tagpath.startswith('['):
+		# skip the '[' for better symmetry later
+		provider, _, relative_tagpath = base_tagpath[1:].partition(']')
+	else:
+		provider, relative_tagpath = '', base_tagpath
+	
+	if offsets:
+		relative_tagpath += '/' + '/'.join(offsets)
+	
+	path_parts = relative_tagpath.split('/')
+	tagpath = ''
+	for part in path_parts:
+		if part == '' or part == '.':
+			continue
+		elif part == '..':
+			tagpath, _, _ = tagpath.rpartition('/')
+		else:
+			tagpath += '/' + part
+	
+	if tagpath.startswith('/'):
+		tagpath = tagpath[1:]
+	
+	if provider:
+		tagpath = '[{provider}]{tagpath}'.format(**locals())
+	return tagpath
+
+
+
+

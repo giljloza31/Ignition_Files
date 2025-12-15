@@ -1,0 +1,147 @@
+from pymongo import MongoClient
+import pymongo
+from random import randint
+from datetime import datetime
+#client = MongoClient(port=27017)
+#db=client.test
+
+
+def selectZone(col, IBNs):
+	r = []
+	
+	for IBN in IBNs:
+		
+		if IBN != 'NOREAD':
+		
+			results = col.find_one({"_id":IBN})
+			zone = results["zone"]
+		
+			if zone not in r:
+				r.append(zone)
+		
+		
+	return r
+
+def cursorToList(cursor): #complete
+	ls = []
+	count = cursor.count()
+	increment = 1000
+	index = 0
+	while index < count:
+		newCursor = cursor.clone()
+		extra = count - index
+		endCap = 0
+		if extra >= increment:
+			endCap = index + increment
+		else:
+			endCap = index + extra
+		#print(index,endCap)
+		dt = list(newCursor[index:endCap])
+		#return dt
+		ls.extend(dt)
+		index += increment
+	return ls
+
+'''
+
+
+
+
+
+
+
+
+
+from pymongo import MongoClient
+import pymongo
+
+client = MongoClient(host = 'localhost',port=27017)
+db=client.test
+mongoTest.setup(db)
+mongoTest.selectBasic(db.route_table1,"aaa")
+b = [1,2,4]
+mongoTest.selectInnerJoinsManual(db,b)
+
+
+
+from pymongo import MongoClient
+
+import pymongo
+#client = MongoClient('txmongowcsdev1.mouser.lan',27017)
+#config = {'_id':'wcsDevRS1', 'members':[{'_id':0,'host':'txmongowcsdev1.mouser.lan:27017'},
+#{'_id':1,'host':'txmongowcsdev2.mouser.lan:27017'},{'_id':2,'host':'txmongowcsdev3.mouser.lan:27017'}]
+#}
+#client.admin.command("replSetInitiate",config)
+
+client = MongoClient("txmongowcsdev1.mouser.lan",27017,replicaset="wcsDevRS1")
+db=client.IgnitionDB
+shared.pwd.mongoTest.setup(db)
+shared.pwd.mongoTest.selectBasic(db.route_table1,"aaa")
+#b = [1,2,4]
+#shared.pwd.mongoTest.selectInnerJoinsManual(db,b)
+
+
+
+
+from pymongo import MongoClient
+
+import pymongo
+user = "testUser"
+passw = "IgnitionShip2634#"
+host = "txmongowcsdev1.mouser.lan"
+replicaSet = "wcsDevRS1"
+port = "27017"
+mongodb = "IgnitionDB"
+uri = "mongodb://{}:{}@{}:{}/{}?authSource={}&tls=true&tlsAllowInvalidCertificates=true".format(user,passw,host,port,mongodb,mongodb)
+
+client = MongoClient(uri)
+db=client.IgnitionDB
+#shared.pwd.mongoTest.setup(db)
+shared.pwd.mongoTest.selectBasic(db.route_table1,"aaa")
+b = [1,2,4]
+shared.pwd.mongoTest.selectInnerJoinsManual(db,b)
+
+
+
+
+from pymongo import MongoClient
+
+import pymongo
+user = "testUser"
+passw = "IgnitionShip2634#"
+host = "txmongowcsdev1.mouser.lan"
+replicaSet = "wcsDevRS1"
+port = "27017"
+mongodb = "IgnitionDB"
+uri = "mongodb://{}:{}@{}:{}/{}?authSource={}&tls=true&tlsAllowInvalidCertificates=true".format(user,passw,host,port,mongodb,mongodb)
+
+client = MongoClient(uri)
+db=client.IgnitionDB
+
+shared.pwd.mongoTest.selectBasic(db.inbound_receipt_info,"aaa")
+
+
+from pymongo import MongoClient
+
+replicaSet = "wcsDevRS1"
+import pymongo
+user = "testUserdb=client.IgnitionDB
+"
+passw = "IgnitionShip2634#"
+host = "txmongowcsdev1.mouser.lan"
+port = "27017"
+mongodb = "IgnitionDB"
+uri = "mongodb://{}:{}@{}:{}/{}?authSource={}&tls=true&tlsAllowInvalidCertificates=true".format(user,passw,host,port,mongodb,mongodb)
+
+client = MongoClient(uri)
+cursor = db["inbound_receipt_info"].find()
+print(cursor.next())
+print(cursor.next())
+print(cursor.next())
+print(cursor.next())
+print(cursor.next())
+print(cursor.next())
+shared.pwd.mongoTest.selectBasic(db.inbound_receipt_info,1)
+shared.pwd.mongoTest.select1000(db.inbound_receipt_info,"1")
+
+'''

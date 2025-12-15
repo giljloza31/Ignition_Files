@@ -1,0 +1,733 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 744,
+      "width": 323
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "Area": "ETote-Conv"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-OPEX-Expansion/MouserOPEX-EmptyTote"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "meta": {
+          "visible": false
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30.25,
+          "y": 86.00249694824218
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "primary": false,
+          "text": "Empty Tote - Overview"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "HOME"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "page": "/"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "50% 35%"
+          },
+          "width": 80,
+          "x": 117.1875,
+          "y": 692.891
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/home"
+            }
+          },
+          "primary": false,
+          "text": "HOME"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "AlarmJounral"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-OPEX-Expansion/MouserOPEX_AlarmJournal"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "meta": {
+          "visible": false
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30.125,
+          "y": 511.4749755859375
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "Alarm Journal"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "Full-Tote_Conv"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-OPEX-Expansion/MouserOPEX-FullTote"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "meta": {
+          "visible": false
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30.25,
+          "y": 120.87799694824218
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "primary": false,
+          "text": "Full Tote - Overview"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "Inbound Belt_Conv"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-OPEX-Expansion/MouserOPEX-InboundBelt"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "meta": {
+          "visible": false
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 29.375,
+          "y": 264.7035030517578
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "primary": false,
+          "text": "Inbound Belt - Overview"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "Product Belt_Conv"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-OPEX-Expansion/MouserOPEX-ProductBelt"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "meta": {
+          "visible": false
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30.25,
+          "y": 341.7855030517578
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "primary": false,
+          "text": "Product Belt - Overview"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "CP15_Conv"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/CP15/CP15_ConveyorOverview"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 29.375,
+          "y": 197.008
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "CP15 - Overview"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "CP13-14_Conv"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/CP13-LowerMezzGreen1/CP13-ConveyorOverview"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30.25,
+          "y": 103.00879694824219
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "CP13/14- Overview"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "CP12"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/CP12/CP12-ConveyorOverview"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30,
+          "y": 18.308750000000003
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "CP12 - Overview"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "MKP1 - Belt"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/MKP1/MKP1-Belt"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30.13,
+          "y": 375.7839755859375
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "MKP1 - Belt"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "ESD Booster"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/ESD_Booster/ESD-Booster_Overview"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 29.375,
+          "y": 281.7465030517578
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "ESD Booster - Overview"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "MKP1 - Roller"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/MKP1/MKP1-Roller"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 29.75,
+          "y": 410.69397558593755
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "MKP1 - Roller"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "MKP1 - Trash"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/MKP1/MKP1-Trash"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 29.75,
+          "y": 445.69397558593755
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "MKP1 - Trash"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "CP12-Alarm"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/CP12/CP12-AlarmJournal"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30,
+          "y": 52
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "CP12 - Alarm Journal"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "CP13-14_Alarm"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/CP13-LowerMezzGreen1/CP13-AlarmJournal"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30.25,
+          "y": 137.6999969482422
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "CP13/14- Alarm Journal"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "CP15_Alarm"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/CP15/CP15-AlarmJournal"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 29.375,
+          "y": 230.7
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "CP15 - Alarm Journal"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "ESD Booster-Alarm"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/ESD_Booster/ESD_Booster-AlarmJournal"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 29.375,
+          "y": 311.4375030517578
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "ESD Booster - Alarm Journal"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Area": "MKP1 - Alarm"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "params": {},
+                "view": "Mouser/Mouser-LegacyPanels/ESD_Booster/ESD_Booster-AlarmJournal"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "position": {
+          "height": 34,
+          "width": 253,
+          "x": 30.25,
+          "y": 477.4749755859375
+        },
+        "propConfig": {
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Area}+ \u0027_PB\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "MKP1 - Alarm Journal"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "backgroundColor": "#D5D5D5"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

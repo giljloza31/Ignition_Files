@@ -1,0 +1,44 @@
+
+
+from shared.data.types.mixins import CountInstanceMixin
+from shared.data.types.enum import Enum
+from shared.tools.monitoring.context.base import ContextProbe, Context, CountDedupeSignaturesMixin
+
+
+class Python_ContextEnum(Enum):
+	TAG = 'tag_event'
+	PERSPECTIVE = 'perspective'
+	XYZZY = 'xyzzy'
+
+
+class PythonScriptContext(CountDedupeSignaturesMixin, Context):
+	__signature_type__ = frozenset
+
+
+
+class PythonScriptContextProbe(ContextProbe):
+	__context_type__ = PythonScriptContext	
+	
+	@classmethod
+	def normalize(cls, scope, signature):
+		return (Python_ContextEnum(scope) if scope else None, 
+				cls.__context_type__.__signature_type__(signature) )
+
+	@staticmethod
+	def _get_var(frame, variable_name, strict=False):
+		try:
+			return frame.f_locals[variable_name]
+		except KeyError:
+			if strict:
+				raise KeyError('%r is strictly not in frame-local scope' % variable_name)
+			return frame.f_globals[variable_name]
+	
+	@classmethod
+	def _extract_xyzzy(cls, stacktrace):
+		frame = stacktrace.root_frame
+		v1 = cls._get_var(frame, 'xyzzy')
+		
+		return (v1,)
+
+
+

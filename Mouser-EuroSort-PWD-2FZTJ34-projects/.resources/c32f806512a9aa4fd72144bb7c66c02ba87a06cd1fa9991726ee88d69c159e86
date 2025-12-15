@@ -1,0 +1,416 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 237,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "AlarmStatusTable"
+        },
+        "position": {
+          "height": 203,
+          "width": 868.0000000000001,
+          "x": 525.93,
+          "y": 30.64
+        },
+        "props": {
+          "style": {
+            "borderColor": "#8E8E8E",
+            "borderStyle": "outset",
+            "borderWidth": 10
+          },
+          "toolbar": {
+            "enabled": false
+          }
+        },
+        "type": "ia.display.alarmstatustable"
+      },
+      {
+        "meta": {
+          "name": "HorizontalMenu"
+        },
+        "position": {
+          "height": 30,
+          "width": 1920,
+          "x": -0.58
+        },
+        "props": {
+          "items": [
+            {
+              "enabled": true,
+              "icon": {
+                "color": "#6C6C6C",
+                "path": "material/home"
+              },
+              "items": [],
+              "label": "Home",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "color": "",
+                "path": ""
+              },
+              "items": [
+                {
+                  "enabled": true,
+                  "icon": {
+                    "color": "",
+                    "path": ""
+                  },
+                  "items": [],
+                  "label": "Sorter",
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/TAS-Receiving"
+                }
+              ],
+              "label": "Views",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Tools",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Alarm Journal",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Data",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Reports",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "User Management",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Windows",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Help",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            }
+          ],
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 13
+          }
+        },
+        "type": "ia.navigation.horizontalmenu"
+      },
+      {
+        "meta": {
+          "name": "DATE-TIME"
+        },
+        "position": {
+          "height": 47,
+          "rotate": {
+            "anchor": "50% 37%"
+          },
+          "width": 345,
+          "x": 1467.5,
+          "y": 30.5688
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "dateFormat(now(), \"MM/dd/yyyy hh:mm:ss a\")"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 30,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PW360-Logo"
+        },
+        "position": {
+          "height": 130,
+          "width": 467,
+          "x": 43.5,
+          "y": 35.34
+        },
+        "props": {
+          "fit": {
+            "mode": "fill"
+          },
+          "source": "/system/images/LOGO/PW360 (No BG 10 (Refect Arrow)).png"
+        },
+        "type": "ia.display.image"
+      },
+      {
+        "meta": {
+          "name": "PWD-WebURL"
+        },
+        "position": {
+          "height": 20.53,
+          "rotate": {
+            "anchor": "50% 37%"
+          },
+          "width": 134.78,
+          "x": 47.5,
+          "y": 118.096
+        },
+        "props": {
+          "style": {
+            "color": "#c02228",
+            "fontFamily": "Roboto",
+            "fontWeight": "bold",
+            "textAlign": "left"
+          },
+          "text": "www.pwdus.com"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Logged In"
+        },
+        "position": {
+          "height": 25,
+          "width": 62,
+          "x": 47.5,
+          "y": 140.33
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 12
+          },
+          "text": "Logged In:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "login"
+            }
+          }
+        },
+        "meta": {
+          "name": "Switch User"
+        },
+        "position": {
+          "height": 36,
+          "width": 116,
+          "x": 88.5652,
+          "y": 159.354
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 12
+          },
+          "text": "Switch User"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "logout"
+            }
+          }
+        },
+        "meta": {
+          "name": "Log Out"
+        },
+        "position": {
+          "height": 32,
+          "width": 79,
+          "x": 88.5652,
+          "y": 189.454
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 12
+          },
+          "text": "Log Out"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "login"
+            }
+          }
+        },
+        "meta": {
+          "name": "SwitchUser-Icon"
+        },
+        "position": {
+          "height": 21,
+          "width": 18,
+          "x": 64,
+          "y": 166.854
+        },
+        "props": {
+          "path": "material/supervised_user_circle"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "logout"
+            }
+          }
+        },
+        "meta": {
+          "name": "LogOut-Icon"
+        },
+        "position": {
+          "height": 21,
+          "width": 18,
+          "x": 64,
+          "y": 194.954
+        },
+        "props": {
+          "path": "material/login"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "meta": {
+          "name": "USER"
+        },
+        "position": {
+          "height": 25,
+          "width": 62,
+          "x": 106,
+          "y": 140
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "session.props.auth.user.userName"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 12,
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "backgroundColor": "#b8b8b8",
+        "classes": "FontStyles/BodyText"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

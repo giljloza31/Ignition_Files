@@ -1,0 +1,2489 @@
+{
+  "custom": {},
+  "params": {
+    "Action_Cardboard": false,
+    "Action_Outbound": false,
+    "Status_Cardboard": 1,
+    "Status_Outbound": 1
+  },
+  "propConfig": {
+    "params.Action_Cardboard": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]MKP1_Tags/Controls/HMI_MKP1_Start_PB"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Action_Outbound": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]MKP1_Tags/Controls/HMI_MKP1_Outbound_Start_PB"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Status_Cardboard": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]MKP1_Tags/Controls/MKP1_Cardboard_Status"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Status_Outbound": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]MKP1_Tags/Controls/MKP1_Outbound_Status"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 850,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "ConvName": "MKP1_T100"
+        },
+        "meta": {
+          "name": "MKP1_T100_1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 519,
+          "x": 227.99,
+          "y": 578.15
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_ConveyorStatus/IGN_MKP1_T100_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "MKP1_T100"
+        },
+        "meta": {
+          "name": "MKP1_T100_2",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 66,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 66,
+          "x": 745.55375,
+          "y": 539.75
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_ConveyorStatus/IGN_MKP1_T100_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M132,132.6h-55.4C71.8,81,36.9,55.3.8,56.4V.5c73.6,4.7,125.5,49.7,131.2,132Z",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "path"
+                },
+                {
+                  "elements": [
+                    {
+                      "d": "M76.8,132.3C72.3,83.5,41,56.9.6,55.9c0,0-.4-6.1.3-6.4,50.8,2.4,78.5,35.4,82.7,82.8h-6.8Z",
+                      "id": "g",
+                      "name": "g",
+                      "type": "path"
+                    },
+                    {
+                      "d": "M125.8,132.3C119,51.1,64.6,8.6.6,7,.6,7,.1,1.3,1.2.8c80.6,3.9,124.4,56.1,131.1,131.1l-6.5.4Z",
+                      "id": "h",
+                      "name": "h",
+                      "type": "path"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 132.8 133.1"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "MKP1_T100_Merge"
+        },
+        "meta": {
+          "name": "MKP1_T100_Merge_3",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 68,
+          "width": 29,
+          "x": 783,
+          "y": 473.53999999999996
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_ConveyorStatus/IGN_MKP1_T100_Merge_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "MKP1_T100_Merge"
+        },
+        "meta": {
+          "name": "MKP1_T100_Merge_2",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 39,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 82,
+          "x": 786.42,
+          "y": 495.09
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_ConveyorStatus/IGN_MKP1_T100_Merge_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "id": "e",
+                  "name": "e",
+                  "points": "151.6 .5 28.7 67.5 .7 19.8 35 .5 151.6 .5",
+                  "style": {},
+                  "type": "polygon"
+                },
+                {
+                  "elements": [
+                    {
+                      "id": "g",
+                      "name": "g",
+                      "points": "139.7 .5 25.8 62.7 28.7 67.5 151.9 .5 139.7 .5",
+                      "type": "polygon"
+                    },
+                    {
+                      "id": "h",
+                      "name": "h",
+                      "points": "35 .5 .7 19.8 3.6 24.5 47.3 .5 35 .5",
+                      "type": "polygon"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 153.9 68.1"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "MKP1_T102"
+        },
+        "meta": {
+          "name": "MKP1_T102",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 375,
+          "width": 29,
+          "x": 783,
+          "y": 99
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_ConveyorStatus/IGN_MKP1_T102_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "MKP1_T100_Merge"
+        },
+        "meta": {
+          "name": "MKP1_T100_Merge_1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 54,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 54,
+          "x": 819.15,
+          "y": 536.96
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_ConveyorStatus/IGN_MKP1_T100_Merge_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M86.6,48.3c-14.7,7.1-31.6,27.6-30.6,52.4l-55.5.3C.5,57.7,21.1,21.8,59.3.7l27.4,47.6Z",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "path"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M83.9,43.5c-14.4,9.4-31.9,22.2-32.6,57.2h4.8c1.3-29.3,13.8-40.6,30.6-52.3l-2.8-4.9Z",
+                  "id": "g",
+                  "name": "g",
+                  "type": "path"
+                },
+                {
+                  "d": "M61.5,5.3l-2.6-4.6C20.3,22.8,1.4,56.6.5,100.9h4.8C6.4,60.5,26.3,23.5,61.5,5.3Z",
+                  "id": "h",
+                  "name": "h",
+                  "type": "path"
+                }
+              ],
+              "style": {
+                "classes": "ConveyorColors/Rails"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 87.3 101.4"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "MKP1_T102_PE01"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 22,
+          "rotate": {
+            "angle": 90
+          },
+          "width": 5,
+          "x": 794.37,
+          "y": 434.31
+        },
+        "propConfig": {
+          "custom.PE_Color": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "Photoeyes/PE_White",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "Photoeyes/PE_Black"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_PE/IGN_MKP1_T102_PE01_Status"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE-Name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Eye\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Beam\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "20.61 100.68 0.27 159.13 40.95 159.13 20.61 100.68",
+                  "style": {},
+                  "type": "polygon"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "style": {},
+                  "type": "line",
+                  "x1": "20.61",
+                  "x2": "20.61",
+                  "y1": 110.19
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 41.23 159.32"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "MKP1_T102_ESPC01"
+        },
+        "meta": {
+          "name": "MKP1_T102_ESPC01",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": 180
+          },
+          "width": 15,
+          "x": 831.4962499999999,
+          "y": 413.82124999999996
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_EStop/IGN_MKP1_T102_ESPC01_Status"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "MKP1_T100_ESPC01"
+        },
+        "meta": {
+          "name": "MKP1_T100_ESPC01",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": 270
+          },
+          "width": 15,
+          "x": 244,
+          "y": 612
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_EStop/IGN_MKP1_T100_ESPC01_Status"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "MKP1_T102_PE01"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 37,
+          "width": 82,
+          "x": 755.61,
+          "y": 425.99
+        },
+        "propConfig": {
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]MKP1_Tags/MKP1_PE/IGN_MKP1_T102_PE01_Status"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.PE-Name} + \u0027_Jam\u0027"
+              },
+              "type": "expr"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 3,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "198.0538",
+              "y": "71.2563"
+            },
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "86.6788",
+              "y": "71.2563"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M1387.2571,547.64l1.4754-34.0832-44.825,4.7428,33.6613-20.2646-19.1742-8.0195,16.1916-11.3827-32.4683-32.51L1387.88,462.507V426.3757l21.9864,26.6458,20.0263-51.3081,2.0453,51.3081,26.8439-21.4718-12.0159,34.924,45.1659-9.2268-30.6787,28.629,30.6787,5.0877-27.696,17.5914,27.696,30.44L1448.3,518.73l6.2209,20.2645-24.2021-17.5914-6.2209,11.6414-16.1916-14.6595Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "Jams/Jam_Red_Flash"
+                  },
+                  "transform": "translate(-1232.5937 -389.9375)",
+                  "type": "path"
+                },
+                {
+                  "name": "text",
+                  "style": {
+                    "classes": "",
+                    "fontFamily": "Roboto",
+                    "fontSize": 26,
+                    "textAlign": "center"
+                  },
+                  "text": "JAM",
+                  "transform": "matrix(0.9875, 0.3468, -0.3244, 0.9459, 155.8286, 95.762)",
+                  "type": "text"
+                },
+                {
+                  "elements": [
+                    {
+                      "name": "polyline",
+                      "points": "160.531 29.723 175.286 48.799 191.954 1.125",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "195.134 153.256 200.309 142.746 217.978 156.813",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "107.74 136.589 147.287 132.102 146.155 156.907",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "236.047 38.069 227.099 64.908 265.448 56.986",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "96.129 54.938 128.086 88.083 114.344 97.488",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "273.703 103.821 246.22 120.366 277.059 153.188",
+                      "type": "polyline"
+                    }
+                  ],
+                  "name": "Jam_ActionLines",
+                  "type": "group"
+                }
+              ],
+              "name": "Jam",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "355.795 98.058 315.073 90.094 315.073 106.021 355.795 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 79.22 292.666 71.256 292.666 87.184 333.389 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 116.895 292.666 108.931 292.666 124.859 333.389 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "332.4063",
+                  "x2": "372.0625",
+                  "y1": "85.9219",
+                  "y2": "85.9219"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "327.625",
+                  "x2": "362.0781",
+                  "y1": "109.9688",
+                  "y2": "109.9688"
+                },
+                {
+                  "name": "polygon",
+                  "points": "17.392 98.058 58.115 106.021 58.115 90.094 17.392 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 116.895 80.521 124.859 80.521 108.931 39.799 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 79.22 80.521 87.184 80.521 71.256 39.799 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "40.7813",
+                  "x2": "1.125",
+                  "y1": "110.1932",
+                  "y2": "110.1932"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "45.5625",
+                  "x2": "11.1094",
+                  "y1": "86.1463",
+                  "y2": "86.1463"
+                }
+              ],
+              "name": "ActionLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": "2"
+              },
+              "type": "group"
+            },
+            {
+              "name": "polygon",
+              "points": "220.469 18.563 217.242 26.613 211.883 19.793 220.469 18.563",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "136.656 51.488 141.149 46.605 143.132 52.938 136.656 51.488",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "173.5 153.188 170.97 147.832 176.874 148.319 173.5 153.188",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "256.75 90.094 250.567 90.101 253.652 84.743 256.75 90.094",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "125.125 108.931 126.391 108.2 126.391 109.662 125.125 108.931",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "237.906 149.78 233.688 152.215 233.688 147.344 237.906 149.78",
+              "type": "polygon"
+            }
+          ],
+          "viewBox": "0 0 373.1875 162.7392"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Button_1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 176,
+          "width": 141,
+          "x": 281.51,
+          "y": 68.36
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M722.48,308.87l1,14.34-1.13.88s.27,10.93-9.59,10.93-9.6-10.93-9.6-10.93l-1.13-.88,1-14.34Z",
+                  "name": "ButtonMount",
+                  "transform": "translate(-701.93 -308.75)",
+                  "type": "path"
+                }
+              ],
+              "name": "ButtonBackground",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "ButtonMessage-2",
+                  "points": "19.51 12.53 20.45 11.99 19.66 1.28 10.85 1.28 2.04 1.28 1.25 11.99 2.2 12.53 19.51 12.53",
+                  "type": "polygon"
+                }
+              ],
+              "name": "ButtonMessage",
+              "style": {
+                "classes": "",
+                "fill": "#F0F0F0",
+                "stroke": "#000000",
+                "strokeWidth": ".255"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonBorder-2",
+                  "r": "9.73",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonBorder",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonColor",
+                  "r": "8.15",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonLight",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 21.7 26.84"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "plcPath": "ns\u003d1;s\u003d[]",
+          "status": 1
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\tself.view.params.Action_Outbound \u003d True\n\t\n\tsleep(1)\n\t\n\tself.view.params.Action_Outbound \u003d False\n\t\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "DivertLane_POWER_0"
+        },
+        "position": {
+          "height": 108,
+          "width": 106,
+          "x": 298.51,
+          "y": 126.36
+        },
+        "propConfig": {
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "view.params.Status_Outbound"
+              },
+              "transforms": [
+                {
+                  "fallback": "ButtonStyles/MCP/Solid_Grey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ButtonStyles/MCP/Solid_Grey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ButtonStyles/MCP/Solid_White"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ButtonStyles/MCP/Solid_Blue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ButtonStyles/MCP/Flash_Yellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ButtonStyles/MCP/Solid_White"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ButtonStyles/MCP/Solid_Red"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "height": 80,
+            "icon": {
+              "path": "material/power_settings_new"
+            },
+            "width": 60
+          },
+          "style": {
+            "borderBottomLeftRadius": 80,
+            "borderBottomRightRadius": 80,
+            "borderStyle": "solid",
+            "borderTopLeftRadius": 80,
+            "borderTopRightRadius": 80,
+            "borderWidth": 2,
+            "color": "#BABABA",
+            "fontSize": 20
+          },
+          "text": "",
+          "textStyle": {
+            "fontSize": ""
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Button_0",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 176,
+          "width": 141,
+          "x": 59.51,
+          "y": 70.35
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M722.48,308.87l1,14.34-1.13.88s.27,10.93-9.59,10.93-9.6-10.93-9.6-10.93l-1.13-.88,1-14.34Z",
+                  "name": "ButtonMount",
+                  "transform": "translate(-701.93 -308.75)",
+                  "type": "path"
+                }
+              ],
+              "name": "ButtonBackground",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "ButtonMessage-2",
+                  "points": "19.51 12.53 20.45 11.99 19.66 1.28 10.85 1.28 2.04 1.28 1.25 11.99 2.2 12.53 19.51 12.53",
+                  "type": "polygon"
+                }
+              ],
+              "name": "ButtonMessage",
+              "style": {
+                "classes": "",
+                "fill": "#F0F0F0",
+                "stroke": "#000000",
+                "strokeWidth": ".255"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonBorder-2",
+                  "r": "9.73",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonBorder",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonColor",
+                  "r": "8.15",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonLight",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 21.7 26.84"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "plcPath": "ns\u003d1;s\u003d[]",
+          "status": 1
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\tself.view.params.Action_Cardboard \u003d True\n\t\n\tsleep(1)\n\t\n\tself.view.params.Action_Cardboard \u003d False\n\t\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "DivertLane_POWER"
+        },
+        "position": {
+          "height": 108.51,
+          "width": 106.21,
+          "x": 77.16,
+          "y": 127.54
+        },
+        "propConfig": {
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "view.params.Status_Cardboard"
+              },
+              "transforms": [
+                {
+                  "fallback": "ButtonStyles/MCP/Solid_Grey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ButtonStyles/MCP/Solid_Grey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ButtonStyles/MCP/Solid_White"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ButtonStyles/MCP/Solid_Blue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ButtonStyles/MCP/Flash_Yellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ButtonStyles/MCP/Solid_White"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ButtonStyles/MCP/Solid_Red"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "height": 80,
+            "icon": {
+              "path": "material/power_settings_new"
+            },
+            "width": 60
+          },
+          "style": {
+            "borderBottomLeftRadius": 80,
+            "borderBottomRightRadius": 80,
+            "borderStyle": "solid",
+            "borderTopLeftRadius": 80,
+            "borderTopRightRadius": 80,
+            "borderWidth": 2,
+            "color": "#BABABA",
+            "fontSize": 20
+          },
+          "text": "",
+          "textStyle": {
+            "fontSize": ""
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 37,
+          "width": 103,
+          "x": 298.51,
+          "y": 79.36
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 26,
+            "textAlign": "center"
+          },
+          "text": "POWER"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 37.39,
+          "width": 103.46,
+          "x": 77.21,
+          "y": 80.88
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 26,
+            "textAlign": "center"
+          },
+          "text": "POWER"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "height": 37,
+          "width": 195,
+          "x": 255,
+          "y": 31
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 26,
+            "textAlign": "center"
+          },
+          "text": "MKP1 Outbound"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "height": 37,
+          "width": 195,
+          "x": 31,
+          "y": 16.99
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 26,
+            "textAlign": "center"
+          },
+          "text": "MKP1 Cardboard"
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

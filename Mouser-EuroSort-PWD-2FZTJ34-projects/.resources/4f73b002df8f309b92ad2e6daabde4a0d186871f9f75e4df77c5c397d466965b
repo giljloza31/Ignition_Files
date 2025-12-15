@@ -1,0 +1,12 @@
+"""
+
+"""
+
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.api.base import route_webdev
+
+
+# import to register all the endpoints
+
+from eurosort.api.state import *

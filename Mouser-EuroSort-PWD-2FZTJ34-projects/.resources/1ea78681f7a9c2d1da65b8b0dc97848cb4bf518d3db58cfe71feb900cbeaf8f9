@@ -1,0 +1,3 @@
+--insert table name as project name_Divert_Table
+Insert Into Scan1_Divert_Table
+Values ( :inVarRoute , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

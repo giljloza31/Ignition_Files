@@ -1,0 +1,3 @@
+SELECT *
+FROM NE_Receiving_route_table 
+ORDER BY Route_Code

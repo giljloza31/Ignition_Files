@@ -1,0 +1,100 @@
+{
+  "custom": {},
+  "params": {
+    "user": ""
+  },
+  "propConfig": {
+    "params.user": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 172,
+      "width": 450
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 45,
+          "width": 397,
+          "x": 26.5,
+          "y": 41.5
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\"Are you sure you want to delete the user: \" + {view.params.user} + \"?\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tsystem.perspective.sendMessage(\"confirmAction\", scope \u003d \"session\", payload \u003d {\"confirm\":\"true\"})\n\tsystem.perspective.closePopup(\u0027\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 45,
+          "width": 100,
+          "x": 94.3,
+          "y": 92.5
+        },
+        "props": {
+          "text": "Yes"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tsystem.perspective.closePopup(\u0027\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 45,
+          "width": 100,
+          "x": 255.8,
+          "y": 92.5
+        },
+        "props": {
+          "text": "No"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,167 @@
+from shared.foundation.time import clock
+from shared.es_platform.commands import tagmap
+
+
+class CommandHelper(object):
+	"""
+	High-level command helper for operator tools.
+	- Can write to tags/OPC
+	- Can run dry_run (no writes)
+	- Always records intent to StateStore (Mongo) for troubleshooting
+	"""
+
+	def __init__(self, systemCode, state_store, tag_writer=None, site_tz_id="UTC", dry_run=False, logger=None):
+		self.systemCode = systemCode
+		self.store = state_store
+		self.tag_writer = tag_writer or IgnitionTagWriter()
+		self.site_tz_id = site_tz_id
+		self.dry_run = bool(dry_run)
+		self.logger = logger
+
+	def _log(self, msg, payload=None, level="info"):
+		if self.logger:
+			try:
+				fn = getattr(self.logger, level, None)
+				if fn:
+					fn(msg, payload)
+					return
+			except:
+				pass
+		# Fallback: no-op (or print for script console)
+		try:
+			print("%s %s" % (msg, payload if payload is not None else ""))
+		except:
+			pass
+	
+	def _record(self, chuteId=None, carrierId=None, eventType="CMD", details=None, userId=None, eventId=None, context=None):
+		d = dict(details or {})
+	
+		# If we have re-auth context, stamp it
+		if isinstance(context, dict):
+			if context.get("authUser"):
+				d["authUser"] = context.get("authUser")
+			if context.get("authSource"):
+				d["authSource"] = context.get("authSource")
+	
+		if chuteId is not None:
+			self.store.chute_mark_event(str(chuteId), eventType, details=d, userId=userId, eventId=eventId)
+	
+		if carrierId is not None:
+			self.store.upsert_carrier(int(carrierId), fields={
+				"lastEventType": eventType,
+				"lastEventId": eventId,
+				"lastUserId": userId,
+				"lastEventDetails": d,
+			}, inc=None, on_insert={"createdAt": clock.pack_timestamps(tz_id=self.site_tz_id), "entityClass": "SORTER_CARRIER"})
+		
+	def _write(self, writes, userId=None, eventId=None, eventType="CMD"):
+		"""
+		writes: list of (tagPath, value)
+		"""
+		ts = clock.pack_timestamps(tz_id=self.site_tz_id)
+		payload = {"writes": writes, "dry_run": self.dry_run, "ts": ts, "userId": userId, "eventId": eventId, "eventType": eventType}
+
+		self._log("CommandHelper.write", payload)
+
+		if self.dry_run:
+			return {"ok": True, "dry_run": True, "writes": writes, "ts": ts}
+
+		res = self.tag_writer.write(writes)
+		return {"ok": True, "dry_run": False, "writes": writes, "result": res, "ts": ts}
+
+	# ----------------------------
+	# System commands
+	# ----------------------------
+
+	def system_on(self, userId=None, eventId=None):
+		writes = [(tagmap.system_enable(self.systemCode), True)]
+		self._record(eventType="CMD_SYSTEM_ON", details={"writes": writes}, userId=userId, eventId=eventId)
+		return self._write(writes, userId=userId, eventId=eventId, eventType="CMD_SYSTEM_ON")
+
+	def system_off(self, userId=None, eventId=None):
+		writes = [(tagmap.system_disable(self.systemCode), True)]
+		self._record(eventType="CMD_SYSTEM_OFF", details={"writes": writes}, userId=userId, eventId=eventId)
+		return self._write(writes, userId=userId, eventId=eventId, eventType="CMD_SYSTEM_OFF")
+
+	def set_mode(self, mode, userId=None, eventId=None):
+		# mode could be "AUTO"/"MANUAL"/etc
+		writes = [(tagmap.system_mode(self.systemCode), str(mode))]
+		self._record(eventType="CMD_SET_MODE", details={"mode": mode, "writes": writes}, userId=userId, eventId=eventId)
+		return self._write(writes, userId=userId, eventId=eventId, eventType="CMD_SET_MODE")
+
+	# ----------------------------
+	# Chute commands
+	# ----------------------------
+
+	def open_chute_door(self, dst, userId=None, eventId=None):
+		dst = str(dst)
+		writes = [(tagmap.chute_door_open(self.systemCode, dst), True)]
+		self._record(chuteId=dst, eventType="CMD_CHUTE_OPEN", details={"dst": dst, "writes": writes}, userId=userId, eventId=eventId)
+		return self._write(writes, userId=userId, eventId=eventId, eventType="CMD_CHUTE_OPEN")
+
+	def close_chute_door(self, dst, userId=None, eventId=None):
+		dst = str(dst)
+		writes = [(tagmap.chute_door_close(self.systemCode, dst), True)]
+		self._record(chuteId=dst, eventType="CMD_CHUTE_CLOSE", details={"dst": dst, "writes": writes}, userId=userId, eventId=eventId)
+		return self._write(writes, userId=userId, eventId=eventId, eventType="CMD_CHUTE_CLOSE")
+
+	def set_chute_light(self, dst, on=True, userId=None, eventId=None):
+		dst = str(dst)
+		writes = [(tagmap.chute_light(self.systemCode, dst), bool(on))]
+		self._record(chuteId=dst, eventType="CMD_CHUTE_LIGHT", details={"dst": dst, "on": bool(on), "writes": writes}, userId=userId, eventId=eventId)
+		return self._write(writes, userId=userId, eventId=eventId, eventType="CMD_CHUTE_LIGHT")
+
+	# ----------------------------
+	# Carrier commands
+	# ----------------------------
+
+	def force_release_carrier(self, carrierId, userId=None, eventId=None):
+		cid = int(carrierId)
+		writes = [(tagmap.carrier_force_release(self.systemCode, cid), True)]
+		self._record(carrierId=cid, eventType="CMD_CARRIER_FORCE_RELEASE", details={"carrierId": cid, "writes": writes}, userId=userId, eventId=eventId)
+		return self._write(writes, userId=userId, eventId=eventId, eventType="CMD_CARRIER_FORCE_RELEASE")
+
+
+class IgnitionTagWriter(object):
+	"""
+	Default writer using Ignition tag system.
+	Works in Gateway scope. In Script Console, it will also work if system.tag is available.
+	"""
+	def write(self, writes):
+		try:
+			import system
+			paths = [w[0] for w in writes]
+			values = [w[1] for w in writes]
+			return system.tag.writeBlocking(paths, values)
+		except Exception as e:
+			raise RuntimeError("Tag write failed: %s" % e)
+#			
+#from shared.es_platform.commands import CommandHelper, CommandQueue
+#from shared.es_platform.domain.state_store import StateStore
+#from shared.foundation.mongo.proxy import MongoProxy
+#
+#mongo = MongoProxy(connector="MongoWCS", gateway_project="ES_Platform", handler_name="MongoProxy")
+#store = StateStore("MOUSER-ES-C1", mongo, site_tz_id="America/Chicago", enable_cache=True)
+#
+#queue = CommandQueue(max_size=200, min_ms_between=100, dedupe_window_ms=250)
+#
+#cmd = CommandHelper(
+#	"MOUSER-ES-C1",
+#	store,
+#	dry_run=False,
+#	use_queue=True,
+#	queue=queue
+#)
+#
+## Enqueue (will dedupe rapid repeats)
+#cmd.set_chute_light("DST-0012-1-1-A", on=True, userId="gil")
+#cmd.set_chute_light("DST-0012-1-1-A", on=True, userId="gil")
+#
+## Drain (call from a timer, or manually)
+#print(cmd.drain_queue_all(max_items=20))
+#
+## Permission example: system_off requires roles (default rules)
+#try:
+#	cmd.system_off(userId="gil")
+#except Exception as e:
+#	print("Denied:", e)

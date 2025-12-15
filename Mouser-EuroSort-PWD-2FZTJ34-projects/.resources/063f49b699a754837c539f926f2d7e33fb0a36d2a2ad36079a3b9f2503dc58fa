@@ -1,0 +1,292 @@
+import system
+import json
+
+client = system.net.httpClient()
+
+class Smartsheet:
+	API_TOKEN = 'v5WRDhzneL1jB3yVmd8fdCkjfzdDQwUdjAsge'
+	
+	def __init__(self):
+		
+		self.headers = {
+			"Authorization": "Bearer " + self.API_TOKEN,
+			"Content-Type": "application/json"
+			}
+		
+		self.logger = system.util.getLogger('SmartSheet')
+		
+		self.SHEETS = {
+			'log_inventory': self._sheet_data_log_inventory,
+			'pconsol_issues': self._sheet_data_pconsole_issues,
+			'log_events': self._sheet_data_log_events,
+			'Level_3_Data':self._sheet_data_level_3_data
+			}
+			
+		self.sheet_metadata = {}
+	def _sheet_data_log_level_3_data(self):
+		
+		return {
+			"name": "Level_3_Data",
+			"columns": [
+				{"title": "destination", "primary":True, "type": "TEXT_NUMBER"},
+				{"title": "ibns", "type": "TEXT_NUMBER"},
+				{"title": "group", "type": "TEXT_NUMBER"},
+				{"title": "zone", "type": "TEXT_NUMBER"},
+				{"title": "dims", "type": "TEXT_NUMBER"},
+				{"title": "volume", "type": "TEXT_NUMBER"},
+				{"title": "carrier", "type": "TEXT_NUMBER"},
+				{"title": "chute_status", "type": "TEXT_NUMBER"},
+				{"title": "event_type", "type": "TEXT_NUMBER"},
+				{"title": "event_number", "type": "TEXT_NUMBER"},
+				{"title": "event_time", "type": "DATE"}
+				]
+			}		
+	def _sheet_data_log_inventory(self):
+		
+		return {
+			"name": "log_inventory",
+			"columns": [
+				{"title": "machine", "primary":True, "type": "TEXT_NUMBER"},
+				{"title": "expected_location", "type": "TEXT_NUMBER"},
+				{"title": "ibns", "type": "TEXT_NUMBER"},
+				{"title": "cell_tag", "type": "TEXT_NUMBER"},
+				{"title": "into_tote_tag", "type": "TEXT_NUMBER"},
+				{"title": "into_location", "type": "TEXT_NUMBER"},
+				{"title": "expected_tote_tag", "type": "TEXT_NUMBER"},
+				{"title": "into_cell_tag", "type": "TEXT_NUMBER"},
+				{"title": "expected_cell_tag", "type": "TEXT_NUMBER"},
+				{"title": "tote_tag", "type": "TEXT_NUMBER"},
+				{"title": "event_type", "type": "TEXT_NUMBER"},
+				{"title": "event_time", "type": "DATE"}
+				]
+			}
+			
+	def _sheet_data_pconsole_issues(self):
+		
+		return {
+			"name": "pconsol_issues",
+			"columns": [
+				{"title": "ibn","primary":True, "type": "TEXT_NUMBER"},
+				{"title": "order", "type": "TEXT_NUMBER"},
+				{"title": "location", "type": "TEXT_NUMBER"},
+				{"title": "at_bulk_consol", "type": "TEXT_NUMBER"},
+				{"title": "quantity", "type": "TEXT_NUMBER"},
+				{"title": "status", "type": "TEXT_NUMBER"},
+				{"title": "orderLine", "type": "TEXT_NUMBER"},
+				{"title": "holdInspect", "type": "TEXT_NUMBER"},
+				{"title": "createdtime", "type": "DATE"}
+				]
+			}
+			
+	def _sheet_data_log_events(self):
+		
+		return {
+			"name": "log_events",
+			"columns": [
+				{"title": "machine","primary":True, "type": "TEXT_NUMBER"},
+				{"title": "ibn", "type": "TEXT_NUMBER"},
+				{"title": "into_cell_tag", "type": "TEXT_NUMBER"},
+				{"title": "order", "type": "TEXT_NUMBER"},
+				{"title": "InterruptionCode", "type": "TEXT_NUMBER"},
+				{"title": "DatablockId", "type": "TEXT_NUMBER"},
+				{"title": "SystemState", "type": "TEXT_NUMBER"},
+				{"title": "MaxConcurrentTasks", "type": "TEXT_NUMBER"},
+				{"title": "event_type", "type": "TEXT_NUMBER"},
+				{"title": "sorter", "type": "TEXT_NUMBER"},
+				{"title": "from_wcs_location", "type": "TEXT_NUMBER"},
+				{"title": "into_tote_tag", "type": "TEXT_NUMBER"},
+				{"title": "InterruptionReason", "type": "TEXT_NUMBER"},
+				{"title": "NeedsRecoveryOperation", "type": "TEXT_NUMBER"},
+				{"title": "into_location", "type": "TEXT_NUMBER"},
+				{"title": "SecondsSinceHostAppStart", "type": "TEXT_NUMBER"},
+				{"title": "io_point", "type": "TEXT_NUMBER"},{"title": "down", "type": "TEXT_NUMBER"},
+				{"title": "username", "type": "TEXT_NUMBER"},
+				{"title": "gate", "type": "TEXT_NUMBER"},
+				{"title": "destination", "type": "TEXT_NUMBER"},
+				{"title": "barcode", "type": "TEXT_NUMBER"},
+				{"title": "tote_tag", "type": "TEXT_NUMBER"},
+				{"title": "event_time", "type": "DATE"}
+				]
+			}
+	
+	def create_sheet(self, sheet_data):
+		
+		try:
+			
+			response = client.post(
+			
+				url='https://api.smartsheet.com/2.0/sheets',
+				headers=self.headers,
+				data=sheet_data
+				)
+				
+			if int(response.statusCode) != 200:
+				
+				self.logger.warn("Failed to create sheet: {}".format(response.text))
+				return None
+				
+			results_raw  = response.json
+			result=results_raw['results']
+		 
+			return {
+				"name": result.get('name'),
+				"sheet_id": result.get('id'),
+				"columns": [{"column_num": col['index'], "columnid": col['id']}]
+				}
+				
+		except Exception as e:
+			
+			self.logger.error("Exception during sheet creation: {}".format(str(e)))
+			return None
+			
+	def get_existing_sheets(self):
+		
+		try:
+			
+			response = client.get(
+			
+				url="https://api.smartsheet.com/2.0/sheets",
+				headers=self.headers
+				
+				)
+				
+			if int(response.statusCode) != 200:
+				return {}
+				
+			data = response.json
+			return {sheet['name']: sheet['id'] for sheet in data.get('data', [])}
+			
+		except Exception as e:
+			
+			self.logger.error("Error fetching sheet list: {}".format(str(e)))
+			return {}
+			
+	def ensure_sheets_exist(self):
+		
+		existing = self.get_existing_sheets()
+		
+		for name in self.SHEETS.keys():
+			
+			if name in existing:
+				
+				self.sheet_metadata[name] = {
+					"name": name,
+					"sheet_id": existing[name],
+					"columns": self.get_columns_for_sheet(existing[name])
+					}
+					
+			else:
+				
+				if name == "log_events":
+					sheet_data = self._sheet_data_log_events()
+				
+				elif name == "log_inventory":
+					sheet_data = self._sheet_data_log_inventory()
+					
+				elif name == "pconsol_issues":
+					sheet_data = self._sheet_data_pconsole_issues()
+					
+				elif name == "Level_3_Data":
+					sheet_data = self._sheet_data_Level_3_Data()
+					
+				else:
+					self.logger.warn('{} not in sheets to log.'.format(name))
+					return
+				
+				created = self.create_sheet(sheet_data)
+				
+				if created:
+					self.sheet_metadata[name] = created
+					
+		self.store_metadata_to_tags()
+				
+	def get_columns_for_sheet(self, sheet_id):
+		columns_info = []
+		try:
+			response = client.get(
+				url="https://api.smartsheet.com/2.0/sheets/{}".format(sheet_id),
+				headers=self.headers
+				)
+				
+			if int(response.statusCode) == 200:
+				data = response.json
+				
+				columns_info = list(map(
+					lambda col: {
+						"column_num": col["index"], "title": col["title"], "columnId": col["id"]},
+						sorted(columns, key=lambda col: col["index"])
+						)
+					)
+			return columns_info
+		except:
+			
+			return []
+			
+	def store_metadata_to_tags(self):
+		
+		for sheet_name, meta in self.sheet_metadata.items():
+			
+			try:
+				
+				tag_path = "[Mouser]Report Info/{}".format(sheet_name)
+				
+				ref = {
+				
+					"name": meta['name'],
+					"sheet_id": meta['sheet_id'],
+					"columns": self.get_columns_for_sheet(meta['sheet_id'])
+				}
+				
+				system.tag.write(tag_path, json.dumps(ref))
+				self.logger.info("Wrote metadata to tag: {}".format(tag_path))
+				
+			except Exception as e:
+				
+				self.logger.warn("Failed to write tag for {}: {}".format(sheet_name, str(e)))
+				
+	def write_row_to_sheet(self, sheet_name, row_dict):
+		tag_path = "[Mouser]Report Info/{}".format(sheet_name)
+		sheet_meta = self.sheet_metadata.get(sheet_name)
+		
+		if not sheet_meta:
+			self.logger.info("Sheet '{}' not found in metadata".format(sheet_name))
+			self.logger.info("Getting info from Tags")
+			sheet_info = system.tag.readBlocking(tag_path)[0].value
+			if not sheet_info:
+				self.logger.info('No information found for sheet {}.'.format(sheet_name))
+				return
+			else:
+				sheet_id = sheet_info['sheet_id']
+				col_title_map = sheet_info['columns']
+		else:
+			col_title_map = sheet_meta['columns']
+			sheet_id = sheet_meta['sheet_id']
+				
+		cells = []
+		for title, value in row_dict.items():
+			for col in col_title_map:
+				if title == col['title']:
+					cells.insert(int(col['column_num']),{
+					'columnId':col['columnId'],
+					'value':value,
+					})
+		
+		row_data = [{
+			"toTop": True,
+			"cells": cells
+			}]
+			
+		
+		response = client.post(
+			url='https://api.smartsheet.com/2.0/sheets/{}/rows'.format(sheet_id),
+			headers=self.headers,
+			data=json.dumps(row_data)
+			)
+			
+		if response.statusCode == 200:
+			
+			self.logger.info("Row written to '{}' successfully.".format(sheet_name))
+		
+		else:
+			
+			self.logger.warn("Failed to write row to '{}': {}".format(sheet_name, response.text))

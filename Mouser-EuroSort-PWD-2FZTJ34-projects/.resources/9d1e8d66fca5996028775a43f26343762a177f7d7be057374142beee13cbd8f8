@@ -1,0 +1,3 @@
+SELECT  TOP( :inVarRange )*
+FROM  QPS_Scan_History 
+ORDER BY  scanindx DESC

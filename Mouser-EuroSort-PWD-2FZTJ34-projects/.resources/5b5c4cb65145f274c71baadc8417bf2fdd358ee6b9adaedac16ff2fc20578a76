@@ -1,0 +1,591 @@
+"""
+	Track chute contents
+
+	Add metadata to each chute for tracking.
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from shared.data.types.adhoc import AdHocObject
+from shared.data.types.enum import Enum
+from shared.tools.global import ExtraGlobal
+
+from eurosort.context import EuroSorterContextManagement
+from eurosort.destmap import EuroSorterDestinationMapping
+from eurosort.routing import EuroSorterRoutingManagement
+from eurosort.sorterdata.destination import SorterDataDestination_DefaultPattern
+from eurosort.sorterdata.core import SorterDataWrapper
+
+from eurosort.utility import now
+
+from collections import defaultdict
+
+import datetime
+import json, os
+
+
+
+class Chutes(Enum):
+	LOWER  = '1'
+	UPPER  = '2'
+	BOTTOM = '1'
+	TOP    = '2'
+	NULL = '0'
+
+class Dests(Enum):
+	REAR  = '1'
+	FRONT = '2'
+	NULL = '0'
+
+class Sides(Enum):
+	A = 'A'
+	B = 'B'
+	C = 'C'
+	NULL = '_'
+
+
+
+
+class Destination(object):
+	"""Normalizes and coerces to a standard pattern."""
+	__slots__ = ['_station', '_chute', '_side', '_context']
+
+	LOOKUP_PROPERTIES = ['station', 'chute', 'side']
+
+	def __init__(self, station, chute, side, **context):
+		self._station = self._coerce_station(station)
+		self._chute   = self._coerce_chute(chute)
+		self._side    = self._coerce_side(side)
+		self._context = context
+
+	@property
+	def station(self):
+		return self._station
+	@property
+	def chute(self):
+		return self._chute
+	@property
+	def side(self):
+		return self._side
+
+	@property
+	def destination(self):
+		return str(self)
+
+	@classmethod
+	def _coerce_station(cls, station):
+		return '%04d' % int(station)
+	@classmethod
+	def _coerce_chute(cls, chute):
+		return Chutes(str(chute).upper())
+	@classmethod
+	def _coerce_side(cls, side):
+		return Sides(str(side).upper())
+
+
+	@classmethod
+	def parse(cls, destination):
+		# short circuit
+		if isinstance(destination, cls):
+			return destination
+		elif isinstance(destination, AdHocObject):
+			return cls.parse(destination.destination)
+		
+		if not isinstance(destination, (str, unicode)):
+			return cls.parse(str(destination))
+	
+		match = SorterDataDestination_DefaultPattern.DESTINATION_PATTERN.match(destination)
+		if not match:
+			raise KeyError('%r does not match the pattern expected; can not parse')
+		mgd = match.groupdict()
+		return cls(mgd['station'], mgd['chute'], mgd['side'])
+
+	def __getitem__(self, key):
+		assert key in self.LOOKUP_PROPERTIES, "Only station, chute, and side are available for lookup"
+		return getattr(self, key)
+
+	def __iter__(self):
+		for key in self.LOOKUP_PROPERTIES:
+			yield key
+
+	# ensure equivalent entries get the same dict bucket
+	def __hash__(self):
+		return hash(str(self))
+	# ... so it's comparable
+	def __eq__(self, other):
+		return str(self) == str(other)
+	# ... and sortable
+	def __lt__(self, other):
+		return str(self) < str(other)
+	
+	# TODO: add property for WCS location - 
+#	@property
+#	def wcs_location(self):
+#		return '{wcs_machine_id}{station}{chute}{dest}{side}'.format(**self)
+
+#	@property
+#	def eurosort_route(self):
+#		return 'DST-{station}-{chute}-{dest}-{side}'.format(**self)
+
+	def __str__(self):
+		return 'DST-%s-%s-%s-%s' % (
+			self._station, 
+			self._chute, 
+			'1', #self._dest, 
+			self._side,
+		)
+
+	def __repr__(self):
+		return str(self)
+
+
+
+
+
+class EuroSorterContentTracking(
+		EuroSorterRoutingManagement,
+		EuroSorterContextManagement,
+		EuroSorterDestinationMapping,
+	):
+
+	DESTINATION_CONTENT_CACHE_SCOPE = 'EuroSort-Contents'
+
+
+
+	def __init__(self, name, **init_config):
+		super(EuroSorterContentTracking, self).__init__(name, **init_config)
+	
+		self._initialize_destination_contents()
+
+	def _load_routing_config(self):
+		super(EuroSorterContentTracking, self)._load_routing_config()
+		# ensure any changes are made consistent here
+		self._initialize_destination_contents()
+
+
+	@property
+	def _destination_contents(self):
+		try:
+			return ExtraGlobal.access(self.name, self.DESTINATION_CONTENT_CACHE_SCOPE) 
+		except KeyError:
+			self.logger.warn('Destination contents not initialized. Setting up...')
+			self._initialize_destination_contents()
+			return ExtraGlobal.access(self.name, self.DESTINATION_CONTENT_CACHE_SCOPE)
+			# NOTE: could have just done `return self._destination_contents`,
+			#       but in the unlikely event of an error, gosh that'd be hell to debug
+
+	@_destination_contents.setter
+	def _destination_contents(self, replacement_contents):
+		raise NotImplementedError('Destination contents are set individually, not en masse. Do not set to self._destination_contents')
+
+	def clear(self):
+		"""Full tracking reset"""
+		self.logger.warn('Clearing all tracking data from sorter %s' % self.name)
+		self._dump_core()
+		try:
+			ExtraGlobal.trash(self.name, self.DESTINATION_CONTENT_CACHE_SCOPE)
+		except KeyError:
+			pass # already deleted
+		self._initialize_destination_contents(full_clear=True)
+
+	def _on_jvm_shutdown(self):
+		self._dump_core()
+		super(EuroSorterContentTracking, self)._on_jvm_shutdown()
+
+
+	def _dump_core(self):
+	
+		json_payload = self._generate_contents_json()
+	
+		timestamp = datetime.datetime.now().isoformat('_').replace(':', '')[:17]
+	
+		core_dump_dir = self.config['log_path'] + '/' + 'coredump'
+		if not os.path.exists(core_dump_dir):
+			os.makedirs(core_dump_dir)
+		filepath = core_dump_dir + '/' + 'core_dump.' + timestamp + '.json'
+	
+		with open(filepath, 'w') as f:
+			f.write(json_payload)
+	
+		self.logger.warn('Sorter data dumped core at {filepath}')
+
+
+	def _generate_contents_json(self):
+		info = {}
+		for destination in self:
+			chute_info = self[destination]
+			info[str(destination)] = chute_info._asdict()
+	
+		return json.dumps(info, indent=2, sort_keys=True, default=repr)
+
+
+
+	def _reload_core(self, core_dump_filename=None):
+	
+		raise NotImplementedError('WIP DO NOT USE - datatypes need coersion')
+	
+		self.logger.warn('RELOADING STATE')
+	
+		core_dump_dir = self.config['log_path'] + '/' + 'coredump'
+		
+		if core_dump_filename is None:
+			core_dump_filenames = [filename for filename in os.listdir(core_dump_dir) if filename.startswith('core_dump.')]
+			core_dump_filename = sorted(core_dump_filenames)[0]
+		
+		with open(core_dump_dir + '/' + core_dump_filename, 'r') as f:
+			json_payload = f.read()
+		
+		core_dump = json.loads(json_payload)
+		
+		for destination, chute_state in core_dump.items():
+			chute_info = self[destination]
+			chute_info.clear()
+			chute_info.update(chute_state)
+		
+		
+		
+
+
+	def _initialize_destination_contents(self, full_clear=False):
+
+		if not full_clear:
+			try:
+				destination_contents = ExtraGlobal.access(self.name, self.DESTINATION_CONTENT_CACHE_SCOPE)
+			except KeyError:
+				full_clear = True # make sure it's initialized
+
+		if full_clear:
+			self.logger.warn('Clearing all tracking data from sorter %s' % self.name)
+		
+			destination_contents = {}
+			ExtraGlobal.stash(destination_contents, 
+				self.name, self.DESTINATION_CONTENT_CACHE_SCOPE,
+				lifespan= 60*60*24*30*12, # one year - let it reset on gateway restart #12 hours
+			)
+	
+		num_stations = max(
+				int(Destination.parse(destination_string).station)
+				for destination_string
+				 in self._destination_mapping
+			)
+	
+		# done by station to prevent setting en masses to property
+		# note that this effectively merges, only re-initializing if missing
+		# force re-initialization via `full_clear`
+		for station in range(1, num_stations+1): # 1-indexed
+			for side in Sides:
+				for chute in Chutes:
+					destination = Destination(station, chute, side)
+				
+					if self._destination_is_disallowed(destination):
+						if destination in destination_contents:
+							del destination_contents[destination]
+						continue
+				
+					# initialize if missing
+					if not destination in destination_contents:
+						destination_contents[destination] = self._init_destination(station, chute, side)
+	
+		self.logger.trace('Initialized/verified destination metadata for {num_stations} stations of dest contents: {n}', n=len(destination_contents))
+
+
+
+
+
+	def _init_destination(self, station, chute, side):
+		return AdHocObject(dict(
+			# intrinsic info
+			destination = Destination(station, chute, side),
+		
+			station = Destination._coerce_station(station),
+			chute   = Destination._coerce_chute(chute),
+			side    = Destination._coerce_side(side),
+		
+			# expected collections of stuff
+			consolidating = {},
+			available = {},
+			available_timestamp = now(),
+		))
+
+
+#	def _enforce_destination_contents_schema(self, destination):
+#		chute_info = self[destination]
+#		chute_info.destination = Destination.parse(chute_info.destination)
+#		chute_info.merge_left(dict(
+#			# intrinsic info
+#			station = chute_info.destination.station,
+#			chute   = chute_info.destination.chute,
+#			side    = chute_info.destination.side,
+#		
+#			# expected collections of stuff
+#			consolidating = {},
+#			available = {},
+#			available_timestamp = now(),
+#		))
+
+
+	def _dest_name_seq_heuristic(self, first=None, second=None, third=None):
+		"""Given that sides are alpha and the stations are technically numeric,
+		we can always guess what an arbitrary ordering means
+		# sides are 'A' and 'B' unlike the other two
+		# station always comes before chute,
+		# so here's basically the only way to interpret a slice		
+		"""
+		if (first or '').upper() in Sides:
+			side    = first
+			station = second
+			chute   = third
+		elif (second or '').upper() in Sides:
+			station = first
+			side    = second
+			chute   = third
+		elif (third or '').upper() in Sides:
+			station = first
+			chute   = second
+			side    = third
+		else: # invalid side anywhere, so... guess it's blank
+			side    = None
+			if not third:
+				station = first
+				chute   = second
+			else:
+				station = second
+				chute   = third
+	
+		return station, chute, side
+
+
+	def search(self, station=None, chute=None, side=None, **filters):
+		
+		# grab the initial set of things
+		matches = self[station: chute: side]
+		
+		# then filter via the AHO recursive contains method
+		aho_filters = AdHocObject(filters)
+		
+		return [match
+			for match 
+			 in matches
+			if aho_filters in match
+		]
+
+
+	def __getitem__(self, identifier):
+		
+		station = None
+		chute   = None
+		side    = None
+	
+		try: # duck typing!
+			return self._destination_contents[identifier]
+		except:
+			try:
+				return self._destination_contents[Destination.parse(identifier)]
+			except:
+				pass # not a string or Destination
+	
+		if isinstance(identifier, (tuple, list)):
+			if len(identifier) == 3:
+				try:
+					return self._destination_contents[Destination(*identifier)]
+				except KeyError:
+					return None
+#					raise KeyError('Destination is not valid/allowed: %r' % (identifier,))
+			else:
+				station, chute, side = self._dest_name_seq_heuristic(*identifier)
+		else:
+			NotImplementedError("A sequence of identifiers is unambiguous")
+	
+		if isinstance(identifier, dict):
+			if len(identifier) == 3:
+				try:
+					return self._destination_contents[Destination(**identifier)]
+				except KeyError:
+					return None
+#					raise KeyError('Destination is not valid/allowed: %r' % (identifier,))
+			else:
+				station = identifier.get('station')
+				chute   = identifier.get('chute')
+				side    = identifier.get('side')
+	
+		if isinstance(identifier, slice):
+			station, chute, side = self._dest_name_seq_heuristic(
+				identifier.start, identifier.stop, identifier.step)
+	
+		if isinstance(identifier, SorterDataWrapper):
+			station = identifier.station
+			chute   = identifier.chute
+			side    = identifier.side
+	
+
+	
+		try:
+			# ensure some nice(r) concistency, maybe
+			if station:
+				station = Destination._coerce_station(station)
+			if chute:
+				chute = Destination._coerce_chute(chute)
+			if side:
+				side = Destination._coerce_side(side)
+		except Exception as error:
+			self.logger.trace('Destination getter context: {identifier} -> {station} {chute} {side}')
+			raise error
+	
+		if all([station, chute, side]):
+			try:
+				return self._destination_contents[Destination(station, chute, side)]
+			except KeyError:
+				return None
+	
+		# Iterate over 'em all
+		matches = sorted(self._destination_contents)
+		for key, value in zip(Destination.LOOKUP_PROPERTIES, [station, chute, side]):
+			if value is not None: # filter down
+				matches = [destination for destination in matches if destination[key] == value]
+		return matches
+
+
+	def __iter__(self):
+		for destination in sorted(self._destination_contents):
+			yield destination 
+
+	@property
+	def chute_infos(self):
+		for chute_info in self._destination_contents.values():
+			yield chute_info
+
+
+## TODO: rename BAY to PACKOUT so that it follows a more general naming
+##       rename _station_bays to destination_bays (ignore station and refactor to be general)
+
+class EuroSorterBayGrouping(
+		EuroSorterContentTracking,
+	):
+
+	PACKOUT_STATIONS = list(range(1, 66)) # 1-65
+
+	def __init__(self, name, **init_config):
+		self._station_bays = {}
+		self._bay_stations = defaultdict(set)
+		super(EuroSorterBayGrouping, self).__init__(name, **init_config)
+		self._assign_bays()
+
+
+	def _load_routing_config(self):
+		super(EuroSorterBayGrouping, self)._load_routing_config()
+		self._assign_bays()
+
+
+	def _assign_bays(self):
+		station_bays = {}
+		bay_stations = defaultdict(set)
+		
+		for destination in self:
+			if self._destination_is_disallowed(destination):
+				continue # skip disallowed chutes
+			
+			if destination in (self._route_noread, self._route_invalid_barcode):
+				continue # skip reserved chutes
+			
+			station = destination.station
+			
+			bay_identifier = self._get_bay_for_station(station)
+			
+			if bay_identifier is None:
+				self[destination].bay = None
+				continue # skip those not in the packout zone
+		
+			station_bays[station] = bay_identifier
+			bay_stations[bay_identifier].add(station)
+			self[destination].bay = bay_identifier
+		
+			# arbitrary sanity check
+			assert not self[destination].batch, 'Packout station can not also be a BATCH chute: %s ==> %r' % (
+				destination, self[destination],)
+
+		bay_stations = dict(bay_stations)
+	
+		self._station_bays = station_bays
+		self._bay_stations = bay_stations
+
+	def _get_bay_for_station(self, station):
+		if int(station) not in self.PACKOUT_STATIONS:
+			return None
+		bay_number = ((int(station) - 1) // 5) + 1
+		return 'Bay%d' % bay_number
+
+
+	def _init_destination(self, station, chute, side):
+		# include in session init
+		destination_session = super(EuroSorterBayGrouping, self)._init_destination(station, chute, side)
+		destination_session.bay = self._get_bay_for_station(station)
+	
+		return destination_session
+
+
+	def __getitem__(self, identifier):
+		"""Make looking up bay info easier
+		
+		Can use:
+		 - 'Bay#' (str): the name of the bay, like 'Bay4'
+		
+		"""
+	
+		# resolve these (note no station or chute: bays group by these)
+		bay = None
+		side = None
+		chute = None
+	
+		if isinstance(identifier, (str, unicode)):
+			if identifier in self.bays:
+				bay = identifier
+		elif isinstance(identifier, slice):
+			if identifier.start in self.bays:
+				# side or dest, whichever
+				bay  = identifier.start
+				side = identifier.stop if identifier.stop in Sides else identifier.step
+				chute = identifier.step if identifier.stop in Sides else identifier.stop
+			elif identifier.stop in self.bays:
+				bay  = identifier.stop
+				side = identifier.start
+				chute = identifier.step
+			elif identifier.step in self.bays:
+				raise ValueError('Slices are least-to-most specific; bays come before chute')
+	
+		if not bay:
+			return super(EuroSorterBayGrouping, self).__getitem__(identifier)
+		
+		assert (side is None) or (side in Sides), 'can only define side and dest (rear/front) when sliced by bay'
+	
+		bay_data = []
+	
+		search_bay = bay
+		search_chute = chute
+		search_side = side
+	
+		for station in sorted(self._bay_stations[search_bay]):
+		
+			chutes = ([search_chute] if search_chute else sorted(set(Chutes)))
+			for chute in chutes:
+			
+				sides = ([search_side] if search_side else sorted(set(Sides))) # just the one or all
+				for side in sides:
+				
+					chute_info = self[station: chute: side]
+				
+					if chute_info is None:
+						continue
+				
+					# final filter - ensure that it's registered as a bay (and not jackpot)
+					if not chute_info.bay == search_bay:
+						continue
+				
+					if chute_info is not None:
+						bay_data.append(chute_info)
+	
+		return bay_data
+
+
+
+	@property
+	def bays(self):
+		return sorted(self._bay_stations.keys(), key=lambda x: int(x[3:]))

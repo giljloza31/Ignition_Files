@@ -1,0 +1,63 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+from eurosort.enums import CarrierSide
+
+import re
+
+
+
+class SorterDataTracking(SorterDataBase):
+
+	TRACK_ID_PATTERN = re.compile(r'[-01][01]\.[0-9]{3}\.[0-9]{9}')
+	
+	@property
+	def track_id(self):
+		"""Format is SS.CCC.nnnnnnnnn"""
+		return self._javaObject.trackID
+		
+	@track_id.setter
+	def track_id(self, new_track_id):
+		assert self.TRACK_ID_PATTERN.match(new_track_id)
+		self._javaObject.trackID = new_track_id
+
+
+	@property
+	def carrier_side(self):
+		if self.track_id is None: return None
+		carrier_side = self.track_id[:2]    #  and carrier_side != (' '*2)
+		return CarrierSide(carrier_side) if carrier_side.strip() else None 
+	
+	@carrier_side.setter
+	def carrier_side(self, new_carrier_side):
+		assert new_carrier_side in CarrierSide, "CarrierSide enum must be in (0,1,-1) (inside, outside, both): got %r" % (new_carrier_side,)
+		self.track_id = '%02d.%s.%s' % (new_carrier_side, self.carrier_number or (' '*3), self.item_id or (' '*9),)
+
+
+	@property
+	def carrier_number(self):
+		if self.track_id is None: return None
+		carrier_number = self.track_id[3:6]
+		return carrier_number if carrier_number != (' '*3) else None
+	
+	@carrier_number.setter
+	def carrier_number(self, new_carrier_number):
+		assert 0 <= int(new_carrier_number) <= 999, 'Carrier numbers must be between 000 and 999: given %r' % (new_carrier_number,)
+		self.track_id = '%s.%03d.%s' % (self.carrier_side or (' '*2), int(new_carrier_number), self.item_id or (' '*9),)
+
+
+	@property
+	def item_id(self):
+		if self.track_id is None: return None
+		item_id = self.track_id[7:16]
+		return item_id if item_id != (' '*9) else None
+	
+	@item_id.setter
+	def item_id(self, new_item_id):
+		assert 0 <= int(new_carrier_number) <= 999999999, 'Item ID must be between 000000000 and 999999999 (nine digits): given %r' % (new_item_id,)
+		self.track_id = '%s.%s.%09d' % (self.carrier_side or (' '*2), self.carrier_number or (' '*3), int(new_item_id),)
+

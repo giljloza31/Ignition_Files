@@ -1,0 +1,208 @@
+"""
+    Wrappers for the built-in monitoring tooling in Ignition
+"""
+from shared.data.types.pojo import EnumeratedPassThruJavaWrapper, make_accessor
+from shared.data.types.memo import EnumeratedLookup
+
+
+#import com.codahale.metrics
+
+__all__ = [
+    'METRIC_TYPES',
+    'available_metrics',
+    'retrieve_metric',
+]
+
+
+
+class Metric(EnumeratedPassThruJavaWrapper):
+    
+    _ATTRIBUTES = ['description', 'value', 'units']
+    
+    def __str__(self):
+        return '%(description)s: %(value)s %(units)s' % self
+
+
+class Gauge(EnumeratedPassThruJavaWrapper):
+    _ATTRIBUTES = ['value']
+    
+    def __str__(self):
+        return '%(value)s' % self
+
+
+class Counter(EnumeratedPassThruJavaWrapper):
+    
+    _ATTRIBUTES = ['count',]
+    
+    def __str__(self):
+        return '%(count)d' % self
+
+
+class Meter(EnumeratedPassThruJavaWrapper):
+
+    _ATTRIBUTES = [
+        'count',
+        'mean rate',
+        'one minute rate',
+        'five minute rate',
+        'fifteen minute rate',
+    ]
+    
+    _ALIAS = {
+        'mean rate':           'rate.mean',
+        'one minute rate':     'rate.1 min',
+        'five minute rate':    'rate.5 min',
+        'fifteen minute rate': 'rate.15 min', 
+    }
+    
+    def __str__(self):
+        return '%(count)d at %(mean rate)0.3f' % self
+
+
+class Histogram(EnumeratedPassThruJavaWrapper):
+    _ATTRIBUTES = [
+        'count', 
+#       'snapshot.values', 
+        'snapshot.values.__len__',
+        'snapshot.min', 'snapshot.max',
+        'snapshot.mean', 'snapshot.stdDev', 'snapshot.median',
+            'snapshot.75thPercentile', 
+            'snapshot.95thPercentile',
+            'snapshot.98thPercentile',
+            'snapshot.99thPercentile',
+            'snapshot.999thPercentile',
+    ]
+
+    _ALIAS = {
+        'snapshot.values.__len__': 'snapshot.n',
+        
+        'snapshot.75thPercentile':  'snapshot.percentile.75th',
+        'snapshot.95thPercentile':  'snapshot.percentile.95th',
+        'snapshot.98thPercentile':  'snapshot.percentile.98th',
+        'snapshot.99thPercentile':  'snapshot.percentile.99th',
+        'snapshot.999thPercentile': 'snapshot.percentile.999th',
+    }
+
+    def __str__(self):
+        return '%(count)d at %(mean rate)0.3f' % self
+
+
+
+class Timer(EnumeratedPassThruJavaWrapper):
+    _ATTRIBUTES = [
+        'count', 
+        'mean rate', 
+        'one minute rate', 'five minute rate', 'fifteen minute rate',
+#       'snapshot.values', 
+#       'snapshot_values_len',  # example extension/postprocessing
+        'snapshot.values.__len__',
+        'snapshot.min', 'snapshot.max',
+        'snapshot.mean', 'snapshot.stdDev', 'snapshot.median',
+            'snapshot.75thPercentile', 
+            'snapshot.95thPercentile',
+            'snapshot.98thPercentile',
+            'snapshot.99thPercentile',
+            'snapshot.999thPercentile',
+    ]
+
+    _ALIAS = {
+        'mean rate':           'rate.mean',
+        'one minute rate':     'rate.1 min',
+        'five minute rate':    'rate.5 min',
+        'fifteen minute rate': 'rate.15 min', 
+        
+        'snapshot.values.__len__': 'snapshot.n',
+#       'snapshot_values_len': 'snapshot.n2', # example extension alias
+        
+        'snapshot.75thPercentile':  'snapshot.percentile.75th',
+        'snapshot.95thPercentile':  'snapshot.percentile.95th',
+        'snapshot.98thPercentile':  'snapshot.percentile.98th',
+        'snapshot.99thPercentile':  'snapshot.percentile.99th',
+        'snapshot.999thPercentile': 'snapshot.percentile.999th',
+    }
+    
+#   @property # example extension
+#   def snapshot_values_len(self):
+#       return len(self['snapshot.values'])
+
+    def __str__(self):
+        return '%(count)d at %(mean rate)0.3f' % self
+
+
+
+METRIC_TYPES = {
+	MetricType.__name__.lower(): MetricType
+	for MetricType in (
+		Counter, Gauge, Meter, Timer, Histogram,
+	)
+}
+
+
+
+class MetricsSnapshot(object):
+	__metric_names__ = EnumeratedLookup(label='Ignition Metric Identifiers')
+
+	def __init__(self):
+		self._metrics_by_type = {}
+	
+	def __setitem__(self, metric_name, metric):
+		assert isinstance(metric, EnumeratedPassThruJavaWrapper)
+		metric_type = type(metric).__name__.lower()
+		type_metrics = self._metrics_by_type.setdefault(metric_type, {})
+		type_metrics[metric_name] = metric
+
+	def __getitem__(self, metric_name):
+		return {
+			metric_type: self._metrics_by_type[metric_type][metric_name]
+			for metric_type in self._metrics_by_type
+			if metric_name in self._metrics_by_type[metric_type]
+		}
+
+	def asdict(self):
+		return {
+			metric_type: {
+				metric_name: metric.asdict()
+				for metric_name, metric in self._metrics_by_type[metric_type].items()
+			}
+			for metric_type in self._metrics_by_type
+		}
+
+
+
+def _get_metric_registry():
+    return shared.tools.meta.getGatewayContext().getMetricRegistry()
+
+
+def available_metrics(metricRegistry=None):
+    if metricRegistry is None:
+        metricRegistry = _get_metric_registry()
+
+    metrics = {}
+    for metric_type in METRIC_TYPES:
+        metric_names = getattr(metricRegistry, make_accessor(metric_type + 's'))()
+        
+        metrics[metric_type] = list(metric_names)
+        continue
+    
+    return metrics
+
+
+def state_snapshot(metrics=None, metricRegistry=None):
+	"""Grabs a snapshot of Ignition's metrics.
+
+	If a selection of metrics are provided, it should be a dict of {metric types: [metric, ...]}
+	"""
+	if metrics is None:
+		metrics = available_metrics()
+
+	if metricRegistry is None:
+		metricRegistry = _get_metric_registry()
+
+	snapshot = MetricsSnapshot()
+	for metric_type in metrics:
+		for metric_name in metrics[metric_type]:
+			ignitionMetric = getattr(metricRegistry, make_accessor(metric_type + 's'))()[metric_name]
+			snapshot[metric_name] = METRIC_TYPES[metric_type](ignitionMetric)
+
+	return snapshot
+

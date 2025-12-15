@@ -1,0 +1,516 @@
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from shared.tools.meta import is_redundant_active
+from functools import partial
+from time import sleep
+from random import random
+from datetime import datetime
+from Database import db_access
+from java.util import Date
+
+import re
+import socket
+
+CACHE_LIFESPAN = 3.0 # seconds
+
+CLEAR_WAIT_TIME  = 0.026
+FAILSAFE_TIMEOUT = 6.0
+
+
+# https://regex101.com/r/OJMs5F/1
+SEPATATOR_PATTERN = re.compile(u'[,\x1d]', re.UNICODE)
+db_name = 'MongoWCS'
+
+class RoutingException(Exception):
+	pass
+
+class PostShippingRequired(RoutingException):
+	def _init_(self,data,barcode):
+		self.data = data
+		self.barcode = barcode
+		
+class BulkAutomatedBypass(RoutingException):
+	def _init_(self,data,barcode):
+		self.data = data
+		self.barcode = barcode
+class GoSonicBypass(RoutingException):
+	def _init_(self,data,barcode):
+		self.data = data
+		self.barcode = barcode		
+class GoBulkBypass(RoutingException):
+	def _init_(self,data,barcode):
+		self.data = data
+		self.barcode = barcode		
+class NoReadBypass(RoutingException):
+	def _init_(self,data,barcode):
+		self.data = data
+		self.barcode = barcode
+class NoMatchingRoute(RoutingException):
+	def _init_(self,data,barcode):
+		self.data = data
+		self.barcode = barcode
+class NoMatchingRule(RoutingException):
+	def _init_(self,data,barcode):
+		self.data = data
+		self.barcode = barcode
+class MultipleMatchingRules(RoutingException):
+	def _init_(self,data,barcode):
+		self.data = data
+		self.barcode = barcode
+
+
+def match_rules(data,raw_barcode):
+	# Check special cases on shipping rules to convert the raw barcode to the routing token:
+	SEPATATOR_PATTERN = re.compile(u'[,\x1d]', re.UNICODE)
+	routing_barcodes = []
+	barcode_list = []
+	if re.findall(SEPATATOR_PATTERN,raw_barcode):
+		barcode_list = SEPATATOR_PATTERN.split(raw_barcode)
+	else:
+		barcode_list.append(raw_barcode)
+	# check null case
+	if not raw_barcode: 
+		# i.e. '' (case 7: null/blank)
+		routing_barcodes.append('NO DATA')
+		raise NotImplementedError("Set %r to recirculate!" % raw_barcode)
+	
+	# if delimited, check that at least one token matches a rule
+	else:
+		# i.e. 4213922300051,1ZY172210403414629		
+		for token in barcode_list:
+
+			if re.match('1Z000000000000003',token)and len(token) == 17:
+				raise GoBulkBypass(data,token)
+				
+			elif re.match('1Z0000000000000003',token)and len(token) == 18:
+				raise GoBulkBypass(data,token)
+			
+			elif re.match('1Z0000000000000001',token)and len(token) == 18:
+				raise PostShippingRequired(data,token)
+			
+			elif re.match('1Z0000000000000004',token)and len(token) == 18:
+				if data['BA_Enabled'] == 1:
+					raise BulkAutomatedBypass(data,token)
+				else:
+					raise PostShippingRequired(data,token)
+
+			elif re.match('1Z0000000000000005',token)and len(token) == 18:
+				raise PostShippingRequired(data,token)
+
+
+
+			elif re.match('1Z000000000000000',token) and len(token) == 17:
+				raise GoSonicBypass(data,token)
+				
+			elif re.match('(1Z)[A-Z0-9]{16}',token)and len(token) == 18:
+				routing_barcodes.append(token)
+			
+			
+			elif re.match('(9)[0-9]{33}',token)and len(token) == 34:
+				routing_barcodes.append(token[-12:])
+				
+			elif re.match('(9)[0-9A-Z]{25}',token)and len(token) == 26:
+				routing_barcodes.append(token)
+
+			elif re.match('(9)[0-9A-Z]{20}',token)and len(token) == 21:
+				routing_barcodes.append(token)
+			
+
+
+			elif re.match('(EP)[0-9A-Z]{11}',token)and len(token) == 13:
+				routing_barcodes.append(token)
+
+			elif re.match('(HJ)[0-9A-Z]{11}',token)and len(token) == 13:
+				routing_barcodes.append(token)
+
+			elif re.match('(1)[0-9]{33}',token)and len(token) == 34:
+				routing_barcodes.append(token[-12:])
+
+			elif re.match('[0-9]{10}',token)and len(token) == 10:
+				routing_barcodes.append(token)
+			elif re.match('NOREAD',token):
+				raise NoReadBypass(data,token)
+
+
+
+	return routing_barcodes
+
+
+
+def lookup_and_decode_barcode(data,raw_barcode):
+	
+	routing_barcodes = match_rules(data,raw_barcode)
+	
+	
+	if not routing_barcodes:
+		raise NoMatchingRule(data,raw_barcode)
+	
+	filter={
+		   "_id":{'$in':routing_barcodes}
+		}
+
+	#Display results
+	project={
+	    '_id': 1,
+	    'box_size':1,
+	    'carrier':1,
+	    'order':1,
+	    'post_ship':1,
+	    'shipvia':1
+	}
+	
+
+	#Convert Results to list 
+	TrackingResults = db_access.select_records(db_name,'outbound_packages',where_clause=filter,projection=project)
+	
+		
+	
+	TrackingCount = len(TrackingResults)
+	
+	#Close connection
+	TrackingQuery.close()
+
+	if TrackingCount == 0:
+		raise NoMatchingRoute(data,raw_barcode)
+
+	elif TrackingCount >1:
+		raise MultipleMatchingRules(data,raw_barcode)
+
+
+	
+
+	tracking = TrackingResults[0]['_id']
+	boxSize = TrackingResults[0]['box_size']
+	carrierID = TrackingResults[0]['carrier']
+	orderID = TrackingResults[0]['order']
+	postShipReq = TrackingResults[0]['post_ship']
+	shipVIA = TrackingResults[0]['shipvia']
+
+	data.update({
+		'IGN_Barcode_Returned': tracking,
+		'IGN_RouteCode_Returned': '-'.join((carrierID, shipVIA, boxSize)),
+		'IGN_PostShipReq_Returned':postShipReq
+
+	})
+
+
+	if postShipReq == 'Y' or  postShipReq == 'y':
+		raise PostShippingRequired(data,tracking)
+	
+	query = """
+		SELECT *
+		FROM Shipping_RouteTable
+		WHERE Carrier = ? and ShipVia = ? and %s = 1
+	"""%(boxSize)
+
+
+	
+
+	results = system.db.runPrepQuery(query, [carrierID,shipVIA], 'SQLServer')
+	
+	if not results:
+		raise NoMatchingRoute(data, raw_barcode)
+
+	
+	# Decode the results
+	
+	# We get only one result if any because of the UNIQUE constraint on the table
+	row = results[0]
+	
+	#
+	
+	#assert all([carrier, shipvia, boxsize]), 'Some values did not return for (carrier, shipvia, boxsize): %r, %r, %r' % (carrier, shipvia, boxsize)
+	
+	# Decode the Lane columns into a bit array int
+	# Start with no routes
+	destinations = 0
+	
+	for selected,columnName in zip(row, results.columnNames):
+		
+	
+		if not columnName.startswith('Lane_'): # TODO: Fix column names to match		
+			continue
+			
+		# Get the second half on the underscore.
+		# (rpartition splits on a thing, always retruning
+		#  the left, split thing, and right of it)
+		# And make it an int so we can shift on it
+		# ... minus one because we are zero indexed, and lanes are one-indexed
+		shift = int(columnName.rpartition('_')[2]) - 1 # TODO: Fix column names to match
+		#shift = int(columnName[-2:]) - 1
+	
+		# Take the result bit array so far, 
+		#  and or it with the value SQL returned, 
+		#  bit shifted the number of lanes 
+		destinations |= selected << shift
+	
+	data.update({
+		'IGN_Destination_Returned': destinations,
+
+	})
+	
+	return data
+
+
+
+@async(name="Shipping-Route-GatherData")
+def truckSorter_gather_data(source_path):
+	
+	timestart = datetime.now().isoformat()
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	
+
+	sequence_id, BA_Enabled,raw_barcode= [
+	
+		qv.value for qv in 
+		system.tag.readBlocking([
+			parent_dest + '/' + 'IGN_IndexID_Query_ACK',
+			parent_dest + '/' + 'HMI_BulkAutomated_Enabled',
+			parent_dest + '/' + 'IGN_Payload_Query_Send'
+			
+			])]
+
+	barcodeData = system.opc.readValue('Ignition OPC-UA Server', 'ns=1;s=[L330ER_ShippingSorter]TruckSorter_Barcode_Lookup[%s]'%(sequence_id))
+	
+
+	raw_barcode = barcodeData.value
+
+	
+	data = {
+		'IGN_Returned_IndexID': sequence_id,
+		'raw_barcode':raw_barcode,
+		'BA_Enabled':BA_Enabled,
+		'Get_Time': timestart,
+	}
+
+
+	try:
+
+		data.update(lookup_and_decode_barcode(data,raw_barcode))
+
+
+
+	except GoBulkBypass as logs:
+		data.update({
+			'IGN_Barcode_Returned':logs[1],
+			'IGN_Destination_Returned': (1<<(3-1)), # 0x1000 <-- Lane 3 (changed 12-18-23 per vandy to lane 13), reverted 12/21/23
+			'IGN_RouteCode_Returned': 'Bulk', # literally '--'
+		})
+	except PostShippingRequired as logs:
+		data.update({
+			'IGN_Barcode_Returned':logs[1],
+			'IGN_Destination_Returned': (1<<(14-1)), #  Lane 15 (with 1-indexed offset correction)
+			'IGN_RouteCode_Returned': 'Post', # literally '--'
+		})
+	except BulkAutomatedBypass as logs:
+		data.update({
+			'IGN_Barcode_Returned':logs[1],
+			'IGN_Destination_Returned': (1<<(13-1)), #  Lane 14 (with 1-indexed offset correction)
+			'IGN_RouteCode_Returned': 'BA', # literally '--'
+		})
+	
+	except GoSonicBypass as logs:
+		data.update({
+			'IGN_Barcode_Returned':logs[1],
+			'IGN_Destination_Returned': (1<<(4-1)), # 0x1000 <-- Lane 4
+			'IGN_RouteCode_Returned': 'Sonic', # literally '--'
+		})
+
+
+
+	except NoReadBypass as logs:
+		data.update({
+			'IGN_Destination_Returned': (1<<(4-1)), # 0x1000 <-- Lane 4
+			'IGN_Barcode_Returned': "NOREAD",
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+		
+	except NoMatchingRoute as logs:
+		data.update({
+			'IGN_Barcode_Returned':logs[1],
+			'IGN_Destination_Returned': (1<<(4-1)), # Jackpot lane 4
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+	except NoMatchingRule as logs:
+		data.update({
+			'IGN_Barcode_Returned':logs[1],
+			'IGN_Destination_Returned': (1<<(4-1)), # Jackpot lane 4
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+	except MultipleMatchingRules as logs:
+		data.update({
+			'IGN_Barcode_Returned':logs[1],
+			'IGN_Destination_Returned': (1<<(4-1)), # Jackpot lane 4
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+				
+	# handle the unexpected...
+	except:
+		data.update({
+			'IGN_Destination_Returned': 0,
+			'IGN_Barcode_Returned': raw_barcode,
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+		
+	data.update({'IGN_Got_Data_Returned':True})
+	
+	
+	
+	opcServer = 'Ignition OPC-UA Server'
+	itemPaths = [
+	'ns=1;s=[L330ER_ShippingSorter]IGN_Returned_IndexID',
+	'ns=1;s=[L330ER_ShippingSorter]BarcodeLookup[%s]'%(data['IGN_Returned_IndexID']),
+	'ns=1;s=[L330ER_ShippingSorter]RouteCode_Lookup[%s]'%(data['IGN_Returned_IndexID']),
+	'ns=1;s=[L330ER_ShippingSorter]Destination_Lookup[%s]'%(data['IGN_Returned_IndexID'])
+	]
+	
+	values = [
+	data['IGN_Returned_IndexID'],
+	data['IGN_Barcode_Returned'],
+	data['IGN_RouteCode_Returned'],
+	data['IGN_Destination_Returned']
+	]
+	
+	system.opc.writeValues(opcServer, itemPaths, values)
+	
+	GOT_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	GOT_parent_dest += '/'	
+	system.tag.writeAsync(*zip(*[
+		(GOT_parent_dest + 'IGN_Barcode_Returned', data['IGN_Barcode_Returned']),			
+		(GOT_parent_dest + 'IGN_Destination_Returned', data['IGN_Destination_Returned']),	
+	#	(GOT_parent_dest + 'IGN_Destination_String', data['IGN_Destination_String']),			
+		(GOT_parent_dest + 'IGN_Returned_IndexID', data['IGN_Returned_IndexID']),
+		(GOT_parent_dest + 'IGN_RouteCode_Returned', data['IGN_RouteCode_Returned']),	
+	]))
+	
+	#push_sequence(source_path, sequence_id, data)
+	log_induct(data)
+	
+
+	
+@async(name="TruckSorter-DumpData")
+def dump_data(source_path, data):
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	parent_dest += '/'
+	
+
+	
+	tag_paths = []
+	values = []
+	for key,value in data.items():
+		tag_paths.append(parent_dest + '/' + key)
+		values.append(value)
+
+	
+	
+	def write_block(qualified_values, tag_paths=tag_paths, values=values, data=data):
+		opc_paths = []
+		opc_values = []
+		for qv, tag_path, value in zip(qualified_values, tag_paths, values):
+
+
+			if qv.value: # good opc path found
+				opc_paths.append(qv.value)
+				opc_values.append(value)
+				
+		
+		
+		
+
+	system.tag.readAsync(opc_fqv_paths, write_block)
+
+
+	
+def push_sequence(source_path, sequence_id, data):
+	#Uncomment this to prevent overwrites and throw an error on repeated sequence IDs
+	#assert (sequence_id, source_path) not in ExtraGlobal, "Cache is backed up! Sequence ID already in cache: [%s:%s]" % (sequence_id, source_path)
+	assert isinstance(data, dict), "Data object should be a dictionary here."
+
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	
+	# check if the sequence already exists and is (somehow) straggling
+	if ExtraGlobal.get(sequence_id, source_path):
+		system.util.getLogger('Handshake7').warn('Push sequence: Sequence [%d] already cached for %s: clearing to make room for next!' % (sequence_id, source_path) )
+		try:
+			del ExtraGlobal[sequence_id, source_path]
+		except KeyError:
+			pass # failsafe
+	
+	ExtraGlobal.stash(data, 
+					  label=sequence_id, scope=source_path, 
+					  lifespan=CACHE_LIFESPAN, 
+					  callback=partial(flush_next_sequence, source_path, data)) 
+					  
+	system.util.getLogger('Handshake7').trace('>PUSH< [%d] %r' % (sequence_id, data))
+#		'>PUSH< (#%d) for [%03d] %r >>> %r' % (len(ExtraGlobal.keys(scope=source_path)), sequence_id,
+#						          list(ExtraGlobal.keys(scope=source_path)), data) )
+					  
+	flush_next_sequence(source_path)
+		
+	
+def flush_next_sequence(source_path, data=None):
+	# semaphore to prevent multithreaded interaction
+	# but also return data to make sure the cache stays viable
+	# (scoped to the 'handshake flushing' so that it can be checked independently)
+	if ExtraGlobal.setdefault(source_path, 'handshake 7 flushing', False):
+		return data
+		
+	# If no more sequences to flush, then signal to stop
+	if not ExtraGlobal.keys(source_path):
+		ExtraGlobal[source_path, 'handshake 7 flushing'] = False
+		return
+
+	# turn on semaphore to the current sequence getting worked on
+	sequence_id = ExtraGlobal.keys(source_path)[0]
+
+	ExtraGlobal[source_path, 'handshake 7 flushing'] = sequence_id
+	
+	try:
+#		data = ExtraGlobal.pop(sequence_id, source_path)
+		data = ExtraGlobal[sequence_id, source_path]
+		del ExtraGlobal[sequence_id, source_path]
+			
+		# write results back
+		dump_data(source_path, data)
+	
+		system.util.getLogger('Handshake7').trace('<POPD> [%d] %r' % (sequence_id, data))
+	#		'<POPD> (#%d) for [%03d] %r >>> %r' % (len(ExtraGlobal.keys(scope=source_path)), sequence_id,
+	#						          list(ExtraGlobal.keys(scope=source_path)), data) )
+	except Exception, error:
+		system.util.getLogger('Handshake7').warn('Flush: Error in completing handshake [%d] for %s: %r' % (sequence_id, source_path, error))
+	
+	# clear the semaphore and try again; when exhausted it'll just end
+	ExtraGlobal[source_path, 'handshake 7 flushing'] = False
+	
+	# continue flushing if needed
+	if ExtraGlobal.keys(source_path):
+		flush_next_sequence(source_path, data)
+		# don't return anything, since this is just continuing the flush process
+		#return None	
+def log_induct(payload):
+	query = """	
+		insert into [ShippingSorter_Induct] (
+			Destination
+		,	DestinationString
+		,	InductID
+		,	RouteCode
+		,	TrackNo
+		,	TimeStamp
+		)
+		select	dd.destination
+			,	dd.DestinationString
+			,	? -- InductID
+			,	? -- RouteCode
+			,	? -- TrackNo
+			,	getdate()
+		from DestinationDecode as dd
+		where dd.mode = 30
+			and dd.destination = ?
+	"""
+	
+	system.db.runPrepUpdate(query, [
+			payload['IGN_Returned_IndexID'],
+			payload['IGN_RouteCode_Returned'],
+			payload['IGN_Barcode_Returned'],
+			payload['IGN_Destination_Returned'],	
+		], 'SQLServer')

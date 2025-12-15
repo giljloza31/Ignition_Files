@@ -1,0 +1,25 @@
+TRUNCATE TABLE dbo.NE_Receiving_InductSorter_1
+TRUNCATE TABLE dbo.NE_Receiving_InductSorter_2
+
+TRUNCATE TABLE dbo.NE_Receiving_Lane_01
+TRUNCATE TABLE dbo.NE_Receiving_Lane_02
+TRUNCATE TABLE dbo.NE_Receiving_Lane_03
+TRUNCATE TABLE dbo.NE_Receiving_Lane_04
+TRUNCATE TABLE dbo.NE_Receiving_Lane_05
+TRUNCATE TABLE dbo.NE_Receiving_Lane_06
+TRUNCATE TABLE dbo.NE_Receiving_Lane_07
+TRUNCATE TABLE dbo.NE_Receiving_Lane_08
+TRUNCATE TABLE dbo.NE_Receiving_Lane_09
+
+TRUNCATE TABLE dbo.NE_Receiving_Lane_17
+TRUNCATE TABLE dbo.NE_Receiving_Lane_18
+TRUNCATE TABLE dbo.NE_Receiving_Lane_19
+TRUNCATE TABLE dbo.NE_Receiving_Lane_20
+TRUNCATE TABLE dbo.NE_Receiving_Lane_21
+
+TRUNCATE TABLE dbo.Dimensioner_InductSorter_1
+TRUNCATE TABLE dbo.Dimensioner_Lane_01
+TRUNCATE TABLE dbo.Dimensioner_Lane_02
+TRUNCATE TABLE dbo.Dimensioner_Lane_03
+TRUNCATE TABLE dbo.Dimensioner_Lane_04
+TRUNCATE TABLE dbo.Dimensioner_Lane_05

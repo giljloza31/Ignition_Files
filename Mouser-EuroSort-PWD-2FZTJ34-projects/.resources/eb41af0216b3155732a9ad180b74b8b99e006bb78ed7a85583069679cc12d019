@@ -1,0 +1,446 @@
+from pymongo import MongoClient
+from datetime import datetime
+from system.net import httpClient
+
+import re
+
+# Production
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+client = httpClient()
+MongoDB = MongoClient(uri)
+db = MongoDB.ignition
+
+GS = '$1D'
+pattern_9digit = '^[0-9]{9}$'
+BARCODE_SEPARATOR = ','  # Modify based on actual usage
+
+errorResults_dict = {
+	'NOREAD':4,
+	'NoLOT':8,
+	'UnexpectedLOT':9,
+	'OpenBox':10,
+	'NoLabelExp':11,
+	'NoPrintResult':15,
+	'NoPrnRqstSENT':16,
+	'ShortBox':17,
+	'LongBox':18
+	}
+#logger for verify
+logger = system.util.getLogger('Verify')
+
+postship_tracking_numbers = ['^1Z0{14}01$', '^1Z0{14}03$', '^1Z0{14}04$', '^1Z0{14}05$']
+error_tracking_numbers = ['^1Z0{14}02$']
+error_messages_list = ['^NOREAD$','^NoLOT$','^UnexpectedLOT$','^OpenBox$','^NoLabelExp$','^NoPrintResult$','^ShortBox$','^LongBox$','^NoPrnRqstSENT$']
+postship_error = "(" + ")|(".join(postship_tracking_numbers) + ")"
+error_labels = "(" + ")|(".join(error_tracking_numbers) + ")"
+error_messages = "(" + ")|(".join(error_messages_list) + ")"
+
+VER_PAYLOAD_PATTERN = re.compile(r"""
+	^
+	(?P<indexid>\d{3})						# indexID 101-399
+	\|										# pipe seperator
+	(?P<lpn>.*)								# LPN
+	\|										# pipe seperator
+	(?P<tracking>.*)						# Tracking
+	$
+	""", re.VERBOSE)
+
+# Verify Errors
+VER_ERROR_LIST = {
+	0: {'Error':'Code error','Message':'Code Error'},
+	1: {'Error':'No Error','Message':'Success'},
+	2: {'Error':'LPN Mismatch','Message':'LPN found not correct'},
+	3: {'Error':'Tracking or OrderNum Mismatched','Message':'Improper Shipping label'},
+	4: {'Error':'No Read on Tracking or OrderNum','Message':'No Read on Tracking or OrderNum'},
+	5: {'Error':'No Read on LPN','Message':'No Read on LPN'},
+	6: {'Error':'No Record in DB','Message':'Found no match LPN in DB'},
+	7: {'Error':'Error','Message':'Error'},
+	8: {'Error':'No Label on Tamp','Message':'No Label on Tamp'},
+	9: {'Error':'Unexpected Label on Tamp','Message':'Unexpected Label on Tamp'},
+	10: {'Error':'Open Box','Message':'Box detection lid open'},
+	11: {'Error':'No Label expected','Message':'No Label expected'},
+	12: {'Error':'No Data','Message':'No Data receieved'},
+	13: {'Error':'Improper format','Message':'Received incorrect payload'},
+	14: {'Error':'Not in Cache','Message':'Not in Cache'},
+	15: {'Error':'No Print Result','Message':'No Print Result'},
+	16: {'Error':'No Print Request Sent','Message':'No Print Request Sent'},
+	17: {'Error':'Short Box','Message':'Short box detected'},
+	18: {'Error':'Long Box','Message':'Long box detected'},
+	19: {'Error':'Multi LPN','Message':' Multi Long box detected'},
+	20: {'Error':'Unexplained','Message':'Unexplained Error'},
+	21: {'Error':'OnHold','Message':'Order On Hold'},
+	}
+
+
+class VerifyProcess:
+	
+
+
+	def cursorToList(self,cursor):
+		listcursor = []
+		for i in range(cursor.count()):
+			listcursor.append(cursor.next())
+		return listcursor
+		
+	def check_payload(self,payload,data):
+		status = False
+		
+		try:
+			
+			# check if payload is correct
+			payload_data_match = VER_PAYLOAD_PATTERN.match(payload)
+			
+			# If not match return error
+			if not payload_data_match:
+				
+				data.update({
+					'verify_LPN': 'No LPN',
+					'verify_tracking':'No Tracking',
+					'reason_num':2,
+					'reason':VER_ERROR_LIST[2]['Error'],
+					'message':VER_ERROR_LIST[2]['Message'],
+					'verify_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000,
+					'verify_check_payload_status':status
+					})
+				return data,status
+			
+			# Group by key identifiers
+			payload_data = payload_data_match.groupdict()
+			
+			
+			
+			status = True
+			data.update({
+				'verify_indexId': payload_data['indexid'],
+				'verify_LPN': payload_data['lpn'],
+				'verify_tracking':payload_data['tracking'],
+				'reason_num':1,
+				'reason':VER_ERROR_LIST[1]['Error'],
+				'message':VER_ERROR_LIST[1]['Message'],
+				'verify_check_payload_status':status
+				})
+				
+			
+		# Catch all unexpalined error	
+		except:
+			data.update({
+				'verify_LPN': 'No LPN',
+				'verify_tracking':'No Tracking',
+				'reason_num':20,
+				'reason':VER_ERROR_LIST[20]['Error'],
+				'message':VER_ERROR_LIST[20]['Message'],
+				'verify_check_payload_status':status
+				})
+				
+		
+		data.update({
+			'Verify_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000
+			})
+		
+		return data,status
+		
+		
+	def identify_tracking_number(self,trackingList):
+		for trackingNum in trackingList:
+			gs_index = trackingNum.find(GS)
+			if gs_index != -1:
+				trackingNum = trackingNum[gs_index +len(GS):]
+			
+			if re.findall('<GS>',trackingNum):
+				trackingNum = re.sub('<GS>','',trackingNum)
+				trackingNum = trackingNum[8:]
+								
+				
+			
+			if len(trackingNum) == 34:
+				return [trackingNum[-12:],trackingNum]
+			elif len(trackingNum) == 9:
+				return [trackingNum]
+			elif trackingNum.startswith('9') and len(trackingNum) in {22, 26}:
+				return [trackingNum]
+			elif trackingNum.startswith('1Z') and len(trackingNum) == 18:
+				return [trackingNum]
+			elif len(trackingNum) == 10 or trackingNum.startswith('EP') and len(trackingNum) == 13:
+				return [trackingNum]
+			elif trackingNum == "NOREAD":
+				return [trackingNum]
+			
+		return None	
+
+
+			
+	def identify_and_extract(self,tracking_list,data):
+		error_lookup = False
+	
+		tracking_results = ''
+		invoice_results = ''
+		error_results = ''
+		
+		tracking_check = 0
+		
+		
+		for tracking_num in tracking_list:
+			if re.match(error_labels,tracking_num):
+				tracking_results = tracking_num
+				error_lookup = True
+				tracking_check = 21
+			if re.match(postship_error,tracking_num):
+				tracking_results = tracking_num
+				error_lookup = True
+			if re.match(pattern_9digit,tracking_num):
+				invoice_results = tracking_num
+			
+			if re.match(error_messages,tracking_num):
+				error_results = tracking_num
+				tracking_check = errorResults_dict.get(error_results,0)
+			
+	
+		
+		
+		data.update({
+			'verify_tracking_results':tracking_results,
+			'verify_invoice_results':invoice_results,
+			'verify_error_lookup':error_lookup,
+			'verify_error_results':error_results,
+			'reason_num':tracking_check,
+			'reason':VER_ERROR_LIST[tracking_check]['Error'],
+			'message':VER_ERROR_LIST[tracking_check]['Message'],
+			})
+			
+		
+		return data
+	
+	def check_tracking(self,data):
+		
+		status = False
+		
+		tracking_string = data['verify_tracking']
+		data.update({
+			'verify_tracking_results':[],
+			'verify_invoice_results':[],
+			'verify_error_lookup':False,
+			'verify_error_results':[]
+		})
+		
+		try:
+	
+			tracking_list = [item.strip() for item in tracking_string.split(BARCODE_SEPARATOR)]
+			
+			
+			if 'NOREAD' in tracking_list:
+				data.update({
+					'verify_tracking_list':tracking_list,
+					'reason_num':4,
+					'reason':VER_ERROR_LIST[4]['Error'],
+					'message':VER_ERROR_LIST[4]['Message'],
+					'tracking_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000
+					})
+				return data,status
+				
+			
+	
+			
+			verify_process = VerifyProcess()
+			data = verify_process.identify_and_extract(tracking_list =tracking_list,data=data)
+			if data['reason_num'] ==0:
+				status = True
+				data.update({
+					'verify_tracking_list':tracking_list,
+					'reason_num':1,
+					'reason':VER_ERROR_LIST[1]['Error'],
+					'message':VER_ERROR_LIST[1]['Message'],
+					'tracking_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000
+					})
+			else:
+				data.update({
+					'verify_tracking_list':tracking_list,
+					'tracking_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000
+				})
+					
+		except:
+			data.update({
+				'verify_tracking_list':tracking_list,
+				'reason_num':6,
+				'reason':VER_ERROR_LIST[6]['Error'],
+				'message':VER_ERROR_LIST[6]['Message'],
+				'tracking_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000
+				})
+				
+		return data,status
+	
+	
+	def check_lpn(self,data):
+		
+		status = False
+		
+		lpn_string = data['verify_LPN']
+		
+		try:
+			
+				
+			# Use dict.fromkeys() to remove duplicates while preserving order
+			LPN_list = list(dict.fromkeys(lpn_string.split(BARCODE_SEPARATOR)))
+			if 'NODATA' in LPN_list:
+				data.update({
+					'verify_lpn_list':LPN_list,
+					'reason_num':4,
+					'reason':VER_ERROR_LIST[4]['Error'],
+					'message':VER_ERROR_LIST[4]['Message'],
+					'verify_lpn_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000,
+					'verify_check_lpn_status':status
+					})
+					
+				return data,status
+			if 'NOREAD' in LPN_list:
+				data.update({
+					'verify_lpn_list':LPN_list,
+					'reason_num':4,
+					'reason':VER_ERROR_LIST[4]['Error'],
+					'message':VER_ERROR_LIST[4]['Message'],
+					'verify_lpn_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000,
+					'verify_check_lpn_status':status
+					})
+					
+				return data,status
+			# Use list comprehension to filter valid LPNs
+			LPN_list = [lpn for lpn in LPN_list if re.match('^H0\d{6}$', lpn)]
+
+
+	
+	
+	
+			if not LPN_list:
+				data.update({
+					'verify_lpn_list':LPN_list,
+					'reason_num':2,
+					'reason':VER_ERROR_LIST[2]['Error'],
+					'message':VER_ERROR_LIST[2]['Message'],
+					'verify_lpn_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000,
+					'verify_check_lpn_status':status
+					})
+					
+				return data,status				
+	
+			if len(LPN_list)>1:
+				data.update({
+					'verify_lpn_list':','.join(LPN_list),
+					'reason_num':19,
+					'reason':VER_ERROR_LIST[19]['Error'],
+					'message':VER_ERROR_LIST[19]['Message'],
+					'verify_lpn_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000,
+					'verify_check_lpn_status':status
+					})
+					
+				return data,status
+			
+			status = True
+			data.update({
+				'verify_LPN':','.join(LPN_list),
+				'verify_lpn_list':LPN_list,
+				'reason_num':1,
+				'reason':VER_ERROR_LIST[1]['Error'],
+				'message':VER_ERROR_LIST[1]['Message'],
+				'verify_check_lpn_status':status
+			})
+	
+			
+		except:
+			
+			data.update({
+				'verify_lpn_list':lpn_string,
+				'reason_num':14,
+				'reason':VER_ERROR_LIST[14]['Error'],
+				'message':VER_ERROR_LIST[14]['Message'],
+				'verify_check_lpn_status':status
+				})
+		
+		data.update({
+			'verify_lpn_check_time_ms':(datetime.now()-data['verify_start_time']).total_seconds() * 1000
+			})
+		
+		return data,status
+
+	def verify_lookup(self,data):
+		verifyprocess = VerifyProcess()
+				
+		filter = {"induct_LPN":data['verify_LPN']}
+		
+		sort=list({'induct_start_time': -1}.items())
+		query_results = list(db.HSL_info.find(filter).sort(sort))
+		
+		
+		
+		if not query_results:
+			data.update({
+			'verify_tracking':'No Match',
+			'verify_orderNbr':'No Match',
+			'reason_num':5,
+			'reason':VER_ERROR_LIST[5]['Error'],
+			'message':VER_ERROR_LIST[5]['Message'],
+			
+			})
+		
+			return data
+		
+
+
+
+		first_result = query_results[0]
+		if not data['verify_error_lookup']:
+#			logger.trace('%s'%data['verify_tracking_list'])
+			trackingNum = verifyprocess.identify_tracking_number(trackingList = data['verify_tracking_list'])
+			if not trackingNum:
+				data.update({
+					'verify_tracking':'No Match',
+					'verify_orderNbr':'',
+					'reason_num':3,
+					'reason':VER_ERROR_LIST[3]['Error'],
+					'message':VER_ERROR_LIST[3]['Message'],
+			
+					})
+				return data
+			else:
+				if query_results[0]['verification_barcode'] in trackingNum:
+					
+					data.update({
+					'verify_tracking':first_result.get('verification_barcode'),
+					'verify_orderNbr':'',
+					'reason_num':1,
+					'reason':VER_ERROR_LIST[1]['Error'],
+					'message':VER_ERROR_LIST[1]['Message'],
+					
+					})
+				else:
+					data.update({
+					'verify_tracking':'No Match',
+					'verify_orderNbr':'',
+					'reason_num':3,
+					'reason':VER_ERROR_LIST[3]['Error'],
+					'message':VER_ERROR_LIST[3]['Message'],
+			
+					})
+		elif data['verify_error_lookup']:
+			if query_results[0]['orderNbr'] in data['verify_invoice_results']:
+				
+				data.update({
+					'verify_tracking':'',
+					'verify_orderNbr':first_result.get('orderNbr'),
+					'reason_num':1,
+					'reason':VER_ERROR_LIST[1]['Error'],
+					'message':VER_ERROR_LIST[1]['Message'],
+			
+					})	
+			else:
+				data.update({
+					'verify_tracking':'',
+					'verify_orderNbr':'No Match',
+					'reason_num':3,
+					'reason':VER_ERROR_LIST[3]['Error'],
+					'message':VER_ERROR_LIST[3]['Message'],
+
+					})					
+			
+		data.update(first_result)
+			
+			
+		return data

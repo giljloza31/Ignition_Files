@@ -1,0 +1,324 @@
+from shared.tools.thread import async
+from shared.tools.global import ExtraGlobal
+from Database import db_access
+from datetime import datetime
+from shared.pwd.Mouser.HSL.Marriage import MarriageProcess
+from shared.pwd.Mouser.HSL.Manifest import ManifestProcess
+from shared.pwd.Mouser.HSL.Print_Request import PrintProcess
+from shared.pwd.Mouser.HSL.Verify import VerifyProcess
+import re
+import time
+import system
+db_name = 'MongoWCS'
+
+
+#lifespan_time = 60 # 60 secs of time
+#lifespan_time = 60*60 # one hour of lifespan
+lifespan_time = 60*60*24 # one day of lifespan
+#lifespan_time = 60*60*24*30 # one month of lifespan
+#lifespan_time = 60*60*24*30*12  #one year of lifespan'''
+
+
+cached_scope = 'HighSpeedLine'
+
+
+class HSL_Control(
+	MarriageProcess,
+	ManifestProcess,
+	PrintProcess,
+	VerifyProcess
+	):
+	
+	base_path = '[Mouser]Mouser/HSL'
+	control_path = base_path + '/System_Functions'
+	OPCSERVER = 'Ignition OPC-UA Server'
+	PLC_NAME = "L3100ERS2_Autoship_Mezz"
+	print_base = '[Mouser]Mouser/HSL/HSL_Print/Print_Process'
+	verify_base = '[Mouser]Mouser/HSL/HSL_Verify/Verfiy_Process'
+	def __init__(self):
+		super(HSL_Control, self).__init__()
+		self.read_in_control() 	#----Read in if marriage enabled or disabled/ run simulation test results 
+		self.logger = system.util.getLogger("HSL_Manager")
+		
+
+	# Global area to read tags	
+	def read_tags(self, tag_list):
+		return [qv.value for qv in system.tag.readBlocking(tag_list)]
+		
+		
+	def read_in_control(self):
+		tag_paths = [
+			self.base_path + '/' + 'HSL_Induct/HSL_Induction/Get_Data/IGN_HSLMarriage_Enabled',
+			self.control_path + '/' + 'Simulated'
+		]
+		values = system.tag.readBlocking(tag_paths)
+		self.marriage_enabled = bool(values[0].value)
+		self.simulated = bool(values[1].value)
+	
+	# Init the system
+	def system_state(self, connect):
+		state = bool(connect)
+		system.tag.writeBlocking([self.control_path + '/connection_active'], [state])
+	
+	
+	@async(name='induct_LPN')
+	def induction_process(self, payload):
+		
+		start = system.date.now()
+		induction_data = {}
+		#--Setting the path for writing data back to ignition
+		post_data = self.base_path + '/HSL_Induct/HSL_Induction/Post_Data'
+		
+		#---changed this counts to a dictionary instead of indiviual for faster read-ins
+		self.induct_counts = dict(system.tag.readBlocking([post_data + '/Induction_Counts'])[0].value)
+		
+		#---set default values 
+		self.data = {
+			'event-type':'Induction',			#-----Logging the type of request 
+			'start_time': start,				#-----Logging time of when the request was started
+			'payload': payload,					#-----Logging the Payload the triggered the event
+			'print_label': '',					#-----Defaulting the print label to an empty string
+			'printer_results': 2,				#-----Defaulting the print results to 2 for no label returned
+			'reason_num':10						#-----Responding backing with reason_num 10 for no label return by default
+			}
+		
+		
+		''''First inital check if received payload is correctly formatted
+		if not return updated results from function. Since not receiving a indexid
+		fall back too, writing results to indexid 100.'''
+		
+		if self.check_induct_payload(payload):
+			
+			''' if marriage enabled singles will be verified they were married correctly.
+			if not married they will be attempted to be married. Multi's will always be attempted
+			married. Since not running a check to tell difference all are attempted depending on 
+			results will it ship'''
+			if self.marriage_enabled:
+				
+				# if weight,ibn and lpn ar  vaild request a validation or marriage request
+				if self.send_marriage_request():
+						
+					# if validation or marriage successful proceed to ship
+					# and request a zpl label
+					self.send_manifest_request()
+						
+			#if marriage Disable must have weight to ship			
+			else:
+				self.send_manifest_request()
+		
+		
+		lpn = self.data.get('lpn')
+		end = system.date.now()
+		self.data.update({
+			'end_time':end
+			})
+		if lpn not in ['NOREAD','Not_Valid','Multi']:
+			
+			#---- Data will always be in MongoDB for persistant data-----
+			db_access.insert_record(db_name, 'HSL_info', self.data)
+			
+		plc_path = 'ns=1;s=[{}]IGNReturnedHSLManIndexID'.format(self.PLC_NAME)
+		system.opc.writeValue(self.OPCSERVER, plc_path, int(self.data['indexid']))
+		
+		
+		time_spent = system.date.millisBetween(start,end)
+		self.induct_counts.update({
+			'Passed': self.induct_counts['Passed']+1 if self.data['reason_num'] ==1 else self.induct_counts['Passed']+0,
+			'Failed': self.induct_counts['Failed']+1 if self.data['reason_num'] !=1 else self.induct_counts['Failed']+0,
+			'Total Count':self.induct_counts['Total Count']+1,
+			'Time Spent':time_spent,
+			})
+
+		
+		tag_values = [
+			(post_data + '/IGNReturnedHSLManIndexID', self.data['indexid']),
+			(post_data + '/VerificationBarcodeReturned', self.data['verification_barcode']),
+			(post_data + '/IGN_LPN_Returned', self.data['lpn']),
+			(post_data + '/IGN_Weight_Returned', self.data['weight']),
+			(post_data + '/IGN_IBN_Returned', self.data['ibn']),
+			(post_data + '/Print_Results',self.data['printer_results']),
+			(post_data + '/IGNHSLManifestResult', self.data['reason_num']),
+			(post_data + '/IGNHSLManifestMessage', self.data['reason']), 
+			(post_data + '/Induction_Counts',self.induct_counts)
+			]
+		
+		system.tag.writeBlocking([tv[0] for tv in tag_values], [tv[1] for tv in tag_values])
+		
+	def print_process(self, payload, printerId):
+		
+		#---store payload---
+		rec_payload = payload
+		
+		#---create paths---
+		get_data = self.print_base + '/Get_Data'
+		post_data = self.print_base + '/Post_Data'
+		
+		# --clr payload and last print-----
+		system.tag.writeBlocking(*zip(*[
+			(get_data  + '/IGNHSLSendLabel_Prn%s'%printerId,''),
+			(post_data  + '/PA%s'%printerId,'')
+			]))
+	
+		
+		#--start of print Request----
+		start_time = system.date.now()
+		
+		self.print_counts = dict(system.tag.readBlocking([post_data + '/Print_Counts'])[0].value)
+		
+		self.data = {
+			'event-type': 'Print-Request',
+			'printer_results': 2,
+			'start_time':start_time,
+			'payload':rec_payload,
+			'printerid':printerId
+			}
+			
+		status = self.check_print_payload(rec_payload,printerId)
+		
+		if not status:
+			self._write_print_status(2)
+  			
+			
+		dbtime_path = 'ns=1;s=[{}]ManifestResponseTime[{}]'.format(self.PLC_NAME,self.data['indexid'])
+		plcData = system.opc.readValue(self.OPCSERVER, dbtime_path)
+		
+		lpn = self.data['lpn']
+		end_time = system.date.now()
+		self.data.update({
+			'end_time':end_time
+			})
+		if lpn not in ['NOREAD','Not_Valid','Multi' 'No LPN']:
+			db_access.insert_record(db_name, 'HSL_info', self.data)
+		time_spent = system.date.millisBetween(start_time,end_time)
+		self.print_counts.update({
+			'Passed': self.print_counts['Passed']+1 if self.data['reason_num'] ==1 else self.print_counts['Passed']+0,
+			'Failed': self.print_counts['Failed']+1 if self.data['reason_num'] !=1 else self.print_counts['Failed']+0,
+			'Total Count':self.print_counts['Total Count']+1,
+			'Time Spent':time_spent,
+			'Last PrintID':printerId,})
+		dest = self.print_base + '/Post_Data'
+		tag_values = [
+			(post_data + '/IGNReturnedHSLPrintIndexID', self.data.get('indexid')),
+			(post_data + '/IGN_LPN_Returned', self.data.get('lpn')),
+			(post_data + '/IGNHSLPrintResult', self.data.get('reason_num')),
+			(post_data + '/IGNHSLPrintMessage', self.data.get('reason')),
+			(post_data + '/Printer_Results', self.data.get('printer_results')),
+			(post_data + '/Print_Counts',self.print_counts)
+			]
+		system.tag.writeBlocking([tv[0] for tv in tag_values], [tv[1] for tv in tag_values])
+		
+		
+		
+
+		
+	def _write_print_status(self,status_code):
+		try:
+			itemPaths = [
+				'ns=1;s=[{}]IGNReturnedHSLPrintIndexID'.format(self.PLC_NAME),
+				'ns=1;s=[{}]IGNReturnedHSLPrintResult[{}]'.format(self.PLC_NAME,self.data['indexid'])
+				]
+			opcValues = [self.data['indexid'], status_code]
+			system.opc.writeValues(self.OPCSERVER, itemPaths, opcValues)
+		except Exception as e:
+			self.logger.error('OPC Print Status Write Error: {}'.format(e))
+			
+	@async(name="verify process")		
+	def verify_process(self, payload):
+		
+		#--time of value change
+		start_time = system.date.now()
+		
+		#---create base paths
+		get_data = self.verify_base + '/Get_Data'
+		post_data = self.verify_base + '/Post_Data'
+		
+		#--- reading in counts
+		self.verify_counts = dict(system.tag.readBlocking([post_data + '/Verify_Counts'])[0].value)
+		self.data = {
+			'event-type': 'Verify_Request',
+			'start_time':start_time,
+			'payload':payload,
+			'reason_num':20,
+			'indexid':100
+			}
+		
+                	
+		#---check received payload
+		if self.check_verify_payload(payload):
+			verify_data = self.check_verify_lpn()
+			if verify_data:
+				self.check_verify_tracking()
+				if self.data['reason_num'] in [0,20,21]:
+					self.verify_order_lookup()
+			else:
+				# not stored or db
+				self.data.update({'reason_num':2,'indexid':100})
+		     
+		
+		else:
+			self.data.update({'reason_num':2,'indexid':100})
+		
+		itemPaths = [
+				'ns=1;s=[{}]IGNHSLVerifyResult[{}]'.format(self.PLC_NAME,self.data['indexid']),
+				'ns=1;s=[{}]IGNReturnedHSLVerifyIndexID'.format(self.PLC_NAME)
+				]
+		opcValues = [self.data['reason_num'], self.data['indexid']]
+		system.opc.writeValues(self.OPCSERVER, itemPaths, opcValues)
+		
+		dbtime_paths = [
+			'ns=1;s=[{}]Program:HSL_Print_Program.VerifyResponseTime[{}]'.format(self.PLC_NAME,self.data['indexid']),
+			'ns=1;s=[{}]Program:HSL_Print_Program.LOTAR_History[{}]'.format(self.PLC_NAME,self.data['indexid']),
+			'ns=1;s=[{}]Program:HSL_Print_Program.PrintResponseTime[{}]'.format(self.PLC_NAME,self.data['indexid'])
+			]
+		plcData = system.opc.readValues(self.OPCSERVER, dbtime_paths)
+		rec_verify_time = plcData[0].value
+		rec_lotar_time = plcData[1].value
+		rec_print_time = plcData[2].value
+		
+		if rec_verify_time == 99999 or not rec_verify_time:
+			rec_verify_time = 0
+		if rec_lotar_time == 99999 or not rec_lotar_time:
+			rec_lotar_time = 0
+		if rec_print_time == 99999 or not rec_print_time:
+			rec_print_time = 0
+			
+		end_time = system.date.now()
+		self.data.update({
+			'end_time':end_time
+			})
+
+		time_spent = system.date.millisBetween(start_time,end_time)
+		self.verify_counts.update({
+			'Verify Response':rec_verify_time,
+			'LOTAR Response':rec_lotar_time,
+			'Print Response':rec_print_time,
+			'Verified': self.verify_counts.get('Verified',0)+1 if self.data['reason_num'] in [1,21] else self.verify_counts.get('Verified',0)+0,
+			'Rejected': self.verify_counts.get('Rejected',0)+1 if self.data['reason_num'] not in [1,21] else self.verify_counts.get('Rejected',0)+0,
+			'Total Count':self.verify_counts.get('Total Count',0)+1,
+			'Time Spent':time_spent})
+		
+		self.data.update({
+			'Verify Response':rec_verify_time,
+			'LOTAR Response':rec_lotar_time,
+			'Print Response':rec_print_time,
+			})
+		
+		if self.data['lpn'] not in ['NOREAD','Not_Valid','Multi' 'No LPN']:
+			db_access.insert_record(db_name, 'HSL_info', self.data)	
+		tag_values = [
+			(post_data + '/IGNReturnedHSLVerifyIndexID', int(self.data['indexid'])),
+			(post_data + '/IGNHSLVerifyResult', self.data.get('reason_num')),
+			(post_data + '/IGN_LPN_Returned', self.data.get('lpn')),
+			(post_data + '/IGN_Verification_Returned', self.combine()),
+			(post_data + '/Message_Response', self.data.get('reason')),
+			(post_data + '/Verify_Counts',self.verify_counts)
+			]
+		system.tag.writeBlocking([tv[0] for tv in tag_values], [tv[1] for tv in tag_values])
+		
+		
+		
+	def combine(self):
+		return ",".join(filter(None, [
+			self.data.get('order_nbr'),
+			self.data.get('tracking')
+			]))

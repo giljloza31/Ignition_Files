@@ -1,0 +1,30 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+from eurosort.enums import MessageType, MessageCode
+
+
+
+class SorterDataMessaging(SorterDataBase):
+
+	@property
+	def message_type(self):
+		return self._javaObject.type
+		
+	@message_type.setter
+	def message_type(self, new_message_type):
+		self._javaObject.type = self._coerce_enum(MessageType, new_message_type)
+
+
+	@property
+	def message_code(self):
+		return MessageCode(self._javaObject.messageCode) if self._javaObject.messageCode else None
+
+	@message_code.setter
+	def message_code(self, new_message_code):
+		assert new_message_code in MessageCode, "Message Code is enumerated: %r not listed" % (new_message_code,)
+		self._javaObject.messageCode = new_message_code

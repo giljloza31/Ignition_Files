@@ -1,0 +1,300 @@
+from pymongo import MongoClient
+import pymongo
+from random import randint
+from datetime import datetime
+#client = MongoClient(port=27017)
+#db=client.test
+def setup(db): #complete
+	#for x in range(1, 501):
+		#doc = {'id' : int(x),'mode' : randint(1, 5),'barcode': randint(1, 5), 'routecode':'aaa', 'destination':'bbb','seq': randint(1, 5),'dt':datetime.now(), 'get_time':datetime.now(), 'got_time':datetime.now()}
+		#db.Handshake_Log.insert_one(doc)
+	for y in range(1,11):
+		rand =  randint(1, 4)
+		if rand == 1:
+			rcode = 'aaa'
+		elif rand == 2:
+			rcode = 'bbb'
+		else:
+			rcode =  'NODESTINATION' 
+		doc = {'id' : int(y), 'route_code':rcode}
+		db.route_table1.insert_one(doc)
+		
+	for z in range(1,11):
+				rand =  randint(1, 4)
+				if rand == 1:
+					rcode = 'aaa'
+				elif rand == 2:
+					rcode = 'bbb'
+				else:
+					rcode =  "" 
+				doc = {"Zone" : rcode, "IBN":rand}
+				db.Production.insert_one(doc)
+
+def createInsert(col,document): #complete
+	col.insert_one(document)
+
+def createInsertDefaultDT(col,document): #complete
+	try:
+		i = document['dt']
+	except:
+		document['dt'] = GETDATE()
+	col.insert_one(document)
+		
+def drop(col): #complete
+	col.drop()
+	
+def select1000(db,modeVal): #complete
+	results = db.Handshake_Log.find({"mode":modeVal}).sort([("dt", pymongo.DESCENDING),("mode",pymongo.DESCENDING)])
+	results = results.limit(1000)
+	r = cursorToList(results)
+	return r
+	
+def selectInnerJoinsManual(db,barcodes):
+
+	results = db.Production.find( {
+		   "$and": [
+		      { "Zone": "" }
+		      ,{"IBN":{"$in":barcodes}}
+		      ]} )
+	results1 = cursorToList(results)
+	
+	
+	results = db.Production.find( {
+	   "$and": [
+	      { "Zone": { "$ne": "" } }
+	      ,{"IBN":{"$in":barcodes}}
+	      ]} )
+	results2 = cursorToList(results)
+
+	results = db.route_table1.find(  { "route_code": 'NODESTINATION' })
+	results3 = cursorToList(results)
+	results = db.route_table1.find(  { "route_code": { "$ne": 'NODESTINATION' } })
+	results4 = cursorToList(results)
+	
+	tempList1 = []
+	for line1 in results1:
+		for line3 in results3:
+			doc = line3
+			doc.update(line1)
+			doc.pop("_id")
+			tempList1.append(doc)
+			#db.Production_Temp1.insert_one(doc) #replace with adding to a list, then dumping the list to the document
+	tempList2 = []	
+	for line2 in results2:
+		for line4 in results4:
+			if line2["Zone"] == line4["route_code"]:
+				doc = line4
+				doc.update(line2)
+				doc.pop("_id")
+				tempList2.append(doc)
+				#db.Production_Temp1.insert_one(doc)		
+	tempList1.append(tempList2)
+	r = tempList1
+	return r
+	
+def selectInnerJoins(db,barcodes):
+	
+		results = db.Production.find( {
+			   "$and": [
+			      { "Zone": "" },{"IBN":{"$in":barcodes}}
+			      ]} )
+		results1 = cursorToList(results)
+		for doc in results1:
+			try:
+				db.Production_Temp1.insert_one(doc) #refactor
+			except pymongo.errors.DuplicateKeyError:
+				continue
+		
+		results = db.Production.find( {
+		   "$and": [
+		      { "Zone": { "$ne": "" } }
+		      ,{"IBN":{"$in":barcodes}}
+		      ]} )
+		 #{ $expr: { $eq: [ { $divide: [ 1, "$x" ] }, 3 ] } 
+		results2 = cursorToList(results)
+		
+		for doc in results2:
+			try:
+				db.Production_Temp2.insert_one(doc) #refactor
+			except pymongo.errors.DuplicateKeyError:
+				continue
+		
+		results = db.Production_Temp2.aggregate([{"$lookup":{"from":"route_table1","localField":"Zone","foreignField":"route_code","as":"Zone"}},
+			{"$match": {"Zone":{"$ne":[]}}}	])
+		results3 = cursorToList(results)
+		for doc in results3:
+			try:
+				doc.pop("_id")
+				db.Production_Temp3.insert_one(doc)
+			except:
+				continue
+
+		results = db.Production_Temp1.aggregate([
+		   {
+		      "$lookup":
+		         {
+		           "from": "route_table1",
+		           "let": { "Prod_Zone": "$Zone" },  #maybe remove quotes from Prod_Zone
+		           "pipeline": [
+		              { "$match":
+		                 { "$expr":
+		                    { "$and":
+		                       [
+		                         { "$eq": [ "$route_code", 'NODESTINATION' ] },
+		                         { "$eq": [ "$$Prod_Zone", "" ] }
+		                       ]
+		                    }
+		                 }
+		              },
+		              { "$project": {"_id": 0 } }
+		           ],
+		           "as": "Zone"
+		         }
+		    }
+		])
+		results4 = cursorToList(results)
+		for doc in results4:
+			try:
+				doc.pop("_id")
+				db.Production_Temp3.insert_one(doc)
+			except:
+				continue
+		#results = db.route_table1.find({"route_code":value})
+		#results = cursorToList(results)
+		#db.Production_Temp3.insert_many(results)
+		
+		r = cursorToList(db.Production_Temp3.find({}))
+		db.Production_Temp1.drop()
+		db.Production_Temp2.drop()
+		db.Production_Temp3.drop()
+		
+		return r
+		
+def selectBasic(col,value): #complete
+	results = col.find({"route_code":value})
+	r = cursorToList(results)
+	return r
+	
+def cursorToList(cursor): #complete
+	ls = []
+	count = cursor.count()
+	increment = 1000
+	index = 0
+	while index < count:
+		newCursor = cursor.clone()
+		extra = count - index
+		endCap = 0
+		if extra >= increment:
+			endCap = index + increment
+		else:
+			endCap = index + extra
+		#print(index,endCap)
+		dt = list(newCursor[index:endCap])
+		#return dt
+		ls.extend(dt)
+		index += increment
+	return ls
+
+'''
+
+
+
+
+
+
+
+
+
+from pymongo import MongoClient
+import pymongo
+
+client = MongoClient(host = 'localhost',port=27017)
+db=client.test
+mongoTest.setup(db)
+mongoTest.selectBasic(db.route_table1,"aaa")
+b = [1,2,4]
+mongoTest.selectInnerJoinsManual(db,b)
+
+
+
+from pymongo import MongoClient
+
+import pymongo
+#client = MongoClient('txmongowcsdev1.mouser.lan',27017)
+#config = {'_id':'wcsDevRS1', 'members':[{'_id':0,'host':'txmongowcsdev1.mouser.lan:27017'},
+#{'_id':1,'host':'txmongowcsdev2.mouser.lan:27017'},{'_id':2,'host':'txmongowcsdev3.mouser.lan:27017'}]
+#}
+#client.admin.command("replSetInitiate",config)
+
+client = MongoClient("txmongowcsdev1.mouser.lan",27017,replicaset="wcsDevRS1")
+db=client.IgnitionDB
+shared.pwd.mongoTest.setup(db)
+shared.pwd.mongoTest.selectBasic(db.route_table1,"aaa")
+#b = [1,2,4]
+#shared.pwd.mongoTest.selectInnerJoinsManual(db,b)
+
+
+
+
+from pymongo import MongoClient
+
+import pymongo
+user = "testUser"
+passw = "IgnitionShip2634#"
+host = "txmongowcsdev1.mouser.lan"
+replicaSet = "wcsDevRS1"
+port = "27017"
+mongodb = "IgnitionDB"
+uri = "mongodb://{}:{}@{}:{}/{}?authSource={}&tls=true&tlsAllowInvalidCertificates=true".format(user,passw,host,port,mongodb,mongodb)
+
+client = MongoClient(uri)
+db=client.IgnitionDB
+#shared.pwd.mongoTest.setup(db)
+shared.pwd.mongoTest.selectBasic(db.route_table1,"aaa")
+b = [1,2,4]
+shared.pwd.mongoTest.selectInnerJoinsManual(db,b)
+
+
+
+
+from pymongo import MongoClient
+
+import pymongo
+user = "testUser"
+passw = "IgnitionShip2634#"
+host = "txmongowcsdev1.mouser.lan"
+replicaSet = "wcsDevRS1"
+port = "27017"
+mongodb = "IgnitionDB"
+uri = "mongodb://{}:{}@{}:{}/{}?authSource={}&tls=true&tlsAllowInvalidCertificates=true".format(user,passw,host,port,mongodb,mongodb)
+
+client = MongoClient(uri)
+db=client.IgnitionDB
+
+shared.pwd.mongoTest.selectBasic(db.inbound_receipt_info,"aaa")
+
+
+from pymongo import MongoClient
+
+import pymongo
+user = "testUser"
+passw = "IgnitionShip2634#"
+host = "txmongowcsdev1.mouser.lan"
+replicaSet = "wcsDevRS1"
+port = "27017"
+mongodb = "IgnitionDB"
+uri = "mongodb://{}:{}@{}:{}/{}?authSource={}&tls=true&tlsAllowInvalidCertificates=true".format(user,passw,host,port,mongodb,mongodb)
+
+client = MongoClient(uri)
+db=client.IgnitionDB
+cursor = db["inbound_receipt_info"].find()
+print(cursor.next())
+print(cursor.next())
+print(cursor.next())
+print(cursor.next())
+print(cursor.next())
+print(cursor.next())
+shared.pwd.mongoTest.selectBasic(db.inbound_receipt_info,1)
+shared.pwd.mongoTest.select1000(db.inbound_receipt_info,"1")
+
+'''

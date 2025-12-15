@@ -1,0 +1,152 @@
+{
+  "custom": {},
+  "params": {
+    "VFD_name": "value",
+    "folder_path": "value"
+  },
+  "propConfig": {
+    "params.VFD_name": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.folder_path": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 75,
+      "width": 253
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 34,
+          "width": 154,
+          "x": 3.3000000000000114,
+          "y": 2.730000000000018
+        },
+        "props": {
+          "text": "Speed Selection:",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Dropdown"
+        },
+        "position": {
+          "height": 27,
+          "width": 87,
+          "x": 161.16999999999996,
+          "y": 6.329999999999984
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{view.params.VFD_name}",
+                  "2": "{view.params.folder_path}"
+                },
+                "tagPath": "{2}VFD/{1}/Hz_SpeedSelection"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "options": [
+            {
+              "label": 1,
+              "value": 1
+            },
+            {
+              "label": 2,
+              "value": 2
+            },
+            {
+              "label": 3,
+              "value": 3
+            }
+          ]
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Scan1Settings",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "open",
+                "viewParams": {
+                  "VFDName": "{view.params.VFD_name}",
+                  "folderPath": "{view.params.folder_path}"
+                },
+                "viewPath": "Popups/Scan1/VFD_Hz_Settings",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 165.29999999999995,
+          "y": 35.97000000000003
+        },
+        "props": {
+          "text": "Hz"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 154,
+          "x": 3.3000000000000114,
+          "y": 35.049999999999955
+        },
+        "props": {
+          "text": "Speed Settings:",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

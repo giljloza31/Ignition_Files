@@ -1,0 +1,147 @@
+{
+  "custom": {},
+  "params": {
+    "Action_PB": false,
+    "Area": "PA1",
+    "Left_Text": "OFF",
+    "Right_Text": "ON"
+  },
+  "propConfig": {
+    "params.Action_PB": {
+      "binding": {
+        "config": {
+          "bidirectional": true,
+          "path": "/root/ToggleSwitch.props.selected"
+        },
+        "type": "property"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Area": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Left_Text": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Right_Text": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 80,
+      "width": 265
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 177,
+          "x": 44.5,
+          "y": 3
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Area"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "Start_PB": true
+        },
+        "meta": {
+          "name": "ToggleSwitch"
+        },
+        "position": {
+          "height": 36,
+          "width": 58,
+          "x": 99.5,
+          "y": 35
+        },
+        "type": "ia.input.toggle-switch"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 50,
+          "x": 21,
+          "y": 39
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Left_Text"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 50,
+          "x": 185.5,
+          "y": 39
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Right_Text"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

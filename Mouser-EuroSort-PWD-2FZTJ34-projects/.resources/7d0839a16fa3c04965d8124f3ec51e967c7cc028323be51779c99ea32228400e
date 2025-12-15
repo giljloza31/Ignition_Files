@@ -1,0 +1,2 @@
+DELETE FROM  Autoship_Routing_1 
+WHERE RouteCode =  :inVarRoute 

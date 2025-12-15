@@ -1,0 +1,128 @@
+"""
+	WCS connection configuration details
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from java.lang import Exception as JavaException
+from shared.data.types.enum import Enum
+from functools import partial
+from java.util import Date
+
+
+try:
+	if 'localhost' in shared.tools.net.get_gateway_public_address():
+		WCS_MODE = 'localhost'
+	else:
+		WCS_MODE = 'PRODUCTION'
+#	WCS_MODE = 'TESTING'
+except ImportError:
+	WCS_MODE = 'PRODUCTION'
+
+WCS_MODE = 'PRODUCTION'
+
+
+if WCS_MODE == 'PRODUCTION':
+	WCS_PROTOCOL        = 'http'
+	WCS_HOST            = 'wcs01' # 'wcs.mouser.lan'
+	WCS_PORT            =  8085
+	WCS_ENDPONT_VERSION = 'ws/v1'
+	WCS_URL_FORMAT      = '{protocol}://{host}:{port}/{endpoint_version}/{endpoint}'
+	
+elif WCS_MODE == 'TESTING':
+	WCS_PROTOCOL        = 'http'
+	WCS_HOST            = 'wcsdev' #'sandbox.wcs.mouser.lan'
+	WCS_PORT            =  8086
+	WCS_ENDPONT_VERSION = 'ws/v1'
+	WCS_URL_FORMAT       = '{protocol}://{host}:{port}/{endpoint_version}/{endpoint}'
+
+
+INCOMING_WCS_BASE_ENDPOINT_PATTERN = r'({endpoint_version:.*}/)?{endpoint}'
+
+
+def is_wcs_squelched():
+	return 
+
+
+
+def resolve_url(endpoint, 
+		protocol = WCS_PROTOCOL,
+		host     = WCS_HOST,
+		port     = WCS_PORT,
+		endpoint_version = WCS_ENDPONT_VERSION,
+		**url_parameters
+	):
+	base_url = WCS_URL_FORMAT.format(**locals())
+	return base_url.format(**url_parameters)
+
+
+
+WCS_MOUSER_IGNITION_USERNAME = 'ignition'
+WCS_MOUSER_IGNITION_PASSWORD = 'password'
+
+
+
+def wcs_http_call(method, endpoint, payload, **url_parameters):
+	method = method.upper()
+	try:
+		fully_qualified_url = resolve_url(endpoint, **url_parameters)
+	
+		try:
+			reformatted_payload = system.util.jsonEncode(payload, 2)
+			content_type = 'application/json'
+		except:
+			reformatted_payload = payload
+			content_type = 'text/plain'
+	
+		if is_wcs_squelched():
+			Logger().trace("{method} to {fully_qualified_url} with {reformatted_payload} - Response: <SQUELCHED>")
+			return
+	
+		if method == 'PUT':
+			response = system.net.httpPut(
+				url         = fully_qualified_url,
+				contentType = content_type,
+				putData     = reformatted_payload,
+			)
+		elif method == 'POST':
+			response = system.net.httpPost(
+				url         = fully_qualified_url,
+				contentType = content_type,
+				postData    = reformatted_payload,
+			)
+		elif method == 'DELETE':
+			response = system.net.httpDelete(
+				url         = fully_qualified_url,
+				contentType = content_type,
+			)
+		elif method == 'GET':
+			response = system.net.httpGet(
+				url         = fully_qualified_url,
+			)
+		else:
+			raise NotImplementedError('Method %r not configured for wcs_http_call' % (method,))
+	
+		# in case Ignition fails to decode a json for some reason
+		if isinstance(response, (str, unicode)):
+			try:
+				response = system.util.jsonDecode(response)
+			except TypeError:
+				pass
+		
+		Logger().trace("{method} to {fully_qualified_url} - Response: {response}")
+	
+		return response
+	
+	except (Exception, JavaException) as error:
+		try:
+			response = response
+			Logger().error('{method} failed on {endpoint} \n\tPayload: {payload!r}\n\t==> Response: {response!r}')
+		# didn't even get an error!
+		except NameError:
+			Logger().error('{method} failed on {endpoint} \n\tPayload: {payload!r}\n\t==> Response: Missing!')
+		raise error
+
+wcs_put    = partial(wcs_http_call, 'PUT')
+wcs_post   = partial(wcs_http_call, 'POST')
+wcs_delete = partial(wcs_http_call, 'DELETE', payload=None)
+wcs_get    = partial(wcs_http_call, 'GET')

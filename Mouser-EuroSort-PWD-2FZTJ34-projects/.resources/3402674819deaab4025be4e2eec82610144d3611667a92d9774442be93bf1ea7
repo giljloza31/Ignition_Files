@@ -1,0 +1,3 @@
+SELECT TOP( :inVarTopCnt )*
+FROM  NE_Receiving_Induct_Table 
+ORDER BY timestamp DESC

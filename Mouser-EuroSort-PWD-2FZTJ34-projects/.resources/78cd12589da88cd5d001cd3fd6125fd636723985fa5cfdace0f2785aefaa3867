@@ -1,0 +1,131 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+from eurosort.enums import DestinationStatus
+import re
+
+
+
+class SorterDataDestination(SorterDataBase):
+
+
+	@property
+	def destination(self):
+		return self._javaObject.destination
+
+	@destination.setter
+	def destination(self, new_destination):
+		self._javaObject.destination = new_destination[:100]
+
+	
+	@property
+	def destination_status(self):
+		return self._javaObject.destinationStatus
+
+	@destination_status.setter
+	def destination_status(self, new_destination_status):
+		self._javaObject.destinationStatus = self._coerce_enum(DestinationStatus, new_destination_status)
+
+
+	@property
+	def destination_text(self):
+		return self._javaObject.destinationText
+
+	@destination_text.setter
+	def destination_text(self, new_destination_text):
+		self._javaObject.destinationText = destination_text[:100]
+
+
+
+class SorterDataDestination_DefaultPattern(SorterDataBase):
+
+	DESTINATION_PATTERN_DEFAULT_COMPLIANT = True
+	
+	_DESTINATION_EXAMPLE = 'DST-0000-0-0-A'
+	DESTINATION_FORMAT = 'DST-{station}-{chute}-{dest}-{side}'
+	# https://regex101.com/r/gtDYhZ/1
+	DESTINATION_PATTERN = re.compile(r"""^
+		DST
+	 (?:- CH)? # deprecated
+		- (?P<station>[0-9]{4})
+		- (?P<chute>  [0-9]   )
+	 (?:- (?P<dest>   [0-9]   ))? # optional on deprecated format
+		- (?P<side>   [a-z]   )
+		$""", re.I + re.X)
+
+
+	@property
+	def _destination_parts(self):
+		if not self.DESTINATION_PATTERN_DEFAULT_COMPLIANT:
+			raise ValueError('Destination string pattern not set to default %s' % (
+							 self._DESTINATION_EXAMPLE,))
+		if self.destination:
+			match = self.DESTINATION_PATTERN.match(self.destination)
+			if match:
+				parts = match.groupdict()
+				if not parts['dest']:
+					parts['dest'] = '1'
+				return match.groupdict()
+		return {
+			'station': '0000', # None,
+			'chute'  : '0',    # None,
+			'dest'   : '0',    # None,
+			'side'   : '0',    # None,
+		}
+
+	@_destination_parts.setter
+	def _destination_parts(self, destination_parts):
+		if not self.DESTINATION_PATTERN_DEFAULT_COMPLIANT:
+			raise ValueError('Destination string pattern not set to default %s' % (
+							 self._DESTINATION_EXAMPLE,))
+		self.destination = self.DESTINATION_FORMAT.format(**destination_parts)
+
+	# breakout
+	
+	@property
+	def station(self):
+		return self._destination_parts['station']
+	
+	@station.setter
+	def station(self, new_station):
+		dest_parts = self._destination_parts
+		dest_parts['station'] = new_station
+		self._destination_parts = dest_parts
+
+
+	@property
+	def chute(self):
+		return self._destination_parts['chute']
+	
+	@chute.setter
+	def chute(self, new_chute):
+		dest_parts = self._destination_parts
+		dest_parts['chute'] = new_chute
+		self._destination_parts = dest_parts
+
+
+	@property
+	def dest(self):
+		return self._destination_parts['dest']
+	
+	@dest.setter
+	def dest(self, new_dest):
+		dest_parts = self._destination_parts
+		dest_parts['dest'] = new_dest
+		self._destination_parts = dest_parts
+
+
+	@property
+	def side(self):
+		return self._destination_parts['side']
+	
+	@side.setter
+	def side(self, new_side):
+		dest_parts = self._destination_parts
+		dest_parts['side'] = new_side
+		self._destination_parts = dest_parts
+

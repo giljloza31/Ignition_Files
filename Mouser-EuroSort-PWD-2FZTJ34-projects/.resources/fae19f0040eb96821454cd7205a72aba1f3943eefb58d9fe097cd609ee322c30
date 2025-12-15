@@ -1,0 +1,2325 @@
+{
+  "custom": {},
+  "params": {
+    "Reset": false,
+    "VFDName": "V202_VFD",
+    "path": "[Mouser]Mouser/Yellow/VLM/Takeaway/VFD"
+  },
+  "propConfig": {
+    "params.Reset": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.VFDName": {
+      "binding": {
+        "config": {
+          "path": "/root/VFD_Name-Dropdown.custom.VFD_Name"
+        },
+        "type": "property"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.path": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 955,
+      "width": 1171
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "VFD_Name": "V202_VFD"
+        },
+        "meta": {
+          "name": "VFD_Name-Dropdown"
+        },
+        "position": {
+          "height": 36,
+          "width": 201,
+          "x": 808.95,
+          "y": 16.47
+        },
+        "propConfig": {
+          "props.options": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}"
+              },
+              "transforms": [
+                {
+                  "code": "\ttagPath \u003d self.view.params.path\n\theaders \u003d [\"value\", \"label\"]\n\ttagResults \u003d system.tag.browse(tagPath)\n\tdata \u003d []\n\tcount \u003d 0\n\tfor token in tagResults:\n\t\tvfdName \u003d str(token.get(\u0027name\u0027))\n\t\tdata.append([count,vfdName])\n\t\tcount +\u003d1\n\t\n\t\n\tvfdDataset \u003d system.dataset.toDataSet(headers, data)\n\treturn vfdDataset",
+                  "type": "script"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "props.search.searchParam": {
+            "binding": {
+              "config": {
+                "path": "view.params.VFDName"
+              },
+              "type": "property"
+            }
+          },
+          "props.value": {
+            "onChange": {
+              "enabled": null,
+              "script": "\ttagPath \u003d self.view.params.path\n\theaders \u003d [\"value\", \"label\"]\n\ttagResults \u003d system.tag.browse(tagPath)\n\tdata \u003d []\n\t\n\tfor token in tagResults:\n\t\tvfdName \u003d str(token.get(\u0027name\u0027))\n\t\tdata.append(vfdName)\n\t\t\n\t\n\t\n\t\n\t\n\tself.custom.VFD_Name \u003d data[currentValue.value]"
+            }
+          }
+        },
+        "props": {
+          "allowCustomOptions": true,
+          "dropdownOptionStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 20
+          },
+          "placeholder": {
+            "text": "Select VFD..."
+          },
+          "search": {},
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 20
+          },
+          "value": 4
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "VFD Name"
+        },
+        "position": {
+          "height": 32.32,
+          "width": 109.97,
+          "x": 696.52,
+          "y": 18.47
+        },
+        "props": {
+          "text": "VFD Name:",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver1-Bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "EIP Status"
+        },
+        "position": {
+          "height": 31,
+          "width": 101,
+          "x": 23.74,
+          "y": 16.48
+        },
+        "props": {
+          "text": "EIP Status:",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver1-Bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "EIP_Status-TextBox"
+        },
+        "position": {
+          "height": 31,
+          "width": 415.52,
+          "x": 131.73,
+          "y": 16.48
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_EIP_Status"
+              },
+              "transforms": [
+                {
+                  "expression": "\r\nswitch(\r\n{value}\r\n,\r\n0,1,2,3,4,5,6,7,8,9,\r\n   \t\t\r\n\"0 Standby\",\r\n\"1 Faulted\",\r\n\"2 Validating\",\r\n\"3 Connecting\",\r\n\"4 Running\",\r\n\"5 Shutting Down\",\r\n\"6 Inhibited\",\r\n\"7 Waiting\",\r\n\"8 Firmware Updating\",\r\n\"9 Configuring\",\r\n\r\n\"UNKNOWN STATE\")",
+                  "type": "expression"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 20
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "VFD Status"
+        },
+        "position": {
+          "height": 31,
+          "width": 106,
+          "x": 23.74,
+          "y": 58.48
+        },
+        "props": {
+          "text": "VFD Status:",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver1-Bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "VFD_Status-TextBox"
+        },
+        "position": {
+          "height": 31,
+          "width": 485.92,
+          "x": 139.81,
+          "y": 58.48
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Fault_Code"
+              },
+              "transforms": [
+                {
+                  "expression": "\r\nswitch(\r\n{value},\r\n0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,\r\n   \t\t\r\n\"0 No Fault\",\r\n\"1 \",\r\n\"2 Auxillary Input\",\r\n\"3 Power Loss\",\r\n\"4 Undervoltage\",\r\n\"5 Overvoltage\",\r\n\"6 Motor Stalled\",\r\n\"7 Motor Overload\",\r\n\"8 Heatsink Overtemperture\",\r\n\"9 Contol Module Overtemperture\",\r\n\"10 \",\r\n\"11 \",\r\n\"12 HW Overcurrent (300%)\",\r\n\"13 Ground Fault\",\r\n\"14 \",\r\n\"15 Load Loss\",\r\n\"16 \",\r\n\"17 \",\r\n\"18 \",\r\n\"19 \",\r\n\"20 \",\r\n\"21 Output Phase Loss\",\r\n\"22 \",\r\n\"23 \",\r\n\"24 \",\r\n\"25 \",\r\n\"26 \",\r\n\"27 \",\r\n\"28 \",\r\n\"29 Analog Input Loss\",\r\n\"30 \",\r\n\"31 \",\r\n\"32 \",\r\n\"33 Auto Restart Tries\", \r\n\"34 \",\r\n\"35 \",\r\n\"36 \",\r\n\"37 \",\r\n\"38 Phase U to Ground Short\",\r\n\"39 Phase V to Ground Short\",\r\n\"40 Phase W to Ground Short\",\r\n\"41 Phase UV Short\",\r\n\"42 Phase UW Short\",\r\n\"43 Phase VW Short\",\r\n\"44\",\r\n\"45\",\r\n\"46\",\r\n\"47\",\r\n\"48 Parameters Defaulted\",\r\n\"49 \",\r\n\"50 \",\r\n\"51 \",\r\n\"52 \",\r\n\"53 \",\r\n\"54 \",\r\n\"55 \",\r\n\"56 \",\r\n\"57 \",\r\n\"58 \",\r\n\"59 Safety Open\",\r\n\"60 \",\r\n\"61 \",\r\n\"62 \",\r\n\"63 Software Overcurrent\",\r\n\"64 Drive Overload\",\r\n\"65\",\r\n\"66\",\r\n\"67\",\r\n\"68\",\r\n\"69\",\r\n\"70 Power Unit Fail\",\r\n\"71 DSI Network Loss\",\r\n\"72 Option Card Network Loss\",\r\n\"73 Embedded Ethernet/IP Adpater Network Loss\",\r\n\"74 \",\r\n\"75 \",\r\n\"76 \",\r\n\"77 \",\r\n\"78 \",\r\n\"79 \",\r\n\"80 Autotune Fail\",\r\n\"81 DSI Communication Loss\",\r\n\"82 Option Card Communication Loss\",\r\n\"83 Embedded Ethernet/IP Adpater Communication Loss\",\r\n\"84 \",\r\n\"85\",\r\n\"86\",\r\n\"87\",\r\n\"88\",\r\n\"89\",\r\n\"90 \",\r\n\"91 Encoder Loss\",\r\n\"92\",\r\n\"93\",\r\n\"94 Function Loss\",\r\n\"95\",\r\n\"96\",\r\n\"97 \",\r\n\"98\",\r\n\"99 \",\r\n\"100 Parameter Checksum Error\",\r\n\"101 External Storage\",\r\n\"102 \",\r\n\"103 \",\r\n\"104 \",\r\n\"105 Control Module Connect Error\",\r\n\"106 Incompatible Control-Power Module\",\r\n\"107 Unrecognized Control-Power Module\",\r\n\"108 \",\r\n\"109 Mismatched Control-Power Module\",\r\n\"110 Keyboard Membrane\",\r\n\"111 Safety Hardware\",\r\n\"112 \",\r\n\"113 \",\r\n\"114 Microprocessor Failure\",\r\n\"115 \",\r\n\"116 \",\r\n\"117 \",\r\n\"118 \",\r\n\"119 \",\r\n\"120 \",\r\n\"121 \",\r\n\"122 I/O Board Failure\",\r\n\"123 \",\r\n\"124 \",\r\n\"125 Flash Update Required\",\r\n\"126 Non Recoverable Error\",\r\n\"127 DSI Flash Update Required\",\r\n\"128 \",\r\n\"129 \",\r\n\"130 \",\r\n\r\n\"UNKNOWN STATE\")",
+                  "type": "expression"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 20
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "VFD-Part2"
+        },
+        "position": {
+          "height": 792,
+          "width": 419.96,
+          "x": 35.47,
+          "y": 147.44
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "29.4863",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#D2D7D6",
+                "stroke": "#000000",
+                "strokeWidth": ".2"
+              },
+              "type": "rect",
+              "width": "29.4863",
+              "x": "0.0752",
+              "y": "0.0752"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 29.6367 29.6367"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "VFD-Part1"
+        },
+        "position": {
+          "height": 341,
+          "width": 419.96,
+          "x": 35.35,
+          "y": 147.2
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "29.4863",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#3B3B3B",
+                "stroke": "#000000",
+                "strokeWidth": ".2"
+              },
+              "type": "rect",
+              "width": "29.4863",
+              "x": "0.0752",
+              "y": "0.0752"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 29.6367 29.6367"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "VFD-Part3"
+        },
+        "position": {
+          "height": 111,
+          "width": 91.97,
+          "x": 363.57,
+          "y": 147.91
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "29.4863",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#A3A3A3",
+                "stroke": "#000000",
+                "strokeWidth": ".2"
+              },
+              "type": "rect",
+              "width": "29.4863",
+              "x": "0.0752",
+              "y": "0.0752"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 29.6367 29.6367"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Off-Button"
+        },
+        "position": {
+          "height": 63,
+          "width": 85.32,
+          "x": 337.47,
+          "y": 403.27
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "150",
+                  "name": "rect",
+                  "rx": "13.9688",
+                  "type": "rect",
+                  "width": "150",
+                  "x": "1.5",
+                  "y": "1.5"
+                }
+              ],
+              "name": "Square-2",
+              "style": {
+                "classes": "",
+                "fill": "#CB1A1A",
+                "stroke": "#ffffff",
+                "strokeWidth": "3"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 153 153"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 23,
+          "width": 38.79,
+          "x": 300.31,
+          "y": 366.67
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "150",
+                  "name": "rect",
+                  "rx": "13.9688",
+                  "type": "rect",
+                  "width": "150",
+                  "x": "1.5",
+                  "y": "1.5"
+                }
+              ],
+              "name": "Square-2",
+              "style": {
+                "classes": "",
+                "fill": "#999999",
+                "stroke": "#ffffff",
+                "strokeWidth": "3"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 153 153"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "On-Button"
+        },
+        "position": {
+          "height": 31,
+          "width": 38.78,
+          "x": 366.56,
+          "y": 320.91
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "150",
+                  "name": "rect",
+                  "rx": "13.9688",
+                  "type": "rect",
+                  "width": "150",
+                  "x": "1.5",
+                  "y": "1.5"
+                }
+              ],
+              "name": "Square-2",
+              "style": {
+                "classes": "",
+                "fill": "#53DF6F",
+                "stroke": "#ffffff",
+                "strokeWidth": "3"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 153 153"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "D-Pad Circle"
+        },
+        "position": {
+          "height": 143,
+          "width": 143,
+          "x": 102.24,
+          "y": 330.77
+        },
+        "props": {
+          "elements": [
+            {
+              "cx": 16.875,
+              "cy": "16.875",
+              "name": "circle",
+              "r": "16.7998",
+              "style": {
+                "classes": "",
+                "fill": "#3689C9",
+                "stroke": "#ffffff",
+                "strokeWidth": ".2"
+              },
+              "type": "circle"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 33.75 33.75"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Dial Circle"
+        },
+        "position": {
+          "height": 51,
+          "width": 50.97,
+          "x": 385.54,
+          "y": 180.91
+        },
+        "props": {
+          "elements": [
+            {
+              "cx": 16.875,
+              "cy": "16.875",
+              "name": "circle",
+              "r": "16.7998",
+              "style": {
+                "classes": "",
+                "fill": "#3B3B3B",
+                "stroke": "#000000",
+                "strokeWidth": ".2"
+              },
+              "type": "circle"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 33.75 33.75"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "VFD LED",
+          "tooltip": {
+            "enabled": true,
+            "text": "Current Hz"
+          }
+        },
+        "position": {
+          "height": 64,
+          "width": 221.61,
+          "x": 91.04,
+          "y": 196.81
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Hz_Converted"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "segmentFormat": "7 segment"
+        },
+        "type": "ia.display.led-display"
+      },
+      {
+        "meta": {
+          "name": "Accel"
+        },
+        "position": {
+          "height": 36.34,
+          "width": 111.26,
+          "x": 52.75,
+          "y": 639.35
+        },
+        "props": {
+          "text": "Accel (ms):",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Decel"
+        },
+        "position": {
+          "height": 36.34,
+          "width": 113.01,
+          "x": 50.95,
+          "y": 677.23
+        },
+        "props": {
+          "text": "Decel (ms):",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "EIP Fault"
+        },
+        "position": {
+          "height": 31.08,
+          "width": 80.56,
+          "x": 329.64,
+          "y": 499.41
+        },
+        "props": {
+          "text": "EIP Fault",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Run Fault"
+        },
+        "position": {
+          "height": 31,
+          "width": 90,
+          "x": 320.64,
+          "y": 564.21
+        },
+        "props": {
+          "text": "Run Fault",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "VFD Fault"
+        },
+        "position": {
+          "height": 31,
+          "width": 87,
+          "x": 323.64,
+          "y": 533.21
+        },
+        "props": {
+          "text": "VFD Fault",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Accel_NumericEntryField-1"
+        },
+        "position": {
+          "height": 36,
+          "width": 66,
+          "x": 169.86,
+          "y": 638.6
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Accel_IN"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 22
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Decel_NumericEntryField-1"
+        },
+        "position": {
+          "height": 36,
+          "width": 66,
+          "x": 170.4,
+          "y": 676.48
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Decel_IN"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 22
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Motor Run Time"
+        },
+        "position": {
+          "height": 31,
+          "width": 156,
+          "x": 45.51,
+          "y": 488.57
+        },
+        "props": {
+          "text": "Motor RunTime (hrs):",
+          "textStyle": {
+            "fontFamily": "Roboto",
+            "fontSize": 16
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Safety",
+          "visible": false
+        },
+        "position": {
+          "height": 31,
+          "width": 90,
+          "x": 320.64,
+          "y": 595.21
+        },
+        "props": {
+          "text": "Safety",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "newTab": true,
+                "url": "https://literature.rockwellautomation.com/idc/groups/literature/documents/um/520-um001_-en-e.pdf"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "meta": {
+          "name": "VFD Manual Button"
+        },
+        "position": {
+          "height": 61,
+          "width": 90,
+          "x": 348.95,
+          "y": 856.73
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFE38F",
+            "color": "#737373"
+          },
+          "text": "VFD Manual",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "color": "#595959",
+            "fontSize": 17
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "PowerFlex-Logo"
+        },
+        "position": {
+          "height": 109,
+          "width": 309,
+          "x": 48.89,
+          "y": 821.41
+        },
+        "props": {
+          "fit": {
+            "mode": "fill"
+          },
+          "source": "/system/images/PowerFlex-Logo.png"
+        },
+        "type": "ia.display.image"
+      },
+      {
+        "meta": {
+          "name": "EIP-StatusLight"
+        },
+        "position": {
+          "height": 21,
+          "width": 21,
+          "x": 420.55,
+          "y": 504.41
+        },
+        "propConfig": {
+          "props.elements[0].style.fill": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_EIP_Fault"
+              },
+              "transforms": [
+                {
+                  "fallback": "#D90000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#00D900"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#D90000"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "cx": 16.875,
+              "cy": "16.875",
+              "name": "circle",
+              "r": 16.7998,
+              "style": {},
+              "type": "circle"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 33.75 33.75"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "VFD-StatusLight"
+        },
+        "position": {
+          "height": 21,
+          "width": 21,
+          "x": 420.64,
+          "y": 537.91
+        },
+        "propConfig": {
+          "props.elements[0].style.fill": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Faulted"
+              },
+              "transforms": [
+                {
+                  "fallback": "#FF0000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#00D900"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#D90000"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "cx": 16.875,
+              "cy": "16.875",
+              "name": "circle",
+              "r": "16.7998",
+              "style": {
+                "classes": "",
+                "stroke": "#ffffff",
+                "strokeWidth": ".2"
+              },
+              "type": "circle"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 33.75 33.75"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Run-StatusLight"
+        },
+        "position": {
+          "height": 21,
+          "width": 21,
+          "x": 420.64,
+          "y": 568.91
+        },
+        "propConfig": {
+          "props.elements[0].style.fill": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_RunFault"
+              },
+              "transforms": [
+                {
+                  "fallback": "#FF0000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#00D900"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#D90000"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "cx": 16.875,
+              "cy": "16.875",
+              "name": "circle",
+              "r": "16.7998",
+              "style": {
+                "classes": "",
+                "stroke": "#ffffff",
+                "strokeWidth": ".2"
+              },
+              "type": "circle"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 33.75 33.75"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Safety-StatusLight",
+          "visible": false
+        },
+        "position": {
+          "height": 21,
+          "width": 21,
+          "x": 420.64,
+          "y": 600.91
+        },
+        "props": {
+          "elements": [
+            {
+              "cx": 16.875,
+              "cy": "16.875",
+              "name": "circle",
+              "r": "16.7998",
+              "style": {
+                "classes": "",
+                "fill": "#000000",
+                "stroke": "#ffffff",
+                "strokeWidth": ".2"
+              },
+              "type": "circle"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 33.75 33.75"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Running"
+        },
+        "position": {
+          "height": 31,
+          "width": 90,
+          "x": 320.64,
+          "y": 593.91
+        },
+        "props": {
+          "text": "Running",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Running-StatusLight"
+        },
+        "position": {
+          "height": 21,
+          "width": 21,
+          "x": 420.64,
+          "y": 598.91
+        },
+        "propConfig": {
+          "props.elements[0].style.fill": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Running"
+              },
+              "transforms": [
+                {
+                  "fallback": "#FF0000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#FF0000"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#00FF00"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "cx": 16.875,
+              "cy": "16.875",
+              "name": "circle",
+              "r": "16.7998",
+              "style": {
+                "classes": "",
+                "stroke": "#ffffff",
+                "strokeWidth": ".2"
+              },
+              "type": "circle"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 33.75 33.75"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Decel_NumericEntryField-2"
+        },
+        "position": {
+          "height": 36,
+          "width": 66,
+          "x": 245.86,
+          "y": 676.6
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Decel_OUT"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#CCCCCC",
+            "classes": "FontStyles/BodyText",
+            "fontSize": 22
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Accel_NumericEntryField-2"
+        },
+        "position": {
+          "height": 36,
+          "width": 66,
+          "x": 245.86,
+          "y": 638.6
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Accel_OUT"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#CCCCCC",
+            "classes": "FontStyles/BodyText",
+            "fontSize": 22
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "VFD Address"
+        },
+        "position": {
+          "height": 32.32,
+          "width": 131.7,
+          "x": 64.35,
+          "y": 743.86
+        },
+        "props": {
+          "text": "VFD Address:",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 20
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "VFD_Address-String"
+        },
+        "position": {
+          "height": 32.32,
+          "width": 221.21,
+          "x": 196.35,
+          "y": 743.86
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/Parameters.IPAddress"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 20
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "VFD Subnet"
+        },
+        "position": {
+          "height": 33,
+          "width": 132,
+          "x": 64.35,
+          "y": 778.86
+        },
+        "props": {
+          "text": "VFD Subnet:",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 20
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "VFD_Subnet-String"
+        },
+        "position": {
+          "height": 33,
+          "width": 221,
+          "x": 196.35,
+          "y": 778.86
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/Parameters.Subnet"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 20
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Dial Insert"
+        },
+        "position": {
+          "height": 5.88,
+          "rotate": {
+            "angle": -45
+          },
+          "width": 23.98,
+          "x": 398.94,
+          "y": 203.53
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "29.4863",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#9E9E9E",
+                "stroke": "#000000",
+                "strokeWidth": ".2"
+              },
+              "type": "rect",
+              "width": "29.4863",
+              "x": "0.0752",
+              "y": "0.0752"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 29.6367 29.6367"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "On Symbol"
+        },
+        "position": {
+          "height": 19,
+          "width": 15,
+          "x": 377.97,
+          "y": 325.59
+        },
+        "props": {
+          "text": "|",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver1",
+            "color": "#F0F0F0",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Off Symbol"
+        },
+        "position": {
+          "height": 54,
+          "width": 57,
+          "x": 351.64,
+          "y": 407.87
+        },
+        "props": {
+          "text": "O",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "color": "#FAFAFA",
+            "fontSize": 60,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "    import threading\n    \n    def set_action(view_params, value):\n\t   self.custom.Reset \u003d value\n    \n    self.custom.Reset \u003d True\n    threading.Timer(1, set_action, [self.view.params, False]).start()"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Reset VFD Button"
+        },
+        "position": {
+          "height": 50,
+          "width": 193,
+          "x": 105.54,
+          "y": 267.47
+        },
+        "propConfig": {
+          "custom.Reset": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_ClearFault_PB"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "height": 50,
+            "width": 56
+          },
+          "style": {
+            "backgroundColor": "#DB0F0F",
+            "color": "#FFFFFF"
+          },
+          "text": "Reset VFD",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "color": "#FAFAFA",
+            "fontSize": 19
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Esc"
+        },
+        "position": {
+          "height": 27,
+          "width": 32,
+          "x": 111.81,
+          "y": 388.27
+        },
+        "props": {
+          "text": "Esc",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "color": "#F5F5F5"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Sel"
+        },
+        "position": {
+          "height": 27,
+          "width": 32,
+          "x": 157.74,
+          "y": 388.27
+        },
+        "props": {
+          "text": "Sel",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "color": "#F5F5F5",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SelectArrow-Up"
+        },
+        "position": {
+          "height": 18,
+          "width": 20,
+          "x": 163.74,
+          "y": 338.97
+        },
+        "props": {
+          "elements": [
+            {
+              "name": "polygon",
+              "points": "0.866 51.747 30.165 1 59.464 51.747 0.866 51.747",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5"
+              },
+              "type": "polygon"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 60.3298 52.2472"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "SelectArrow-Down"
+        },
+        "position": {
+          "height": 18,
+          "rotate": {
+            "angle": 180
+          },
+          "width": 20,
+          "x": 163.74,
+          "y": 446.37
+        },
+        "props": {
+          "elements": [
+            {
+              "name": "polygon",
+              "points": "0.866 51.747 30.165 1 59.464 51.747 0.866 51.747",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5"
+              },
+              "type": "polygon"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 60.3298 52.2472"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "ReturnArrow"
+        },
+        "position": {
+          "height": 21,
+          "width": 50,
+          "x": 196.82,
+          "y": 391.27
+        },
+        "props": {
+          "elements": [
+            {
+              "name": "polyline",
+              "points": "96 0 96 57.938 0 57.938",
+              "style": {
+                "classes": "",
+                "fill": "#FFFFFF00",
+                "stroke": "#F5F5F5",
+                "strokeWidth": "12"
+              },
+              "type": "polyline"
+            },
+            {
+              "name": "polygon",
+              "points": "36.527 36.845 0 57.938 36.527 79.03 36.527 36.845",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#F5F5F5",
+                "strokeWidth": "9"
+              },
+              "type": "polygon"
+            }
+          ],
+          "viewBox": "0 0 100.5 79.0297"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ServerPath": "histprov:SQLServer:/drv:ignition-desktop-arl7l8j:mouser:/tag:mouser/yellow/ne_receiving/vfd/"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "newTab": true,
+                "url": "system.net.openURL(\"https://literature.rockwellautomation.com/idc/groups/literature/documents/um/520-um001_-en-e.pdf\")"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "meta": {
+          "name": "VFD-PowerChart"
+        },
+        "position": {
+          "height": 788,
+          "width": 652,
+          "x": 493.64,
+          "y": 146.23
+        },
+        "propConfig": {
+          "custom.VFD_Name": {
+            "binding": {
+              "config": {
+                "path": "../VFD_Name-Dropdown.custom.VFD_Name"
+              },
+              "transforms": [
+                {
+                  "code": "\treturn value.lower()",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.pens[0].data.source": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.ServerPath}+{this.custom.VFD_Name}+\u0027/vfd_hz_converted\u0027\r\n"
+              },
+              "type": "expr"
+            }
+          },
+          "props.pens[1].data.source": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.ServerPath}+{this.custom.VFD_Name}+\u0027/vfd_outputcurrent\u0027\r\n"
+              },
+              "type": "expr"
+            }
+          },
+          "props.pens[2].data.source": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.ServerPath}+{this.custom.VFD_Name}+\u0027/vfd_temp\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "axes": [
+            {
+              "color": "#757A7F",
+              "dataFormat": "0,0.##",
+              "grid": {
+                "color": "#757A7F",
+                "dashArray": 0,
+                "opacity": 0.9,
+                "style": {
+                  "classes": ""
+                },
+                "visible": false
+              },
+              "label": {
+                "font": {
+                  "color": "#757A7F",
+                  "size": 10
+                },
+                "offset": 0,
+                "style": {
+                  "classes": ""
+                },
+                "text": ""
+              },
+              "name": "Default",
+              "position": "left",
+              "range": {
+                "auto": true,
+                "max": null,
+                "min": null
+              },
+              "style": {
+                "classes": ""
+              },
+              "tick": {
+                "color": "#757A7F",
+                "count": "Auto",
+                "label": {
+                  "font": {
+                    "color": "#757A7F",
+                    "size": 10
+                  },
+                  "format": "Auto",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "style": {
+                  "classes": ""
+                }
+              },
+              "width": 60
+            },
+            {
+              "color": "#757A7F",
+              "dataFormat": "0,0.##",
+              "grid": {
+                "color": "#757A7F",
+                "dashArray": 0,
+                "opacity": 0.9,
+                "style": {
+                  "classes": ""
+                },
+                "visible": false
+              },
+              "label": {
+                "font": {
+                  "color": "#757A7F",
+                  "size": 10
+                },
+                "offset": 0,
+                "style": {
+                  "classes": ""
+                },
+                "text": "Amps"
+              },
+              "name": "Amps",
+              "position": "left",
+              "range": {
+                "auto": true,
+                "max": "",
+                "min": ""
+              },
+              "style": {
+                "classes": ""
+              },
+              "tick": {
+                "color": "#757A7F",
+                "count": "Auto",
+                "label": {
+                  "font": {
+                    "color": "#757A7F",
+                    "size": 10
+                  },
+                  "format": "Auto",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "style": {
+                  "classes": ""
+                }
+              },
+              "width": 60
+            },
+            {
+              "color": "#757A7F",
+              "dataFormat": "0,0.##",
+              "grid": {
+                "color": "#757A7F",
+                "dashArray": 0,
+                "opacity": 0.9,
+                "style": {
+                  "classes": ""
+                },
+                "visible": false
+              },
+              "label": {
+                "font": {
+                  "color": "#757A7F",
+                  "size": 10
+                },
+                "offset": 0,
+                "style": {
+                  "classes": ""
+                },
+                "text": "Hz"
+              },
+              "name": "Hz",
+              "position": "left",
+              "range": {
+                "auto": true,
+                "max": null,
+                "min": null
+              },
+              "style": {
+                "classes": ""
+              },
+              "tick": {
+                "color": "#757A7F",
+                "count": "Auto",
+                "label": {
+                  "font": {
+                    "color": "#757A7F",
+                    "size": 10
+                  },
+                  "format": "Auto",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "style": {
+                  "classes": ""
+                }
+              },
+              "width": 60
+            },
+            {
+              "color": "#757A7F",
+              "dataFormat": "0,0.##",
+              "grid": {
+                "color": "#757A7F",
+                "dashArray": 0,
+                "opacity": 0.9,
+                "style": {
+                  "classes": ""
+                },
+                "visible": false
+              },
+              "label": {
+                "font": {
+                  "color": "#757A7F",
+                  "size": 10
+                },
+                "offset": 0,
+                "style": {
+                  "classes": ""
+                },
+                "text": "Temp"
+              },
+              "name": "Temp",
+              "position": "left",
+              "range": {
+                "auto": true,
+                "max": null,
+                "min": null
+              },
+              "style": {
+                "classes": ""
+              },
+              "tick": {
+                "color": "#757A7F",
+                "count": "Auto",
+                "label": {
+                  "font": {
+                    "color": "#757A7F",
+                    "size": 10
+                  },
+                  "format": "Auto",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "style": {
+                  "classes": ""
+                }
+              },
+              "width": 60
+            }
+          ],
+          "config": {
+            "measureOfTime": "seconds",
+            "rangeEndDate": {
+              "$": [
+                "ts",
+                0,
+                1725153329622
+              ],
+              "$ts": 1725153329583
+            },
+            "rangeStartDate": {
+              "$": [
+                "ts",
+                0,
+                1725153329622
+              ],
+              "$ts": 1725153321591
+            }
+          },
+          "interaction": {
+            "chartZoomLevel": 1,
+            "rangeZoomLevel": 1
+          },
+          "pens": [
+            {
+              "axis": "Hz",
+              "data": {
+                "aggregateMode": "default"
+              },
+              "display": {
+                "breakLine": true,
+                "interpolation": "curveLinear",
+                "radius": 3,
+                "styles": {
+                  "highlighted": {
+                    "fill": {
+                      "color": "#E78AC3",
+                      "opacity": 1
+                    },
+                    "stroke": {
+                      "color": "#e78ac3",
+                      "dashArray": 0,
+                      "opacity": 1,
+                      "width": 1
+                    }
+                  },
+                  "muted": {
+                    "fill": {
+                      "color": "#E78AC3",
+                      "opacity": 0.4
+                    },
+                    "stroke": {
+                      "color": "#e78ac3",
+                      "dashArray": 0,
+                      "opacity": 0.4,
+                      "width": 1
+                    }
+                  },
+                  "normal": {
+                    "fill": {
+                      "color": "#E78AC3",
+                      "opacity": 0.8
+                    },
+                    "stroke": {
+                      "color": "#e78ac3",
+                      "dashArray": 0,
+                      "opacity": 0.8,
+                      "width": 1
+                    }
+                  },
+                  "selected": {
+                    "fill": {
+                      "color": "#E78AC3",
+                      "opacity": 1
+                    },
+                    "stroke": {
+                      "color": "#e78ac3",
+                      "dashArray": 0,
+                      "opacity": 1,
+                      "width": 1
+                    }
+                  }
+                },
+                "type": "line"
+              },
+              "enabled": true,
+              "name": "vfd_hz_converted",
+              "plot": 0,
+              "selectable": true,
+              "visible": true
+            },
+            {
+              "axis": "Amps",
+              "data": {
+                "aggregateMode": "default"
+              },
+              "display": {
+                "breakLine": true,
+                "interpolation": "curveLinear",
+                "radius": 3,
+                "styles": {
+                  "highlighted": {
+                    "fill": {
+                      "color": "#A6D854",
+                      "opacity": 1
+                    },
+                    "stroke": {
+                      "color": "#a6d854",
+                      "dashArray": 0,
+                      "opacity": 1,
+                      "width": 1
+                    }
+                  },
+                  "muted": {
+                    "fill": {
+                      "color": "#A6D854",
+                      "opacity": 0.4
+                    },
+                    "stroke": {
+                      "color": "#a6d854",
+                      "dashArray": 0,
+                      "opacity": 0.4,
+                      "width": 1
+                    }
+                  },
+                  "normal": {
+                    "fill": {
+                      "color": "#A6D854",
+                      "opacity": 0.8
+                    },
+                    "stroke": {
+                      "color": "#a6d854",
+                      "dashArray": 0,
+                      "opacity": 0.8,
+                      "width": 1
+                    }
+                  },
+                  "selected": {
+                    "fill": {
+                      "color": "#A6D854",
+                      "opacity": 1
+                    },
+                    "stroke": {
+                      "color": "#a6d854",
+                      "dashArray": 0,
+                      "opacity": 1,
+                      "width": 1
+                    }
+                  }
+                },
+                "type": "line"
+              },
+              "enabled": true,
+              "name": "vfd_outputcurrent",
+              "plot": 1,
+              "selectable": true,
+              "visible": true
+            },
+            {
+              "axis": "",
+              "data": {
+                "aggregateMode": "default"
+              },
+              "display": {
+                "breakLine": true,
+                "interpolation": "curveLinear",
+                "radius": 3,
+                "styles": {
+                  "highlighted": {
+                    "fill": {
+                      "color": "#FFD930",
+                      "opacity": 1
+                    },
+                    "stroke": {
+                      "color": "#ffd930",
+                      "dashArray": 0,
+                      "opacity": 1,
+                      "width": 1
+                    }
+                  },
+                  "muted": {
+                    "fill": {
+                      "color": "#FFD930",
+                      "opacity": 0.4
+                    },
+                    "stroke": {
+                      "color": "#ffd930",
+                      "dashArray": 0,
+                      "opacity": 0.4,
+                      "width": 1
+                    }
+                  },
+                  "normal": {
+                    "fill": {
+                      "color": "#FFD930",
+                      "opacity": 0.8
+                    },
+                    "stroke": {
+                      "color": "#ffd930",
+                      "dashArray": 0,
+                      "opacity": 0.8,
+                      "width": 1
+                    }
+                  },
+                  "selected": {
+                    "fill": {
+                      "color": "#FFD930",
+                      "opacity": 1
+                    },
+                    "stroke": {
+                      "color": "#ffd930",
+                      "dashArray": 0,
+                      "opacity": 1,
+                      "width": 1
+                    }
+                  }
+                },
+                "type": "line"
+              },
+              "enabled": true,
+              "name": "vfd_temp",
+              "plot": 2,
+              "selectable": true,
+              "visible": true
+            }
+          ],
+          "plots": [
+            {
+              "color": "#FFFFFF",
+              "markers": [],
+              "relativeWeight": 1,
+              "style": {
+                "classes": ""
+              }
+            },
+            {
+              "color": "#FFFFFF",
+              "markers": [],
+              "relativeWeight": 1,
+              "style": {
+                "classes": ""
+              }
+            },
+            {
+              "color": "#FFFFFF",
+              "markers": [],
+              "relativeWeight": 1,
+              "style": {
+                "classes": ""
+              }
+            }
+          ]
+        },
+        "type": "ia.chart.powerchart"
+      },
+      {
+        "meta": {
+          "name": "Runtime",
+          "tooltip": {
+            "enabled": true,
+            "text": "Run Time"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 60,
+          "x": 201.82,
+          "y": 488.19
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Runtime"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "number",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 0.5
+          },
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "HzSetting",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "title": "HZ Setting",
+                "type": "open",
+                "viewParams": {
+                  "VFDName": "{/root/VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "viewPath": "Mouser/Popups/Yellow/VLM/VFD_Hz_Settings",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 144,
+          "x": 168.35,
+          "y": 561.4
+        },
+        "props": {
+          "text": "Hz Speed Setting"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Accel_0"
+        },
+        "position": {
+          "height": 36.34,
+          "width": 152.43,
+          "x": 47.93,
+          "y": 595.5
+        },
+        "props": {
+          "text": "Speed Selection",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Dropdown"
+        },
+        "position": {
+          "height": 36,
+          "width": 112.27,
+          "x": 210.59,
+          "y": 595.5
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_Hz_SpeedSelection"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "options": [
+            {
+              "label": "Std Speed",
+              "value": 0
+            },
+            {
+              "label": "High Speed",
+              "value": 1
+            },
+            {
+              "label": "Medium Speed",
+              "value": 2
+            },
+            {
+              "label": "Low Speed",
+              "value": 3
+            }
+          ]
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "AtRef-StatusLight"
+        },
+        "position": {
+          "height": 21,
+          "width": 21,
+          "x": 420.64,
+          "y": 626.91
+        },
+        "propConfig": {
+          "props.elements[0].style.fill": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{../VFD_Name-Dropdown.custom.VFD_Name}",
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/{1}/VFD_AtRef"
+              },
+              "transforms": [
+                {
+                  "fallback": "#FF0000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#FF0000"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#00FF00"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "cx": 16.875,
+              "cy": "16.875",
+              "name": "circle",
+              "r": "16.7998",
+              "style": {
+                "classes": "",
+                "stroke": "#ffffff",
+                "strokeWidth": ".2"
+              },
+              "type": "circle"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 33.75 33.75"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "AtRef"
+        },
+        "position": {
+          "height": 31,
+          "width": 90,
+          "x": 320.64,
+          "y": 621.91
+        },
+        "props": {
+          "text": "At Ref",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

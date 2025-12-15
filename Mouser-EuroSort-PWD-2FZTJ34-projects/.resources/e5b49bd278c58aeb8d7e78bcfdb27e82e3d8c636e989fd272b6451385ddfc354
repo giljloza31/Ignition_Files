@@ -1,0 +1,430 @@
+from shared.tools.global import ExtraGlobal
+from datetime import datetime
+import re
+import system
+from threading import RLock
+
+# ==============================
+# Constants / configuration
+# ==============================
+SERVICE_SCOPE   = 'Sort-Service'   # top-level ExtraGlobal scope where we stash per-owner maps
+SCOPE_KEY       = 'zones'          # primary data map key (per owner) -> {station -> {"zones": {...}}}
+INDEX_SCOPE_KEY = 'zones_index'    # secondary index (per owner) -> {zone_code -> {"station": int}}
+
+# best-effort TTL (seconds)
+LIFESPAN        = 60 * 60 * 24
+
+STATION_MIN, STATION_MAX = 1, 20
+
+# ==============================
+# ExtraGlobal tiny wrappers
+# ==============================
+def eg_set(owner, key, value, lifespan=None):
+	"""
+	Stash (persist) a value for this owner.
+	We isolate each owner's data under SERVICE_SCOPE plus an owner-specific label.
+	"""
+	label = '%s.%s' % (owner, key)
+	if lifespan is None:
+		return ExtraGlobal.stash(value, label=label, scope=SERVICE_SCOPE)
+	return ExtraGlobal.stash(value, label=label, scope=SERVICE_SCOPE, lifespan=lifespan)
+
+def eg_get(owner, key, default=None):
+	label = '%s.%s' % (owner, key)
+	return ExtraGlobal.get(label, scope=SERVICE_SCOPE, default=default)
+
+def eg_del(owner, key):
+	label = '%s.%s' % (owner, key)
+	try:
+		ExtraGlobal.trash(label, scope=SERVICE_SCOPE)
+	except Exception:
+		pass
+
+# ==============================
+# Helpers
+# ==============================
+def _now():
+	"""Return current time as Ignition Date if available; else Python datetime."""
+	try:
+		if hasattr(system, 'date') and hasattr(system.date, 'now'):
+			return system.date.now()
+	except Exception:
+		pass
+	return datetime.now()
+
+def _coerce_station(st):
+	"""Force station into int within [STATION_MIN..STATION_MAX]."""
+	i = int(st)
+	if i < STATION_MIN or i > STATION_MAX:
+		raise ValueError('Station out of range %d–%d: %r' % (STATION_MIN, STATION_MAX, st))
+	return i
+
+def _coerce_zone(z):
+	"""Normalize zone code to uppercase non-empty string."""
+	s = str(z).strip().upper()
+	if not s:
+		raise ValueError('zone_code required')
+	return s
+
+_ZONE_RE = re.compile(r'^(\d+)([A-Z]+)$')
+
+def _split_zone_code(zone_code):
+	"""Return (numeric_prefix:int|None, suffix:str|None)."""
+	z = _coerce_zone(zone_code)
+	m = _ZONE_RE.match(z)
+	if not m:
+		return None, None
+	return int(m.group(1)), m.group(2)
+
+def _next_zone_code(zone_code):
+	"""Increment numeric prefix if present, else append '-NEXT'."""
+	num, suf = _split_zone_code(zone_code)
+	return ('%d%s' % (num + 1, suf)) if num is not None else (str(zone_code) + '-NEXT')
+
+# ==============================
+# Root / index accessors (per owner)
+# ==============================
+def _empty_root():
+	"""Create a fresh root structure: {station:int -> {'zones': {}}}"""
+	return {st: {"zones": {}} for st in range(STATION_MIN, STATION_MAX + 1)}
+
+def _ensure_root(owner):
+	"""
+	Load the owner's root map from EG, or create a new one if absent.
+	"""
+	root = eg_get(owner, SCOPE_KEY, default=None)
+	if root is None or not isinstance(root, dict):
+		root = _empty_root()
+		eg_set(owner, SCOPE_KEY, root, lifespan=LIFESPAN)
+	return root
+
+def _ensure_index(owner):
+	"""
+	Load the owner's index map from EG, or create a new one if absent.
+	"""
+	idx = eg_get(owner, INDEX_SCOPE_KEY, default=None)
+	if idx is None or not isinstance(idx, dict):
+		idx = {}
+		eg_set(owner, INDEX_SCOPE_KEY, idx, lifespan=LIFESPAN)
+	return idx
+
+def _root(owner):
+	return _ensure_root(owner)
+
+def _index(owner):
+	return _ensure_index(owner)
+
+# ==============================
+# SortZoneData
+# ==============================
+class SortZoneData(object):
+	def __init__(self, name, **init_config):
+		self.name   = name
+		self.logger = system.util.getLogger('SortZoneData.%s' % self.name)
+		self._lock  = RLock()
+		self._initialize_zone_data(full_clear=False)
+
+	# ---- lifecycle ----
+	def _initialize_zone_data(self, full_clear=False):
+		owner = self.name
+		with RLock():  # short-lived local lock for init
+			if full_clear:
+				for key in (SCOPE_KEY, INDEX_SCOPE_KEY):
+					eg_del(owner, key)
+			_ensure_root(owner)
+			_ensure_index(owner)
+
+	def _persist_root(self):
+		eg_set(self.name, SCOPE_KEY, _root(self.name), lifespan=LIFESPAN)
+
+	@property
+	def _zones(self):
+		return _root(self.name)
+
+	@property
+	def _zone_index(self):
+		return _index(self.name)
+
+	def rebuild_index(self):
+		"""Full rescan to rebuild index from root."""
+		owner = self.name
+		with self._lock:
+			idx = {}
+			root = _root(owner)
+			for st, sb in root.items():
+				zones = (sb or {}).get("zones", {})
+				for zc in zones.keys():
+					idx[_coerce_zone(zc)] = {"station": int(st)}
+			eg_set(owner, INDEX_SCOPE_KEY, idx, lifespan=LIFESPAN)
+		return True
+
+	# ---- core write/reads (KEEP BOTH MAPS CONSISTENT) ----
+	def upsert(self, station, zone_code, initial=None):
+		"""
+		Ensure <station:int> -> zones -> <zone_code> exists; merge initial.
+		Updates index accordingly. Returns the zone dict bucket (mutable).
+		"""
+		owner = self.name
+		st, zc = _coerce_station(station), _coerce_zone(zone_code)
+
+		with self._lock:
+			root = _root(owner)
+			st_bucket = root.get(st) or root.setdefault(st, {"zones": {}})
+			zones = st_bucket["zones"]
+			zone_bucket = zones.get(zc) or zones.setdefault(zc, {})
+
+			if initial:
+				zone_bucket.update(initial)
+
+			# write-through index
+			idx = _index(owner)
+			idx[zc] = {"station": st}
+
+			# persist both
+			eg_set(owner, SCOPE_KEY, root, lifespan=LIFESPAN)
+			eg_set(owner, INDEX_SCOPE_KEY, idx, lifespan=LIFESPAN)
+			return zone_bucket
+
+	def set_zone(self, station, zone_code, data_dict):
+		"""Replace a zone dict; updates index; returns the new dict."""
+		if not isinstance(data_dict, dict):
+			raise TypeError('data_dict must be a dict')
+		with self._lock:
+			zb = self.upsert(station, zone_code)  # ensures exist & index
+			# replace in place
+			for k in list(zb.keys()):
+				del zb[k]
+			zb.update(data_dict)
+			self._persist_root()
+			return zb
+
+	def record_scan(self, station, zone_code, **fields):
+		"""Upsert and merge arbitrary fields; updates index; returns zone dict."""
+		with self._lock:
+			zb = self.upsert(station, zone_code)
+			zb.update(fields)
+			self._persist_root()
+			return zb
+
+	def get_zone(self, station, zone_code, default=None):
+		"""Path-based read from root."""
+		st, zc = _coerce_station(station), _coerce_zone(zone_code)
+		st_bucket = self._zones.get(st)
+		if not st_bucket:
+			return default
+		return st_bucket["zones"].get(zc, default)
+
+	def get_zone_by_code(self, zone_code, default=None, include_meta=True):
+		"""
+		O(1) via index. Falls back to scanning root if missing.
+		Repairs index if it finds a stale/missing entry.
+		"""
+		owner = self.name
+		zc = _coerce_zone(zone_code)
+		with self._lock:
+			idx = _index(owner)
+			meta = idx.get(zc)
+			if not meta:
+				# fallback: scan all stations, then repair index
+				root = _root(owner)
+				for st, sb in root.items():
+					if zc in (sb or {}).get("zones", {}):
+						idx[zc] = {"station": int(st)}
+						eg_set(owner, INDEX_SCOPE_KEY, idx, lifespan=LIFESPAN)
+						meta = idx[zc]
+						break
+			if not meta:
+				return default
+
+			st = meta["station"]
+			info = self.get_zone(st, zc, default=default)
+			if info is default:
+				# stale index entry → remove it
+				try:
+					del idx[zc]
+					eg_set(owner, INDEX_SCOPE_KEY, idx, lifespan=LIFESPAN)
+				except Exception:
+					pass
+				return default
+
+			if not include_meta:
+				return info
+			return {"station": st, "zone_code": zc, "zone_info": info}
+
+	# ---- turn-in flow ----
+	def mark_zone_turned_in(self, station, zone_code, create_next=True):
+		"""
+		Mark zone as turned-in and optionally create the next sequential code.
+		Returns dict with old/new codes and status.
+		"""
+		with self._lock:
+			st, zc = _coerce_station(station), _coerce_zone(zone_code)
+			info = self.get_zone(st, zc, default=None)
+			if not info:
+				return {'station': st, 'old_code': zc, 'new_code': None, 'ok': False, 'reason': 'not found'}
+			info['turnedin'] = True
+			info['turned_in_at'] = _now()
+			self._persist_root()
+			if not create_next:
+				return {'station': st, 'old_code': zc, 'new_code': None, 'ok': True}
+			next_code = _next_zone_code(zc)
+			self.upsert(st, next_code, initial={'created_at': _now(), 'active': True})
+			return {'station': st, 'old_code': zc, 'new_code': next_code, 'ok': True}
+
+	# ---- renames / reassignment (both maps updated) ----
+	def rename_zone_code_within(self, station, old_code, new_code, mode='overwrite'):
+		"""
+		Rename within same station; updates index.
+		mode: 'overwrite' | 'merge' | 'error'
+		"""
+		owner = self.name
+		with self._lock:
+			st = _coerce_station(station)
+			old = _coerce_zone(old_code)
+			new = _coerce_zone(new_code)
+
+			st_bucket = self._zones.get(st)
+			if not st_bucket:
+				return False
+			zones = st_bucket["zones"]
+			data = zones.get(old)
+			if data is None:
+				return False
+
+			if new in zones:
+				if mode == 'error':
+					raise ValueError("Destination exists: %r" % new)
+				elif mode == 'merge':
+					dest = zones[new]
+					for k, v in data.items():
+						if k not in dest:
+							dest[k] = v
+					del zones[old]
+				else:  # overwrite
+					zones[new] = data
+					del zones[old]
+			else:
+				zones[new] = data
+				del zones[old]
+
+			# update index: drop old, set new
+			idx = _index(owner)
+			idx[new] = {"station": st}
+			if old in idx:
+				del idx[old]
+
+			# audit trail
+			try:
+				audit = zones[new].setdefault('_audit', {})
+				prev = audit.get('previous_codes') or []
+				prev.append(old)
+				audit['previous_codes'] = prev
+				audit['renamed_at'] = _now()
+			except Exception:
+				pass
+
+			# persist
+			eg_set(owner, SCOPE_KEY, _root(owner), lifespan=LIFESPAN)
+			eg_set(owner, INDEX_SCOPE_KEY, idx, lifespan=LIFESPAN)
+			return True
+
+	def reassign_zone_to_tote(self, station, old_zone_code, tote_code, mode='overwrite', stamp=True):
+		"""
+		Move the FULL dict from old_zone_code -> tote_code within the SAME station.
+		Updates index and stamps tote info if stamp=True.
+		"""
+		with self._lock:
+			st = _coerce_station(station)
+			old = _coerce_zone(old_zone_code)
+			new = _coerce_zone(tote_code)
+			ok = self.rename_zone_code_within(st, old, new, mode=mode)
+			if ok and stamp:
+				rec = self.get_zone(st, new, default=None)
+				if isinstance(rec, dict):
+					rec['tote'] = new
+					rec['updated_at'] = _now()
+					self._persist_root()
+			return {'station': st, 'old_code': old, 'new_code': new, 'ok': ok}
+
+	# ---- search / list ----
+	def find_zone_by_item(self, item_id, station=None):
+		"""Return a list of zones matching item_id (exact match or in 'items' list)."""
+		results = []
+		st_filter = _coerce_station(station) if station is not None else None
+		root = self._zones
+		stations = [st_filter] if st_filter else sorted(root.keys())
+		for st in stations:
+			sb = root.get(st)
+			if not sb:
+				continue
+			for zc, info in sb["zones"].items():
+				if info.get('item') == item_id or item_id in info.get('items', []):
+					results.append({'station': st, 'zone_code': zc, 'zone_info': info})
+		return results
+
+	def _current_active_zone_code(self, station):
+		"""
+		Return the 'current' zone for a station: the zone with the highest numeric
+		prefix whose 'turnedin' is not True. If no numeric prefix exists, falls
+		back to the lexicographically last non-turned-in code. Returns None if none.
+		"""
+		st = _coerce_station(station)
+		st_bucket = self._zones.get(st)
+		if not st_bucket:
+			return None
+
+		zones = st_bucket.get("zones", {})
+		candidates, fallback = [], []
+		for code, info in zones.items():
+			if (info or {}).get('turnedin') is True:
+				continue
+			n, _suf = _split_zone_code(code)
+			if n is not None:
+				candidates.append((n, code))
+			else:
+				fallback.append(code)
+
+		if candidates:
+			candidates.sort()
+			return candidates[-1][1]
+		if fallback:
+			return sorted(fallback)[-1]
+		return None
+
+	def add_issue_to_current_zone(self, station, issue_info):
+		"""
+		Find the current (active) zone for `station` and add `issue_info` to it.
+		Normalizes issue_info to a list of dicts and timestamps 'updated_at'.
+		"""
+		with self._lock:
+			st = _coerce_station(station)
+			zc = self._current_active_zone_code(st)
+			if not zc:
+				return {'station': st, 'zone_code': None, 'ok': False, 'reason': 'no active zone'}
+
+			rec = self.upsert(st, zc)  # ensures existence + index
+			if 'issue_info' not in rec or rec['issue_info'] is None:
+				rec['issue_info'] = [issue_info]
+			else:
+				existing = rec['issue_info']
+				if isinstance(existing, list):
+					existing.append(issue_info)
+				elif isinstance(existing, dict):
+					rec['issue_info'] = [existing, issue_info]
+				else:
+					rec.setdefault('_issue_info_legacy', existing)
+					rec['issue_info'] = [issue_info]
+			rec['updated_at'] = _now()
+			self._persist_root()
+			return {'station': st, 'zone_code': zc, 'ok': True, 'reason': 'Success'}
+
+	def list_zone_codes(self, station):
+		"""Return sorted list of zone codes for station."""
+		st = _coerce_station(station)
+		return sorted(self._zones.get(st, {"zones": {}})["zones"].keys())
+
+	def snapshot(self, station):
+		"""Light snapshot for station: station number and sorted zone-code list."""
+		st = _coerce_station(station)
+		sb = self._zones.get(st, {"zones": {}})
+		return {"station": st, "zones": sorted(sb["zones"].keys())}

@@ -1,0 +1,12 @@
+
+
+
+from shared.data.types.deduplicated.persistence.hierarchy import PersistableNamespacedHeirarchy
+
+
+class TagPath(PersistableNamespacedHeirarchy):
+	"""A heirarchy for tag paths, with tag providers as namespaces"""
+	__DELIMITER__ = '/'
+	_NAMESPACE_PREFIX = '['
+	_NAMESPACE_SUFFIX = ']'
+

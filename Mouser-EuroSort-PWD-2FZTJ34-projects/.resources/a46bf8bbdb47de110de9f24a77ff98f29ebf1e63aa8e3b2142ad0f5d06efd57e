@@ -1,0 +1,81 @@
+{
+  "custom": {
+    "StoplightValue": 1
+  },
+  "params": {
+    "StoplightValue": false,
+    "Text": "Value"
+  },
+  "propConfig": {
+    "custom.StoplightValue": {
+      "persistent": true
+    },
+    "params.StoplightValue": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Text": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 30,
+      "width": 33
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Stoplight"
+        },
+        "position": {
+          "height": 13.82,
+          "width": 14.72,
+          "x": 8.280000000000001,
+          "y": 8.59
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "path": "view.params.StoplightValue"
+              },
+              "transforms": [
+                {
+                  "fallback": "#FF0000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "#00FF00"
+                    },
+                    {
+                      "input": false,
+                      "output": "#FF0000"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "border-radius": "50%"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,39 @@
+"""
+	Core wrapper
+	
+	Instantiate this EuroSorter class to use a sorter!
+	Consider overriding the dispatch handlers for more
+	naunced or custom needs.
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.base      import EuroSorterBase
+from eurosort.messaging import EuroSorterMessaging
+from eurosort.dispatch  import EuroSorterDispatch
+from eurosort.destmap   import EuroSorterDestinationMapping
+from eurosort.context   import EuroSorterContextManagement
+from eurosort.config    import EuroSorterConfig
+from eurosort.routing   import EuroSorterRoutingManagement, DefaultRoutingStrategies
+from eurosort.service   import EuroSorterService, EuroSorterServiceIndicatorMixin, EuroSorterPolling
+
+
+
+class EuroSorter(
+		DefaultRoutingStrategies,
+		EuroSorterRoutingManagement,
+	
+		EuroSorterServiceIndicatorMixin,
+	
+		EuroSorterPolling,
+		EuroSorterService,
+		EuroSorterConfig,
+	
+		EuroSorterContextManagement,
+		EuroSorterDestinationMapping,
+		EuroSorterDispatch,
+		EuroSorterMessaging,
+		EuroSorterBase,
+	):
+
+	def __init__(self, name, endpoint_address=None, **config_overrides):
+		super(EuroSorter, self).__init__(name, endpoint_address=None, **config_overrides)

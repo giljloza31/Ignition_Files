@@ -1,0 +1,189 @@
+{
+  "custom": {},
+  "params": {
+    "LaneNum": 1,
+    "LanePos": 0,
+    "LastPos": 0
+  },
+  "propConfig": {
+    "params.LaneNum": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.LanePos": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.LastPos": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 137,
+      "width": 1223
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Last_Pos_NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 145.01312499999995,
+          "y": 82.01499999999999
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "path": "view.params.LastPos"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "enabled": false
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "LastCalibration-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 1.0131250000000023,
+          "y": 80.01499999999999
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "Last Calibration:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Slider"
+        },
+        "position": {
+          "height": 32,
+          "width": 936.65,
+          "x": 229.693125,
+          "y": 61.91499999999999
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "path": "../AtPosition-NumericEntryField.props.value"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "labels": {
+            "interval": 200,
+            "show": true
+          },
+          "max": 4000
+        },
+        "type": "ia.input.slider"
+      },
+      {
+        "meta": {
+          "name": "AtPosition-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 1.0131250000000023,
+          "y": 37.014999999999986
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "At Position:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "AtPosition-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 145.01312499999995,
+          "y": 39.014999999999986
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "path": "view.params.LanePos"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane Label"
+        },
+        "position": {
+          "height": 38,
+          "width": 104,
+          "x": 559.5,
+          "y": 10.015
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\u0027Lane \u0027+{view.params.LaneNum}"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 26,
+            "fontStyle": "italic",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

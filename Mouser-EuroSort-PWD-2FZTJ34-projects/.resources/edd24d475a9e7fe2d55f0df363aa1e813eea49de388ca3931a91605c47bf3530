@@ -1,0 +1,444 @@
+"""
+	Shipping route decoding!
+	
+	Indexes:
+	
+	
+	create clustered index ix_Packages__TrackNo on Packages (TrackNo)
+
+	create index ix_Shipping_RouteTable__Carrier_ShipVia
+		on Shipping_RouteTable (Carrier, ShipVia)
+		include (S, M, L, C)
+
+Induct table definition:
+
+	CREATE TABLE [dbo].[ShippingSorter_Induct](
+		[shippingsorter_induct] [int] IDENTITY(1,1) NOT NULL,
+		
+		[InductID] [int] NULL, -- IGN_IndexID_Returned
+		[Destination] [int] NULL, -- IGN_Destination_Returned binary route
+		[DestinationString] [nvarchar](255) NULL, -- decoded on insert
+		[RouteCode] [nvarchar](255) NULL, -- IGN_RouteCode_Returned
+		[TrackNo] [nvarchar](255) NULL, -- IGN_Barcode_Returned
+		[TimeStamp] [datetime] NULL, -- getdate()
+	
+		PRIMARY KEY CLUSTERED ( [shippingsorter_induct] ASC )
+	)
+	go
+	
+
+	CREATE NONCLUSTERED INDEX ix_ShippingSorter_Induct__timestamp ON [dbo].[ShippingSorter_Induct]
+		([TimeStamp] ASC)
+	go
+	
+	
+	create table dbo.DestinationDecode (
+		[mode] [int] NULL, -- 30 (arb. from handshake)
+		[Destination] [int] NULL, -- IGN_Destination_Returned binary route
+		[DestinationString] [nvarchar](255) NULL, -- decoded on insert
+		--constraint uq_DestinationDecode__inductid_destination unique(InductID, Destination),
+	)
+	go
+	
+	create clustered index ix_c_DestinationDecode__inductid_destination 
+		on dbo.DestinationDecode
+		([mode], [Destination])
+	go
+"""
+
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from shared.tools.meta import is_redundant_active
+from functools import partial
+
+from time import sleep
+from random import random
+from datetime import datetime
+import re
+
+
+from shared.pwd.handshake import push_sequence
+
+
+class RoutingException(Exception):
+	pass
+
+# Errors in rule handling
+class NoMatchingRoute(RoutingException): pass
+
+class NoMatchingRule(RoutingException): pass
+
+class MultipleMatchingRules(RoutingException): pass
+
+class AmbiguousRoute(RoutingException): pass
+
+# Specialized failure modes that bypasses database lookups for very specific situations
+class PreLookupBypassRule(RoutingException): pass
+
+class GoSonicBypass(PreLookupBypassRule): pass
+
+class BulkAutomatedBypass(PreLookupBypassRule): pass
+
+class GoBulkBypass(PreLookupBypassRule): pass
+
+class NoReadBypass(PreLookupBypassRule): pass
+# Specialized failure modes that override results from the database
+class PostLookupBypassRule(RoutingException): pass
+
+class PostShippingRequired(PostLookupBypassRule): pass
+
+
+# https://regex101.com/r/OJMs5F/1
+SEPATATOR_PATTERN = re.compile(u'[\x1d]', re.UNICODE)
+
+
+def match_rules(raw_barcode):
+	# Check special cases on shipping rules to convert the raw barcode to the routing token:
+	
+	routing_barcodes = []
+	
+	# check null case
+	if not raw_barcode: 
+		# i.e. '' (case 7: null/blank)
+		routing_barcodes.append('NO DATA')
+		raise NotImplementedError("Set %r to recirculate!" % raw_barcode)
+	
+	# if delimited, check that at least one token matches a rule
+	elif SEPATATOR_PATTERN.findall(raw_barcode):
+		# i.e. 4213922300051,1ZY172210403414629		
+		for token in SEPATATOR_PATTERN.split(raw_barcode): #raw_barcode.split(','):
+			try:
+				matched = match_rules(token)
+				
+				if matched:
+					routing_barcodes.extend(matched)
+					
+			except NoMatchingRule:
+				pass
+				
+		if routing_barcodes:
+			return routing_barcodes
+	
+	# check rules	
+	if len(raw_barcode) == 18 and raw_barcode.startswith('1Z'):
+		# i.e. 1Z7759450250903832
+		# Check that the barcode isn't a test/reroute barcode	
+		# i.e. 1Z000000000000001
+		enabled = system.tag.readBlocking('[default]Shipping_Sorter/BulkAutomated/HMI_BulkAutomated_Enabled')
+		if all(c=='0' for c in raw_barcode[2:-1])and raw_barcode.endswith('1'):
+			raise PostShippingRequired(raw_barcode)
+		elif all(c=='0' for c in raw_barcode[2:-1]) and raw_barcode.endswith('4'):
+			if enabled[0].value == 1:
+				raise BulkAutomatedBypass(raw_barcode)
+			else:
+				raise PostShippingRequired(raw_barcode)
+		elif all(c=='0' for c in raw_barcode[2:-1]) and raw_barcode.endswith('5'):
+			raise PostShippingRequired(raw_barcode)
+		else:
+			routing_barcodes.append(raw_barcode)
+		#routing_barcode = raw_barcode
+			
+		
+	elif raw_barcode.startswith('9') and len(raw_barcode) == 26:
+		# i.e. 42094131$1D92748969007615553012751961
+		# the split above remove $1D and leaves last 26 digits
+		routing_barcodes.append(raw_barcode)
+		
+	elif raw_barcode.startswith('9') and len(raw_barcode) == 22:
+		# i.e. 42094131$1D9405511200928825050068
+		# the split above remove $1D and leaves last 22 digits
+		routing_barcodes.append(raw_barcode)
+	
+	elif len(raw_barcode) == 34:
+		# i.e. 1174403462091543321100525679669371
+		# last 12 digits are vaild for the look up
+		routing_barcodes.append(raw_barcode[-12:])
+	
+	elif len(raw_barcode) == 17 and raw_barcode.startswith('1Z'):
+		# i.e. 1Z1384EA0400855551
+			
+		# Check that the barcode isn't a test/reroute barcode	
+		# i.e. 1Z000000000000001
+		if all(c=='0' for c in raw_barcode[2:-1]) and raw_barcode.endswith('3'):
+			raise GoBulkBypass(raw_barcode)
+		
+		else:
+			raise GoSonicBypass(raw_barcode)
+			
+	elif len(raw_barcode) == 10:
+		# i.e. 8057419650
+		routing_barcodes.append(raw_barcode)
+			
+	elif raw_barcode.startswith('EP') and len(raw_barcode) == 13:
+		# i.e. EP989237985US
+		routing_barcodes.append(raw_barcode)
+
+	elif raw_barcode.startswith('HJ') and len(raw_barcode) == 13:
+		# i.e. HJ517523169US
+		routing_barcodes.append(raw_barcode)
+
+	elif raw_barcode.startswith('CJ') and len(raw_barcode) == 13:
+		# i.e. CJ989237985US
+		routing_barcodes.append(raw_barcode)
+	
+	elif raw_barcode == ('NOREAD'):
+		raise NoReadBypass(raw_barcode)
+		
+	else:
+		if raw_barcode.startswith('TEST-'):
+			routing_barcodes.append(raw_barcode[5:])
+		else:
+			raise NoMatchingRule("Unexpected barcode value: %r" % raw_barcode)
+	
+	if not routing_barcodes:
+		raise NoMatchingRule("Unexpected barcode value: %r" % raw_barcode)
+
+	return routing_barcodes
+
+
+
+def lookup_and_decode_barcode(raw_barcode):
+	
+	routing_barcodes = match_rules(raw_barcode)
+	payload = {}
+	
+	if not routing_barcodes:
+		raise NoMatchingRule("No barcodes match rules: %r" % raw_barcode)
+	
+	query = """
+		; with 
+		tracking_matches as
+		(
+			select *
+				,	row_number() over (
+						order by p.Ship_Date desc, p.Ship_Time desc
+					) as time_rank
+			from Packages as p
+			where TrackNo in (%s)
+		)
+		, matched_tracking_number as 
+		(
+			select * 
+			from tracking_matches
+			where time_rank = 1
+		)
+		, shipping_routes as
+		(
+			select Route_Idx, Carrier, ShipVia, Box_Size, Selected
+			from Shipping_RouteTable as srt
+			unpivot (
+				Selected
+				for Box_Size in (S, M, L, C)
+			) as pvt
+		)
+		select distinct 
+			p.TrackNo, p.Box_Size, p.PostShippingRequired, srt.*
+		from matched_tracking_number as p
+			inner join shipping_routes as sr
+				on p.Carrier = sr.Carrier
+				and p.ShipVia = sr.ShipVia
+				and p.Box_Size = sr.Box_Size
+			inner join Shipping_RouteTable as srt
+				on sr.Route_Idx = srt.Route_Idx
+		where sr.selected = 1
+	""" % (','.join('?' for x in routing_barcodes),)
+	
+	results = system.db.runPrepQuery(query, routing_barcodes, 'SQLServer')
+	
+	if not results:
+		raise NoMatchingRoute('No matching routing found for %r (from %r)' % (routing_barcodes, raw_barcode))
+	if len(results) > 1:
+		raise AmbiguousRoute( 'Ambiguous routing for %r (from %r)' % (routing_barcodes, raw_barcode))
+	
+	# Decode the results
+	
+	# We get only one result if any because of the UNIQUE constraint on the table
+	row = results[0]
+	
+	# Init
+	routed_barcode = row['TrackNo']
+	
+	carrier = row['Carrier']
+	shipvia = row['ShipVia']
+	boxsize = row['Box_Size']
+	
+	#assert all([carrier, shipvia, boxsize]), 'Some values did not return for (carrier, shipvia, boxsize): %r, %r, %r' % (carrier, shipvia, boxsize)
+	
+	# Decode the Lane columns into a bit array int
+	# Start with no routes
+	destinations = 0
+	
+	for selected,columnName in zip(row, results.columnNames):
+		
+		# specialized custom rules
+		if columnName == 'PostShippingRequired':
+			if selected == 'Y':
+				raise PostShippingRequired(routed_barcode)
+	
+		if not columnName.startswith('Lane_'): # TODO: Fix column names to match		
+			continue
+			
+		# Get the second half on the underscore.
+		# (rpartition splits on a thing, always retruning
+		#  the left, split thing, and right of it)
+		# And make it an int so we can shift on it
+		# ... minus one because we are zero indexed, and lanes are one-indexed
+		shift = int(columnName.rpartition('_')[2]) - 1 # TODO: Fix column names to match
+		#shift = int(columnName[-2:]) - 1
+	
+		# Take the result bit array so far, 
+		#  and or it with the value SQL returned, 
+		#  bit shifted the number of lanes 
+		destinations |= selected << shift
+	
+	payload.update({
+		'IGN_Destination_Returned': destinations,
+		'IGN_Barcode_Returned': routed_barcode,
+		'IGN_RouteCode_Returned': '-'.join((carrier, shipvia, boxsize)),
+	})
+	
+	return payload
+
+
+@async(name="Shipping-Route-GatherData")
+def gather_data(source_path):
+	
+	timestart = datetime.now().isoformat()
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	
+#	sequence_id, raw_barcode = [
+	sequence_id, raw_barcode, ack_opc_path = [
+#		sequence_opc_path, raw_barcode_opc_path = [
+		qv.value for qv in 
+		system.tag.readBlocking([
+			parent_dest + '/' + 'IGN_IndexID_Sent',
+			parent_dest + '/' + 'IGN_Barcode_Sent',
+			parent_dest + '/' + 'IGN_GetData_ACK.OPCItemPath'
+			])]
+	
+	ack_result = system.opc.writeValue('Ignition OPC-UA Server', ack_opc_path, True)
+	assert ack_result.isGood(), 'ACK to PLC failed for %s (%s)' % (sequence_id, raw_barcode)
+	
+#	sequence_id, raw_barcode = [
+#		qv.value for qv in
+#		system.opc.readValues('', [
+#			sequence_opc_path, 
+#			raw_barcode_opc_path,
+#		])]
+	
+	# NOTE: this is Async so that the ACK can be done
+	# _during_ the sql query. This allows us to have 
+	# one read, sql/ack, and one write
+	
+	# ACK immediately now that the data's in memory
+	#system.tag.writeBlocking([
+#	system.tag.writeAsync([
+#			parent_dest + '/' + 'IGN_GetData_ACK',
+#		], [True])			
+			
+	# decode and lookup what the route for a barcode is
+	# handle exceptional/failed lookups
+	data = {
+		'IGN_IndexID_Returned': sequence_id,
+		'Get_Time': timestart,
+		
+		'mode': 30, # shipping get/got (arb. choice)
+	}
+	
+	try:
+		try:
+			data.update(lookup_and_decode_barcode(raw_barcode))
+		except Exception, error:
+			system.util.getLogger('Shipping Sorter Exception').trace(repr(error))
+			raise error
+	
+	except PostShippingRequired:
+		data.update({
+			'IGN_Destination_Returned': (1<<(14-1)), #  Lane 15 (with 1-indexed offset correction)
+			'IGN_Barcode_Returned': raw_barcode,
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+	except BulkAutomatedBypass:
+		data.update({
+			'IGN_Destination_Returned': (1<<(13-1)), #  Lane 14 (with 1-indexed offset correction)
+			'IGN_Barcode_Returned': raw_barcode,
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+	
+	except GoSonicBypass:
+		data.update({
+			'IGN_Destination_Returned': (1<<(4-1)), # 0x1000 <-- Lane 4
+			'IGN_Barcode_Returned': raw_barcode,
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+
+	except GoBulkBypass:
+		data.update({
+			'IGN_Destination_Returned': (1<<(3-1)), # 0x1000 <-- Lane 3
+			'IGN_Barcode_Returned': raw_barcode,
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+
+	except NoReadBypass:
+		data.update({
+			'IGN_Destination_Returned': (1<<(4-1)), # 0x1000 <-- Lane 4
+			'IGN_Barcode_Returned': raw_barcode,
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+		
+	except (NoMatchingRoute, NoMatchingRule, MultipleMatchingRules, AmbiguousRoute):
+		data.update({
+			'IGN_Destination_Returned': (1<<(4-1)), # Jackpot lane 4
+			'IGN_Barcode_Returned': raw_barcode,
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		})
+				
+	# handle the unexpected...
+	except:
+		data = {
+			'IGN_Destination_Returned': 0,
+			'IGN_Barcode_Returned': raw_barcode,
+			'IGN_RouteCode_Returned': '-'.join(('','','')), # literally '--'
+		}
+		
+	data['IGN_GotData_Returned'] = True		
+	data['Sql_Time'] = datetime.now().isoformat()
+	
+	push_sequence(source_path, sequence_id, data)
+
+	log_induct(data)
+	
+
+def log_induct(payload):
+	query = """	
+		insert into [ShippingSorter_Induct] (
+			Destination
+		,	DestinationString
+		,	InductID
+		,	RouteCode
+		,	TrackNo
+		,	TimeStamp
+		)
+		select	dd.destination
+			,	dd.DestinationString
+			,	? -- InductID
+			,	? -- RouteCode
+			,	? -- TrackNo
+			,	getdate()
+		from DestinationDecode as dd
+		where dd.mode = 30
+			and dd.destination = ?
+	"""
+	
+	system.db.runPrepUpdate(query, [
+			payload['IGN_IndexID_Returned'],
+			payload['IGN_RouteCode_Returned'],
+			payload['IGN_Barcode_Returned'],
+			payload['IGN_Destination_Returned'],	
+		], 'SQLServer')
+	
+
+
+
+
+

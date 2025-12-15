@@ -1,0 +1,351 @@
+"""
+	Manipulate the route structure programmatically
+
+
+"""
+from shared.tools.error import JavaException, formatted_traceback
+from shared.tools.logging import Logger
+from shared.tools.meta import stackRootFrame
+from collections import deque
+from functools import partial
+import re
+import urllib
+import textwrap
+
+
+
+__all__ = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE', 'PATCH',]
+
+
+HTTP_METHODS = frozenset(['GET', 'POST', 'PUT', 'DELETE', 
+						  'HEAD', 'OPTIONS', 'TRACE', 'PATCH',])
+
+
+# serialize anything - default ensures even janky objects at least don't error
+#   ... and honestly most of the time str or repr is the correct choice
+try:
+	import json
+	def serialize_json(obj, default_serializer = str):
+		return json.dumps(obj, sort_keys=True, indent=2, default=default_serializer)
+# failsafe in case library is unavailble
+except ImportError:
+	def serialize_json(obj):
+		return system.util.jsonEncode(obj, 2)
+	
+
+
+def get_calling_webdev_endpoint():
+	
+	frame = stackRootFrame()
+	scope = frame.f_code.co_filename
+	remaining_path = frame.f_locals['request']['remainingPath']
+	
+	try:
+		endpoint,_,method = scope.rpartition(':')
+		
+		assert method.startswith('do'), 'Wrong calling scope. Root frame was not a WebDev endpoint'
+		method = method[2:-1].upper() # remove "do" and the trailing >
+		
+		endpoint = endpoint.partition('/')[2] # ignore the <PROJECT_NAME/ at the start
+		if remaining_path:
+			endpoint = endpoint[:-len(remaining_path)]
+		
+		return method, endpoint
+	except:
+		return None, None
+
+
+
+class MetaRegistryDecorator(type):
+
+	def __new__(metacls, class_name, class_bases, class_configuration):
+		
+		class_configuration['_METHOD_REGISTRY'] = {
+				method: {}
+				for method
+				 in HTTP_METHODS
+			}
+		
+		new_class = super(MetaRegistryDecorator, metacls).__new__(metacls, class_name, class_bases, class_configuration)
+		
+		return new_class
+
+
+
+class RegistryDecorator(object):
+	
+	__metaclass__ = MetaRegistryDecorator
+	
+	
+	def __init__(self, method, endpoint_pattern, await_result=True, callback=None):
+	
+		method = method.upper()
+		assert method in HTTP_METHODS, '%s is not an implemented HTTP method' % (method,)
+		self.method = method
+		
+		self.await_result = await_result
+		self.callback = callback
+	
+		if endpoint_pattern.startswith('/'):
+			endpoint_pattern = endpoint_pattern[1:]
+		endpoint_pattern = urllib.unquote(endpoint_pattern)
+		
+		# convert to a pattern for matching and token extraction
+		#   name: pattern (for advanced pattern routing, like including "/" in the token)
+		endpoint_pattern = re.sub(r'\{(\w+):(.+?)\}', r'(?P<\1>\2)', endpoint_pattern)
+		#   simple name matching (grabs whatever is between the "/")
+		endpoint_pattern = re.sub(r'\{([^}]+)\}', r'(?P<\1>[^/]+?)', endpoint_pattern)
+		self.endpoint_pattern = '^' + endpoint_pattern + '$' # must match the whole url
+		
+		# gets set when the instance returns and is called upon via Python's decorator syntax mechanics
+		self.request_function = None
+
+
+	def __call__(self, function):
+		Logger().trace('decorating {function}')
+		self.request_function = function
+		
+		decorated_function = self.registering_decoration()
+		Logger().trace('Registered {function}: {decorated_function}')
+		return decorated_function 
+
+
+	# create the decorator
+	def registering_decoration(self):
+		"""Create the decorator"""
+	
+		# add the function to the endpoint mapping
+		if self.await_result:
+			self._METHOD_REGISTRY[self.method][self.endpoint_pattern] = self.registered_function
+			return self.registered_function
+		else:
+			self._METHOD_REGISTRY[self.method][self.endpoint_pattern] = self.immediately_acking_registered_function
+			return self.immediately_acking_registered_function
+
+
+	def registered_function(self, *args, **kwargs):
+		"""The function that gets dispatched"""
+		
+		# call the function with the arguments given!
+		result = self.request_function(*args, **kwargs)
+		
+		# if a callback was given, use this.
+		if self.callback:
+			# if the callback given is a message handler, it'll be qualified
+			if isinstance(self.callback, (tuple, list)):
+				if len(self.callback) == 2:
+					project_name, message_handler = callback
+					message_scope = None
+				elif len(self.callback) == 3:
+					project_name, message_handler, message_scope = self.callback
+				else:
+					raise KeyError("Callback for messages requires at least project and message handler names defined."
+								   " Got %r instead." % (self.callback,))
+				payload = {'endpoint': endpoint_path, 'result': result}
+				_ = system.util.sendMessage(project_name, message_handler, payload, message_scope)
+			# otherwise assume the callback given was simply something callable
+			else:
+				_ = self.callback(result)
+		# any return value here would be passed directly back to the origin request handler
+		return result
+
+
+	def immediately_acking_registered_function(self, *args, **kwargs):
+		"""Async option for when 200 OK is immediately requested and the function itself calls back to the requester (if needed)"""
+		# launch an async function
+		launched_thread = system.util.invokeAsynchronous(self.registered_function, args, kwargs)
+		launched_thread.setName('Fulfilling %s request on [%s]' % (self.method, self.endpoint_pattern))
+		
+		return None
+
+
+
+class HttpMethodMixin(object):
+	"""Make binding to explicit methods a bit more obvious.
+	
+	Usage is something like
+	   RouteRegistry.GET(...)
+	   
+	Note: instantiate so __call__ is used, not __init__ continuing the partial...
+	"""
+
+	@classmethod
+	def GET(cls, *args, **kwargs):
+		return cls("GET", *args, **kwargs)
+	@classmethod
+	def POST(cls, *args, **kwargs):
+		return cls("POST", *args, **kwargs)
+	@classmethod
+	def PUT(cls, *args, **kwargs):
+		return cls("PUT", *args, **kwargs)
+	@classmethod
+	def DELETE(cls, *args, **kwargs):
+		return cls("DELETE", *args, **kwargs)
+
+
+	@classmethod
+	def HEAD(cls, *args, **kwargs):
+		return cls("HEAD", *args, **kwargs)
+	@classmethod
+	def OPTIONS(cls, *args, **kwargs):
+		return cls("OPTIONS", *args, **kwargs)
+	@classmethod
+	def TRACE(cls, *args, **kwargs):
+		return cls("TRACE", *args, **kwargs)
+	@classmethod
+	def PATCH(cls, *args, **kwargs):
+		return cls("PATCH", *args, **kwargs)
+
+
+
+
+class AcceptedPendingRequest(FutureWarning): """Request acknowledged but not necessarily fulfilled, yet."""
+
+
+class RoutingMixin(object):
+
+	RETURN_ERROR_DETAILS = False
+
+	@classmethod
+	def route_webdev(cls, method, request):
+	
+		route = request['remainingPath']
+		
+		payload = request["data"] or {}
+		params = request["params"] or {}
+		
+		response = request['servletResponse']
+		try:
+			results = cls.route_request(method, route, payload, params)
+		
+			Logger().trace('Request routed: {method}: {route} ==> {results}')
+			
+			response.setStatus(200)
+			if isinstance(results, dict) and not 'json' in results: 
+				return {'json': results}
+			elif isinstance(results, (str, unicode)):
+				return {'response': results}
+			else: # assume already formatted
+				return results
+		
+		except AcceptedPendingRequest:
+			# async request acknowledged, but don't commit that it's done
+			response.setStatus(202)
+			return None
+		
+		except NotImplementedError as error:
+			response.setStatus(404)
+			if cls.RETURN_ERROR_DETAILS:
+				return {'response': error.message}
+			else:
+				Logger().error(repr(cls) + '\n' + error.message)
+				return {'response': str(type(error).__name__)}
+		
+		except (Exception, JavaException) as error:
+			response.setStatus(500) #, repr(error))
+			if cls.RETURN_ERROR_DETAILS:
+				return {'response': formatted_traceback(error)}
+			else:
+				Logger().error(repr(cls) + '\n' + formatted_traceback(error))
+				return {'response': str(type(error).__name__)}
+
+
+
+	def immediately_acking_registered_function(self, *args, **kwargs):
+		_ = super(RoutingMixin, self).immediately_acking_registered_function(*args, **kwargs)
+		raise AcceptedPendingRequest
+
+
+	@classmethod
+	def route_request(cls, method, route, payload=None, params=None):
+		# default to nothing
+		payload = payload or {}
+		params  = params or {}
+		
+		if route.startswith('/'):
+			route = route[1:]
+		route = urllib.unquote(route)
+		
+		for pattern in cls._METHOD_REGISTRY[method]:
+			match = re.match(pattern, route)
+			if match:
+				tokens = match.groupdict()
+				break
+		else:
+			raise NotImplementedError((textwrap.dedent("""
+					%s route not implemented:
+						%r
+					
+					Handler class: %r
+					Check route patterns for %s:
+					\t - """ % (
+						method, route, cls, method,
+					)) + '\n\t - '.join(pattern for pattern
+									 in cls._METHOD_REGISTRY[method])
+				))
+		
+		result = cls._METHOD_REGISTRY[method][pattern](payload, params, **tokens)
+		
+		return result
+
+
+
+class JsonSerializationMixin(object):
+	# convenience method to make sure it's always in namespace scope of the endpoint handlers
+	@staticmethod
+	def serialize_json(obj):
+		return serialize_json(obj)
+
+
+
+class MetaMultiWebDevEndpointHandlersMixin(MetaRegistryDecorator):
+
+	def __new__(metacls, class_name, class_bases, class_configuration):
+		
+		#assert 'WEBDEV_ENDPOINT' in class_configuration, (
+		#	'Handling multiple WebDev endpoints requires the class have WEBDEV_ENDPOINT set.'
+		#	'\nA WebDev endpoint is what you get when you right click an endpoint and choose "Copy Path"'
+		#	)
+		
+		new_class = super(MetaMultiWebDevEndpointHandlersMixin, metacls).__new__(metacls, class_name, class_bases, class_configuration)
+		
+		# register this new handler to its webdev endpoint
+		# (skip if it's None - supporting base classes need not apply)
+		if new_class.WEBDEV_ENDPOINT:
+			new_class.ENDPOINT_HANDLERS[new_class.WEBDEV_ENDPOINT] = new_class
+		
+		return new_class
+
+
+
+class MultiWebDevEndpointHandlersMixin(RoutingMixin):
+	
+	__metaclass__ = MetaMultiWebDevEndpointHandlersMixin
+
+	ENDPOINT_HANDLERS = {}
+	
+	WEBDEV_ENDPOINT = None
+	
+	@classmethod
+	def route_webdev(cls, request):
+		method, endpoint = get_calling_webdev_endpoint()
+		return super(
+				MultiWebDevEndpointHandlersMixin,
+				cls.ENDPOINT_HANDLERS[endpoint],
+			).route_webdev(method, request)
+
+
+class EndpointRegistry(
+		RoutingMixin,
+		HttpMethodMixin,
+		JsonSerializationMixin,
+		RegistryDecorator,
+	):
+	pass
+
+
+class WebDevEndpointRegistry(
+		MultiWebDevEndpointHandlersMixin,
+		EndpointRegistry,
+	):
+	pass

@@ -1,0 +1,635 @@
+"""
+	Vision windows and templates
+	
+	Extract the meaningful bits from windows and templates.
+	
+	As a strong guideline, this generally only focuses on what a person can
+	interact with in the Designer itself. A comprehensive and _literal_ serialization
+	can be had with the XML extraction, but this rather focuses on what a user
+	can affect. 
+	
+	As a result, it's generally not reversible, but it is fairly close to comprehensive.
+"""
+
+
+from shared.tools.snapshot.utils import getDesignerContext, getSerializationCauses, serializeToXML, SerializationException	
+from shared.tools.snapshot.utils import hashmapToDict, encode, stringify
+from shared.tools.snapshot.utils import pattern_match
+from shared.tools.snapshot.utils import gather_attribute_dict
+
+from com.inductiveautomation.ignition.common import BasicDataset
+
+
+JUNK_VALUES = set([
+	'None',
+	'',
+	'UPDATE tablename\nSET columnname = value\nWHERE condition',
+	])
+
+JUNK_TYPES = set([
+
+	])
+
+def skip_junk(value):
+	if type(value) in JUNK_TYPES:
+		return True
+	try:
+		return value in JUNK_VALUES
+	except:
+		return False
+
+from org.python.core import PyObject
+import re
+
+regex_substitutions = {
+	# sorta default Java repr
+	re.compile('(?P<class>[a-z0-9_.]+)@(?P<pointer>[a-f0-9]+)', re.I): r'some \g<class>',
+	# python type formatting
+	re.compile("""\<type ('|")(?P<class>[a-z0-9_.]+)('|")\>""", re.I): r'\g<class>',
+	}
+	
+SIMPLIFIERS = set(a.strip() for a in """
+	getBindingRepresentation getPath
+	""".split())
+
+
+
+def nest_dict_from_keys(list_like_dict, separator='.'):
+	"""Convert flat dict to nested dicts"""
+	result = {}
+	for key, value in list_like_dict.items():
+		parts = key.split('.')
+		cursor = result
+		while parts:
+			part = parts.pop(0)
+			if parts:
+				if not part in cursor:
+					cursor[part] = {}
+				cursor = cursor[part]
+			else:
+				cursor[part] = value
+				
+	return result
+
+
+def gather_components(root, path=tuple()):
+	name = root.getName()
+	if not name:
+		return {}
+	path += (name,)
+	lookup = {
+		'/'.join(path): root,
+		}
+	
+	for component in root.getComponents():
+		lookup.update(gather_components(component, path))
+	
+	return lookup
+
+
+def get_component(component_path, root_container):
+	if not isinstance(component_path, (list, tuple)):
+		component_path = component_path.split('/')
+		
+	cursor = root_container
+	for part in component_path:
+		cursor = cursor.getComponent(part)
+	
+	return cursor
+	
+
+
+from java.beans import Introspector
+
+from com.inductiveautomation.factorypmi.application.binding.action import ActionAdapter
+
+ACTION_BUILDER_MODE_LOOKUP = dict(
+	(getattr(ActionAdapter, attribute), attribute)
+	for attribute
+	in dir(ActionAdapter)
+	if attribute.startswith('MODE_')
+	)
+
+
+def resolve_reactions(component, interaction_controller):
+	
+	actions = {}
+
+	try:
+		interactions = interaction_controller.getGeneralAdapters()[component]
+	except:
+		interactions = []
+			
+	for action in interactions:
+		
+		action_config = resolve_action(action)
+		category = action_config.pop('Category')
+		method = action_config.pop('Method')
+		
+		if not category in actions:
+			actions[category] = {}
+		actions[category][method] = action_config
+	
+	return actions
+
+
+def resolve_action(action):
+	
+	event = action.getEventSet()
+	method = action.getMethodDescriptor()
+	
+	config = {
+		'Category': event.getName(),
+		'Method': method.getName(),
+		}
+	
+	mode = action.getBuilderMode()
+	info = action.getBuilderInfo()
+	if info:
+		info = hashmapToDict(info)
+		suffix = str(ACTION_BUILDER_MODE_LOOKUP[mode]).lower().rpartition('_')[2]
+		config.update(nest_dict_from_keys(info))
+	else:
+	#if action.MODE_SCRIPT == mode:
+		config['Script'] = action.getJythonCode()
+		if action.isInvokeLater():
+			config['invokeLater'] = True
+		scope_style = action.getScopeStyle()
+		if scope_style == scope_style.Python21:
+			config['Scope'] = 'Legacy Scope: Python 2.1'
+#	elif scope_style == scope_style.Python25:
+#		config['scope'] = 'Standard Scope: Python 2.5'
+	
+	return config
+	
+
+def resolve_binding(binding):
+	
+	ignorable_attributes = set(a.strip() for a in """
+		QValue bindingConfiguration class target 
+		interaction interactions valueClass valid
+		targetPropertyName targetPropertyDynamic targetFullPath
+		referenceType
+		expression
+		""".split())
+	
+	ignorable_default_values = {
+		'bidirectional': False,
+		'overlayOptOut': False,
+		}
+		
+	config = gather_attribute_dict(binding, ignorable_attributes, ignorable_default_values)
+	
+	# try to cover extra bases or weird nonconforming binding types
+	try:
+		bindingConfiguration = binding.getBindingConfiguration()
+
+		binding_type = bindingConfiguration.getBindingType()
+		if binding_type == 'property':
+			config['property'] = bindingConfiguration.propertyPath
+		elif binding_type == 'cell':
+			for rix, updater in enumerate(config['updates']):
+				updater_config = gather_attribute_dict(updater)
+				updater_config['value'] = updater_config['value'].getBindingRepresentation()
+				config['updates'][rix] = updater_config
+	
+	except Exception as error:
+		pass # ignore it
+	
+	return config
+
+
+
+def resolve_delegate(component):
+
+	# prevent easy recursion
+	ignorable_attributes = set(a.strip() for a in """
+		bounds bounds2D
+		currentPoint
+		""".split())
+	
+	ignorable_default_values = {
+		}
+
+	try:
+		delegate = component.getDelegate()
+	except AttributeError:
+		return {}
+	
+	config = gather_attribute_dict(delegate, ignorable_attributes, ignorable_default_values, allow_recursive_resolution=True)
+	
+	return config
+
+
+IGNORABLE_DEFAULT_COMPONENT_PROPERTY_VALUES = {
+		 'border': 'some javax.swing.plaf.synth.SynthBorder',
+		 'commitOnFocusLost': True,
+		 'componentEnabled': True,
+		 'dataQuality': 600,
+		 'deferUpdates': True,
+		 'editable': True,
+		 'background': {'b': 251, 'g': 250, 'r': 250},
+		 'editableBackground': {'b': 255, 'g': 255, 'r': 255},
+		 'font': {'family': 'Dialog', 'name': 'Dialog', 'size': 12, 'style': 'plain'},
+		 'foreground': {'b': 46, 'g': 46, 'r': 46},
+		 'horizontalAlignment': 10,
+		 'maxChars': -1,
+		 'nonEditableBackground': {'b': 241, 'g': 241, 'r': 241},
+		 'opaque': True,
+		 'protectedMode': False,
+		 'rejectUpdatesDuringEdit': True,
+		 'visible': True,
+	}
+
+def resolve_component(component, interaction_controller):
+
+	ignorable_attributes = set([
+		'Children', 'Interaction Controller',
+		'Dynamic Properties', 
+		])
+			
+	config = {
+		'ComponentClass': repr(type(component))[7:-2]
+		}
+
+	component_type_info = Introspector.getBeanInfo(type(component))
+
+	for property_descriptor in component_type_info.getPropertyDescriptors():
+		pd_name = property_descriptor.getName()
+		try: # try a Java getter first
+			value = getattr(component, 'get%s%s' % (pd_name[0].upper(), pd_name[1:]))()
+		except: # try to directly grab the attribute
+			try:
+				value = getattr(component, pd_name)
+			except: # pass on weird failures
+				continue
+		
+		# Use the name, since bindings are not on the display name
+		#attribute = property_descriptor.getDisplayName()
+		attribute = property_descriptor.getName()
+			
+		if not attribute in ignorable_attributes:
+			config[attribute] = value
+	
+	custom = {}
+	try:
+		custom_properties = component.getProperties()
+	except AttributeError: # skip mainly unconfigurable things, like timers!
+		custom_properties = []
+	
+	# Did you know that some things return properties that are complex?
+	# as in imaginary number complex, not like, complicated
+	# I dunno how to even _use_ this, but here we are.
+	# EDIT: interlocking out this bit of exception handling
+	#       it's apparently due to derpy clobbering of .getProperties()
+	#		and is going to get duplicated elsewhere - ARG
+	if isinstance(custom_properties, BasicDataset):
+		# custom['Properties (dataset)'] = system.dataset.toCSV(custom_properties, forExport=True)
+		pass
+	# could be something else, so long as it's iterable like we expect...
+	# (if it's a map/dict then we'll deal with it, but I haven't seen it yet -ARG)
+	else:
+		for custom_property in custom_properties:
+			prop_config = {
+				'Type': custom_property.getPropertyType(),
+				'Value': custom_property.getValue(),
+				}
+			if custom_property.getShortDescription():
+				prop_config['Description'] = custom_property.getShortDescription()
+			if custom_property.isDropTarget():
+				prop_config['Drop Target'] = True
+			custom[custom_property.getName()] = prop_config
+		
+	config.update(custom)
+	config['Dynamic Properties'] = sorted(custom)
+	
+	custom_functions = component.getClientProperty('vision.custom.functions')
+	if custom_functions:
+		config['Custom Functions'] = hashmapToDict(custom_functions)
+	
+	# extension functions are a bit different
+	extension_functions = config.pop('extensionFunctions', {})
+	if extension_functions:
+		config['Extension Functions'] = {}
+		for exfun_name, exfun in extension_functions.items():
+			config['Extension Functions'][exfun_name] = {
+				'enabled': exfun.isEnabled(),
+				'script': exfun.getScript(),
+			}
+	
+	reactions = resolve_reactions(component, interaction_controller)
+	if reactions:
+		config['Reactions'] = reactions
+
+	for adapter in interaction_controller.getPropertyAdapters():
+		if not component is adapter.getComponent():
+			continue
+		property_name = adapter.getPropertyName()
+		
+		binding = interaction_controller.getPropertyAdapter(component, property_name)
+		if not property_name in config:
+			config[property_name] = {}
+		if not isinstance(config[property_name], dict):
+			config[property_name] = {
+				'Value': config[property_name],
+				}
+		
+		config[property_name]['Binding'] = resolve_binding(binding)
+		
+		# remove the value, since it's a binding and subject to whimsical changes
+		if 'Value' in config[property_name]:
+			del config[property_name]['Value']
+	
+	# attempt to gather properties that may be delegated for lazier loading
+	if 'delegate' in config:
+		del config['delegate']
+		config.update(resolve_delegate(component))
+	
+	# clean up and remove defaults
+	for key in frozenset(config):
+		try:
+			ignore_value = IGNORABLE_DEFAULT_COMPONENT_PROPERTY_VALUES[key]
+			value = config[key]
+			if value == ignore_value:
+				del config[key]
+				continue
+			if isinstance(ignore_value, dict) or not isinstance(value, PyObject):
+				if stringify(value) == ignore_value:
+					del config[key]
+					continue
+		except KeyError:
+			continue
+		
+	return config
+
+
+IGNORABLE_DEFAULT_CONFIGURATION_VALUES = {
+		"alignmentX": 0.5,
+		"alignmentY": 0.5,
+		"autoscrolls": False,
+		"backgroundSet": False,
+		"borderDisplayPolicy": 2,
+		"borderInsets": {
+			"bottom": 0,
+			"left": 0,
+			"right": 0,
+			"top": 0,},
+		"bounds": {
+			"height": 600,
+			"width": 800,
+			"x": 0,
+			"y": 0, },
+		"cachePolicy": 0,
+		"closable": True,
+		"closed": False,
+		"componentCount": 2,
+		"cursor": "Default Cursor",
+		"cursorSet": False,
+		"debugGraphicsOptions": 0,
+		"defaultCloseOperation": 2,
+		"displayable": False,
+		"dockIndex": 0,
+		"dockPosition": 0,
+		"doubleBuffered": False,
+		"enabled": True,
+		"focusCycleRoot": True,
+		"focusOwner": False,
+		"focusTraversable": True,
+		"focusTraversalKeysEnabled": True,
+		"focusTraversalPolicyProvider": False,
+		"focusTraversalPolicySet": True,
+		"focusable": True,
+		"fontSet": False,
+		"foregroundSet": False,
+		"height": 600,
+		"icon": False,
+		"iconifiable": False,
+		"ignoreRepaint": False,
+		"inheritsPopupMenu": False,
+		"insets": {
+			"bottom": 0,
+			"left": 0,
+			"right": 0,
+			"top": 0, },
+		"layer": 0,
+		"lightweight": False,
+		"locale": "en_US",
+		"location": {
+			"x": 0,
+			"y": 0, },
+		"managingFocus": False,
+		"maximizable": False,
+		"maximum": False,
+		"maximumSize":{
+			"height": 2147483647,
+			"width": 2147483647,},
+		"maximumSizeSet": False,
+		"minimumSize": {
+			"height": 0,
+			"width": 0, },
+		"minimumSizeSet": False,
+		"normalBounds": {
+			"height": 600,
+			"width": 800,
+			"x": 0,
+			"y": 0, },
+		"opaque": True,
+		"optimizedDrawingEnabled": True,
+		"paintingForPrint": False,
+		"paintingTile": False,
+		"preferredSize": {
+			"height": 200,
+			"width": 200, },
+		"preferredSizeSet": False,
+		"requestFocusEnabled": True,
+		"resizable": True,
+		"selected": False,
+		"showing": False,
+		"size": {
+			"height": 600,
+			"width": 800, },
+		"startMaximized": True,
+		"startingLocation": {
+			"x": 0,
+			"y": 0, },
+		"titlebarDisplayPolicy": 2,
+		"titlebarFont": {
+			"family": "Dialog",
+			"name": "Dialog",
+			"size": 12,
+			"style": "bold", },
+		"titlebarHeight": 20,
+		"valid": False,
+		"validateRoot": False,
+		"verifyInputWhenFocusTarget": True,
+		"visible": False,
+		"visibleRect": {
+			"height": 600,
+			"width": 800,
+			"x": 0,
+			"y": 0, },
+		"width": 800,
+		"x": 0,
+		"y": 0,
+	}
+
+
+def resolve_template(template):
+
+	from com.inductiveautomation.factorypmi.application.components.template import PublicCustomProperty, PrivateCustomProperty
+
+	interaction_controller = template.getInteractionController()
+
+	ignorable_attributes = set(a.strip() for a in """
+		BaselineResizeBehavior UI UIClassID 
+		accessibleContext actionMap ancestorListeners
+		baselineResizeBehavior childrenForSerialization class componentPopupMenu
+		completeId componentListeners componentOrientation components
+		containerListeners dynamicProps focusListeners 
+		hierarchyBoundsListeners hierarchyListeners inputMap inputMethodListeners
+		interactionController keyListeners layout
+		mouseListeners mouseMotionListeners mouseWheelListeners
+		properties propertyChangeListeners registeredKeyStrokes 
+		toolkit treeLock vetoableChangeListeners
+		""".split())
+	
+	#ignorable_default_values = {}
+	
+	config = {
+			'Configuration': gather_attribute_dict(template, ignorable_attributes, IGNORABLE_DEFAULT_CONFIGURATION_VALUES),
+			'Children': {},
+		}
+
+	config.update({
+			'Public Properties': [],
+			'Private Properties': [],
+			'Drop Target': template.getDropTargetProperty(),
+		})
+	
+	custom = {}
+	for custom_property in template.getProperties():
+		prop_config = {
+			'Type': custom_property.getPropertyType(),
+			'Value': custom_property.getValue(),
+			}
+		if custom_property.getShortDescription():
+			prop_config['Description'] = custom_property.getShortDescription()
+		if custom_property.isDropTarget():
+			prop_config['Drop Target'] = True
+		custom[custom_property.getName()] = prop_config
+		
+		if isinstance(custom_property, PublicCustomProperty):
+			config['Public Properties'].append(custom_property.getName())
+		if isinstance(custom_property, PrivateCustomProperty):
+			config['Private Properties'].append(custom_property.getName())
+	
+	config.update(custom)
+	config['Dynamic Properties'] = sorted(custom)
+
+	# included in gather_components
+#	config['Children'] = {
+#			'Root': resolve_component(template, interaction_controller)
+#		}
+	for component_path, component in gather_components(template).items():
+		config['Children'][component_path] = resolve_component(component, interaction_controller)
+
+	return config	
+
+
+def resolve_window(window):
+	
+	interaction_controller = window.getInteractionController()
+	root_container = window.getRootContainer()
+	
+	ignorable_attributes = set(a.strip() for a in """
+		BaselineResizeBehavior UI UIClassID
+		accessibleContext actionMap ancestorListeners appContext
+		border baselineResizeBehavior class colorModel componentPopupMenu
+		componentListeners componentOrientation components containerListeners
+		contentPane desktopIcon focusListeners focusTraversalPolicy 
+		frameIcon glassPane graphics
+		graphicsConfiguration hierarchyBoundsListeners hierarchyListeners 
+		inputContext inputMap inputMethodListeners interactionController
+		internalFrameListeners keyListeners layeredPane layout 
+		mouseListeners mouseMotionListeners mouseWheelListeners parent peer 
+		propertyChangeListeners registeredKeyStrokes rootPane rootContainer
+		titleBar toolkit topLevelAncestor treeLock
+		vetoableChangeListeners visionWindowListeners
+		""".split())
+	
+#	ignorable_default_values = {}
+	
+	window_config = gather_attribute_dict(window, ignorable_attributes, IGNORABLE_DEFAULT_CONFIGURATION_VALUES)
+	window_config.update(
+		resolve_component(window, interaction_controller)
+	)
+	
+	config = {
+			'Configuration': window_config,
+			'Children': {},
+		}
+	
+	# included in gather_components
+#	config['Children'] = {
+#			root_containter.getName(): resolve_component(root_containter, interaction_controller)
+#		}
+	for component_path, component in gather_components(root_container).items():
+		config['Children'][component_path] = resolve_component(component, interaction_controller)
+
+	return config
+
+
+from com.inductiveautomation.factorypmi.application.model import WindowInfo, TemplateInfo
+
+def extract_window(resource_objects, deserializer=None):
+	
+	try:
+		window = resource_objects['window.bin']
+	except KeyError: # in case of wonky project packing
+		window_info = resource_objects['data.bin']
+		assert isinstance(window_info, WindowInfo), "Not sure what's going on here. It's not like a window we've seen before."
+		context = getDesignerContext()
+		deserializer = context.createDeserializer()
+		window_info_data_context = deserializer.deserializeBinary(window_info.getSerializedCode())
+		window = window_info_data_context.getRootObjects()[0]
+	
+	assert isinstance(window, FPMIWindow), 'Deserialization might have failed for window.'
+	
+	return dict([
+		encode(
+				resolve_window(window),
+				simplifying_getters=SIMPLIFIERS,
+				regex_substitutions=regex_substitutions,
+				skip_values=skip_junk)
+		])		
+#		'.xml': serializeToXML(window)			
+
+
+def extract_template(resource_objects, deserializer=None):
+
+	try:
+		template = resource_objects['template.bin']
+	except KeyError: # in case of wonky project packing
+		template_info = resource_objects['data.bin']
+		assert isinstance(template_info, TemplateInfo), "Not sure what's going on here. It's not like a template we've seen before."
+		context = getDesignerContext()
+		deserializer = context.createDeserializer()
+		template_info_data_context = deserializer.deserializeBinary(template_info.getSerializedCode())
+		template = template_info_data_context.getRootObjects()[0]
+		
+	return dict([
+		encode(
+				resolve_template(template),
+				simplifying_getters=SIMPLIFIERS,
+				regex_substitutions=regex_substitutions,
+				skip_values=skip_junk)
+		])		
+#		'.xml': serializeToXML(template)
+
+
+# Ready for the dispatcher
+EXTRACTORS = {
+	   'com.inductiveautomation.vision/windows': extract_window,
+	 'com.inductiveautomation.vision/templates': extract_template,
+	}
+

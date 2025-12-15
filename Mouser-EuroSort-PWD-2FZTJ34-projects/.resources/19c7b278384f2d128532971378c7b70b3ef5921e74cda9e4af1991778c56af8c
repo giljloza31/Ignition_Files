@@ -1,0 +1,536 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 902,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "CoordinateContainer"
+        },
+        "position": {
+          "height": "100%",
+          "width": "100%",
+          "x": -28,
+          "y": -38
+        },
+        "type": "ia.container.coord"
+      },
+      {
+        "meta": {
+          "name": "Table"
+        },
+        "position": {
+          "height": "calc(100% - 70px)",
+          "width": "100%",
+          "y": 70
+        },
+        "propConfig": {
+          "props.data": {
+            "binding": {
+              "config": {
+                "expression": "\"temp\""
+              },
+              "transforms": [
+                {
+                  "code": "\t{\n\t  \"Name\": \"value\",\n\t  \"Username\": \"value\",\n\t  \"Role\": \"value\",\n\t  \"Contact Info\": \"value\"\n\t}\n\t\n\t\n\tusersList \u003d system.user.getUsers(\u0027default\u0027)\n\t\n\ttData \u003d []\n\tfor user in usersList:\n\t\tfirstName \u003d user.get(\u0027firstname\u0027)\n\t\tlastName \u003d user.get(\u0027lastname\u0027)\n\t\tuserData \u003d {}\n\t\t#Concat First and Last Names into Name Prop\n\t\tif not firstName and not lastName:\n\t\t\tuserData[\"Name\"] \u003d \"Not Provided\"\n\n\t\telse:\n\t\t\tuserData[\"Name\"] \u003d \u0027%s %s\u0027%(firstName,lastName)\n#\t\t#Username will always exist - write it to Username Prop\n\t\tuserData[\"Username\"] \u003d user.get(\u0027username\u0027)\n#\t\t#Concat All Roles into Role(s) Prop\n\t\troles \u003d user.getRoles()\n\t\trolesStr \u003d \"\"\n\t\tfor role in roles:\n\t\t\trolesStr \u003d rolesStr + \", \" + str(role)\n\t\tuserData[\"Role\"] \u003d rolesStr.replace(\", \", \"\", 1)\n\t\tif not userData[\"Role\"]:\n\t\t\tuserData[\"Role\"] \u003d \"No Roles Assigned\"\n#\t\t#Concat All Contact Info into Contact Info Prop\n\t\tcontactInfos \u003d user.getContactInfo()\n\t\tciStr \u003d \"\"\n\t\tfor ci in contactInfos:\n\t\t\tciStr \u003d ciStr + \", \" + str(ci)\n\t\tuserData[\"Contact Info\"] \u003d ciStr.replace(\", \", \"\", 1)\t\t\n\t\tif not userData[\"Contact Info\"]:\n\t\t\tuserData[\"Contact Info\"] \u003d \"Not Provided\"\n\t\ttData.append(userData)\n#\t\n\treturn tData",
+                  "type": "script"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "columns": [
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Username",
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Name",
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "auto",
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Role(s)",
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "auto",
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Contact Info",
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "auto",
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            }
+          ]
+        },
+        "scripts": {
+          "customMethods": [],
+          "extensionFunctions": null,
+          "messageHandlers": [
+            {
+              "messageType": "refreshBinding",
+              "pageScope": true,
+              "script": "\tif payload[\"refreshUserTable\"] \u003d\u003d \"true\":\n\t\tself.refreshBinding(\"props.data\")",
+              "sessionScope": true,
+              "viewScope": false
+            },
+            {
+              "messageType": "deselectUser",
+              "pageScope": true,
+              "script": "\tif payload[\"deselectCurrentUser\"] \u003d\u003d \"true\":\n\t\tself.props.selection.selectedRow \u003d -1",
+              "sessionScope": true,
+              "viewScope": false
+            }
+          ]
+        },
+        "type": "ia.display.table"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "draggable": true,
+                "id": "PyPI5uDN",
+                "modal": true,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "open",
+                "viewParams": {
+                  "mode": "Create"
+                },
+                "viewPath": "User Management/Edit Users"
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 35,
+          "width": 200,
+          "x": 5,
+          "y": 30
+        },
+        "props": {
+          "text": "Create New User"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\tuserName \u003d self.getSibling(\"Table\").props.selection.data[0].Username\n\t\n\tif userName in [\u0027factory\u0027]:\n\t\treturn\n\telse:\n\t\tsystem.perspective.openPopup(\u00277XVwD4AH\u0027, \u0027User Management/Edit Users\u0027,{\u0027mode\u0027:\u0027Edit\u0027,\u0027username\u0027:userName})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 35,
+          "width": 200,
+          "x": 213,
+          "y": 30
+        },
+        "propConfig": {
+          "props.enabled": {
+            "binding": {
+              "config": {
+                "expression": "{../Table.props.selection.selectedRow}"
+              },
+              "transforms": [
+                {
+                  "expression": "if(isNull({value}), false, true)",
+                  "type": "expression"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "text": "Edit Selected User"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\tuserName \u003d self.getSibling(\"Table\").props.selection.data[0].Username\n\t\n\tif userName in [\u0027factory\u0027]:\n\t\treturn\n\telse:\n\t\tsystem.perspective.openPopup(\u0027confirmPU\u0027, \u0027Misc Admin/Confirmation Popup\u0027,{\u0027user\u0027:userName})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_2"
+        },
+        "position": {
+          "height": 35,
+          "width": 200,
+          "x": 421,
+          "y": 30
+        },
+        "propConfig": {
+          "props.enabled": {
+            "binding": {
+              "config": {
+                "path": "../Table.props.selection.selectedRow"
+              },
+              "transforms": [
+                {
+                  "expression": "if(isNull({value}), false, true)",
+                  "type": "expression"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "text": "Delete Selected User"
+        },
+        "scripts": {
+          "customMethods": [],
+          "extensionFunctions": null,
+          "messageHandlers": [
+            {
+              "messageType": "confirmAction",
+              "pageScope": false,
+              "script": "\tif payload[\"confirm\"] \u003d\u003d \"true\":\n\t\tuser \u003d self.getSibling(\"Table\").props.selection.data[0][\"Username\"]\n\t\tsystem.user.removeUser(\"default\", str(user))\n\t\tself.getSibling(\"Table\").props.selection.selectedColumn \u003d None\n\t\tself.getSibling(\"Table\").props.selection.selectedRow \u003d None\n\t\tself.getSibling(\"Table\").refreshBinding(\"props.data\")",
+              "sessionScope": true,
+              "viewScope": false
+            }
+          ]
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\tsystem.perspective.sendMessage(\"refreshBinding\", scope \u003d \"session\", payload \u003d {\"refreshUserTable\":\"true\"})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_3"
+        },
+        "position": {
+          "height": 35,
+          "width": 200,
+          "x": 629,
+          "y": 30
+        },
+        "props": {
+          "text": "Refresh"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 47,
+          "width": 320,
+          "x": 950,
+          "y": 18
+        },
+        "props": {
+          "text": "User Management",
+          "textStyle": {
+            "fontSize": 32,
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": -7,
+      "y": 0
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,766 @@
+from shared.tools.thread import async
+from functools import partial
+from shared.tools.global import ExtraGlobal	
+from time import sleep
+from random import random
+from datetime import datetime
+from time import sleep
+from random import random
+from datetime import datetime
+from java.util import Date
+from datetime import datetime
+from java.text import SimpleDateFormat
+from Database import db_access
+
+import re
+
+PAYLOAD_SEPERATOR = '|'
+BARCODE_SEPERATOR = ','
+ERROR = ''
+db_name = 'MongoWCS'
+
+
+class RoutingException(Exception):
+	pass
+	
+class NOPAYLOAD(RoutingException):pass
+
+class NOREAD(RoutingException):pass
+
+class NODEST(RoutingException):pass
+
+class NORETURN(RoutingException):pass
+
+class MULTI(RoutingException):pass
+
+
+def get_next(decimalResults):
+	binaryResults = bin(decimalResults)[2:]
+	
+	seperator = ''
+	
+	result = [int(char) for char in binaryResults]
+	
+	for i in range(len(result)-1,-1,-1):
+		if result[i]==1:
+			result[i]=0
+			break
+	
+	binaryResults = seperator.join(map(str,result))
+	decimalResults = int(binaryResults,2)
+	
+	return decimalResults
+	
+
+def log_data(data):
+	
+	
+	indexID = data['IGN_IndexID_Returned']
+	payload = data['IGN_Payload_Returned']
+	gap = 0
+	length = 0
+	dest = data['IGN_Destination_Returned']
+	destString = data['IGN_Dest_String_Returned']
+	route = data['IGN_Route_Returned']
+	Route_Reason = data['Route_Reason']
+	Route_Reason_Num = data['Route_Reason_Num']
+	start = data['Received_Data_Time']
+	stop = system.date.now()
+	stopFormat = system.date.format(stop, "yyyy-MM-dd HH:mm:ss")
+	
+	query = '''
+	Insert into Catchbox_Tracking_Table( 
+	IndexID,Payload,Gap,Length,Dest_Binary_Returned,Dest_String_Returned,Route_Returned,Route_Reason,Route_Reason_Num,Divert_Path,Divert_Path_String,Divert_Reason_String,
+	Divert_Reason_Num,Induct_TimeStamp,Divert_TimeStamp,Query_Time_ms,Travel_Time_ms)
+	Values ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''	
+	
+	args = [indexID , payload , gap , length , dest , destString , route , Route_Reason , Route_Reason_Num ,0,'','',0,stopFormat,'' ,system.date.millisBetween(start, stop),0]
+	
+	system.db.runPrepUpdate(query, args, 'SQLServer')
+	
+def error_lookup(data,ERROR):
+	
+	query = """
+	SELECT *
+	FROM Catchbox_Divert_Table
+	Where Route_Code = ?
+	"""
+	results = system.db.runPrepQuery(query, [ERROR], 'SQLServer')
+
+	# Decode the results
+			
+	# We get only one result if any because of the UNIQUE constraint on the table
+	row = results[0]
+	
+	
+	# Get RoutedPaylod
+	
+	routedString = row['Route_Code']
+	# Decode the Divert columns into a bit array int
+	
+	# Start with no routes
+	destinations = 0
+	roundRobin = row['RoundRobin']	
+	
+	# Start with an Empty list for the selected Diverts
+	divert_list = []
+	divert_String = ''
+	for selected,columnName in zip(row, results.columnNames):
+		
+		#Loop through and find where route is divert is selected	
+		if not columnName.startswith('Divert_'): # TODO: Fix column names to match		
+			continue
+				
+		# Get the second half on the underscore.
+		# (rpartition splits on a thing, always retruning
+		#  the left, split thing, and right of it)
+		# And make it an int so we can shift on it
+		# ... minus one because we are zero indexed, and lanes are one-indexed
+		shift = int(columnName.rpartition('_')[2]) - 1 # TODO: Fix column names to match
+		if row[columnName]:
+			divert_list.append(columnName)
+		#shift = int(columnName[-2:]) - 1
+	
+		# Take the result bit array so far, 
+		#  and or it with the value SQL returned, 
+		#  bit shifted the number of lanes 
+		destinations |= selected << shift
+	
+	
+	if destinations == 0:
+		data.update({
+		'Route_Reason':"Found %s Route No Lane Assigned"%(data['IGN_Route_Returned']),
+		'Route_Reason_Num':5
+		})	
+		
+	divert_String = '|'.join(divert_list)
+	
+			
+	data.update({
+		'IGN_Destination_Returned': destinations,
+		'IGN_Route_Returned':routedString,
+		'IGN_Dest_String_Returned': divert_String,
+		'IGN_Payload_Returned':data['IGN_RawPayload']
+
+	})
+	
+	if roundRobin:
+		
+		
+		destination = ExtraGlobal.get(label=route_code, scope='RouteCode')
+		
+		if destination == None or destination == 0:
+			destination = destinations
+			ExtraGlobal.stash(bitArray, 
+				label=route_code,
+				scope='RouteCode',
+				lifespan=18000,
+					)
+		else:
+			destination = get_next(destination)
+			if destination == None or destination == 0:
+				destination = destinations
+			
+			ExtraGlobal.stash(destination, 
+							label=route_code, 
+							scope='RouteCode',
+							lifespan=18000,
+								)		
+		data.update({
+			'IGN_Destination_Returned':destination,
+			
+			})	
+
+			
+
+	return data
+	
+def decode_results(data):
+	#Change the name of the divert table
+	query = """
+	SELECT *
+	FROM Catchbox_Divert_Table
+	Where Route_Code = ?
+	"""
+	results = system.db.runPrepQuery(query, [data['IGN_Route_Returned']], 'SQLServer')
+	
+	if not results:
+		raise NODEST
+		
+		
+		
+	# Decode the results
+			
+	# We get only one result if any because of the UNIQUE constraint on the table
+	row = results[0]
+	
+	# Return the Routed string
+	routedString = row['Route_Code']
+	roundRobin = row['RoundRobin']	
+	
+	# Decode the Divert columns into a bit array int
+	# Start with no routes	
+	destinations = 0
+	
+	# Start with an Empty list for the selected Diverts
+	divert_list = []
+	divert_String = ''
+	for selected,columnName in zip(row, results.columnNames):
+		
+	
+		if not columnName.startswith('Divert_'): # TODO: Fix column names to match		
+			continue
+			
+		# Get the second half on the underscore.
+		# (rpartition splits on a thing, always retruning
+		#  the left, split thing, and right of it)
+		# And make it an int so we can shift on it
+		# ... minus one because we are zero indexed, and lanes are one-indexed
+		shift = int(columnName.rpartition('_')[2]) - 1 # TODO: Fix column names to match
+		if row[columnName]:
+			divert_list.append(columnName)
+		#shift = int(columnName[-2:]) - 1
+	
+		# Take the result bit array so far, 
+		#  and or it with the value SQL returned, 
+		#  bit shifted the number of lanes 
+		destinations |= selected << shift
+	
+	if destinations == 0:
+		data.update({
+		'Route_Reason':"Found %s Route No Lane Assigned"%(data['IGN_Route_Returned']),
+		'Route_Reason_Num':5
+		})
+		
+	divert_String = '|'.join(divert_list)
+	
+			
+	data.update({
+		'IGN_Destination_Returned': destinations,
+		'IGN_Dest_String_Returned': divert_String
+		})
+	
+	if roundRobin:
+		
+		
+		destination = ExtraGlobal.get(label=routedString, scope='RouteCode')
+		
+		if destination == None or destination == 0:
+			destination = destinations
+			ExtraGlobal.stash(destination, 
+				label=routedString,
+				scope='RouteCode',
+				lifespan=18000,
+					)
+		else:
+			destination = get_next(destination)
+			if destination == None or destination == 0:
+				destination = destinations
+			
+			ExtraGlobal.stash(destination, 
+							label=routedString, 
+							scope='RouteCode',
+							lifespan=18000,
+								)		
+		data.update({
+			'IGN_Destination_Returned':destination,
+			
+			})	
+
+			
+		
+	return data	
+
+def IBN_lookup(data,barcodeList):
+	filter={
+	   "_id":{'$in':barcodeList}
+	}
+	project={
+    	'_id': 1, 
+	    'catchbox_flag': 1,
+	    'consol_zone':1,
+	    'va_flag':1
+	}
+	
+	IBNResults = db_access.select_records(db_name,'outbound_scan_sort_ibn',where_clause=filter,projection=project)
+
+	IBNCount = len(IBNResults)
+
+
+	if IBNCount != 0:
+
+		zone = IBNResults[0]['consol_zone']
+		vaFlag = IBNResults[0]['va_flag']
+		caFlag = IBNResults[0]['catchbox_flag']
+		
+		if not caFlag and not vaFlag:
+			dest = IBNResults[0]['consol_zone']
+		elif caFlag and not vaFlag:
+			dest = 'CB'
+		elif not caFlag and vaFlag:
+			dest = 'VA'
+		
+		
+		data.update({
+		'IGN_Route_Returned':dest,
+		'IGN_Payload_Returned':IBNResults[0]['_id']
+		})
+
+	return data,IBNCount
+	
+	
+	
+def Tote_lookup(data,barcodeList):
+
+	filter={
+	   "_id":{'$in':barcodeList}
+	}
+	project={
+	    '_id': 1, 
+	   'destination': 1 
+	}
+	
+	ToteResults = db_access.select_records(db_name,'qc_pack_barcode',where_clause=filter,projection=project)
+
+	Totecount = len(ToteResults)
+	
+	if Totecount != 0:
+		data.update({
+		'IGN_Route_Returned':ToteResults[0]['destination'],
+		'IGN_Payload_Returned':ToteResults[0]['_id']
+		})
+
+	return data,Totecount
+
+def LPN_lookup(data,barcodeList):
+	filter={
+	   "_id":{'$in':barcodeList}
+	}
+	project={
+	    '_id': 1, 
+	   'destination': 1 
+	}
+	
+	LPNResults = db_access.select_records(db_name,'qc_pack_barcode',where_clause=filter,projection=project)
+
+	LPNCount = len(LPNResults)
+	if LPNCount != 0: 
+		data.update({
+		'IGN_Route_Returned':LPNResults[0]['destination'],
+		'IGN_Payload_Returned':LPNResults[0]['_id']
+		})
+
+	return data,LPNCount
+
+def lookup(data,barcodeList):
+
+	data,toteCount = Tote_lookup(data,barcodeList)
+	
+	if toteCount == 0:
+		data,ibnCount = IBN_lookup(data,barcodeList)
+		
+		if ibnCount == 0:
+			data,lpnCount = LPN_lookup(data,barcodeList)
+			
+			if lpnCount == 0:
+				raise NORETURN
+			
+	elif toteCount > 1:
+		raise MULTI
+		
+
+
+		
+	data.update(decode_results(data))
+		
+		
+	return data
+	
+	
+	
+
+def lookup_and_decode(data,payload):
+	rawList = []
+	barcodeList = []
+
+	if BARCODE_SEPERATOR in payload:
+	
+		rawList = payload.split(BARCODE_SEPERATOR)
+	else:
+		rawList.append(payload)
+
+
+	for code in rawList:
+		if len(code) >= 6 and code != 'NOREAD':
+			if code not in barcodeList:
+				barcodeList.append(code)
+	
+	if len(barcodeList) == 0:
+		raise NOREAD
+
+	data.update(lookup(data,barcodeList))		
+		
+	
+	return data
+#Change the name per use "(projectname)_gather_Data"	
+@async(name = "Catchbox_gather_Data_updated")	
+def Catchbox_gather_data(source_path):
+	
+	ReceiveTime = system.date.now()
+	Get_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	Got_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	Get_Counts = '/'.join(source_path.split('/')[:-2] + ['Got_Data/Counts'])
+	
+		
+	
+
+	indexID,rawPayload,errorCNT,multiCNT,nodestCNT,nopayloadCNT,noreadCNT,noreturnCNT,norouteCNT,successCNT,code_exc,dvt1,dvt2,dvt3,dvt4 = [
+
+	qv.value for qv in 
+	system.tag.readBlocking([
+		Get_parent_dest + '/' + 'IGN_IndexID_Send',
+		Get_parent_dest + '/' + 'IGN_Payload_Sent',
+		Get_Counts + '/' + 'ERROR',
+		Get_Counts + '/' + 'MULTI',
+		Get_Counts + '/' + 'NODEST',
+		Get_Counts + '/' + 'NOPAYLOAD',
+		Get_Counts + '/' + 'NOREAD',
+		Get_Counts + '/' + 'NORETURN',
+		Get_Counts + '/' + 'NOROUTE',
+		Get_Counts + '/' + 'SUCCESS',
+		Get_Counts + '/' + 'CODE_EXC',
+		Get_Counts + '/' + 'DVT_1',
+		Get_Counts + '/' + 'DVT_2',
+		Get_Counts + '/' + 'DVT_3',
+		Get_Counts + '/' + 'DVT_4',
+		
+	])]
+
+	data = {
+		'Route_Reason':"Successful Lookup",
+		'Route_Reason_Num':int(0),
+		'errorCNT':int(errorCNT),
+		'multiCNT':int(multiCNT),
+		'nodestCNT':int(nodestCNT),
+		'nopayloadCNT':int(nopayloadCNT),
+		'noreadCNT':int(noreadCNT),
+		'noreturnCNT':int(noreturnCNT),
+		'norouteCNT':int(norouteCNT),
+		'successCNT':int(successCNT),
+		'code_exc':int(code_exc),
+		'dvt1':int(dvt1),
+		'dvt2':int(dvt2),
+		'dvt3':int(dvt3),
+		'dvt4':int(dvt4)
+	
+		}
+	
+	try:
+		if PAYLOAD_SEPERATOR in rawPayload:
+			indexID,payload = rawPayload.split(PAYLOAD_SEPERATOR)
+			
+			payload = payload.replace("\x02", "").replace("\x03", "")
+			
+			
+			data.update({
+			'IGN_IndexID_Returned':indexID,
+			'IGN_RawPayload':payload
+			})
+		else:
+			raise NOPAYLOAD
+			
+		
+		data.update(lookup_and_decode(data,payload))
+	
+	except NOPAYLOAD:
+		ERROR = 'NOPAYLOAD'
+		data.update({
+		'IGN_IndexID_Returned':indexID,
+		'IGN_RawPayload':rawPayload})
+		data.update(error_lookup(data,ERROR))
+		payload = rawPayload
+		
+		data.update({
+		'Route_Reason':"Wrong Payload Received",
+		'Route_Reason_Num':2,
+		'nopayloadCNT':data['nopayloadCNT']+1
+		})
+	except NOREAD:
+		ERROR = 'NOREAD'
+		data.update(error_lookup(data,ERROR))
+		
+		data.update({
+		'Route_Reason':"Scanner Found No Barcodes",
+		'Route_Reason_Num':3,
+		'noreadCNT':data['noreadCNT']+1
+		})
+	except NORETURN:
+		ERROR = 'NORETURN'
+		
+		data.update(error_lookup(data,ERROR))
+		data.update({
+		'Route_Reason':"No Results found in Production Table",
+		'Route_Reason_Num':4,
+		'noreturnCNT':data['noreturnCNT']+1
+		})
+	except NODEST:
+		ERROR = 'NODEST'
+		
+		data.update(error_lookup(data,ERROR))
+		data.update({
+		'Route_Reason':"Route not in Divert Table",
+		'Route_Reason_Num':6,
+		'nodestCNT':data['nodestCNT']+1
+		})		
+	except MULTI:
+		ERROR = 'MULTI'
+		
+		data.update(error_lookup(data,ERROR))
+		data.update({
+		'Route_Reason':"Multiple routes found",
+		'Route_Reason_Num':6,
+		'multiCNT':data['multiCNT']+1
+		})	
+	except:
+		ERROR = 'ERROR'
+		data.update(error_lookup(data,ERROR))
+		
+		data.update({
+		'IGN_IndexID_Returned':indexID,
+		'IGN_RawPayload':rawPayload,
+		'Route_Reason':"Unexpected Error",
+		'Route_Reason_Num':1,
+		'errorCNT':data['errorCNT']+1
+		})
+	
+	
+	data.update({
+	'Received_Data_Time':ReceiveTime,
+	'Sent_Data_Time':system.date.now()
+	})
+	
+	if data['Route_Reason_Num'] == 0:
+		
+		data.update({
+			'successCNT':data['successCNT']+1
+			})
+	elif data['Route_Reason_Num'] == 5:
+		
+		data.update({
+			'nodestCNT':data['nodestCNT']+1
+			})
+			
+	if data['IGN_Destination_Returned']==1:
+		data.update({'dvt1':data['dvt1']+1})
+	elif data['IGN_Destination_Returned']==2:
+		data.update({'dvt2':data['dvt2']+1})
+	elif data['IGN_Destination_Returned']==4:
+		data.update({'dvt3':data['dvt3']+1})
+	elif data['IGN_Destination_Returned']==8:
+		data.update({'dvt4':data['dvt4']+1})
+
+		
+		
+ 	opcPaths = [
+ 	'ns=1;s=[L330ER_Opex_OIO]CBVA7146_Binary_Destination_Lookup[%s]'%(data['IGN_IndexID_Returned']),
+ 	'ns=1;s=[L330ER_Opex_OIO]CBVA7146_String_Destination_Lookup[%s]'%(data['IGN_IndexID_Returned']),
+ 	'ns=1;s=[L330ER_Opex_OIO]CBVA7146_Barcode_Lookup[%s]'%(data['IGN_IndexID_Returned'])
+ 	]
+	
+ 	opcValues = [
+	data['IGN_Destination_Returned'],
+	data['IGN_Dest_String_Returned'],
+	data['IGN_Payload_Returned'],
+	]
+			
+ 	system.opc.writeValues('Ignition OPC-UA Server', opcPaths, opcValues)	
+	
+	data.update({
+	'code_exc':data['code_exc']+1
+	})
+	data['TOTAL'] = data['errorCNT']+data['multiCNT']+data['nodestCNT']+data['nopayloadCNT']+data['noreadCNT']+data['noreturnCNT']+data['norouteCNT']+data['successCNT']
+	
+	Got_parent_dest += '/'
+	Get_Counts += '/'
+
+			
+	system.tag.writeBlocking(*zip(*[
+		(Got_parent_dest + 'IGN_IndexID_Returned', data['IGN_IndexID_Returned']),	
+		(Got_parent_dest + 'IGN_Route_Returned', data['IGN_Route_Returned']),			
+		(Got_parent_dest + 'IGN_Payload_Returned', data['IGN_Payload_Returned']),	
+		(Got_parent_dest + 'IGN_Destination_Returned', data['IGN_Destination_Returned']),	
+		(Got_parent_dest + 'IGN_Dest_String_Returned', data['IGN_Dest_String_Returned']),
+		(Get_Counts  + 'ERROR',data['errorCNT']),
+		(Get_Counts  + 'MULTI',data['multiCNT']),
+		(Get_Counts  + 'NODEST',data['nodestCNT']),
+		(Get_Counts  + 'NOPAYLOAD',data['nopayloadCNT']),
+		(Get_Counts  + 'NOREAD',data['noreadCNT']),
+		(Get_Counts  + 'NORETURN',data['noreturnCNT']),
+		(Get_Counts  + 'NOROUTE',data['norouteCNT']),
+		(Get_Counts  + 'SUCCESS',data['successCNT']),
+		(Get_Counts  + 'TOTAL',data['TOTAL']),
+		(Get_Counts  + 'CODE_EXC',data['code_exc']),
+		(Get_Counts  + 'DVT_1',data['dvt1']),
+		(Get_Counts  + 'DVT_2',data['dvt2']),
+		(Get_Counts  + 'DVT_3',data['dvt3']),
+		(Get_Counts  + 'DVT_4',data['dvt4'])
+
+	]))
+		
+
+
+
+
+	log_data(data)
+	
+	
+@async(name = "Catchbox_Divert_Confirmation")	
+def Catchbox_Divert_Confirmation(source_path):
+	DIVERTASSIGNMENT = {
+	0:'Divert_05',
+	1:'Divert_01',
+	2:'Divert_02',
+	4:'Divert_03',
+	8:'Divert_04',
+	16:'Divert_05'
+	}
+	comma = ','
+	opcServer = 'Ignition OPC-UA Server'
+	date_format = "yyyy-MM-dd HH:mm:ss"
+	diverted_time = system.date.now()
+	diverted_time_fmt = system.date.format(diverted_time, date_format) 
+	
+	Get_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	Got_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	Get_Counts = '/'.join(source_path.split('/')[:-2] + ['Got_Data/Counts'])
+	
+	indexid,divertedpath,successCNT,fullCNT,missedCNT,code_exc = [
+
+	qv.value for qv in 
+	system.tag.readBlocking([
+		Get_parent_dest + '/' + 'IGN_IndexID_Send',
+		Get_parent_dest + '/' + 'Diverted_path',
+		Get_Counts + '/' + 'SUCCESS',
+		Get_Counts + '/' + 'FULL',
+		Get_Counts + '/' + 'MISSED',
+		Get_Counts + '/' + 'CODE_EXC'
+	])]
+	
+	successCNT = int(successCNT)
+	code_exc = int(code_exc)
+	
+	itemPaths = [
+		'ns=1;s=[L330ER_Opex_OIO]CBVA7146_Barcode_Lookup[%s]'%(indexid)
+	]
+	opcData = system.opc.readValues(opcServer, itemPaths)
+	
+	payload = opcData[0].value
+
+	if comma in payload:
+		timeQuery = '''
+				SELECT TOP(100)*
+				FROM Catchbox_Tracking_Table
+				WHERE IndexID = ? 
+				order by inductindx desc
+				'''
+		timeArgs = [
+		indexid
+		]
+	else:
+
+		timeQuery = '''
+			SELECT TOP(100)*
+			FROM Catchbox_Tracking_Table
+			WHERE IndexID = ? and Payload = ?
+			order by inductindx desc
+			'''
+			
+		timeArgs = [
+		indexid,
+		payload
+		]
+	
+	
+	results = system.db.runPrepQuery(timeQuery, timeArgs, 'SQLServer')
+	
+	row = results[0]
+	
+	
+	date_parser = SimpleDateFormat(date_format)
+	inductindx = row['inductindx']
+	
+	
+	converted_date = date_parser.parse(row['Induct_TimeStamp'])
+	converted_date_2 = date_parser.parse(diverted_time_fmt)
+	
+	timeddiff = system.date.secondsBetween(converted_date, converted_date_2)
+	
+	if comma in payload:
+		query = '''
+				UPDATE Catchbox_Tracking_Table
+				SET	Divert_Path = ?,
+					Divert_Path_String = ?,
+					Divert_Reason_String = ?,
+					Divert_Reason_Num = ?,
+					Divert_TimeStamp = ?,
+					Travel_Time_ms = ?
+				
+				WHERE inductindx = ? 
+				'''
+			
+		args = [
+		
+		divertedpath,
+		DIVERTASSIGNMENT.get(divertedpath,'Unknown'),
+		'Successful Divert',
+		0,
+		diverted_time_fmt,
+		timeddiff,
+		inductindx
+		]	
+	
+	
+	else:
+		query = '''
+			UPDATE Catchbox_Tracking_Table
+			SET	Divert_Path = ?,
+				Divert_Path_String = ?,
+				Divert_Reason_String = ?,
+				Divert_Reason_Num = ?,
+				Divert_TimeStamp = ?,
+				Travel_Time_ms = ?
+			
+			WHERE IndexID = ? and Payload = ?
+			'''
+			
+		args = [
+		
+		divertedpath,
+		DIVERTASSIGNMENT.get(divertedpath,'Unknown'),
+		'Successful Divert',
+		0,
+		diverted_time_fmt,
+		timeddiff,
+		indexid,
+		payload
+		]
+	
+	system.db.runPrepUpdate(query, args,'SQLServer')
+	
+	Get_Counts += '/'
+	Got_parent_dest += '/'
+		
+	successCNT = successCNT+1
+	code_exc = code_exc+1
+
+	total = successCNT
+	
+	system.tag.writeBlocking(*zip(*[
+		(Get_Counts  + 'MISSED',0),
+		(Get_Counts  + 'FULL',0),
+		(Get_Counts  + 'SUCCESS',successCNT),
+		(Get_Counts  + 'TOTAL',total),
+		(Get_Counts  + 'CODE_EXC',code_exc),
+#		(Got_parent_dest + 'Diverted_IndexID',indexid)
+#		(Got_parent_dest + 'Diverted_Payload',payload)
+	]))

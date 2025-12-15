@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<sfc zoom="1.0" canvas="20 20" execution-mode="Callable" hot-editable="false" persist-state="true" redundant-sync="false">
+	<onstart>def onStart(chart): # WARNING: This resource was generated in a newer version of Ignition. For the best editing experience, recreate it in the current version.
+	</onstart>
+	<step id="4318489f-2143-4c66-b11b-efcb4fa50712" location="2 1" name="__begin" factory-id="begin-step">
+<parameters>
+	<parameter><name>some_value</name><expression>0</expression></parameter>
+	<parameter><name>loop</name><expression>0</expression></parameter>
+</parameters>
+	</step>
+	<step id="8502a4dd-6272-466d-9d85-df0cac81cb48" location="1 3" name="S1" factory-id="action-step">
+		<start-script>def onStart(chart, step): # WARNING: This resource was generated in a newer version of Ignition. For the best editing experience, recreate it in the current version.
+	chart.loop += 1
+	chart.some_value = 0</start-script>
+	</step>
+	<step id="ca2e982d-2a87-4ef4-83b2-9f18f9623db6" location="2 5" name="S2" factory-id="action-step">
+	<timer-script interval="1000">def onTimer(chart, step):
+	# increment until loop
+	chart.some_value += 1</timer-script>
+	</step>
+	<step id="bbb77b48-a44f-44d8-ac67-81a4e58ca3f2" location="2 9" name="__end1" factory-id="end-step">	</step>
+	<transition id="53762192-8823-47b5-abe5-924db589a0b9" location="2 7">!{[default]Run SFC}</transition>
+	<transition id="34da5cae-a22f-4cab-b0bf-05f4e9a1d70d" location="3 7">{some_value} &gt; 10</transition>
+	<jump id="9206d51e-dd5d-4838-b7af-05eb4df97773" location="3 8">A</jump>
+	<anchor id="201c88fa-69df-4eb5-b71f-4a4d0e6c2b2c" location="1 2">A</anchor>
+	<link id="de2328c3-7adf-4da5-ac69-4d49a0cbd792" location="2 2"><up/><down/></link>
+	<link id="d7548ae1-4d61-4546-9ea9-955930339418" location="2 3"><up/><down/></link>
+	<link id="db81bd50-605f-4613-9651-388d771e5719" location="1 4"><up/><left/><down/><right/></link>
+	<link id="fd3d7aa7-f565-41fa-91c7-4b9fef65c37b" location="2 4"><up/><left/><down/></link>
+	<link id="a43bd8c0-4dce-4b72-8f02-b62ec0d8587e" location="2 6"><up/><left/><down/><right/></link>
+	<link id="928e48be-bc9b-479e-96b1-f0480a8c92b1" location="3 6"><up/><left/><down/></link>
+	<link id="daaaac50-bcca-4622-a0d7-2341cd1f2159" location="2 8"><up/><down/></link>
+
+</sfc>

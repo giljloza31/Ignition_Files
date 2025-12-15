@@ -1,0 +1,255 @@
+from shared.tools.data import datasetToListDict
+import re
+
+
+_VALID_IDENT = re.compile(r'^[A-Za-z0-9_.$]+$')  # allow schema.table, db.table, and underscores
+
+def _validate_ident(name, kind='identifier'):
+	if not isinstance(name, basestring) or not _VALID_IDENT.match(name):
+		raise ValueError("Invalid {}: {!r}".format(kind, name))
+	return name
+	
+def _validate_ident_list(names, kind='identifier'):
+	out = []
+	for n in names:
+		out.append(_validate_ident(n, kind))
+	return out
+	
+def _build_columns(columns):
+	"""columns: '*' | string | list/tuple of strings"""
+	if columns in (None, '*'):
+		return '*'
+	if isinstance(columns, basestring):
+		return _validate_ident(columns, 'column')
+	return ', '.join(_validate_ident_list(list(columns), 'column'))
+	
+def _build_order(order_by):
+	"""
+	order_by: None | "col DESC" | ["col1", "col2 DESC"]
+	Only validates column tokens; ASC/DESC allowed.
+	"""
+	if not order_by:
+		return ''
+	def one(token):
+		if not isinstance(token, basestring):
+			raise ValueError("ORDER BY token must be a string, got: {}".format(type(token)))
+		parts = token.strip().split()
+		if len(parts) == 1:
+			col = _validate_ident(parts[0], 'order column')
+			return col
+		elif len(parts) == 2 and parts[1].upper() in ('ASC','DESC'):
+			col = _validate_ident(parts[0], 'order column')
+			return col + ' ' + parts[1].upper()
+		else:
+			raise ValueError("Invalid ORDER BY token: {!r}".format(token))
+	if isinstance(order_by, basestring):
+		return ' ORDER BY ' + one(order_by)
+	return ' ORDER BY ' + ', '.join(one(t) for t in order_by)
+	
+def _op_and_placeholders(col, op, value, params):
+	"""Expand common operators to SQL with placeholders; appends values to params."""
+	op = op.upper()
+	col_sql = _validate_ident(col, 'column')
+	if op in ('=','<>','!=','>','>=','<','<=','LIKE','NOT LIKE'):
+		params.append(value)
+		return "{} {} ?".format(col_sql, op)
+	if op == 'IN':
+		seq = list(value)
+		if not seq:
+			return "1=0"  # empty IN -> no rows
+		params.extend(seq)
+		return "{} IN ({})".format(col_sql, ','.join(['?']*len(seq)))
+	if op == 'NOT IN':
+		seq = list(value)
+		if not seq:
+			return "1=1"  # empty NOT IN -> always true
+		params.extend(seq)
+		return "{} NOT IN ({})".format(col_sql, ','.join(['?']*len(seq)))
+	if op == 'BETWEEN':
+		a, b = value
+		params.extend([a,b])
+		return "{} BETWEEN ? AND ?".format(col_sql)
+	if op == 'IS':
+		# value should be None or True/False mapped to SQL NULL/TRUE/FALSE for engines that support it.
+		if value is None:
+			return "{} IS NULL".format(col_sql)
+		raise ValueError("Only IS NULL is supported via ('IS', None)")
+	if op == 'IS NOT':
+		if value is None:
+			return "{} IS NOT NULL".format(col_sql)
+		raise ValueError("Only IS NOT NULL is supported via ('IS NOT', None)")
+	raise ValueError("Unsupported operator: {}".format(op))
+	
+def _build_where(where_dict, params):
+	
+	if not where_dict:
+		return ''
+		
+	clauses = []
+	for col, spec in where_dict.items():
+		if isinstance(spec, tuple) and len(spec) == 2:
+			op, val = spec
+			clauses.append(_op_and_placeholders(col, op, val, params))
+		else:
+			# default '='
+			col_sql = _validate_ident(col, 'column')
+			clauses.append("{} = ?".format(col_sql))
+			params.append(spec)
+	return ' WHERE ' + ' AND '.join(clauses)
+	
+def _append_limit_offset(sql, params, top=None, limit=None, offset=None):
+	"""
+	MySQL/Postgres/SQLite style LIMIT/OFFSET.
+	Prefer 'limit' and 'offset'. 'top' is an alias for limit.
+	"""
+	if limit is None and top is not None:
+		limit = top
+		
+	if limit is not None:
+		sql += ' LIMIT ?'
+		params.append(int(limit))
+		
+	if offset is not None:
+		sql += ' OFFSET ?'
+		params.append(int(offset))
+		
+	return sql
+	
+	
+def select_records(target_database, table, entry_dict, tx=None):
+	
+	_validate_ident(table, 'table')
+	columns = _build_columns(entry_dict.get('columns', '*'))
+	
+	params = []
+	
+	sql = "SELECT {} FROM {}".format(columns, table)
+	sql += _build_where(entry_dict.get('where'), params)
+	sql += _build_order(entry_dict.get('order_by'))
+	sql = _append_limit_offset(sql, params, top=entry_dict.get('top'),
+								limit=entry_dict.get('limit'),
+								offset=entry_dict.get('offset'))
+	return system.db.runPrepQuery(sql, params, target_database, tx=tx)
+	
+def select_record(target_database, table, entry_dict, tx=None):
+	"""
+	Same as select_records but returns the first row or None.
+	"""
+	rows = select_records(target_database, table, dict(entry_dict), tx=tx)
+	return rows[0] if rows.getRowCount() > 0 else None
+	
+def insert_record(target_database, table, values_dict, tx=None):
+	"""
+	Insert a single row. values_dict is {'col': value, ...}
+	Returns row count (int).
+	"""
+	_validate_ident(table, 'table')
+	if not values_dict:
+		raise ValueError("insert_record requires non-empty values_dict")
+		
+	cols = _validate_ident_list(values_dict.keys(), 'column')
+	placeholders = ','.join(['?']*len(cols))
+	sql = "INSERT INTO {} ({}) VALUES ({})".format(table, ','.join(cols), placeholders)
+	params = [values_dict[c] for c in cols]
+	return system.db.runPrepUpdate(sql, params, target_database, tx=tx)
+def update_records(target_database, table, set_values, where_dict=None, tx=None):
+	"""
+	Update rows in table.
+		set_values: {'col': value, ...}
+		where_dict: dict like in _build_where
+	Returns row count.
+	"""
+	_validate_ident(table, 'table')
+	
+	if not set_values:
+		raise ValueError("update_records requires non-empty set_values")
+		
+	# Ensure deterministic order
+	set_cols = list(set_values.keys())
+
+	
+	# Build SET clause
+	set_clause = ', '.join(["{} = ?".format(c) for c in set_cols])
+	params = [set_values[c] for c in set_cols]
+	
+	# Build WHERE clause (appends extra params)
+	sql = "UPDATE {} SET {}".format(table, set_clause)
+	sql += _build_where(where_dict, params)
+	
+	return system.db.runPrepUpdate(sql, params, target_database, tx=tx)
+	
+def update_record(target_database, table, set_values, where_dict, tx=None):
+	"""Alias of update_records with required where."""
+	if not where_dict:
+		raise ValueError("update_record requires a WHERE clause")
+	return update_records(target_database, table, set_values, where_dict, tx=tx)
+	
+def delete_records(target_database, table, where_dict=None, tx=None, limit=None):
+	"""
+	Delete rows. Provide a WHERE; if omitted, deletes all rows in the table (dangerous).
+	limit: optional LIMIT (MySQL/Postgres/SQLite)
+	Returns row count.
+	"""
+	_validate_ident(table, 'table')
+	params = []
+	sql = "DELETE FROM {}".format(table)
+	sql += _build_where(where_dict, params)
+	if limit is not None:
+		sql += ' LIMIT ?'
+		params.append(int(limit))
+		return system.db.runPrepUpdate(sql, params, target_database, tx=tx)
+		
+def delete_record(target_database, table, where_dict, tx=None):
+	"""Delete with WHERE and LIMIT 1."""
+	return delete_records(target_database, table, where_dict, tx=tx, limit=1)
+	
+def prune_table(target_database, table, ts_column, cutoff_dt, tx=None, batch_size=2000):
+	"""
+	Deletes rows older than cutoff_dt in batches. Returns total rows deleted.
+		ts_column: timestamp/datetime column name
+		cutoff_dt: datetime value to compare with "<="
+	"""
+	_validate_ident(table, 'table')
+	_validate_ident(ts_column, 'column')
+	total = 0
+	while True:
+		deleted = delete_records(
+			target_database,
+			table,
+			where_dict={ts_column: ('<=', cutoff_dt)},
+			x=tx,
+			limit=batch_size
+		)
+		total += deleted
+		if deleted < batch_size:
+			break
+	return total
+	
+def truncate_table(target_database, table, tx=None):
+	"""TRUNCATE TABLE (DDL); not all engines allow it inside a transaction."""
+	_validate_ident(table, 'table')
+	sql = "TRUNCATE TABLE {}".format(table)
+	# runPrepUpdate can execute DDL for many drivers; if not, fall back to runUpdateQuery.
+	return system.db.runPrepUpdate(sql, [], target_database, tx=tx)
+	
+def create_table(target_database, ddl_sql, tx=None):
+	"""
+	Execute a CREATE TABLE ... statement. Provide full DDL in ddl_sql.
+	"""
+	if not isinstance(ddl_sql, basestring) or not ddl_sql.strip().upper().startswith('CREATE'):
+		raise ValueError("create_table expects a CREATE TABLE... statement")
+	return runPrepUpdate(ddl_sql, [], target_database, tx=tx)
+	
+def check_if_exists(target_database, table, where_dict, tx=None):
+	"""
+	Returns True if any row exists that matches where_dict.
+	"""
+	row = select_record(target_database, table, {
+		'columns': '1',
+		'where': where_dict,
+		'limit': 1
+		}, tx=tx)
+	
+	return row is not None
+
+   

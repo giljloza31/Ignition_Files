@@ -1,0 +1,35 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+from shared.tools.error import *
+
+
+
+class SorterDataContext(SorterDataBase):
+
+	#----------------------------
+	# context managed convenience
+	#----------------------------
+	# allow message to automatically send itself after configuring
+	
+	def __enter__(self):
+		assert self.target, "Message can only send itself on __exit__ when associated with a sorter"
+		return self
+
+
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		try:
+			self.send()
+		except (Exception,JavaException) as error:
+			raise error
+		finally:
+			pass
+
+	def send(self):
+		assert self.target, "Message can only send itself on __exit__ when associated with a sorter"
+		self.target.send(self)
+		

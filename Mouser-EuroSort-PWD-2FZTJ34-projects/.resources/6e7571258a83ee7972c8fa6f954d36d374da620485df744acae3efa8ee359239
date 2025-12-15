@@ -1,0 +1,30 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+from eurosort.enums import LightStatus, LightColor
+
+
+
+class SorterDataLights(SorterDataBase):
+
+	@property
+	def light_status(self):
+		return self._javaObject.lightStatus
+
+	@light_status.setter
+	def light_status(self, new_light_status):
+		self._javaObject.lightStatus = self._coerce_enum(LightStatus, new_light_status)
+
+
+	@property
+	def light_color(self):
+		return self._javaObject.lightColor
+
+	@light_color.setter
+	def light_color(self, new_light_color):
+		self._javaObject.lightColor = self._coerce_enum(LightColor, new_light_color)
+

@@ -1,0 +1,90 @@
+"""
+	Main Database interaction bits (agnostic)
+	
+	This abstracts the databases a bit so direct calls to particular 
+	brands and their quirks don't need to be worried about.
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from shared.tools.data import datasetToListDict
+
+from functools import partial
+
+
+#if 'localhost' in shared.tools.net.get_gateway_public_address():
+#	INVENTORY_DATABASE = 'PerfectPick'
+#else:
+#	INVENTORY_DATABASE = 'SQLServer'
+
+
+DATABASE = 'MongoWCS' #'MongoWCS-Dev'
+
+
+DATABASE_ENGINE = 'MONGODB'
+
+__all__ = [
+	'INVENTORY_DATABASE',
+	
+	'select_record',   # single
+	'insert_record',   # single
+	'upsert_record',   # add-or-update
+	'update_record',   # single - partial
+	'delete_record',   # single
+	#'query_records',   # ad hoc
+	'select_records',  # ad hoc
+	'insert_records',  # bulk
+]
+
+
+
+if DATABASE_ENGINE == 'MSSQL':
+	
+	from database.mssql.records import (
+		insert_record, 
+		merge_record as upsert_record,
+		update_record,
+		delete_record,
+		query_records,
+		insert_records,
+	)
+	
+	# TransactionBlock deprecates the need for this, but the simplicity is nice in general
+	db_insert_record  = partial(insert_record, DATABASE)
+	db_upsert_record  = partial(upsert_record, DATABASE)
+	db_update_record  = partial(update_record, DATABASE)
+	db_delete_record  = partial(delete_record, DATABASE)
+	
+	db_query_records  = partial(query_records,  DATABASE)
+	
+	db_insert_records = partial(insert_records, DATABASE)
+
+
+if DATABASE_ENGINE == 'MONGODB':
+
+	from database.mongodb.records import (
+
+		select_record,
+		insert_record, 
+		upsert_record,
+		update_record,
+		delete_record,
+		select_records,
+		insert_records,
+	)
+
+	db_select_record  = partial(select_record, DATABASE)
+	db_insert_record  = partial(insert_record, DATABASE)
+	db_upsert_record  = partial(upsert_record, DATABASE)
+	db_update_record  = partial(update_record, DATABASE)
+	db_delete_record  = partial(delete_record, DATABASE)
+
+	db_select_records = partial(select_records, DATABASE)
+	db_insert_records = partial(insert_records, DATABASE)
+
+
+else:
+	raise NotImplementedError('Database engine not supported: %r' % (DATABASE_ENGINE,))
+
+
+
+

@@ -1,0 +1,352 @@
+"""
+	Trackable requests
+	
+	Ask the PerfectPick for a (tote,cell) and update/be notified of changes.
+	Timeout releases the request, by default.
+	
+	Won't work if on the wrong JVM.
+	
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+
+from shared.data.types.adhoc import AdHocObject
+from shared.data.messaging import Message, Request
+from shared.tools.completable import WishFulfillment
+from shared.tools.global import ExtraGlobal
+
+from functools import wraps
+
+
+WORKER_PROJECT = 'EuroSort'
+LISTEN_PROJECT = 'EuroSort'
+
+
+
+class MetaTracking(type):
+	"""Class-level interface syntactic sugar.
+	
+	Adds slicing, like
+		Tracking['ASDF-QWER': 'Machine01'] to get any 'ASDF-QWER' if it's part of machine Machine01 
+									  (could only be one entry, of course, if any)
+		Tracking[::'LocationB']        to yield any that's on the LocationB side of any machine
+		Tracking[:'Machine01']         to 
+	
+	"""
+	_CACHE_SCOPE_COMPLETABLES = '{class_name} Completables'
+
+
+	# simple setting to fill in resolver to slice(project, handler)
+	_NONCONSOLIDATED_MESSAGE_HANDLER_NAME = '{class_name}: {method}'
+
+	CONSOLIDATED_HANDLERS = True
+	# list all message targets, but these are only the consolidated version
+	# since the non-consolidated follow the above formula
+	WORKER_PROJECT = 'metatools'
+	WORKER_CREATE_MESSAGE = '{class_name}: Update'
+	WORKER_UPDATE_MESSAGE = '{class_name}: Update'
+	WORKER_STATUS_MESSAGE = '{class_name}: Status'
+
+	AWAIT_PROJECT = 'metatools'
+	AWAIT_SUCCESS_MESSAGE = '{class_name}: Notification'
+	AWAIT_FAILURE_MESSAGE = '{class_name}: Notification'
+	AWAIT_UPDATES_MESSAGE = '{class_name}: Notification'
+	AWAIT_TIMEOUT_REQUEST = '{class_name}: Notification'
+
+	_GETITEM_SLICE_ATTRIBUTE_MAPPING = ('tracking', 'machine', 'location')
+
+
+	def __new__(metacls, class_name, class_bases, class_configuration):
+		# ensure the type's global values are part of the classes it defines
+		parent_tracking_types = [base for base in class_bases if isinstance(base, metacls)]
+		
+		def walk_mro(attribute):
+			if attribute in class_configuration:
+				return class_configuration[attribute]
+			for base in parent_tracking_types:
+				try:
+					return getattr(base, attribute)
+				except:
+					pass
+			return getattr(metacls, attribute)
+
+		if not '_CACHE_SCOPE_COMPLETABLES' in class_configuration:
+			class_configuration['_CACHE_SCOPE_COMPLETABLES'] = metacls.format(class_name=class_name)
+	
+		# is there a handler for every message type, or are they consolidated into just a couple?
+		consolidate_handlers = walk_mro('CONSOLIDATED_HANDLERS')
+	
+		for target_project in ('WORKER_PROJECT', 'AWAIT_PROJECT'):
+			class_configuration[target_project] = walk_mro(target_project)
+	
+		# ensure the new class has its own version of the class config vars
+		# (they can be masked and inherited, but they're going to be explicitly set)
+		for attribute in dir(metacls):
+		
+			attribute_parts = attribute.split('_')
+		
+			# this is for the reply traffic config message stuff
+			if len(attribute_parts) != 3:
+				continue
+		
+			target, method, traffic = attribute_parts
+		
+			# sanity check
+			if target not in ('WORKER', 'AWAIT'):
+				continue
+		
+			target_project = class_configuration[target + '_PROJECT']
+		
+			# don't overwrite anything explicitly set
+			if attribute in class_configuration:
+				# ... though the handler to the target project if just a string
+				handler = class_configuration[attribute]
+				if isinstance(handler, (str, unicode)):
+					class_configuration[attribute] = slice(target_project, handler)
+				continue
+		
+			# for example, AWAIT_SUCCESS_MESSAGE = slice(AWAIT_PROJECT, '{class_name}: Notification')
+			if consolidate_handlers:
+				handler_name_format = walk_mro(attribute)
+			else:
+				handler_name_format = walk_mro('_NONCONSOLIDATED_MESSAGE_HANDLER_NAME')
+			
+			message_handler = handler_name_format.format(class_name=class_name, method=method.capitalize(), )
+		
+			class_configuration[attribute] = slice(target_project, message_handler)
+
+		new_class = super(MetaTracking, metacls).__new__(metacls, class_name, class_bases, class_configuration)
+		return new_class
+
+
+	def __getitem__(cls, identifier):
+	
+		filters = AdHocObject()
+	
+		# pass-thru
+		if isinstance(identifier, cls):
+			return identifier
+	
+		if isinstance(identifier, (str, unicode, int, long)):
+			filters.tracking = str(identifier)
+	
+		elif isinstance(identifier, slice):
+			setattr(filters, cls._GETITEM_SLICE_ATTRIBUTE_MAPPING[0], identifier.start)
+			setattr(filters, cls._GETITEM_SLICE_ATTRIBUTE_MAPPING[1], identifier.stop)
+			setattr(filters, cls._GETITEM_SLICE_ATTRIBUTE_MAPPING[2], identifier.step)
+	
+		elif isinstance(identifier, (tuple, list)):
+			if len(identifier) > 0:
+				setattr(filters, cls._GETITEM_SLICE_ATTRIBUTE_MAPPING[0], identifier[0])
+			
+			if len(identifier) > 1:
+				setattr(filters, cls._GETITEM_SLICE_ATTRIBUTE_MAPPING[1], identifier[1])
+			
+			if len(identifier) > 2:
+				setattr(filters, cls._GETITEM_SLICE_ATTRIBUTE_MAPPING[2], identifier[2])
+		
+		elif isinstance(identifier, (dict, AdHocObject)):
+			filters.update(identifier)
+	
+		with Request[cls.WORKER_STATUS_MESSAGE] as request:
+			request.payload.update(filters)
+		
+		if isinstance(request.results, list):
+			return [
+				cls(**entry)
+				for entry
+				 in request.results
+			]
+		elif request.results is None:
+#			tracking = filters.pop('tracking', None)
+#			assert tracking, 'Can not create tracking for identifier: %s' % (tracking,)
+			Logger().debug('Creating {cls} using: {spec!r}', spec=filters._asdict())
+			filters.new_untracked = True
+			return cls(**filters)
+		else:
+			#Logger().trace('Found tracking result: {results!r}', results = request.results)
+			return cls(**request.results)
+		
+
+
+
+class Tracking(object):
+
+	__slots__ = ['tracking', 'session', '_new_untracked']
+
+	__metaclass__ = MetaTracking
+
+	DEFAULT_REQUEST_LIFESPAN = (10 * 60) # minutes (in seconds)
+
+
+	def __init__(self, tracking, new_untracked=False, **details):
+		self.tracking = tracking
+		self._new_untracked = new_untracked
+		self.session = AdHocObject(details)
+		# if update is deferred, don't attempt to notify if finished
+		self._completed = False
+
+	def __enter__(self):
+		return self
+	
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		self.notify()
+
+	@property
+	def new_untracked(self):
+		return self._new_untracked
+
+	@classmethod
+	def _get_completable(cls, tracking):
+		raise NotImplementedError('<Tracking> is a pass-thru wrapper and NOT a direct extension of the completable.')
+		#try:
+		#	return ExtraGlobal.glance(tracking, cls._CACHE_SCOPE_COMPLETABLES)
+		#except KeyError:
+		#	return None
+
+
+	def notify(self):
+		if self._completed:
+			return # do nothing, final notification already done
+		if self.session.get('signal') not in (None, 'updates'):
+			self.signal(self.session.signal)
+		elif self.new_untracked:
+			self._create_tracking()
+		else:
+			self._update_tracking()
+
+
+	@staticmethod
+	def defer_notify(function):
+		"""If the first argument is not a Tracking instance, instantiate and notify on completion.
+		If it IS an instance, defer to it to trigger the notification.
+		(Whomever first instantiates it is responsible.)
+		"""
+		@wraps(function)
+		def managed_notify(tracking, *args, **kwargs):
+			# pass-thru the same object if it's already a Tracking instance
+			
+			tracked = Tracking[tracking]
+			
+			results = function(tracked, *args, **kwargs)
+			
+			# update if a live tracking instance was NOT passed in
+			# (otherwise let it handle the notification)
+			if tracked is not tracking:
+				tracked.notify()
+			# continue as normal
+			return results
+			
+		return managed_notify
+
+
+	def _create_tracking(self):
+		Logger().trace('Creating tracking for {self!r}')
+		with Message[self.WORKER_CREATE_MESSAGE] as message:
+			message.payload = {
+			
+				# completable future details (preload signal flag for convenience)
+				'success': Message[self.AWAIT_SUCCESS_MESSAGE](signal='success'),
+				'failure': Message[self.AWAIT_FAILURE_MESSAGE](signal='failure'),
+				'updates': Message[self.AWAIT_UPDATES_MESSAGE](signal='updates'),
+				'timeout': Request[self.AWAIT_TIMEOUT_REQUEST](signal='timeout'),
+			
+				# cache details
+				'lifespan': self.DEFAULT_REQUEST_LIFESPAN,
+				'include_session_data': True,
+			
+				# tracking key
+				'tracking' : self.tracking,
+			}
+		
+			# coordinates for completion callback args (override via session below)
+			for attr in self._GETITEM_SLICE_ATTRIBUTE_MAPPING:
+				message.payload[attr] = None
+		
+			message.payload.update(self.session)
+		
+		self._new_untracked = False
+
+
+	def _update_tracking(self, **details):
+		#Logger().trace('Updating tracking for {self!r}')
+		with Message[self.WORKER_UPDATE_MESSAGE] as message:
+			message.payload.tracking = self.tracking
+			message.payload.update(self.session)
+			message.payload.update(details)
+
+
+	# control method for relaying down terminal (final) methods
+	def signal(self, method=None):
+		if method is None:
+			method = self.session.get(signal, 'updates')
+		self._update_tracking(signal=method)
+		# all signals except updates close out - so you'll need to recreate it
+		self._completed = (method != 'updates')
+
+	def success(self):
+		self.signal('success')
+
+	def failure(self):
+		self.signal('failure')
+
+
+	def timeout(self):
+		raise NotImplementedError('Timeout is not triggered directly.')
+		#self._get_completable(self.tracking).timeout()
+
+	def cancel(self):
+		raise NotImplementedError('Side effects are required to ensure consistency. No signaling cancel without failure.')
+		#self.signal('cancel')
+
+
+	def __iter__(self):
+		for key in self.session:
+			yield key
+
+	def __getitem__(self, identifier):
+		return self.session[identifier]
+
+
+	def __getattr__(self, attr):
+		try:
+			return super(Tracking, self).__getattr__(attr)
+		except AttributeError as error:
+			# next try to act like our dictionary
+			return getattr(self.session, attr, None)
+
+
+	def __setattr__(self, attr, value):
+		try:
+			return super(Tracking, self).__setattr__(attr, value)
+		except AttributeError as error:
+			# next try to act like our dictionary
+			return setattr(self.session, attr, value)
+
+
+	def __repr__(self):
+		tracking, tag1, tag2 = [
+			getattr(self, attr, None)
+			for attr 
+			 in self._GETITEM_SLICE_ATTRIBUTE_MAPPING
+		]
+		class_name = type(self).__name__
+		
+		if not tracking:
+			return '<%s undefined>' % (class_name,)
+		if tag1:
+			if tag2:
+				return '<%s %s: %r at %r>' % (class_name, tracking, tag1, tag2)
+			else:
+				return '<%s %s: %r>' % (class_name, tracking, tag1)
+		else:
+			if tag2:
+				return '<%s %s: ?? at %r>' % (class_name, tracking, tag2)
+			else:
+				return '<%s %s>' % (class_name, tracking,)
+			
+		return '<Tracking %s: %r at %r>' % (self.machine, self.tracking,)
+
+
+
+

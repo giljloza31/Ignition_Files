@@ -1,0 +1,3 @@
+SELECT  TOP( :inVarRange )*
+FROM QPS_History_Log 
+ORDER BY  historyindx DESC

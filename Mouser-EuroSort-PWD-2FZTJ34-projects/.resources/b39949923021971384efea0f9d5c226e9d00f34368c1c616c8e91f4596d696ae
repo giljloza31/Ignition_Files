@@ -1,0 +1,96 @@
+
+"""
+foundation.mongo.proxy
+
+MongoProxy for ES_Platform.
+
+Design:
+	- Thin wrapper around system.mongodb.*
+	- One consistent API for all Mongo access
+	- Script Console + Gateway safe
+	- No messaging / no proxy handlers required
+"""
+
+import system
+
+
+class MongoProxy(object):
+	def __init__(self, connector, logger=None):
+		"""
+		connector: MongoDB connector name (string)
+		logger: optional structured logger
+		"""
+		if not connector:
+			raise ValueError("MongoProxy requires a MongoDB connector name")
+		self.connector = connector
+		self.log = logger
+
+	def _call(self, fn_name, collection, *args, **kwargs):
+		mongodb = getattr(system, "mongodb", None)
+		if not mongodb:
+			raise RuntimeError("system.mongodb is not available")
+
+		fn = getattr(mongodb, fn_name, None)
+		if not fn:
+			raise AttributeError("system.mongodb.%s not found" % fn_name)
+
+		return fn(self.connector, collection, *args, **kwargs)
+
+	# ----------------------------
+	# Find
+	# ----------------------------
+
+	def find_one(self, collection, filt=None, **opts):
+		return self._call("findOne", collection, filt or {}, **opts)
+
+	def find(self, collection, filt=None, **opts):
+		return self._call("find", collection, filt or {}, **opts)
+
+	# ----------------------------
+	# Insert
+	# ----------------------------
+
+	def insert_one(self, collection, doc, **opts):
+		return self._call("insertOne", collection, doc or {}, **opts)
+
+	def insert_many(self, collection, docs, **opts):
+		return self._call("insertMany", collection, docs or [], **opts)
+
+	# ----------------------------
+	# Update
+	# ----------------------------
+
+	def update_one(self, collection, filt, update_doc, upsert=False, **opts):
+		opts.setdefault("upsert", bool(upsert))
+		return self._call("updateOne", collection, filt or {}, update_doc or {}, **opts)
+
+	def update_many(self, collection, filt, update_doc, upsert=False, **opts):
+		opts.setdefault("upsert", bool(upsert))
+		return self._call("updateMany", collection, filt or {}, update_doc or {}, **opts)
+
+	def replace_one(self, collection, filt, doc, upsert=False, **opts):
+		opts.setdefault("upsert", bool(upsert))
+		return self._call("replaceOne", collection, filt or {}, doc or {}, **opts)
+
+	# ----------------------------
+	# Delete
+	# ----------------------------
+
+	def delete_one(self, collection, filt, **opts):
+		return self._call("deleteOne", collection, filt or {}, **opts)
+
+	def delete_many(self, collection, filt, **opts):
+		return self._call("deleteMany", collection, filt or {}, **opts)
+
+	# ----------------------------
+	# Convenience
+	# ----------------------------
+
+	def upsert_one(self, collection, key, fields, **opts):
+		"""
+		Common ES_Platform pattern:
+			updateOne(filter=key, {$set: fields}, upsert=True)
+		"""
+		update_doc = {"$set": dict(fields or {})}
+		opts.setdefault("upsert", True)
+		return self._call("updateOne", collection, key or {}, update_doc, **opts)

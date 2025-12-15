@@ -1,0 +1,143 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 290
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Tree"
+        },
+        "position": {
+          "height": 819,
+          "width": 286,
+          "x": 2,
+          "y": 56
+        },
+        "propConfig": {
+          "custom.path": {
+            "binding": {
+              "config": {
+                "path": "this.props.selectionData[0]"
+              },
+              "transforms": [
+                {
+                  "code": "\tpath \u003d value.get(\u0027value\u0027,\u0027unknown\u0027)#.get(\u0027itemPath\u0027,\u0027unknown\u0027)\n\ttargetPath \u003d path.get(\u0027TargetPath\u0027,\u0027unknown\u0027)\n\t\n\treturn  targetPath\n\t\n",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            },
+            "onChange": {
+              "enabled": null,
+              "script": "\tif not currentValue.value:\n\t\treturn\n\telse:\n\t\tsystem.perspective.navigate(currentValue.value)"
+            }
+          }
+        },
+        "props": {
+          "appearance": {
+            "defaultNodeIcons": {
+              "collapsed": {
+                "path": "material/folder"
+              },
+              "empty": {
+                "path": "material/stop"
+              },
+              "expanded": {
+                "path": "material/folder_open"
+              }
+            },
+            "expandIcons": {
+              "collapsed": {
+                "path": "material/arrow_right"
+              },
+              "expanded": {
+                "path": "material/arrow_drop_down"
+              }
+            }
+          },
+          "items": [
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": true,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/eurosort"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Main"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/screen1"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Screen1\n"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/screen2"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Screen2"
+                    }
+                  ],
+                  "label": "Eurosort OverView"
+                }
+              ],
+              "label": "EuroSort"
+            }
+          ],
+          "selection": [
+            3
+          ],
+          "selectionData": [
+            {
+              "itemPath": "3",
+              "value": {
+                "TargetPath": ""
+              }
+            }
+          ]
+        },
+        "type": "ia.display.tree"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

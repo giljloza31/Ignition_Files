@@ -1,0 +1,211 @@
+from database.records.mongodb import select_record, update_record
+import system
+from datetime import datetime
+
+MONGODB = "MongoWCS"
+ROUTING_COLLECTION = "routing_tables"
+# Time constants (in seconds)
+YEAR  = 365 * 24 * 60 * 60
+MONTH = 30 * 24 * 60 * 60
+WEEK  = 7 * 24 * 60 * 60
+DAY   = 24 * 60 * 60
+HOUR  = 60 * 60
+MIN   = 60
+SEC   = 1
+
+def define_time(period_dict):
+	time_map = {
+		'year': YEAR,
+		'month': MONTH,
+		'week': WEEK,
+		'day': DAY,
+		'hour': HOUR,
+		'min': MIN,
+		'sec': SEC,
+		}
+	total_seconds = 0
+	for value, unit in period_dict.items():
+		total_seconds += value * time_map.get(unit.lower(), 0)
+	return total_seconds
+# store until change is detected or time expired to refresh 
+# which ever comes first 
+ROUTING_TTL_SEC = define_time({1:"hour"})  # 1hr; adjust as needed
+
+
+def _now():
+    try:
+        return system.date.now()
+    except Exception:
+        return datetime.utcnow()
+
+
+def _millis(dt):
+    try:
+        return system.date.toMillis(dt)
+    except Exception:
+        # crude fallback
+        if isinstance(dt, datetime):
+            return int(dt.strftime("%s")) * 1000
+        return 0
+
+
+class RoutingStorage(object):
+    """
+    Simple Mongo-backed config store with:
+      - in-memory cache per doc_id
+      - TTL-based auto-refresh
+      - version tracking
+    """
+
+    def __init__(self, db_name=MONGODB, coll_name=ROUTING_COLLECTION, ttl_sec=ROUTING_TTL_SEC):
+        self.db_name = db_name
+        self.coll = coll_name
+        self.ttl_sec = int(ttl_sec)
+        self._cache = {}  # doc_id -> {"doc": {...}, "loaded_at": millis}
+
+        self.log = system.util.getLogger("RoutingStore")
+
+    # ---------- low-level Mongo helpers ----------
+
+    def _load_from_db(self, doc_id):
+        doc = select_record(self.coll, {"_id": doc_id}, target_database=self.db_name) or None
+        if not doc:
+            self.log.warn("RoutingStore: no doc for _id=%r" % doc_id)
+        return doc
+
+    def _save_to_db(self, doc):
+        """
+        Upsert and bump version when data changed.
+        Expects: doc['_id'], doc['data'] at minimum.
+        """
+        doc_id = doc.get("_id")
+        if not doc_id:
+            raise ValueError("RoutingStore save: _id required")
+
+        existing = select_record(self.coll, {"_id": doc_id}, target_database=self.db_name) or {}
+        old_data = existing.get("data")
+        old_version = int(existing.get("version", 0))
+
+        # bump version only if data changed
+        if old_data is None or old_data != doc.get("data"):
+            new_version = old_version + 1
+        else:
+            new_version = old_version or 1
+
+        doc["version"] = new_version
+        doc["updated_at"] = _now()
+
+        update_record(self.coll, doc, {"_id": doc_id}, target_database=self.db_name)
+        self.log.info("RoutingStore: saved %s (version=%s)" % (doc_id, new_version))
+
+    # ---------- cache helpers ----------
+
+    def _get_cached(self, doc_id):
+        entry = self._cache.get(doc_id)
+        if not entry:
+            return None
+        loaded_at = entry.get("loaded_at", 0)
+        now_ms = _millis(_now())
+        if now_ms - loaded_at > (self.ttl_sec * 1000):
+            # expired
+            return None
+        return entry.get("doc")
+
+    def _set_cached(self, doc_id, doc):
+        self._cache[doc_id] = {
+            "doc": doc,
+            "loaded_at": _millis(_now())
+        }
+
+    # ---------- public API ----------
+
+    def get_doc(self, system_name, table_name):
+        """
+        Load a routing doc with TTL-based cache.
+        system_name: 'scan1' or 'consol'
+        table_name:  'scan1_route_table', 'consol_routing', etc.
+        """
+        doc_id = "%s.%s" % (system_name, table_name)
+
+        # try cache
+        cached = self._get_cached(doc_id)
+        if cached is not None:
+            return cached
+
+        # load fresh
+        doc = self._load_from_db(doc_id)
+        if doc:
+            self._set_cached(doc_id, doc)
+        return doc
+
+    def get_data(self, system_name, table_name):
+        """
+        Convenience: returns just the 'data' blob or {}.
+        """
+        doc = self.get_doc(system_name, table_name) or {}
+        return doc.get("data") or {}
+
+    def save_doc(self, doc):
+        """
+        Save + bump version + refresh cache.
+        """
+        self._save_to_db(doc)
+        doc_id = doc.get("_id")
+        if doc_id:
+            self._set_cached(doc_id, doc)
+
+    # ---------- poll-based external change detection ----------
+
+    def poll_refresh(self, system_name, table_name):
+        """
+        Check if the Mongo document changed compared to the cached copy.
+        If different -> update cache + loaded_at and return True.
+        If same or no cached copy ->
+            - if no cached copy, cache it and return True
+            - if same, do nothing and return False.
+
+        Intended to be called periodically by polling/scheduler code.
+        """
+        doc_id = "%s.%s" % (system_name, table_name)
+
+        # current cached doc (may be None, even if _cache has expired entry)
+        cached_entry = self._cache.get(doc_id)
+        cached_doc = cached_entry.get("doc") if cached_entry else None
+        cached_version = cached_doc.get("version") if cached_doc else None
+        cached_data = cached_doc.get("data") if cached_doc else None
+
+        # always hit DB here (explicit poll)
+        fresh = self._load_from_db(doc_id)
+        if not fresh:
+            # nothing in DB; don't alter cache
+            self.log.warn("Doc:%s not persisted in db" % doc_id)
+            return False
+
+        fresh_version = fresh.get("version")
+        fresh_data = fresh.get("data")
+
+         # If we had no cached doc at all, cache it now
+        if cached_doc is None:
+            self._set_cached(doc_id, fresh)
+            self.log.info("RoutingStore: cached %s via poll_refresh (no previous cache)" % doc_id)
+            return True   
+
+        changed = False
+        # Prefer version comparison when present
+        if fresh_version is not None and cached_version is not None:
+            if fresh_version != cached_version:
+                changed = True
+        else:
+            # fall back to data comparison
+            if fresh_data != cached_data:
+                changed = True
+
+        if changed:
+            self._set_cached(doc_id, fresh)
+            self.log.info(
+                "RoutingStore: refreshed %s via poll_refresh (version %r -> %r)"
+                % (doc_id, cached_version, fresh_version)
+            )
+            return True
+
+        return False

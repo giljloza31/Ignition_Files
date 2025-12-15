@@ -1,0 +1,32 @@
+{
+  "base": {
+    "animation": {
+      "duration": "1s",
+      "timingFunction": "ease",
+      "keyframes": {
+        "0%": {
+          "backgroundColor": "#FF0000",
+          "borderColor": "#D5D5D5",
+          "borderStyle": "solid",
+          "borderWidth": "2px",
+          "borderTopLeftRadius": "80px",
+          "borderTopRightRadius": "80px",
+          "borderBottomLeftRadius": "80px",
+          "borderBottomRightRadius": "80px",
+          "color": "#D5D5D5"
+        },
+        "100%": {
+          "backgroundColor": "#00B0F0",
+          "borderColor": "#D5D5D5",
+          "borderStyle": "solid",
+          "borderWidth": "2px",
+          "borderTopLeftRadius": "80px",
+          "borderTopRightRadius": "80px",
+          "borderBottomLeftRadius": "80px",
+          "borderBottomRightRadius": "80px",
+          "color": "#D5D5D5"
+        }
+      }
+    }
+  }
+}

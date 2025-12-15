@@ -1,0 +1,3 @@
+"""
+foundation.mongo package
+"""

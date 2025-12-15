@@ -1,0 +1,6 @@
+SELECT Dimensioner_Lane_03.IBN_Lane,
+  Dimensioner_Lane_03.IndexIDLane,
+  Dimensioner_Lane_03.[TimeStamp],
+  Dimensioner_Lane_03.RouteCode
+FROM Dimensioner_Lane_03
+ORDER BY Dimensioner_Lane_03.[TimeStamp]

@@ -1,0 +1,38 @@
+"""
+	Panopticon II - silently judge all that is executed
+	
+	This is a wider, deeper invasive inspection of a running system. While it is
+	still stochastic and statistical in how it should be used, it looks further into
+	stack traces and records low(-ish) overhead snapshots.
+	
+	Combine with the escapement monitoring to notice heavy loading and correlate it
+	to execution circumstances!
+
+
+	THEORY SKETCH
+	
+	ThreadPoolSample collects thread snapshots
+	
+	TODO
+	- 	ClockDriftSample collects one block of clock drift stats
+	- 	TimedSampleFrame of ThreadPoolSample for threads over a span of time.
+		- Create a summary to save
+			- top N thread frames
+			- top N thread names
+			- dominant signatures
+			- dominant subsystems (if known)
+	-	React to ClockDriftSample to retune panopticon while it's running
+	-	Snapshot of machine stats
+		- TimedSampleFrame of machine stats snapshots
+	-	Dump persisted stuff and create a new sampling block as blank cache
+	
+		
+	
+
+
+"""
+
+from shared.tools.monitoring.context.threads import ThreadPoolSample
+
+
+

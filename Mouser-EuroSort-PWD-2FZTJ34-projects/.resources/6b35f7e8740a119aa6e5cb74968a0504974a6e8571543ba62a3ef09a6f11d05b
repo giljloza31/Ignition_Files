@@ -1,0 +1,335 @@
+"""
+	Fulfill Wishes!
+
+	Cachable requests that can time out. 
+	Like a completable future, but just Python wrappers with messages.
+	
+	Note that this uses messages to callback - it's assumed the wish
+	is fulfilled and gone after any of success, failure, timeout, or cancel.
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+
+from shared.tools.global import ExtraGlobal
+from shared.data.types.adhoc import AdHocObject
+from shared.data.types.enum import Enum
+
+from shared.data.messaging import Message, Request
+
+import datetime
+
+
+class FulfillmentSignals(Enum):
+	CREATE  = 'creaet'  # initial (optional) signal on init
+	SUCCESS = 'success' # clear after done with side effects
+	FAILURE = 'failure' # clear after fail with side effects
+	TIMEOUT = 'timeout' # clear after time with side effects
+	CANCEL  = 'cancel'  # clear with no effects
+	NOTIFY  = 'notify'  # nop with side effect
+
+
+
+class MetaWishFulfillment(type):
+
+	DEFAULT_CACHE_SCOPE = 'Wishes'
+
+	def __getitem__(cls, identifier):
+		scope = None
+		label = None
+		method = None
+		if isinstance(identifier, slice):
+			scope = identifier.start
+			label = identifier.stop
+			#if scope == Ellipsis: # TODO: scan over all scopes for a particular thing
+			#	scope = None
+			method  = identifier.step
+		elif isinstance(identifier, tuple):
+			assert 2 <= len(identifier) < 3, 'Fulfillment targetting must provide at least a project and handler name, plus optionally a signal state to resolve'
+			scope = identifier[0]
+			label = identifier[1]
+			if len(identifier) == 3:
+				method = identifier[2]
+		elif isinstance(identifier, str):
+			scope = identifier
+		else:
+			raise ValueError("Not sure how to resolve this fulfillment instance: %r" % (identifier,))
+		
+		scope = scope or cls.DEFAULT_CACHE_SCOPE
+		if label:
+			#assert label, "A label must be provided for cache lookup of a fulfillment. Got instead: %r" % (identifier,)
+			fulfillment = cls.get(label, scope)
+			if method:
+				fulfillment.signal(method)
+			else:
+				return fulfillment 
+		# return iterator of things
+		else:
+			return (
+				cls.get(label, scope)
+				for label 
+				 in ExtraGlobal.iterkeys(scope)
+				)
+
+
+	def get(cls, label, scope=None):
+		try:
+			fulfillment = ExtraGlobal.access(label, scope or cls.DEFAULT_CACHE_SCOPE)
+			assert isinstance(fulfillment, cls), 'Cache contamination - object not type expected: %r' % (fulfillment,)
+			return fulfillment
+		except KeyError:
+			raise KeyError('Fulfillment not cached: %s in %s' % (label, scope,))
+
+
+
+class WishFulfillment(object):
+	"""Placeholder for something that may need multiple uncoordinated async 
+	updates and requests.
+	
+	Message types to configure:
+		 - success - signal this to close out and notify it fulfilled correctly!
+		 - failure - signal this to close out and notify fulfillment didn't work
+		 - timeout - signal this to close out and notify that the cache nuked it
+		 - updates - signal this to broadcast current state, but no side effects
+		 - cancel  - signal to close with no side effects or notifications
+	"""
+	
+	__metaclass__ = MetaWishFulfillment
+	
+	__slots__ = [
+		'label', 'scope', 'lifespan', 
+		'_completion_lingering', 'lingering_delay',
+		'_session', 'include_session_data', 'timeout_retries_remaining', 
+		'_success_message', '_failure_message', '_timeout_request',
+		'_updates_message',
+	]
+
+	DEFAULT_REQUEST_TIMEOUT = 60
+	TIMEOUT_RETRIES = 0
+
+	DEFAULT_LINGERING_DELAY = 4 # seconds
+
+
+	def __init__(self, label, scope=None, 
+		
+			# message callback definitions
+			success=None,
+			failure=None,
+			timeout=None, timeout_retries=0, lifespan=None, #seconds
+						  					 lingering_delay=None, # seconds
+			
+			# message callback for notify requests
+			updates=None,
+			
+			# send the fulfillment's payload in replies
+			include_session_data=False,
+			**session_data):
+		
+		if not any([success, failure, timeout]):
+			raise TypeError("Be sure to set a message to be sent on success, failure, or timeout. Otherwise, what's the point?")
+		
+		self._success_message = Message(**success) if success else None
+		self._failure_message = Message(**failure) if failure else None
+		self._timeout_request = Request(**timeout) if timeout else None
+		self._updates_message = Message(**updates) if updates else None
+		
+		self.include_session_data = include_session_data
+		self.session = AdHocObject()
+		self.session.update(session_data)
+		
+		# cache details
+		self.label = label
+		self.scope = scope or type(self).DEFAULT_CACHE_SCOPE
+		
+		self.lifespan = lifespan or self.DEFAULT_REQUEST_TIMEOUT
+		self.timeout_retries_remaining = timeout_retries or self.TIMEOUT_RETRIES
+		
+		# mark the entry as complete, but lingering
+		self.lingering_delay = lingering_delay or self.DEFAULT_LINGERING_DELAY
+		self._completion_lingering = False
+		
+		self._stash()
+
+
+	# cache mechanics
+	
+	def _stash(self):
+		Logger().trace('Adding to cache: {self!r}')
+		ExtraGlobal.stash(self, label=self.label, scope=self.scope, 
+						  lifespan=self.lifespan, 
+						  callback=self.timeout,
+						 )
+	
+	def _trash(self, cause=None):
+		if not self.lingering:
+			if cause is None:
+				Logger().warn('Lingering triggered with no cause: {self!r}')
+			self.lingering = cause or True # latch on
+			if self.lingering_delay:
+				Logger().trace('Lingering for {delay}. Pending removal from cache: {self!r}', delay = self.lingering_delay)
+				ExtraGlobal.stash(self, label=self.label, scope=self.scope, 
+										  lifespan=self.lingering_delay, 
+										  callback=self.lingering_timeout,
+										 )
+			else:
+				Logger().trace('Immediately dropping from cache: {self!r}')
+				ExtraGlobal.trash(label=self.label, scope=self.scope)
+		else:
+			pass # lingering timeout will take care of cleanup
+		#ExtraGlobal.trash(label=self.label, scope=self.scope)
+
+	def lingering_timeout(self):
+		Logger().trace('Lingering complete. Removing from cache: {self!r}')
+		ExtraGlobal.trash(label=self.label, scope=self.scope)
+
+
+	@property
+	def lingering(self):
+		return bool(self._completion_lingering)
+	
+	@lingering.setter
+	def lingering(self, new_state):
+		if new_state and self._completion_lingering:
+			return # no changes - this latches read only
+		if not new_state:
+			raise ValueError('Can not change completion lingering after completion: %r attempted on %r' % (new_state, self,))
+		self._completion_lingering = new_state 
+		# consider making this a timestamp?
+		# EDIT: or instead we'll use it to mark what was done
+
+	@property
+	def completed(self):
+		return self.lingering
+	
+	def __bool__(self):
+		return bool(self.completed)
+	
+	def __int__(self):
+		return self.__bool__()
+
+
+	# essentially session properties for the wish
+	# to work with while awaiting fulfillment
+	
+	@property
+	def session(self):
+		return self._session
+	
+	@session.setter
+	def session(self, new_session_data):
+		self._session = AdHocObject(new_session_data)
+
+
+	# operations
+	
+	def signal(self, method):
+		assert method in FulfillmentSignals, "Can only reference methods for fulfillment signals in __getitem__. Got %r" % (method,)
+		getattr(self, method)()
+
+	def cancel(self):
+		"""Simply remove this, unfulfilled."""
+		Logger().debug('Cancelling {self!r}')
+		if self.completed:
+			if self.completed == 'cancel' or self.completed is True:
+				return # silently pass the redundant signal
+			raise RuntimeError('Already completed as %r: cannot fire cancel on %r' % (self.completed, self,))
+		self._trash(cause='cancel')
+
+
+	def success(self):
+		"""Fire completion notification message, iff callback configured"""
+		Logger().debug('Success signaled for {self!r}')
+		if self.completed:
+			if self.completed == 'success' or self.completed is True:
+				return # silently pass the redundant signal
+			raise RuntimeError('Already completed as %r: cannot fire success on %r' % (self.completed, self,))
+		if not self._success_message:
+			return # NOP
+		self.session.last_notification = datetime.datetime.now().isoformat(' ')
+		try:
+			if self.include_session_data:
+				self._success_message.payload.update(self.session)
+			self._success_message.send()
+		except Exception as error:
+			Logger().error('Success failed for {self!r}: {error}')
+		finally:
+			self._trash(cause='success')
+
+
+	def failure(self):
+		"""Fire error notification message, iff callback configured"""
+		Logger().debug('Failure signaled for {self!r}')
+		if self.completed:
+			if self.completed == 'failure' or self.completed is True:
+				return # silently pass the redundant signal
+			raise RuntimeError('Already completed as %r: cannot fire failure on %r' % (self.completed, self,))
+		if not self._failure_message:
+			return # NOP
+		self.session.last_notification = datetime.datetime.now().isoformat(' ')
+		try:
+			if self.include_session_data:
+				self._failure_message.payload.update(self.session)
+			self._failure_message.send()
+		except Exception as error:
+			Logger().error('Failure failed for {self!r}: {error}')
+		finally:
+			self._trash(cause='failure')
+
+
+	def timeout(self):
+		"""Fire oops-didn't-complete-in-time notification, iff callback configured"""
+		# until we run out of retries, return self to refresh the entry in ExtraGlobal
+		Logger().trace('Checking to time out {self!r}')
+		if not self._timeout_request:
+			return # NOP
+		self.session.last_notification = datetime.datetime.now().isoformat(' ')
+		
+		try:
+			if self.include_session_data:
+				self._timeout_request.payload.update(self.session)
+			
+			# give the cache a chance to renew and avoid dropping the cache
+			should_renew = self._timeout_request.send()
+			
+			if should_renew:
+				Logger().trace('Timeout extending for another round for {self!r}')
+				self.timeout_retries_remaining += 1
+				
+			if self.timeout_retries_remaining:
+				self.timeout_retries_remaining -= 1
+				#Logger().trace('Timeout retries remaining: {retries} for {self!r}', 
+				#			   retries = self.timeout_retries_remaining)
+				return self
+			else:
+				Logger().warn('Timeout triggered for {self!r}')
+				self._trash(cause='timeout')
+				return None # signal to ExtraGlobal that it expired
+		except Exception as error:
+			Logger().error('Timeout failed for {self!r}: {error}')
+			self._trash(cause='error')
+			return None
+		finally:
+			#self._trash() # make sure it's gone - don't just return None
+			#return None # AHCKTUALLY - do return None so that the cache works.- ARG
+			# DOUBLE ACTUALLY: Let the request decide!
+			pass 
+			# NOTE: `_trash(cause='timeout')` shuold be called by the time
+			#       the finally clause happens here, leading to `return None`
+
+
+	def notify(self):
+		#Logger().trace('Notification request signaled for session data on {self!r}')
+		self.session.last_notification = datetime.datetime.now().isoformat(' ')
+		if not self._updates_message:
+			return # NOP
+		
+		try:
+			self._updates_message.payload.update(self.session)
+			self._updates_message.send()
+		except Exception as error:
+			Logger().error('Notify failed for {self!r}: {error}')
+		finally:
+			pass # notify or not, do nothing, it's just a notice after all
+
+
+	def __repr__(self):
+		return '<Wish %s: %s>' % (self.scope, self.label,)

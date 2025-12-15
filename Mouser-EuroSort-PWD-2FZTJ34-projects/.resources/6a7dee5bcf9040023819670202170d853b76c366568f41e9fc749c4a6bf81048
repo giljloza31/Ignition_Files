@@ -1,0 +1,699 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 725,
+      "width": 534
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 257,
+          "width": 531
+        },
+        "props": {
+          "alignVertical": "top",
+          "style": {
+            "borderStyle": "solid"
+          },
+          "text": "Create CSV",
+          "textStyle": {
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "FilePath_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 336,
+          "x": 179.5,
+          "y": 38
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/FilePath"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "PLCCSV_filename_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 231,
+          "x": 284.5,
+          "y": 75
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/FileName"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "PLCName_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 231,
+          "x": 284.5,
+          "y": 112
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/PLCNAME"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "TextField_2"
+        },
+        "position": {
+          "height": 32,
+          "width": 231,
+          "x": 284.5,
+          "y": 149
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/SimFileName"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "FilePath"
+        },
+        "position": {
+          "height": 32,
+          "width": 125,
+          "x": 45,
+          "y": 38
+        },
+        "props": {
+          "text": "Enter FilePath:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PLC CSV Filename"
+        },
+        "position": {
+          "height": 32,
+          "width": 198,
+          "x": 83,
+          "y": 75
+        },
+        "props": {
+          "text": "Enter PLC CSV Filename:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PLC Name"
+        },
+        "position": {
+          "height": 32,
+          "width": 198,
+          "x": 86.5,
+          "y": 112
+        },
+        "props": {
+          "text": "Enter PLC name:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PLC Name_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 198,
+          "x": 86.5,
+          "y": 149
+        },
+        "props": {
+          "text": "Enter Sim Filename:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "    import threading\n    \n    tagPaths \u003d [\u0027[Mouser]CSV_Create/CSV_Create/Execute_CSV\u0027]\n    system.tag.writeBlocking(tagPaths, [1])\n    threading.Timer(1, system.tag.writeBlocking, [tagPaths, [0]]).start()\n\t\n\t\n\t\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 104,
+          "x": 215,
+          "y": 197
+        },
+        "props": {
+          "text": "Create CSV"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 389,
+          "width": 531,
+          "y": 257
+        },
+        "props": {
+          "alignVertical": "top",
+          "style": {
+            "borderStyle": "solid"
+          },
+          "text": "Create UDT",
+          "textStyle": {
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "FilePath_1_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 337,
+          "x": 178.5,
+          "y": 303
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/FilePath"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "Simfile_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 231,
+          "x": 284.5,
+          "y": 340
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/SimFileName"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "PLCName_1_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 231,
+          "x": 284.5,
+          "y": 377
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/PLCNAME"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "ServerName_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 231,
+          "x": 284.5,
+          "y": 414
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/ServerName"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "Tilname_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 231,
+          "x": 284.5,
+          "y": 451
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/TilName"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "FilePath_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 125,
+          "x": 45,
+          "y": 303
+        },
+        "props": {
+          "text": "Enter FilePath:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PLC Name_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 198,
+          "x": 86.5,
+          "y": 377
+        },
+        "props": {
+          "text": "Enter PLC name:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PLC Name_2"
+        },
+        "position": {
+          "height": 32,
+          "width": 198,
+          "x": 86,
+          "y": 340
+        },
+        "props": {
+          "text": "Enter Sim Filename:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PLC Name_3"
+        },
+        "position": {
+          "height": 32,
+          "width": 198,
+          "x": 86,
+          "y": 414
+        },
+        "props": {
+          "text": "Enter Server name:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PLC Name_4"
+        },
+        "position": {
+          "height": 32,
+          "width": 198,
+          "x": 86.5,
+          "y": 451
+        },
+        "props": {
+          "text": "Enter TIL name:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "    import threading\n    \n    tagPaths \u003d [\u0027[Mouser]CSV_Create/CSV_Create/Execute_PE_UDT\u0027]\n    system.tag.writeBlocking(tagPaths, [1])\n    threading.Timer(1, system.tag.writeBlocking, [tagPaths, [0]]).start()\n\t\n\t\n\t\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 113,
+          "x": 147,
+          "y": 592
+        },
+        "props": {
+          "text": "Create PE UDT"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "    import threading\n    \n    tagPaths \u003d [\u0027[Mouser]CSV_Create/CSV_Create/Execute_Conv_UDT\u0027]\n    system.tag.writeBlocking(tagPaths, [1])\n    threading.Timer(1, system.tag.writeBlocking, [tagPaths, [0]]).start()\n\t\n\t\n\t\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_1"
+        },
+        "position": {
+          "height": 34,
+          "width": 133,
+          "x": 267,
+          "y": 592
+        },
+        "props": {
+          "text": "Create Conv UDT"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "PLC Name_5"
+        },
+        "position": {
+          "height": 32,
+          "width": 198,
+          "x": 86.5,
+          "y": 490
+        },
+        "props": {
+          "text": "Enter Alarm Area name:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "AlarmArea_Name"
+        },
+        "position": {
+          "height": 32,
+          "width": 231,
+          "x": 284.5,
+          "y": 490
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/AlarmLocation"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tself.getSibling(\"FilePath_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"PLCCSV_filename_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"PLCName_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"TextField_2\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"FilePath_1_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"Simfile_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"PLCName_1_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"ServerName_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"Tilname_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"OPC_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"AlarmArea_Name\").props.text \u003d \u0027\u0027"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_2"
+        },
+        "position": {
+          "height": 34,
+          "width": 104,
+          "x": 213,
+          "y": 671
+        },
+        "props": {
+          "text": "Reset All"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "PLC Name_6"
+        },
+        "position": {
+          "height": 32,
+          "width": 198,
+          "x": 86.5,
+          "y": 530
+        },
+        "props": {
+          "text": "Enter OPC name:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OPC_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 231,
+          "x": 284.5,
+          "y": 530
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]CSV_Create/CSV_Create/Parameters.OPCPATH"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": 161,
+      "y": 760
+    },
+    "type": "ia.container.coord"
+  }
+}

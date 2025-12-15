@@ -1,0 +1,464 @@
+{
+  "custom": {},
+  "params": {
+    "Barcode": "R123456",
+    "IndexID": 101,
+    "Induct_Count": 1,
+    "Lane_Assignment": "Lane_01",
+    "Multi_Count": 0,
+    "NoData_Count": 0,
+    "NoDest_Count": 0,
+    "NoRead_Count": 0,
+    "NoRoute_Count": 0,
+    "Route_Returned": "AU"
+  },
+  "propConfig": {
+    "params.Barcode": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.IndexID": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Induct_Count": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Lane_Assignment": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Multi_Count": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.NoData_Count": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.NoDest_Count": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.NoRead_Count": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.NoRoute_Count": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Route_Returned": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 82,
+      "width": 212
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "NoRoute_Count"
+        },
+        "position": {
+          "height": 16.629999999999995,
+          "width": 35.870000000000005,
+          "x": 137.2,
+          "y": 34.9
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.NoRoute_Count"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Induct_Count"
+        },
+        "position": {
+          "height": 16.620000000000005,
+          "width": 34.110000000000014,
+          "x": 3.225,
+          "y": 34.9
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Induct_Count"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "NoRead_Count"
+        },
+        "position": {
+          "height": 16.620000000000005,
+          "width": 34.10000000000002,
+          "x": 36.2,
+          "y": 34.9
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.NoRead_Count"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "NoData_Count"
+        },
+        "position": {
+          "height": 16.620000000000005,
+          "width": 34.099999999999966,
+          "x": 69.2,
+          "y": 34.9
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.NoData_Count"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Multi_Count"
+        },
+        "position": {
+          "height": 16.620000000000005,
+          "width": 35.870000000000005,
+          "x": 102.2,
+          "y": 34.9
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Multi_Count"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Route"
+        },
+        "position": {
+          "height": 15.999999999999996,
+          "width": 80,
+          "x": 3.23,
+          "y": 18.73
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Route_Returned"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane_Assignment"
+        },
+        "position": {
+          "height": 16.999999999999996,
+          "width": 124.99999999999999,
+          "x": 82.98,
+          "y": 18.73
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Lane_Assignment"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "IndexID"
+        },
+        "position": {
+          "height": 16.629999999999995,
+          "width": 37.05000000000001,
+          "x": 3.225,
+          "y": 2.612
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.IndexID"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#07A2EB",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Barcode"
+        },
+        "position": {
+          "height": 16.629999999999995,
+          "width": 168,
+          "x": 39.98,
+          "y": 2.61
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Barcode"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "NoDest_Count",
+          "tooltip": {
+            "enabled": true,
+            "text": "hghgh"
+          }
+        },
+        "position": {
+          "height": 16.629999999999995,
+          "width": 35.870000000000005,
+          "x": 172.2,
+          "y": 34.9
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.NoDest_Count"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid"
+          },
+          "textStyle": {
+            "color": "#180404",
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "ReadRate_Label"
+        },
+        "position": {
+          "height": 23.000000000000007,
+          "width": 96,
+          "x": 12.63,
+          "y": 51.9
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#8AFFFF",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "text": "ReadRate%",
+          "textStyle": {
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "ReadRate_Percentage"
+        },
+        "position": {
+          "height": 23.000000000000007,
+          "width": 88,
+          "x": 108.6,
+          "y": 51.9
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "if({view.params.Induct_Count}\u003d0, \u00270%\u0027,(100.0-({view.params.NoRead_Count}/{view.params.Induct_Count})*100)+\u0027%\u0027)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

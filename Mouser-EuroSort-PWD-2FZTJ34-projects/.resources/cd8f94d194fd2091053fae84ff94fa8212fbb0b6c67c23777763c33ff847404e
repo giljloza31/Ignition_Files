@@ -1,0 +1,558 @@
+# shared/es_platform/domain/state_store.py
+
+from shared.foundation.time import clock
+from shared.es_platform.domain.shift import ShiftResolver
+
+
+class StateStore(object):
+	"""
+	StateStore = "single source of truth" for runtime sorter state.
+
+	Design:
+	- Mongo persistence (survives gateway restart)
+	- In-memory cache for speed (optional)
+	- Cache resets by *period* (day or shift) using ShiftResolver
+		- Option A (recommended): hot-path methods call ensure_period_cache()
+
+	Collections (default):
+	- es_platform_systems
+	- es_platform_carriers
+	- es_platform_chutes
+	- es_platform_events (optional, lightweight breadcrumbs)
+	"""
+
+	COL_SYSTEMS = "es_platform_systems"
+	COL_CARRIERS = "es_platform_carriers"
+	COL_CHUTES = "es_platform_chutes"
+	COL_EVENTS = "es_platform_events"
+
+	def __init__(self, systemCode, mongo, site_tz_id="UTC", enable_cache=True, logger=None, shift_config=None):
+		self.systemCode = str(systemCode)
+		self.mongo = mongo
+		self.site_tz_id = site_tz_id
+		self.enable_cache = bool(enable_cache)
+		self.logger = logger
+
+		# Shift/day period resolver (controls cache reset cadence)
+		self.shift_resolver = ShiftResolver(site_tz_id=self.site_tz_id, config=shift_config or {}, logger=logger)
+		self._cache_period_key = None
+
+		self._carriers = {}	# carrierId(int) -> doc
+		self._chutes = {}	# chuteId(str DST-...) -> doc
+		self._system = None
+
+	def _log(self, msg, payload=None, level="info"):
+		if self.logger:
+			try:
+				fn = getattr(self.logger, level, None)
+				if fn:
+					fn(msg, payload)
+					return
+			except:
+				pass
+		try:
+			print("%s %s" % (msg, payload if payload is not None else ""))
+		except:
+			pass
+
+	# ----------------------------
+	# Cache period control (Option A: called from hot paths)
+	# ----------------------------
+
+	def cache_status(self):
+		return {
+			"enabled": self.enable_cache,
+			"cache_period_key": self._cache_period_key,
+			"carriers_cached": len(self._carriers or {}),
+			"chutes_cached": len(self._chutes or {}),
+		}
+
+	def clear_cache(self, reason="manual"):
+		"""
+		Clears in-memory only. Does NOT delete Mongo.
+		"""
+		self._carriers = {}
+		self._chutes = {}
+		self._system = None
+		self._cache_period_key = None
+		self._log("StateStore.clear_cache", {"systemCode": self.systemCode, "reason": reason})
+		return {"ok": True, "cleared": True, "reason": reason}
+
+	def ensure_period_cache(self, hydrate=True, force=False):
+		"""
+		Ensures in-memory cache belongs to the current period key.
+
+		Period key sources:
+		- mode="day":   YYYYMMDD
+		- mode="hours": YYYYMMDD-DAY / YYYYMMDD-NIGHT / etc
+		- mode="tag":   YYYYMMDD-<tagValue> (recommended; schedule drives tag)
+
+		If key changes: clears cache and (optionally) hydrates from Mongo.
+		"""
+		if not self.enable_cache:
+			return {"ok": True, "cache": "disabled"}
+
+		key = self.shift_resolver.period_key()
+		if key is None:
+			return {"ok": True, "cache": "unknown_period_key"}
+
+		current = self._cache_period_key
+		needs_reset = force or (current != key) or (not self._carriers and not self._chutes)
+
+		if not needs_reset:
+			return {"ok": True, "cache": "ok", "cache_period_key": current}
+
+		self.clear_cache(reason="period_change" if current and current != key else "init_or_force")
+		self._cache_period_key = key
+
+		if hydrate:
+			h = self.hydrate_from_mongo()
+			h["cache_period_key"] = key
+			return h
+
+		return {"ok": True, "cache": "reset_no_hydrate", "cache_period_key": key}
+
+	# ----------------------------
+	# Initialization
+	# ----------------------------
+
+	def initialize(self, params, layout=None, hydrate_cache=True, force=False):
+		"""
+		Idempotent initialize(): safe to re-run anytime.
+
+		params (dict) example:
+		{
+			"num_of_carriers": 142,
+			"multi_lvl": True,				# True => lower+upper (1/2)
+			"sides": ["A","B"],				# sides present
+			"div": 1,						# 0=rear only, 1=rear/front, 2=rear/mid/front
+			"gate": True,					# include gate chutes (dest='G')
+			"release_type": "manual",		# metadata
+			"stations": 35,					# optional generator input
+			"chutes_per_station": 1,		# optional generator input (often 1)
+			"station_start": 1,				# optional generator input
+			"system_version": 1,			# optional
+			"device_id": 19,				# optional main device id for this machine
+		}
+
+		layout (optional dict):
+		{
+			"chutes": [ "DST-0001-1-1-A", ... ]		# explicit list if you already have a map
+		}
+
+		force:
+		- if False: create missing docs / update schema fields, but preserve runtime keys
+		- if True: reset carrier/chute docs to baseline (dangerous)
+		"""
+		p = dict(params or {})
+		ts = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		num_carriers = int(p.get("num_of_carriers") or 0)
+		if num_carriers <= 0:
+			raise ValueError("initialize requires params['num_of_carriers'] > 0")
+
+		system_version = int(p.get("system_version") or 1)
+
+		# 1) Upsert system doc
+		sys_doc = self._build_system_doc(p, ts, system_version)
+		self._upsert_system(sys_doc, force=force)
+
+		# 2) Determine chute IDs
+		chute_ids = self._resolve_chute_ids(p, layout)
+
+		# 3) Upsert carriers
+		self._upsert_carriers(num_carriers, ts, force=force)
+
+		# 4) Upsert chutes
+		self._upsert_chutes(chute_ids, ts, force=force)
+
+		# 5) Hydrate cache
+		if hydrate_cache and self.enable_cache:
+			# Ensure period key exists then hydrate
+			self.ensure_period_cache(hydrate=False, force=True)
+			self.hydrate_from_mongo()
+
+		return {
+			"ok": True,
+			"systemCode": self.systemCode,
+			"num_carriers": num_carriers,
+			"num_chutes": len(chute_ids),
+			"cache_enabled": self.enable_cache,
+			"cache_period_key": self._cache_period_key,
+			"hydrated": bool(hydrate_cache and self.enable_cache),
+			"ts": ts
+		}
+
+	def _build_system_doc(self, params, ts, system_version):
+		return {
+			"_id": self.systemCode,
+			"systemCode": self.systemCode,
+			"entityClass": "SORTER_SYSTEM",
+			"system_version": system_version,
+
+			"device_id": params.get("device_id"),
+			"params": params,
+
+			"createdAtUtc": ts.get("tsUtc"),
+			"createdAtLocal": ts.get("tsLocal"),
+			"createdAtEpoch": ts.get("tsEpoch"),
+			"tzId": ts.get("tzId"),
+
+			"updatedAtEpoch": ts.get("tsEpoch"),
+		}
+
+	def _resolve_chute_ids(self, params, layout):
+		# If explicit chutes provided, trust them
+		if isinstance(layout, dict):
+			explicit = layout.get("chutes")
+			if isinstance(explicit, (list, tuple)) and explicit:
+				return [str(x) for x in explicit]
+
+		# Otherwise generate generic DST ids based on params
+		sides = params.get("sides") or ["A", "B"]
+		sides = [str(s) for s in sides]
+
+		multi_lvl = bool(params.get("multi_lvl"))
+		div = int(params.get("div") or 0)
+		gate = bool(params.get("gate"))
+
+		# station/chute generator inputs
+		stations = int(params.get("stations") or 0)
+		chutes_per_station = int(params.get("chutes_per_station") or 1)
+		station_start = int(params.get("station_start") or 1)
+
+		if stations <= 0:
+			self._log("StateStore.initialize: no stations provided; chute list empty (provide layout['chutes'] or params['stations'])", params, level="warn")
+			return []
+
+		levels = ["1", "2"] if multi_lvl else ["1"]
+		dests = []
+		if div == 0:
+			dests = ["1"]					# REAR only
+		elif div == 1:
+			dests = ["1", "2"]				# REAR, FRONT
+		else:
+			dests = ["1", "3", "2"]			# REAR, MID, FRONT
+
+		if gate:
+			dests = list(dests) + ["G"]
+
+		out = []
+		for i in range(station_start, station_start + stations):
+			station = _z4(i)
+			for chute_num in range(1, chutes_per_station + 1):
+				chute = str(chute_num)
+				for lvl in levels:
+					for dest in dests:
+						for side in sides:
+							# NOTE: your DST format in other code is DST-<station>-<chute>-<dest>-<side>
+							# Here lvl is used as "chute" (1=lower,2=upper) based on your earlier enums.
+							out.append("DST-%s-%s-%s-%s" % (station, lvl, dest, side))
+
+		return out
+
+	def _upsert_system(self, sys_doc, force=False):
+		existing = self.mongo.find_one(self.COL_SYSTEMS, {"_id": self.systemCode})
+		if existing and not force:
+			for k in ("createdAtUtc", "createdAtLocal", "createdAtEpoch", "tzId"):
+				if k in existing and existing.get(k) is not None:
+					sys_doc[k] = existing.get(k)
+
+		self.mongo.update_one(self.COL_SYSTEMS, {"_id": self.systemCode}, {"$set": sys_doc}, upsert=True)
+		self._system = sys_doc
+
+	def _upsert_carriers(self, num_carriers, ts, force=False):
+		for cid in range(1, num_carriers + 1):
+			doc = self._build_carrier_doc(cid, ts)
+
+			if not force:
+				ex = self.mongo.find_one(self.COL_CARRIERS, {"_id": self._carrier_pk(cid)})
+				if ex:
+					doc = self._merge_preserve(ex, doc, preserve_keys=[
+						"recircCount",
+						"attemptedDeliveryCount",
+						"lastSeenAtEpoch",
+						"lastLocation",
+						"currentPhase",
+						"assignedDest",
+						"inductionDevice",
+					])
+
+			self.mongo.update_one(self.COL_CARRIERS, {"_id": doc["_id"]}, {"$set": doc}, upsert=True)
+
+	def _upsert_chutes(self, chute_ids, ts, force=False):
+		for chuteId in (chute_ids or []):
+			doc = self._build_chute_doc(chuteId, ts)
+
+			if not force:
+				ex = self.mongo.find_one(self.COL_CHUTES, {"_id": self._chute_pk(chuteId)})
+				if ex:
+					doc = self._merge_preserve(ex, doc, preserve_keys=[
+						"enabled",
+						"faulted",
+						"occupied",
+						"occupancyCount",
+						"assignedName",
+						"assignedMode",
+						"lastCarrierId",
+						"lastIbn",
+						"lastOrder",
+						"lastEventType",
+						"lastEventId",
+						"lastUserId",
+						"lastEventDetails",
+					])
+
+			self.mongo.update_one(self.COL_CHUTES, {"_id": doc["_id"]}, {"$set": doc}, upsert=True)
+
+	def _build_carrier_doc(self, carrierId, ts):
+		return {
+			"_id": self._carrier_pk(carrierId),
+			"systemCode": self.systemCode,
+			"entityClass": "SORTER_CARRIER",
+			"carrierId": int(carrierId),
+
+			# Core lifecycle (initial)
+			"currentPhase": "EMPTY",		# EMPTY, ASSIGNED, AT_DEST, DISCHARGED, ABORTED_*, REASSIGNED, UNKNOWN
+			"assignedDest": None,			# chuteId / destination
+			"inductionDevice": None,		# station/scanner origin (optional)
+
+			# Counters / metrics
+			"recircCount": 0,
+			"attemptedDeliveryCount": 0,
+
+			# Trace
+			"lastLocation": None,
+			"lastSeenAtEpoch": None,
+
+			# Convenience metadata
+			"createdAtUtc": ts.get("tsUtc"),
+			"createdAtLocal": ts.get("tsLocal"),
+			"createdAtEpoch": ts.get("tsEpoch"),
+			"tzId": ts.get("tzId"),
+			"updatedAtEpoch": ts.get("tsEpoch"),
+		}
+
+	def _build_chute_doc(self, chuteId, ts):
+		parsed = parse_dst(chuteId)
+
+		return {
+			"_id": self._chute_pk(chuteId),
+			"systemCode": self.systemCode,
+			"entityClass": "SORTER_CHUTE",
+
+			"chuteId": str(chuteId),
+
+			# Parsed parts (for easy queries)
+			"station": parsed.get("station"),
+			"level": parsed.get("level"),
+			"dest": parsed.get("dest"),
+			"side": parsed.get("side"),
+
+			# State flags
+			"enabled": True,
+			"faulted": False,
+			"occupied": False,
+
+			# Routing metadata
+			"assignedName": None,			# e.g. "PC1" or "ZONE_PC" or "ORDER_123..."
+			"assignedMode": None,			# POST/PRE/UNRESOLVED/etc
+
+			# Trace
+			"lastCarrierId": None,
+			"lastIbn": None,
+			"lastOrder": None,
+
+			# Counters
+			"occupancyCount": 0,
+
+			# Breadcrumbs
+			"lastEventType": None,
+			"lastEventId": None,
+			"lastUserId": None,
+			"lastEventDetails": None,
+
+			"createdAtUtc": ts.get("tsUtc"),
+			"createdAtLocal": ts.get("tsLocal"),
+			"createdAtEpoch": ts.get("tsEpoch"),
+			"tzId": ts.get("tzId"),
+			"updatedAtEpoch": ts.get("tsEpoch"),
+		}
+
+	# ----------------------------
+	# Cache hydration
+	# ----------------------------
+
+	def hydrate_from_mongo(self):
+		"""
+		Load system + carriers + chutes into memory cache.
+		"""
+		if not self.enable_cache:
+			return {"ok": True, "hydrated": False, "reason": "cache_disabled"}
+
+		sys_doc = self.mongo.find_one(self.COL_SYSTEMS, {"_id": self.systemCode})
+		self._system = sys_doc
+
+		carriers = self.mongo.find(self.COL_CARRIERS, {"systemCode": self.systemCode}) or []
+		chutes = self.mongo.find(self.COL_CHUTES, {"systemCode": self.systemCode}) or []
+
+		self._carriers = {}
+		for c in carriers:
+			try:
+				self._carriers[int(c.get("carrierId"))] = c
+			except:
+				pass
+
+		self._chutes = {}
+		for ch in chutes:
+			cid = ch.get("chuteId")
+			if cid:
+				self._chutes[str(cid)] = ch
+
+		return {"ok": True, "hydrated": True, "num_carriers": len(self._carriers), "num_chutes": len(self._chutes)}
+
+	# ----------------------------
+	# Minimal APIs used by CommandHelper today
+	# ----------------------------
+
+	def upsert_carrier(self, carrierId, fields=None, inc=None, on_insert=None):
+		"""
+		Update a carrier doc (idempotent).
+		Option A: ensure_period_cache() is called here (hot-path).
+		"""
+		if self.enable_cache:
+			self.ensure_period_cache(hydrate=True)
+
+		cid = int(carrierId)
+		pk = self._carrier_pk(cid)
+		ts = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		update = {"$set": {"updatedAtEpoch": ts.get("tsEpoch")}}
+		if fields:
+			update["$set"].update(fields)
+		if inc:
+			update["$inc"] = inc
+		if on_insert:
+			update["$setOnInsert"] = on_insert
+
+		self.mongo.update_one(self.COL_CARRIERS, {"_id": pk}, update, upsert=True)
+
+		if self.enable_cache:
+			doc = self.mongo.find_one(self.COL_CARRIERS, {"_id": pk})
+			if doc:
+				self._carriers[cid] = doc
+
+	def chute_mark_event(self, chuteId, eventType, details=None, userId=None, eventId=None):
+		"""
+		Lightweight breadcrumb (not full event history).
+		Option A: ensure_period_cache() is called here (hot-path).
+		"""
+		if self.enable_cache:
+			self.ensure_period_cache(hydrate=True)
+
+		chuteId = str(chuteId)
+		pk = self._chute_pk(chuteId)
+		ts = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		fields = {
+			"lastEventType": str(eventType),
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastEventDetails": details,
+			"updatedAtEpoch": ts.get("tsEpoch"),
+		}
+
+		self.mongo.update_one(self.COL_CHUTES, {"_id": pk}, {"$set": fields}, upsert=True)
+
+		# Optional: append to a small events collection for “recent events”
+		try:
+			ev = {
+				"systemCode": self.systemCode,
+				"entityClass": "CHUTE_EVENT",
+				"chuteId": chuteId,
+				"eventType": str(eventType),
+				"eventId": eventId,
+				"userId": userId,
+				"details": details,
+				"tsEpoch": ts.get("tsEpoch"),
+				"tsLocal": ts.get("tsLocal"),
+				"tsUtc": ts.get("tsUtc"),
+				"tzId": ts.get("tzId"),
+			}
+			self.mongo.insert_one(self.COL_EVENTS, ev)
+		except:
+			pass
+
+		if self.enable_cache:
+			doc = self.mongo.find_one(self.COL_CHUTES, {"_id": pk})
+			if doc:
+				self._chutes[chuteId] = doc
+
+	# ----------------------------
+	# Private helpers
+	# ----------------------------
+
+	def _carrier_pk(self, carrierId):
+		return "%s:CARRIER:%d" % (self.systemCode, int(carrierId))
+
+	def _chute_pk(self, chuteId):
+		return "%s:CHUTE:%s" % (self.systemCode, str(chuteId))
+
+	def _merge_preserve(self, existing, baseline, preserve_keys):
+		"""
+		Keep certain keys from existing if present, while updating baseline schema.
+		"""
+		out = dict(baseline)
+
+		for k in (preserve_keys or []):
+			if k in existing:
+				out[k] = existing.get(k)
+
+		for k in ("createdAtUtc", "createdAtLocal", "createdAtEpoch", "tzId"):
+			if k in existing and existing.get(k) is not None:
+				out[k] = existing.get(k)
+
+		return out
+
+
+def parse_dst(dst):
+	"""
+	Parse "DST-0001-1-1-A" into parts.
+	Returns dict with keys station, level, dest, side.
+	"""
+	s = str(dst or "")
+	out = {"station": None, "level": None, "dest": None, "side": None}
+
+	try:
+		parts = s.split("-")
+		# expected: ["DST","0001","1","1","A"]
+		if len(parts) >= 5 and parts[0] == "DST":
+			out["station"] = parts[1]
+			out["level"] = parts[2]
+			out["dest"] = parts[3]
+			out["side"] = parts[4]
+	except:
+		pass
+
+	return out
+
+
+def _z4(n):
+	n = int(n)
+	s = str(n)
+	while len(s) < 4:
+		s = "0" + s
+	return s
+	
+	
+	
+	
+	
+#	
+#shift_config = {
+#	"mode": "tag",
+#	"tag_path": "[default]ES_Platform/HoursOfOperation/ActiveShift",	# DAY / NIGHT / CLOSED
+#	"prefix_date": True
+#}
+#
+#store = StateStore("MOUSER-ES-C1", mongo, site_tz_id="America/Chicago", enable_cache=True, shift_config=shift_config)

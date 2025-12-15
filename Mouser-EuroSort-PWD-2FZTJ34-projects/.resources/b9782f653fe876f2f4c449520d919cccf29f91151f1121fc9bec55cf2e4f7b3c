@@ -1,0 +1,67 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Body Text"
+        },
+        "position": {
+          "height": 27,
+          "width": 110,
+          "x": 38,
+          "y": 39
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText"
+          },
+          "text": "Body Text"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Title Text - Ver. 1"
+        },
+        "position": {
+          "height": 27,
+          "width": 186,
+          "x": 38,
+          "y": 104
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver1-Bold"
+          },
+          "text": "Title Text - Ver. 1"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Title Text - Ver. 2"
+        },
+        "position": {
+          "height": 27,
+          "width": 186,
+          "x": 38,
+          "y": 163
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver2-Italics"
+          },
+          "text": "Title Text - Ver. 2"
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

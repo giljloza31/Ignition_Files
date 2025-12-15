@@ -1,0 +1,100 @@
+"""Helper functions for routing data
+"""
+from time import sleep
+from random import random
+from datetime import datetime
+from pymongo.mongo_client import MongoClient
+
+import pymongo
+user = "ignitionUser"
+passw = "Adsxd34Ds1e3fsdd23xfcsfdu2w3fdsd23"
+host = "txmongowcs1.mouser.lan"
+replicaSet = "wcsRS1"
+port = "27017"
+mongodb = "ignition"
+uri = "mongodb://{}:{}@{}:{}/{}?authSource={}&tls=true&tlsAllowInvalidCertificates=true".format(user,passw,host,port,mongodb,mongodb)
+
+
+client = MongoClient(uri)
+db=client.ignition
+
+
+def getRouteBitMask(routeCode, routeTable):
+
+	"""Calls the database for the route code given.
+	If code is missing, then it returns 0.
+	Otherwise it returns an integer that is the bit array of lanes chosen
+	
+	See https://gist.github.com/null-directory/0f6b3b434a07c5a8656db04cddca7b0b
+	"""
+	
+	'''
+	selectQuery = """
+		select *
+		from %s
+		where route_code = ?
+		""" % routeTable
+	results = system.db.runPrepQuery(selectQuery, [routeCode], 'MySQL')
+	'''
+	
+	results = shared.pwd.mongoTest.selectBasic(routeTable, routeCode)
+	
+	# Check the route code was found.
+	# if not, just return 0, which is no routes
+	if not results:
+		return 0
+	
+	# We get only one result if any because of the UNIQUE constraint on the table
+	row = results[0]
+	
+	# Start with no routes	
+	bitArray = 0
+	
+	for selected,columnName in zip(row, results.columnNames):
+		if not columnName.startswith('Lane_'):
+			continue
+		
+		# Get the second half on the underscore.
+		# (rpartition splits on a thing, always retruning
+		#  the left, split thing, and right of it)
+		# And make it an int so we can shift on it
+		# ... minus one because we are zero indexed, and lanes are one-indexed
+		shift = int(columnName.rpartition('_')[2]) - 1
+	
+		# Take the result bit array so far, 
+		#  and or it with the value SQL returned, 
+		#  bit shifted the number of lanes 
+		bitArray |= selected << shift
+		
+	return bitArray
+	
+
+def getLaneNamesFromMask(destinationBitMask, defaultLane='1'):
+	"""Given an integer that encodes the lanes we may use,
+	convert it to a list of only the lane names that were set.
+	
+	If none are set, use the default given.
+	
+	Derived from
+	>>> bit2Lane = lambda dest: list(reversed(bin(dest)[2:]))
+	>>> ', '.join(str(i+1) for i,selected in enumerate(bit2Lane(12)) if int(selected))
+	"""
+	lanes = []
+	if destinationBitMask:
+		
+		# First, convert the bitmask to a list of booleans
+		bitmask = bin(destinationBitMask)[2:] # bin returns a string starting with '0x'
+		# ... convert so the first elements are first (strings are basically lists, right?)
+		selectedLanes = list(reversed(bitmask))
+		
+		for ix, selected in enumerate(selectedLanes):
+			if int(selected): # selected is a string here... so make it falsy if '0'
+				# Enumerate starts at 0, we want 1
+				# Also we want to make it a string for join later
+				lanes.append(str(ix + 1))
+		
+	# If not destinations were used, default to lane '1'
+	if not lanes:
+		lanes = [defaultLane]
+	
+	return lanes

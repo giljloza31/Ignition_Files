@@ -1,0 +1,8 @@
+def doGet(request, session):
+	request["headers"] = {
+	'Content-Type':'application/json',
+	'Accept':'*/*'
+	}
+	
+	response = request.items()
+	

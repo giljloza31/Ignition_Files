@@ -1,0 +1,170 @@
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from shared.tools.meta import is_redundant_active
+from functools import partial
+
+from time import sleep
+from random import random
+from datetime import datetime
+from Database import db_access
+
+import re
+
+db_name = 'MongoWCS'
+SEPATATOR_PATTERN = ","
+
+
+
+
+	
+CACHE_LIFESPAN = 3.0 # seconds
+
+CLEAR_WAIT_TIME  = 0.026
+FAILSAFE_TIMEOUT = 6.0
+
+ERROR_BARCODES = set(['', 'NOREAD'])
+
+
+@async(name="VRS-GatherData")
+def gather_data(source_path):
+	'''
+		Get the data that needs to be processed.
+		
+		This uses direct OPC reads on the spot, 
+		  and writes the ACK as soon as it can.
+	'''
+
+	timestart = datetime.now().isoformat()
+	
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+
+	# read the needed values in
+	sequence_id, barcode = [
+		qv.value for qv in 
+		system.tag.readBlocking([
+			parent_dest + '/' + 'IGN_IndexID_Sent',
+			parent_dest + '/' + 'IGN_Barcode_Sent'
+			])]
+
+	system.tag.writeAsync([parent_dest + '/' + 'IGN_GetData_ACK'], [True])
+	
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	system.tag.writeAsync([parent_dest + '/' + 'Get_Time'], [timestart])
+	
+	
+	
+	
+	if barcode == 'NOREAD':
+		error_code = 'NOREAD'
+		# query the route directly
+		ibn = 'NOREAD'
+		results = system.db.runPrepQuery("""
+		select *
+		from VRS_RouteTable_1 
+		where Route_Code = ?
+		""", [error_code],'SQLServer')
+	
+
+
+			
+	routing_barcodes = list(dict.fromkeys(barcode.split(BARCODE_SEPARATOR))) if barcode else []
+		
+	mongoResult = db_access_select_records(db_name,'inbound_receipt_info',where_clause={"_id":{'$in':routing_barcodes}},projection={"_id":1,"zone":1}) 
+
+	
+	
+				
+	if not mongoResult:						
+		error_code = 'NOIBN'								
+		ibn = 'NOIBN'
+		results = [] # clear the results													
+	elif len(mongoResult)>1:
+		error_code = 'MULTI'
+		ibn = 'MULTI'	
+		results = [] # clear the results
+	elif len(mongoResult)==1:			
+		dest = mongoResult[0]['zone']
+		ibn = mongoResult[0]['_id']	
+		results = system.db.runPrepQuery("""
+			select *
+			from VRS_RouteTable_1 
+			where Route_Code = ?
+			""", [dest],'SQLServer')
+		if not results:
+			error_code = 'NODEST'	
+			
+				
+				
+				
+					
+				
+				
+					
+				
+	if not results:
+		# query the route directly
+		results = system.db.runPrepQuery("""
+		select * 
+		from VRS_RouteTable_1 
+		where Route_Code = ?
+		""", [error_code],'SQLServer')
+	
+	
+			
+	# grab the top entry
+	row = results[0]
+	
+	# Start with no routes	
+	bitArray = 0
+	route_code = ''
+	for selected,columnName in zip(row, results.columnNames):
+		
+		if columnName == 'Route_Code':
+			route_code = selected
+			continue
+	
+		if not columnName.startswith('Lane_'):
+			continue
+		
+		# Get the second half on the underscore.
+		# (rpartition splits on a thing, always retruning
+		#  the left, split thing, and right of it)
+		# And make it an int so we can shift on it
+		# ... minus one because we are zero indexed, and lanes are one-indexed
+		shift = int(columnName.rpartition('_')[2]) - 1
+	
+		# Take the result bit array so far, 
+		#  and or it with the value SQL returned, 
+		#  bit shifted the number of lanes 
+		bitArray |= selected << shift
+	
+	timestop = datetime.now().isoformat()
+
+	data = {
+		
+		'VRS_IGN_Barcode_Returned': ibn,
+		'VRS_IGN_Destination_Returned': bitArray,	
+		'VRS_IGN_IndexID_Returned': sequence_id,	
+	
+		
+		'VRS_IGN_RouteCode_Returned': route_code,
+		}
+	
+	
+	# write results back
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	parent_dest += '/'
+	
+	system.tag.writeAsync(*zip(*[
+		(parent_dest + 'IGN_Barcode_Returned', ibn),	
+		(parent_dest + 'IGN_IndexID_Returned', sequence_id),			
+		(parent_dest + 'IGN_Destination_Returned', bitArray),	
+		(parent_dest + 'IGN_RouteCode_Returned', route_code),	
+		(parent_dest + 'Got_Time', timestop),
+	
+		
+	]))
+	
+	
+		
+

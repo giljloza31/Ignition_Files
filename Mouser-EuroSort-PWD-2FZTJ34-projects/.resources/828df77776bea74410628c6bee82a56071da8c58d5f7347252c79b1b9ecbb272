@@ -1,0 +1,103 @@
+from functools import partial
+
+
+DEFAULT_DATABASE = 'SQLServer'
+
+WCS_DB = 'MongoWCS'
+
+#
+DATABASE_ENGINE = 'SQLServer'
+#DATABASE_ENGINE = 'MongoDB'
+
+
+
+
+__all__ = [
+	'DEFAULT_DATABASE',  'WCS_DB',
+	# record
+	'insert_record',   # single
+	'upsert_record',   # add-or-update
+	'update_record',   # single - partial
+	'delete_record',   # single
+
+	# bulk
+	'select_records',  #
+	'select_adv_records'
+	'delete_adv_records'
+	'insert_records',  # bulk
+	'update_records',  # bulk
+	'delete_records',  # bulk
+
+
+]
+
+
+
+if DATABASE_ENGINE in ['MySQL','Postgres','SQLServer']:
+	
+	from database.records.sqldb import (
+		select_record,
+		insert_record, 
+
+		update_record,
+		update_records,
+		delete_record,
+		delete_records,
+	
+		select_records,
+		create_table,
+		truncate_table,
+		prune_table
+		
+
+	)
+
+
+
+
+
+elif DATABASE_ENGINE == 'MongoDB':
+
+	from database.records.mongodb import (
+
+		select_record,
+		insert_record, 
+		upsert_record,
+		update_record,
+		update_records,
+		delete_record,
+	
+		select_records,
+		select_adv_records,
+		insert_records,
+		update_records,
+		delete_adv_records,
+	
+
+		aggregate
+
+	)
+
+
+else:
+	raise NotImplementedError('Database engine not supported: %r' % (DATABASE_ENGINE,))
+
+
+# TransactionBlock deprecates the need for this, but the simplicity is nice in general
+db_select_record  		= partial(select_record, DEFAULT_DATABASE)
+db_select_records 		= partial(select_records, DEFAULT_DATABASE)
+#db_select_adv_records 	= partial(select_adv_records, DEFAULT_DATABASE)
+#
+db_insert_record  		= partial(insert_record, DEFAULT_DATABASE)
+#db_insert_records 		= partial(insert_records, DEFAULT_DATABASE)
+#
+#db_upsert_record  		= partial(upsert_record, DEFAULT_DATABASE)
+#
+db_update_record  		= partial(update_record, DEFAULT_DATABASE)
+db_update_records 		= partial(update_records, DEFAULT_DATABASE)
+#
+db_delete_record  		= partial(delete_record, DEFAULT_DATABASE)
+db_delete_records  		= partial(delete_records, DEFAULT_DATABASE)
+#db_delete_adv_records  	= partial(delete_adv_records, DEFAULT_DATABASE)
+#
+#db_aggregate_records 	= partial(aggregate, DEFAULT_DATABASE)

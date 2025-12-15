@@ -1,0 +1,23 @@
+def doPost(request, session):
+	from shared.pwd.Mouser.RST.Cloud9Handler import Cloud9Handler
+	from datetime import datetime
+	logger = system.util.getLogger("cloud9handler")
+	handler = Cloud9Handler()
+	
+	
+	content_type = request["headers"]['Content-Type']
+	
+	if content_type == 'application/json':
+		body_data = request['data']
+		key = request.get('params')
+		
+		if key['seqID'] != '':
+			message = 'Cloud 9 Message Receieved'
+			handler.process(key['seqID'], body_data, message)
+		logger.trace('Received JSON: %s, Received seqID: %s, Received Time: %s' % (body_data,key['seqID'],datetime.now()))
+	
+	else:
+		body_data = 'NO Data Receieved'
+		logger.trace('Received raw data: %s' % body_data)
+		
+	

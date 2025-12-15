@@ -1,0 +1,360 @@
+from datetime import datetime
+from system.net import httpClient
+from Database import db_access
+from shared.tools.global import ExtraGlobal
+import re
+
+# Production
+client = httpClient()
+db_name = 'MongoWCS'
+#lifespan_time = 60 # 60 secs of time
+#lifespan_time = 60*60 # one hour of lifespan
+lifespan_time = 60*60*24 # one day of lifespan
+#lifespan_time = 60*60*24*30 # one month of lifespan
+#lifespan_time = 60*60*24*30*12  #one year of lifespan'''
+
+
+cached_scope = 'HighSpeedLine'
+GS = '$1D'
+pattern_9digit = '^[0-9]{9}$'
+BARCODE_SEPARATOR = ','
+ 
+errorResults_dict = {
+	'NOREAD':5,
+	'NoLOT':8,
+	'UnexpectedLOT':9,
+	'OpenBox':10,
+	'NoLabelExp':11,
+	'NoPrintResult':16,
+	'NoPrintRequestSent':13,
+	'PrintInductLPNNoRead':12,
+	'ShortBox':14,
+	'LongBox':15
+	}
+
+logger = system.util.getLogger('Verify')
+
+postship_tracking_numbers = ['^1Z0{13}00$','^1Z0{14}01$', '^1Z0{13}03$', '^1Z0{14}04$', '^1Z0{14}05$']
+error_tracking_numbers = ['^1Z0{14}02$']
+error_messages_list = [
+	'^NOREAD$',
+	'^NoLOT$',
+	'^UnexpectedLOT$',
+	'^OpenBox$',
+	'^NoLabelExp$',
+	'^NoPrintResult$',
+	'^ShortBox$',
+	'^LongBox$',
+	'^NoPrintRequestSent$',
+	'^PrintInductLPNNoRead$',
+	]
+postship_error = "(" + ")|(".join(postship_tracking_numbers) + ")"
+error_labels = "(" + ")|(".join(error_tracking_numbers) + ")"
+error_messages = "(" + ")|(".join(error_messages_list) + ")"
+
+VER_PAYLOAD_PATTERN = re.compile(r"""
+    ^
+    (?P<indexid>\d{3})        # indexID 101-399
+    \|                        # pipe separator
+    (?P<lpn>.*)               # LPN
+    \|                        # pipe separator
+    (?P<tracking>.*)          # Tracking
+    $
+    """, re.VERBOSE)
+
+# Verify Errors
+VER_ERROR_LIST = {
+	1:'Success',
+	2:'LPN found not correct',
+	3:'Improper Shipping label',
+	4:'No Read on Tracking or OrderNum',
+	5:'No Read on LPN',
+	6:'Found no match LPN in DB',
+	7:'No Response from WCS',
+	8:'No Label on Tamp',
+	9:'Unexpected Label on Tamp',
+	10:'Box detection lid open',
+	11:'No Label returned from WCS',
+	12:'No Data receieved',
+	13:'PLC did not request a label at time of print request',
+	14:'Box turned or extra tape',
+	15:'Two boxed taped together or extra tape detected',
+	16:'Did not receive result from IGN at time of tamp',
+	17:'',
+	18:'',
+	19:'Multi possible Long box detected',
+	20:'Unexplained Error',
+	21:'Order On Hold',
+	}
+
+class VerifyProcess(object):
+    """
+    Verify process for HSL:
+      - Parses inbound payload (indexid|lpn|tracking)
+      - Normalizes/derives tracking/invoice/error flags
+      - Validates LPN format and multiplicity
+      - Looks up latest record from cache (ExtraGlobal) or Mongo
+      - Compares verification barcode / order number to scanned values
+      - Tracks counts per outcome and updates error state consistently
+    """
+
+    def __init__(self):
+        super(VerifyProcess, self).__init__()
+        # Accumulators and working state
+        
+
+    # --------------------------
+    # Internal helpers
+    # --------------------------
+    def _update_verify_error_state(self, code):
+        # Safe default to "Code error" (0) if code is unknown
+        self.data.update({
+            'reason_num': code,
+            'reason': VER_ERROR_LIST.get(code,'Unexplained')
+            
+        })
+
+    def _increment_verify_count(self, key=None):
+        self.verify_counts[key] = self.verify_counts.get(key, 0) + 1
+
+    def _as_list(self, value):
+        if value is None:
+            return []
+        if isinstance(value, (list, tuple)):
+            return list(value)
+        return [value]
+
+    # --------------------------
+    # Parsing / normalization
+    # --------------------------
+    def check_verify_payload(self, payload):
+        """
+        Expect: '###|<lpn>|<tracking>'
+        Updates self.data with indexid, lpn, tracking (raw).
+        Returns: bool status (True if parse OK)
+        """
+        status = False
+        payload_data_match = VER_PAYLOAD_PATTERN.match(payload)
+
+        if not payload_data_match:
+            self.data.update({
+                'lpn': 'No LPN',
+                'tracking': 'No Tracking'
+            })
+            self._update_verify_error_state(13)  # Improper format
+            self._increment_verify_count()
+            return status
+
+        payload_data = payload_data_match.groupdict()
+        status = True
+        self.data.update({
+            'indexid': payload_data['indexid'],
+            'lpn': payload_data['lpn'],
+            'tracking': payload_data['tracking'],
+        })
+        return status
+
+    def identify_tracking_number(self, trackingList):
+
+        for trackingNum in trackingList:
+            if GS in trackingNum:
+                trackingNum = trackingNum.split(GS, 1)[-1]
+            if '<GS>' in trackingNum:
+                trackingNum = trackingNum.replace('<GS>', '')[8:]
+
+            if len(trackingNum) == 34:
+                return [trackingNum[-12:]]
+            elif len(trackingNum) == 9:
+                return [trackingNum]
+            elif trackingNum.startswith('9') and len(trackingNum) in {22, 26}:
+                return [trackingNum]
+            elif trackingNum.startswith('1Z') and len(trackingNum) == 18:
+                return [trackingNum]
+            elif trackingNum.startswith('EP') and len(trackingNum) == 13:
+                return [trackingNum]
+            elif trackingNum == "NOREAD":
+                return [trackingNum]
+        return None
+
+    def identify_and_extract(self, tracking_list):
+        """
+        From a list of comma-split tracking tokens:
+         - detect post-ship error labels (UPS 1Zxx patterns)
+         - detect 9-digit invoice/order
+         - detect explicit error messages (NOREAD, NoLOT, etc.)
+        Updates: tracking (string), invoice (string), error_lookup (bool),
+                 reason (string), reason_num (int)
+        """
+        tracking = ''
+        invoice = ''
+        reason_text = ''
+        reason_num = 0  # Unexplained
+        error_lookup = False
+        error_status = False
+
+        for tracking_num in tracking_list:
+            # Post-ship error labels (1Z... special forms)
+            if re.match(error_labels, tracking_num):
+                tracking = tracking_num
+                error_lookup = True
+                # Treat as "OnHold" category per your earlier code path
+                reason_num = 21
+
+            # Post-ship error barcodes to trigger error_lookup flow
+            if re.match(postship_error, tracking_num):
+                tracking = tracking_num
+                error_lookup = True
+
+            # 9-digit invoice / order number
+            if re.match(pattern_9digit, tracking_num):
+                invoice = tracking_num
+
+            # Explicit error messages
+            if re.match(error_messages, tracking_num):
+                reason_text = tracking_num
+                reason_num = errorResults_dict.get(reason_text, 20)
+                error_status = True
+
+        self.data.update({
+            'tracking': tracking,
+            'invoice': invoice,
+            'error_lookup': error_lookup,
+            'reason': '' if not error_status else reason_text,
+            'reason_num': reason_num,
+        })
+        if reason_num != 0:
+        	self._increment_verify_count(reason_text)
+
+    def check_verify_tracking(self):
+        """
+        Parses self.data['tracking'] (comma-separated), handles NOREAD,
+        and calls identify_and_extract to populate normalized fields.
+        Returns: bool (True = parsed/processed; False = hard failure)
+        """
+        status = False
+        tracking_string = self.data.get('tracking', '')
+        tracking_list = [item.strip() for item in tracking_string.split(BARCODE_SEPARATOR)]
+
+        if 'NOREAD' in tracking_list:
+            self.data.update({
+                'lpn': 'NOREAD',
+                'tracking': tracking_string,
+            })
+            self._update_verify_error_state(4)  # No Read on Tracking or OrderNum
+            self._increment_verify_count(key='NoRead Tracking')
+            return status
+
+        # Update internal fields (tracking/invoice/error flags)
+        self.identify_and_extract(tracking_list)
+        return True
+
+    def check_verify_lpn(self):
+        """
+        Validates LPNs:
+          - Rejects if includes NODATA/NOREAD
+          - Requires format H0###### (exactly one)
+        Returns: bool
+        """
+        status = False
+        lpn_string = self.data.get('lpn', '')
+        LPN_list = list(dict.fromkeys(lpn_string.split(BARCODE_SEPARATOR)))  # dedupe, preserve order
+
+        if any(x in LPN_list for x in ['NODATA', 'NOREAD']):
+            self.data.update({'lpn': lpn_string})
+            self._update_verify_error_state(4)  # No Read on Tracking or OrderNum (closest fit)
+            self._increment_verify_count(key='NoRead LPN')
+            return status
+
+        LPN_list = [lpn for lpn in LPN_list if re.match('^H0\\d{6}$', lpn)]
+        if not LPN_list:
+            self.data.update({'lpn': lpn_string})
+            self._update_verify_error_state(2)  # LPN Mismatch / not correct
+            self._increment_verify_count(key='No LPN')
+            return status
+
+        if len(LPN_list) > 1:
+            self.data.update({'lpn': ','.join(LPN_list)})
+            self._update_verify_error_state(19)  #Multi LPN
+            self._increment_verify_count(key='Multi')
+            return status
+
+        self.data.update({'lpn': LPN_list[0]})
+        return True
+
+    # --------------------------
+    # Data lookups
+    # --------------------------
+    def verify_mongo_lookup(self):
+        """
+        Returns the most recent HSL_info document for current LPN,
+        or None if not found.
+        """
+        filter = {"lpn": self.data.get('lpn')}
+        sort = {'start_time': -1}
+        query_results = db_access.select_records(self.db_name, 'HSL_info', where_clause=filter, sort=sort)
+        return query_results[0] if query_results else None
+
+    def verify_order_lookup(self):
+        """
+        Resolves verify_results (cache first, then Mongo), then:
+          - If not error_lookup: require exact match of verification_barcode to extracted tracking
+          - If error_lookup: compare order_nbr to invoice (9-digit)
+        Updates error state and increments counters.
+        Returns: bool status
+        """
+        status = False
+
+        # Resolve verify_results from cache or DB
+        
+        try:
+            verify_results = ExtraGlobal.access(self.data.get('lpn'), cached_scope)
+        except:
+            verify_results = None
+
+        if not verify_results:
+            verify_results = self.verify_mongo_lookup()
+
+        if not verify_results:
+            # No record in DB/cache for this LPN
+            self._update_verify_error_state(6)  # No Record in DB
+            self._increment_verify_count(key='NoRecord')
+            return status
+
+        verification_barcode = verify_results['verification_barcode']
+        order_nbr = verify_results['order_nbr']
+
+        error_lookup = bool(self.data.get('error_lookup', False))
+        extracted_tracking = self.data.get('tracking', '')
+        extracted_invoice = self.data.get('invoice', '')
+
+        if not error_lookup:
+            # Exact comparison (avoid substring 'in' behavior on strings)
+            if verification_barcode == extracted_tracking:
+                self.data.update({
+                    'tracking': verification_barcode,
+                    'order_nbr': order_nbr
+                })
+                code = 1
+                status = True
+                self._increment_verify_count(key='Verified')
+            else:
+                self.data.update({'tracking': 'No Match', 'order_nbr': ''})
+                code = 3  # Improper shipping label / mismatched
+                self._increment_verify_count(key='Mismatched')
+        else:
+            # Error path: compare order number to 9-digit invoice
+            if order_nbr == extracted_invoice:
+                self.data.update({
+                    'tracking': verification_barcode,
+                    'order_nbr': order_nbr
+                })
+                code = 1
+                status = True
+                self._increment_verify_count(key='Verified')
+            else:
+                self.data.update({'tracking': '', 'order_nbr': 'No Match'})
+                code = 3
+                self._increment_verify_count(key='Mismatched')
+
+        self._update_verify_error_state(code)
+        return status

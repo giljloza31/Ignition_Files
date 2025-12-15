@@ -1,0 +1,166 @@
+{
+  "custom": {},
+  "params": {
+    "Action_PB": false,
+    "Area": "PA1",
+    "Left_Text": "OFF",
+    "Right_Text": "ON",
+    "Status_PB": true
+  },
+  "propConfig": {
+    "params.Action_PB": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Area": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Left_Text": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Right_Text": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Status_PB": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 53,
+      "width": 265
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 22,
+          "width": 177,
+          "x": 44.5,
+          "y": 2
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Area"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport threading\n\t\n\tdef set_action(view_params, value):\n\t    self.view.params.Action_PB \u003d value\n\t\n\tself.view.params.Action_PB \u003d True\n\tthreading.Timer(1, set_action, [self.view.params, False]).start()"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "ToggleSwitch"
+        },
+        "position": {
+          "height": 36,
+          "width": 58,
+          "x": 99.5,
+          "y": 15
+        },
+        "propConfig": {
+          "props.selected": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.Status_PB"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "type": "ia.input.toggle-switch"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 96,
+          "x": 4,
+          "y": 19
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Left_Text"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 107,
+          "x": 150.5,
+          "y": 19
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Right_Text"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

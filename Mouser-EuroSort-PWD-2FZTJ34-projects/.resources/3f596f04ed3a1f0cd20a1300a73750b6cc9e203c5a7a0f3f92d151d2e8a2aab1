@@ -1,0 +1,11 @@
+{
+  "inherit-permissions": false,
+  "required-roles": [
+    "Administrator",
+    "Factory"
+  ],
+  "invert-roles": false,
+  "restrictions": [
+    "com.inductiveautomation.factorypmi.application.FPMIWindow$DoNotOpenWindow"
+  ]
+}

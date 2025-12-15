@@ -1,0 +1,5977 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "ConvName": "B1075"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 210,
+          "x": 1074.98,
+          "y": 838.9353125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1000"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 650,
+          "x": 335.99,
+          "y": 24.8753125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1020"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 419,
+          "width": 28,
+          "x": 1075.25,
+          "y": 8.075312499999999
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1002"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 40,
+          "width": 96,
+          "x": 984.64,
+          "y": 19.6253125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "id": "e",
+                  "name": "e",
+                  "points": "97 .8 .5 13.1 .5 68.8 97 81.5 97 .8",
+                  "style": {},
+                  "type": "polygon"
+                },
+                {
+                  "elements": [
+                    {
+                      "id": "g",
+                      "name": "g",
+                      "points": "97.1 71.9 .5 62.3 .5 68.8 97.1 81.4 97.1 71.9",
+                      "type": "polygon"
+                    },
+                    {
+                      "id": "h",
+                      "name": "h",
+                      "points": "97.1 .6 .5 13.1 .5 19.6 97.1 10.1 97.1 .6",
+                      "type": "polygon"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 97.6 82.1"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1005"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 40,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 95,
+          "x": 1097.6399999999999,
+          "y": 19.5918125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "id": "e",
+                  "name": "e",
+                  "points": "97 .8 .5 13.1 .5 68.8 97 81.5 97 .8",
+                  "style": {},
+                  "type": "polygon"
+                },
+                {
+                  "elements": [
+                    {
+                      "id": "g",
+                      "name": "g",
+                      "points": "97.1 71.9 .5 62.3 .5 68.8 97.1 81.4 97.1 71.9",
+                      "type": "polygon"
+                    },
+                    {
+                      "id": "h",
+                      "name": "h",
+                      "points": "97.1 .6 .5 13.1 .5 19.6 97.1 10.1 97.1 .6",
+                      "type": "polygon"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 97.6 82.1"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1003"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 676,
+          "x": 1190.99,
+          "y": 25.5453125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1030"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 40,
+          "width": 95,
+          "x": 989.64,
+          "y": 362.6253125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "id": "e",
+                  "name": "e",
+                  "points": "97 .8 .5 13.1 .5 68.8 97 81.5 97 .8",
+                  "style": {},
+                  "type": "polygon"
+                },
+                {
+                  "elements": [
+                    {
+                      "id": "g",
+                      "name": "g",
+                      "points": "97.1 71.9 .5 62.3 .5 68.8 97.1 81.4 97.1 71.9",
+                      "type": "polygon"
+                    },
+                    {
+                      "id": "h",
+                      "name": "h",
+                      "points": "97.1 .6 .5 13.1 .5 19.6 97.1 10.1 97.1 .6",
+                      "type": "polygon"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 97.6 82.1"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1022"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 165,
+          "x": 334.94,
+          "y": 367.7153125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1052"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 650,
+          "x": 332.99,
+          "y": 717.8753125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1060"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 676,
+          "x": 1190.99,
+          "y": 722.5453125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1070"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 211,
+          "width": 28,
+          "x": 1075,
+          "y": 640.6353125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1045"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 214,
+          "width": 28,
+          "x": 1074.63,
+          "y": 426.6353125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1028"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 253,
+          "x": 736.99,
+          "y": 367.8753125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1025"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 237,
+          "x": 499.97,
+          "y": 368.2953125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1055"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 40,
+          "width": 100,
+          "x": 981.64,
+          "y": 712.6253125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "id": "e",
+                  "name": "e",
+                  "points": "97 .8 .5 13.1 .5 68.8 97 81.5 97 .8",
+                  "style": {},
+                  "type": "polygon"
+                },
+                {
+                  "elements": [
+                    {
+                      "id": "g",
+                      "name": "g",
+                      "points": "97.1 71.9 .5 62.3 .5 68.8 97.1 81.4 97.1 71.9",
+                      "type": "polygon"
+                    },
+                    {
+                      "id": "h",
+                      "name": "h",
+                      "points": "97.1 .6 .5 13.1 .5 19.6 97.1 10.1 97.1 .6",
+                      "type": "polygon"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 97.6 82.1"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "B1065"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 40,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 97,
+          "x": 1095.62,
+          "y": 716.5953125
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Belts/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "id": "e",
+                  "name": "e",
+                  "points": "97 .8 .5 13.1 .5 68.8 97 81.5 97 .8",
+                  "style": {},
+                  "type": "polygon"
+                },
+                {
+                  "elements": [
+                    {
+                      "id": "g",
+                      "name": "g",
+                      "points": "97.1 71.9 .5 62.3 .5 68.8 97.1 81.4 97.1 71.9",
+                      "type": "polygon"
+                    },
+                    {
+                      "id": "h",
+                      "name": "h",
+                      "points": "97.1 .6 .5 13.1 .5 19.6 97.1 10.1 97.1 .6",
+                      "type": "polygon"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 97.6 82.1"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "PushButton-Template"
+        },
+        "position": {
+          "height": 459,
+          "width": 189
+        },
+        "props": {
+          "params": {
+            "AlarmText": "System Run Fault",
+            "Alarm_Active": false,
+            "HornSilenced": false,
+            "Name": "Name",
+            "SilenceHorn_PB": false,
+            "Start_PB": false,
+            "Status": 4,
+            "VFD_Faulted": false,
+            "VFD_Reset": false
+          },
+          "path": "_Templates_V3/PushButton-Template"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 1045.76,
+          "y": 54.54
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord_0",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 1044.92,
+          "y": -2.6475
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord_1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 1047.76,
+          "y": 395.54
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord_2",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 1046.92,
+          "y": 338.35
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord_3",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 1048.76,
+          "y": 748.54
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord_4",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 1047.92,
+          "y": 691.35
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord_5",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 1113.55,
+          "y": 748.374
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord_6",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 1114.31,
+          "y": 691.795
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord_7",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 1112.31,
+          "y": -5.210000000000036
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "EStop",
+          "Status": true
+        },
+        "meta": {
+          "name": "EStop-PullCord_8",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 1111.55,
+          "y": 51.370000000000005
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "backgroundColor": "#FFFDFD"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

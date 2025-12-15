@@ -1,0 +1,240 @@
+{
+  "pages": {
+    "/": {
+      "title": "Mouser_OGL",
+      "viewPath": "Mouser_OGL/Mouser-OGL_Overview"
+    },
+    "/AlarmJournal": {
+      "title": "AlarmJournal",
+      "viewPath": "Mouser_OGL/AlarmJournal"
+    },
+    "/Mouser_ASO_Overview": {
+      "title": "",
+      "viewPath": "Mouser_ASO/Mouser-ASO_Overview"
+    },
+    "/Mouser_OGL_Overview": {
+      "title": "Mouser_OGL_Overview",
+      "viewPath": "Mouser_OGL/Mouser-OGL_Overview"
+    },
+    "/Mouser_OGL_VFD": {
+      "title": "Mouser_OGL_VFD",
+      "viewPath": "Mouser_OGL/Mouser-OGL_VFD"
+    },
+    "/autoship_routetable": {
+      "title": "",
+      "viewPath": "Main/Overview/Autoship/Autoship_RouteTable"
+    },
+    "/autoshiphigh": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/Autoship_High"
+    },
+    "/autoshiplow": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/Autoship_Low"
+    },
+    "/autshipmezz": {
+      "title": "",
+      "viewPath": "Main/Overview/Autoship/AutoShip_Mezz"
+    },
+    "/bulkcatchbox": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/Bulk_Catchbox"
+    },
+    "/catchboxdiverttable": {
+      "title": "",
+      "viewPath": "Main/Overview/CatchboxVa/Divert_Table"
+    },
+    "/catchboxroutetable": {
+      "title": "",
+      "viewPath": "Main/Overview/CatchboxVa/Route_Table"
+    },
+    "/catchboxvainbound": {
+      "title": "",
+      "viewPath": "Main/Overview/CatchboxVa/CatchboxVA_Inbound"
+    },
+    "/catchboxvaoutbound": {
+      "title": "",
+      "viewPath": "Main/Overview/CatchboxVa/CatchboxVA_Outbound"
+    },
+    "/consolinducttable": {
+      "title": "",
+      "viewPath": "Main/Overview/Consol/ConsolDivertTable"
+    },
+    "/consollvl1": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/Consolidation_Lvl1"
+    },
+    "/consollvl2": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/Consolidation_Lvl2"
+    },
+    "/consollvl4": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/Consolidation_Lvl4"
+    },
+    "/consovfd": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/VFD"
+    },
+    "/cp10_vlm_downstairs": {
+      "title": "",
+      "viewPath": "Main/Overview/VLM/CP10_Downstairs"
+    },
+    "/cp11_lowermezz": {
+      "title": "",
+      "viewPath": "Main/Overview/CP11_LowerMezz/CP11_LowerMezz"
+    },
+    "/cp12": {
+      "title": "",
+      "viewPath": "Mouser/Mouser-LegacyPanels/CP12/CP12-ConveyorOverview"
+    },
+    "/cp13-14": {
+      "title": "",
+      "viewPath": "Mouser/Mouser-LegacyPanels/CP13-LowerMezzGreen1/CP13-ConveyorOverview"
+    },
+    "/cp15": {
+      "title": "",
+      "viewPath": "Mouser/Mouser-LegacyPanels/CP15/CP15_ConveyorOverview"
+    },
+    "/esd-booster": {
+      "title": "",
+      "viewPath": "Mouser/Mouser-LegacyPanels/ESD_Booster/ESD-Booster_Overview"
+    },
+    "/hsl": {
+      "docks": {
+        "bottom": [
+          {
+            "anchor": "fixed",
+            "autoBreakpoint": 480,
+            "content": "push",
+            "handle": "show",
+            "iconUrl": "",
+            "id": "",
+            "modal": false,
+            "resizable": false,
+            "show": "onDemand",
+            "size": 338,
+            "viewParams": {},
+            "viewPath": "Mouser/Popups/HSL/HSL_Search_Table"
+          }
+        ]
+      },
+      "title": "",
+      "viewPath": "Mouser/Main/Autoship_Mezz/High_Speed_Line/HSL"
+    },
+    "/ipackhigh": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/iPAK_High"
+    },
+    "/ipacklow": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/iPAK_Low"
+    },
+    "/mkp": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/MKP"
+    },
+    "/mkp1-belt": {
+      "title": "",
+      "viewPath": "Mouser/Mouser-LegacyPanels/MKP1/MKP1-Belt"
+    },
+    "/mkp1-roller": {
+      "title": "",
+      "viewPath": "Mouser/Mouser-LegacyPanels/MKP1/MKP1-Roller"
+    },
+    "/mkp1-trash": {
+      "title": "",
+      "viewPath": "Mouser/Mouser-LegacyPanels/MKP1/MKP1-Trash"
+    },
+    "/new-page": {
+      "title": "",
+      "viewPath": ""
+    },
+    "/qphistory": {
+      "title": "",
+      "viewPath": "QP_Sorter/QP_InductTable"
+    },
+    "/qproutetable": {
+      "title": "",
+      "viewPath": "QP_Sorter/QP_RouteTable"
+    },
+    "/qptable": {
+      "title": "",
+      "viewPath": "Main/Overview/Consol/ConsolDivertTable"
+    },
+    "/receivingscantunnel": {
+      "title": "",
+      "viewPath": "ReceivingScanTunnel"
+    },
+    "/scan1": {
+      "title": "",
+      "viewPath": "Main/Overview/Consolidation/Scan1"
+    },
+    "/scan16_routetable": {
+      "viewPath": "Main/Scan16/Route_Table"
+    },
+    "/scan16table": {
+      "title": "",
+      "viewPath": "Main/Scan16/Divert_Table"
+    },
+    "/scan1route": {
+      "title": "",
+      "viewPath": "Main/Scan1/Route_Table"
+    },
+    "/scan1table": {
+      "title": "",
+      "viewPath": "Main/Scan1/Divert_Table"
+    },
+    "/sortation_history": {
+      "title": "",
+      "viewPath": "Main/QPS_Sortation/Sortation_History"
+    },
+    "/sortation_login": {
+      "title": "",
+      "viewPath": "Main/QPS_Sortation/Sortation_Login"
+    },
+    "/sortation_users": {
+      "title": "",
+      "viewPath": "Main/QPS_Sortation/Sortation_Users"
+    },
+    "/vrs_main": {
+      "title": "",
+      "viewPath": "Main Views/VRS_Main_New"
+    }
+  },
+  "sharedDocks": {
+    "cornerPriority": "top-bottom",
+    "left": [
+      {
+        "anchor": "fixed",
+        "autoBreakpoint": 480,
+        "content": "push",
+        "handle": "show",
+        "iconUrl": "",
+        "id": "",
+        "modal": false,
+        "resizable": false,
+        "show": "onDemand",
+        "size": 271,
+        "viewParams": {},
+        "viewPath": "-Templates_new/Navi/SideMenu"
+      }
+    ],
+    "top": [
+      {
+        "anchor": "fixed",
+        "autoBreakpoint": 480,
+        "content": "push",
+        "handle": "hide",
+        "iconUrl": "",
+        "id": "",
+        "modal": false,
+        "resizable": false,
+        "show": "visible",
+        "size": 210,
+        "viewParams": {},
+        "viewPath": "Mouser_OGL/TopNav"
+      }
+    ]
+  }
+}

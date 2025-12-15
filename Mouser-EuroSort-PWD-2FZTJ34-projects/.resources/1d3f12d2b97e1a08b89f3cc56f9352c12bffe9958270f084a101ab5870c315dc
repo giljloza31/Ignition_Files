@@ -1,0 +1,15 @@
+{
+  "base": {
+    "style": {
+      "backgroundColor": "#9DBCDC"
+    }
+  },
+  "variants": [
+    {
+      "pseudo": "active",
+      "style": {
+        "backgroundColor": "#FFFF00"
+      }
+    }
+  ]
+}

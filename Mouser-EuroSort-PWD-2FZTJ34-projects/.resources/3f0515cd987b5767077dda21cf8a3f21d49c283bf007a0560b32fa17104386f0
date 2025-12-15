@@ -1,0 +1,252 @@
+
+
+
+
+
+
+
+from datetime import datetime, timedelta
+try:
+	import arrow
+	def get_datetime(time_string=None):
+		if time_string is None:
+			return datetime.now()
+		return arrow.get(time_string).datetime.replace(tzinfo=None)
+	
+except ImportError:
+	ISO8601_FORMAT = "%Y-%m-%dT%H:%M:%S.%f" # not timezone aware. No.
+	
+	def get_datetime(time_string=None):
+		if time_string is None:
+			return datetime.now()
+		if time_string.endswith('Z'):
+			time_string = time_string[:-1]
+		time_parts = len(re.findall(r'\d+', time_string))
+		format_string = ISO8601_FORMAT[:ISO8601_FORMAT.index(re.findall(r'%\w', ISO8601_FORMAT)[time_parts-1])+2]
+		if 'T' not in time_string:
+			format_string = format_string.replace('T', ' ')
+		return datetime.strptime(time_string, format_string)
+
+
+UNIX_EPOCH = datetime.fromtimestamp(0)
+
+
+TIME_UNIT_ABBREVIATIONS = {
+	'us': 'microseconds',
+	'microsecond': 'microseconds',
+	'microseconds': 'microseconds',
+	'ms': 'milliseconds',
+	'millis': 'milliseconds',
+	'millisecond': 'milliseconds',
+	'milliseconds': 'milliseconds',
+	's': 'seconds',
+	'sec': 'seconds',
+	'second': 'seconds',
+	'seconds': 'seconds',
+	'm': 'minutes',
+	'min': 'minutes',
+	'minute': 'minutes',
+	'minutes': 'minutes',
+	'h': 'hours',
+	'hr': 'hours',
+	'hour': 'hours',
+	'hours': 'hours',
+	'd': 'days',
+	'day': 'days',
+	'days': 'days',
+	'w': 'weeks',
+	'week': 'weeks',
+	'weeks': 'weeks',
+}
+
+TIME_UNIT_IN_SECONDS = {
+	'microseconds':          0.000001,
+	'milliseconds':          0.001,
+	'seconds':               1.0,
+	'minutes':             (60.0),
+	'hours':          (60 * 60.0),
+	'days':      (24 * 60 * 60.0),
+	'weeks': (7 * 24 * 60 * 60.0),
+}
+
+
+
+def timedelta_scaled(td, scale_unit):
+	scale_unit = TIME_UNIT_ABBREVIATIONS[scale_unit]
+	# normalize to seconds
+	total_seconds = td.total_seconds()
+	return total_seconds / TIME_UNIT_IN_SECONDS[scale_unit]
+
+
+def datetime_to_float(dt, scale_unit):
+	return timedelta_scaled(dt - UNIX_EPOCH, scale_unit)
+
+
+
+
+
+class Escapement(object):
+	"""
+	The way the simulation ticks.
+	"""
+
+	_ESCAPEMENT_DEFAULTS = {
+		'kind': 'increment',
+		'variable': 't',
+		'delta': 1,
+		'scale': {
+			'increment': 1.0,
+			'realtime': 's',
+			'clock': 's',
+		},
+	}
+
+
+	@property
+	def escapement_watch(self):
+		return self._variables[self._escapement_variable]
+	@escapement_watch.setter
+	def escapement_watch(self, new_value):
+		self._variables[self._escapement_variable] = new_value
+
+	@property
+	def escapement_scale(self):
+		return self._variables[self._escapement_variable + '_scale']
+	@escapement_scale.setter
+	def escapement_scale(self, new_value):
+		self._variables[self._escapement_variable + '_scale'] = new_value
+
+	@property
+	def escapement_delta(self):
+		return self._variables[self._escapement_variable + '_delta']
+	@escapement_delta.setter
+	def escapement_delta(self, new_value):
+		self._variables[self._escapement_variable + '_delta'] = new_value
+
+	@property
+	def escapement_state(self):
+		return self._variables[self._escapement_variable + '_state']
+	@escapement_state.setter
+	def escapement_state(self, new_value):
+		self._variables[self._escapement_variable + '_state'] = new_value
+
+
+	def _initialize_escapement(self):
+		"""
+		Though not required, it is helpful to directly define how the
+		clocks ticks forward in a simulation. Some might use an
+		integer increment, follow wall time, follow a fake clock that
+		runs faster than normal, etc.
+		"""
+		# No configuration means assume fully parametric
+		# every step all variables mutate on their own
+		if self._escapement_definition is None:
+			self.escapement_watch = None
+			self.escapement_scale = None
+			self.escapement_delta = None
+			self.escapement_state = None
+			self._escapement = None
+			return
+		
+		kind = self._escapement_definition.get('kind', self._ESCAPEMENT_DEFAULTS['kind'])
+		config = self._escapement_definition.get('config', {})
+
+		# all time spans will have a variable, it's increment, and the delta applied
+		# watch is the current time/cursor
+		# scale is the expected gap between ticks
+		# delta is the actual gap between ticks
+		# state is the watch when the state started
+		self._escapement_variable = config.get('variable', self._ESCAPEMENT_DEFAULTS['variable'])
+
+		self._definitions[self._escapement_variable] = self._escapement_definition
+
+		if kind == 'increment':
+		
+			self.escapement_scale = config.get('scale', self._ESCAPEMENT_DEFAULTS['scale'][kind])
+			self.escapement_delta = config.get('delta', self._ESCAPEMENT_DEFAULTS['delta'])
+			
+			self.escapement_watch = config.get('start', self._DEFAULT_START_VALUE)
+		
+			def tick(self=self):
+				"""Closured escapement tick"""
+				self.escapement_watch += (self.escapement_scale * self.escapement_delta)			
+
+		# realtime means that the step is essentially calling for an update in realtime
+		# watch is floating point value since unix epoch, scaled based on chosen time unit
+		# scale is the time unit the float represents, valid up to a week after that increments get wonky, so none of those
+		# delta is the difference since the last call
+		elif kind == 'realtime':
+		
+			# get configured scale (if any) and normalize to what timedelta gets
+			self.escapement_scale = config.get('scale', self._ESCAPEMENT_DEFAULTS['scale'][kind])
+			self.escapement_scale = TIME_UNIT_ABBREVIATIONS.get(self.escapement_scale, self.escapement_scale)
+			
+			# in realtime mode the delta is the duration since last
+			self.escapement_delta = 0.0
+			
+			self.escapement_watch = datetime_to_float(get_datetime( config.get('start', None)) , self.escapement_scale)			
+
+			def tick(self=self):
+				"""Closured escapement tick"""
+				previous_value = self.escapement_watch
+				self.escapement_watch = datetime_to_float(get_datetime(), self.escapement_scale)
+				self.escapement_delta = self.escapement_watch - previous_value
+
+		# time means that the step is incrementing a simulated clock
+		# watch is floating point scale since unix epoch
+		# scale is how long the float represents, valid up to a week after that increments get wonky, so none of those
+		# delta is the difference since the last call
+		elif kind in ('clock'):
+		
+			# get configured scale (if any) and normalize to what timedelta gets
+			self.escapement_scale = config.get('scale', self._ESCAPEMENT_DEFAULTS['scale'][kind])
+			self.escapement_scale = TIME_UNIT_ABBREVIATIONS.get(self.escapement_scale, self.escapement_scale)
+			
+			# in clock mode the delta determines the step size
+			self.escapement_delta = config.get('delta', self._ESCAPEMENT_DEFAULTS['delta'])
+			
+			self.escapement_watch = datetime_to_float(get_datetime(config.get('start', None)), self.escapement_scale)
+		
+			def tick(self=self):
+				"""Closured escapement tick"""
+				self.escapement_watch += timedelta_scaled(
+						timedelta(**{ self.escapement_scale : self.escapement_delta }), 
+					self.escapement_scale)
+
+		else:
+			raise NotImplementedError, "Escapement not implemented yet - %s" % kind
+
+		# set the ticking function mechanism
+		self._escapement = tick
+
+		# initialize the first state's time
+		self.escapement_state = self.escapement_watch 
+		
+		# ensure these initial values are maintained during initialization
+		for suffix in ('', '_scale', '_delta', '_state'):
+			self._start_values[self._escapement_variable + suffix] = self._variables[self._escapement_variable + suffix]
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

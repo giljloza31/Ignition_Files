@@ -1,0 +1,128 @@
+"""
+	MongoDB specific tooling
+
+	Unlike relational databases, the quirks to this engine are more 
+	record focused vs state focused. Which works nicely here.
+	
+	Compared to the other setups, this is largely equivalent aliasing:
+	
+	 - connector   = target_database
+	 - collection  = table_name
+	 - document    = entry_dict
+	 - updates     = entry_dict
+	 - filter_keys = key_columns
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+
+def coerce_for_filter_inclusion(key_filter):
+	new_filter = {}
+	for key, value in key_filter.items():
+		# convert to an inclusion check
+		if isinstance(value, (list, tuple, set, frozenset)):
+			new_filter[key] = {
+				'$in': list(value)
+			}
+		else:
+			new_filter[key] = value
+	return new_filter
+
+
+def select_record(target_database, table_name, entry_dict, tx=None, **engine_specific):
+	assert tx is None, 'MongoDB does not manage documents using transactions.'
+	connector = target_database
+	collection = table_name
+	filter = entry_dict
+	return system.mongodb.findOne(connector, collection, filter)
+
+
+def select_records(target_database, table_name, entry_dict, tx=None, **engine_specific):
+	assert tx is None, 'MongoDB does not manage documents using transactions.'
+	connector = target_database
+	collection = table_name
+	key_filter = entry_dict
+	key_filter = coerce_for_filter_inclusion(key_filter)
+	projection = {field:1 for field in engine_specific.get('limit_fields', [])}
+	return system.mongodb.find(connector, collection, key_filter, projection=projection)
+
+
+def insert_record(target_database, table_name, entry_dict, tx=None, **engine_specific):
+	assert tx is None, 'MongoDB does not manage documents using transactions.'
+	connector = target_database
+	collection = table_name
+	document = entry_dict
+	return system.mongodb.insertOne(connector, collection, document)
+
+
+def update_record(target_database, table_name, entry_dict, key_columns, tx=None, **engine_specific):
+	assert tx is None, 'MongoDB does not manage documents using transactions.'
+	connector = target_database
+	collection = table_name
+	filter_keys = set(key_columns)
+	# split the provided data into the filter and the updates
+	key_filter = {
+		key: entry_dict[key]
+		for key in filter_keys
+	}
+
+	# allow multiple keys to be selected at once
+	key_filter = coerce_for_filter_inclusion(key_filter)
+
+	updates = { "$set": {
+		key: entry_dict[key]
+		for key in entry_dict
+		if key not in filter_keys
+	}}
+	return system.mongodb.updateOne(connector, collection, key_filter, updates)
+
+
+def upsert_record(target_database, table_name, entry_dict, key_columns, tx=None, **engine_specific):
+	assert tx is None, 'MongoDB does not manage documents using transactions.'
+	connector = target_database
+	collection = table_name
+	filter_keys = set(key_columns)
+	# split the provided data into the filter and the updates
+	key_filter = {
+		key: entry_dict[key]
+		for key in filter_keys
+	}
+	# allow multiple keys to be selected at once
+	key_filter = coerce_for_filter_inclusion(key_filter)
+	updates = { "$set": {
+		key: entry_dict[key]
+		for key in entry_dict
+		if key not in filter_keys
+	}}
+	return system.mongodb.updateOne(connector, collection, key_filter, updates, {'upsert': True})
+
+
+
+def delete_record(target_database, table_name, entry_dict, key_columns, tx=None, **engine_specific):
+	assert tx is None, 'MongoDB does not manage documents using transactions.'
+	connector = target_database
+	collection = table_name
+	filter_keys = set(key_columns)
+	key_filter = {
+		key: entry_dict[key]
+		for key in filter_keys
+	}	
+	# allow multiple keys to be selected at once
+	key_filter = coerce_for_filter_inclusion(key_filter)
+	return system.mongodb.deleteOne(connector, collection, key_filter)
+
+
+
+# BULK
+
+
+def insert_records(target_database, table_name, list_of_entry_dicts, tx=None, **engine_specific):
+	assert tx is None, 'MongoDB does not manage documents using transactions.'
+	connector  = target_database
+	collection = table_name
+	documents  = list_of_entry_dicts
+	return system.mongodb.insertMany(connector, collection, documents)
+
+
+
+
+

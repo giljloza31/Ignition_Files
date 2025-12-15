@@ -1,0 +1,434 @@
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+
+from functools import partial
+from time import sleep
+from datetime import datetime
+from Database import db_access
+import re
+db_name = 'MongoWCS'
+'''
+mongo_payload = {
+	#'_id': ibn, # assigned to ibn 
+	'reason':0, # reponse code 200 if successfull
+	'reason_code':'' ,
+	'seqID':0, # should never be 0,
+	'indexID':0, # if 0 means data wasnt receieved from sick tunnel to PWD
+	'imageID':0, # if empty sick connection was lost pwd to sick 
+	'scanned_date_time':scanned_time,
+	'API_received_time':received_time, # updated when C9 sends request
+	'time_diff':(received_time-scanned_time),
+	'trackno':'',
+	'po_nbr':'',
+	'packlist':'',
+	'partno':'',
+	'supplier_partno':'',
+	'quantity':'',
+	'datecode':'',
+	'lotcode':'',
+	'coo':'',
+	'aco':'',
+	'cco':'',
+	'raw_data':'',
+	'Cloud9_Data':'',
+	'vendor_info':[],
+	'route':'',
+	'Other':[],
+	'payload':'',
+	}
+'''
+
+#
+#class C9_Payload_Verifier(db_access):
+#	
+#	TRANSLATE = {
+#	
+#	'tracking_number': {'alias': 'trackno', 'NEDA': 'ZZ'},
+#	'p1_barcode': {'alias': 'ibn', 'NEDA': 'ZY'},
+#	'packing_list_number': {'alias': 'packlist', 'NEDA': '11k'},
+#	'certificate_of_compliance': {'alias': 'cco', 'NEDA': 'ZX'},
+#	'approved_change_origin': {'alias': 'aco', 'NEDA': 'XX'},
+#	'customer_po': {'alias': 'po_nbr', 'NEDA': 'K'},
+#	'supplier_part_number': {'alias': 'supplier_partno', 'NEDA': '1P'},
+#	'customer_part_number': {'alias': 'partno', 'NEDA': 'P'},
+#	'quantity': {'alias': 'quantity', 'NEDA': 'Q'},
+#	'date_code_9d_10d': {'alias': 'datecode', 'NEDA': ['9D', '10D']},
+#	'lot_code': {'alias': 'lotcode', 'NEDA': '1T'},
+#	'country_of_origin': {'alias': 'coo', 'NEDA': '4L'},
+#	'manufacturer': {'alias': 'vendor', 'NEDA': '1V'},
+#	'shipper_address_street':{'alias':'street','NEDA': '2V'},
+#	'shipper_address_city':{'alias':'city','NEDA': '3V'},
+#	'shipper_address_state':{'alias':'state','NEDA': '4V'},
+#	'shipper_address_postal_code':{'alias':'postal_code','NEDA': '5V'},
+#	'shipper_address_country':{'alias':'country','NEDA': '6V'},
+#	}
+#	
+#	def __init__(self,name='Level1'):
+#		self.logger = system.util.getLogger('C9_Request')
+#		self.seqId = '' # To be set by Cloud 9 incomming request as payload is {seqId,payload}
+#		self.payload = {}
+#		self.valid = False # Defaulted to False
+#		self.result = {
+#			"seqID": None, 
+#			"device_name": None,
+#			"field_data": [],
+#			"image_result": False,
+#			"code_response": None,  # Single structured error response
+#			'results':False
+#			}
+#		self.code_response = {}
+#		
+#	def _set_message(self, code, message):
+#		self.result["code_response"] = {
+#			"code": code,
+#			"message": message
+#			}
+#			
+#	def handle_request(self,seqId,payload):
+#		self.seqId = seqId
+#		self.payload = payload
+#		if self._parse_payload():
+#			self._check_required_fields()
+#			self._translate_to_wcs()
+#			self._check_results()
+#			
+#		self.code_response = self.payload['code_response']
+#		
+#		return self.code_response
+
+#    def _parse_payload(self):
+#        try:
+#            self.result["seqID"] = self.seqId
+#            self.result["device_name"] = self.payload.get("device_name")
+#            self.result["image_result"] = self.payload.get("image_error")
+#
+#            pallet_data = self.payload.get("pallet_data")
+#            if not pallet_data:
+#                self._set_error("PALLET_DATA_MISSING", "Missing 'pallet_data' in payload.")
+#                
+#
+#            stacks = pallet_data.get("stacks")
+#            if not stacks or not isinstance(stacks, list) or len(stacks) == 0:
+#                self._set_error("STACKS_INVALID", "Missing or invalid 'stacks' in pallet_data.")
+#               
+#
+#            first_stack = stacks[0]
+#            cases = first_stack.get("cases")
+#            if not cases or not isinstance(cases, list) or len(cases) == 0:
+#                self._set_error("CASES_INVALID", "Missing or invalid 'cases' in first stack.")
+#               
+#
+#            first_case = cases[0]
+#            field_data = first_case.get("field_data")
+#            if not field_data or not isinstance(field_data, list) or len(field_data) == 0:
+#                self._set_error("FIELD_DATA_MISSING", "Missing or invalid 'field_data' in first case.")
+#                
+#
+#            for field in field_data:
+#                category = field.get("category")
+#                friendly_name = field.get("friendly_name")
+#                values = field.get("values")
+#
+#                if not category or not friendly_name or not values or len(values) == 0:
+#                    self._set_error("FIELD_ENTRY_INVALID", "Field entry is missing required attributes.")
+#                    
+#
+#                try:
+#                    value = values[0].get("value", "").strip()
+#
+#                    if '(' in friendly_name and ')' in friendly_name:
+#                        neda = friendly_name.split('(')[1].replace(')', '').strip()
+#                    else:
+#                        neda = friendly_name
+#
+#                    value = value.replace(neda, "")
+#
+#                    if neda == 'Q':
+#                        try:
+#                            value = int(value)
+#                        except Exception:
+#                            if self.logger:
+#                                self.logger.warn(
+#                                    'Failed to convert Quantity value from Cloud9: {} for seqID: {}'.format(value, self.seqId)
+#                                )
+#                            self._set_error("QUANTITY_PARSE_FAILED", "Failed to parse Quantity value.")
+#                            
+#
+#                    self.result["field_data"].append({
+#                        "category": category,
+#                        "neda": neda,
+#                        "value": value
+#                    })
+#
+#                except Exception as ex:
+#                    self._set_error("FIELD_PARSE_ERROR", "Exception while parsing field: {}".format(str(ex)))
+#                    
+#
+#            
+#
+#        except Exception as ex:
+#            self._set_error("PAYLOAD_EXCEPTION", "Unhandled exception: {}".format(str(ex)))
+#            
+#
+# Expect db_access to provide: select_record/insert_record/update_record if you add DB ops later.
+class PWD_payload_Verifier:
+	"""
+	Parses a raw scanner payload of the form "<indexID>_<seqID>|barcode|barcode|..."
+	and builds a dict containing ONLY the fields actually found in the tokens,
+	plus meta (seqID/indexID/imageID/timestamp, raw_payload).
+	
+	- NEDA prefixes (K, 11K, 9D/10D, etc.) are OPTIONAL in tokens.
+		If present, they are stripped from returned values.
+	- Quantity is converted to int; for duplicates, the LOWER value wins.
+	- Duplicate non-quantity fields are appended to 'other' (if include_other=True).
+	"""
+	
+	# Header regex: "<index>_<seq>|<rest>"
+	PAYLOAD_PATTERN = re.compile(r"""
+		^
+		(?P<imageID>\d{3}_\d{8})
+		\|
+		(?P<barcode>.*)
+		$""", re.VERBOSE)
+		
+	# Control separators sometimes present in streams
+	CTRL_SPLIT = re.compile(r'[|\x1D\x1E\x1F]')
+	
+	# BODY patterns have NO NEDA prefixes (prefixes are made optional when compiled)
+	REGEX_BODY = {
+		'trackno':           [r'(?:1Z)[0-9A-Z]{16}', r'9622\d{30}'],
+		'packlist':          [r'[A-Za-z0-9]{1,10}'],
+		'po_nbr':            [r'(?:021|029)-[0-9A-Z]{5}'],
+		'partno':            [r'[A-Z0-9-]{1,30}'],
+		'supplier_partno':   [r'[A-Z0-9-]{1,40}'],
+		'poline':            [r'\d{1,3}'],
+		'quantity':          [r'\d+'],                 # after stripping 'Q'
+		'datecode':          [r'[0-9A-Z]{1,12}'],      # after stripping 9D/10D
+		'lotcode':           [r'[A-Z0-9-]{1,20}'],     # after stripping 1T
+		'coo':               [r'[A-Za-z]{2,3}'],       # after stripping 4L
+		'cco':               [r'[A-Z]{1,3}'],          # after stripping 21L
+		'aco':               [r'[A-Z]{1,3}'],          # after stripping 23L
+		}
+		
+	# NEDA prefixes that MAY or MAY NOT be present in tokens
+	TRANSLATE = {
+		'packlist': '11K',
+		'po_nbr': 'K',
+		'partno': 'P',
+		'supplier_partno': '1P',
+		'poline': '4K',
+		'quantity': 'Q',
+		'datecode': ['9D', '10D'],
+		'lotcode': '1T',
+		'coo': '4L',
+		'cco': '21L',
+		'aco': '23L',
+		}
+		
+	# Mongo field names we will set from tokens
+	KNOWN_FIELDS = set([
+		'trackno', 'po_nbr', 'packlist', 'partno', 'supplier_partno',
+		'quantity', 'datecode', 'lotcode', 'coo', 'aco', 'cco'
+		])
+		
+	def __init__(self):
+		self.db_name = 'MongoWCS'  # optional, if you later add DB ops
+		self.select_records = db_access.select_records
+		self.upsert_record = db_access.upsert_record
+
+		# Compile optional-prefix patterns once
+		self.compiled_opt = self._compile_optional_prefix_patterns()
+		
+	# ----------------- compile optional prefix patterns -----------------
+	def _compile_optional_prefix_patterns(self):
+		"""
+		For each key, build: ^(?:<prefixes>)?(?P<body>(body1|body2|...))$
+		Prefix group is OPTIONAL. We use re.escape for safety.
+		"""
+		compiled = {}
+		for key, body_pats in self.REGEX_BODY.items():
+			prefixes = self.TRANSLATE.get(key)
+			if prefixes is None:
+				prefix_opt = ''
+			elif isinstance(prefixes, list):
+				# e.g., (?:9D|10D)?
+				prefix_opt = '(?:' + '|'.join([re.escape(p) for p in prefixes]) + ')?'
+			else:
+				# e.g., (?:K)?
+				prefix_opt = '(?:' + re.escape(prefixes) + ')?'
+				
+			body_union = '(?:' + '|'.join(body_pats) + ')'
+			pat = '^(?:' + prefix_opt + ')(?P<body>' + body_union + ')$'
+			compiled[key] = re.compile(pat)
+		
+		return compiled
+		
+	# ----------------- helpers -----------------
+	def _clean_token(self, t):
+		return self.CTRL_SPLIT.sub('', t).strip() if t is not None else ''
+		
+	def _parse_quantity_int(self, s):
+		s = str(s).strip()
+		if not s.isdigit():
+			raise ValueError('quantity not numeric: %r' % s)
+		return int(s)
+		
+	# ----------------- classification -----------------
+	def match_pattern(self, token):
+		"""
+		Tries each compiled optional-prefix pattern. If it matches,
+		returns (key, body) where 'body' has the NEDA removed if it was present.
+		Quantity is converted to int. Unknown -> ('other', raw).
+		"""
+		raw = self._clean_token(token)
+		for key, cre in self.compiled_opt.items():
+			m = cre.match(raw)
+			if not m:
+				continue
+				
+			body = m.group('body').strip()  # <-- NEDA removed here
+			if key == 'quantity':
+				try:
+					return key, self._parse_quantity_int(body)
+				except Exception as e:
+					self.logger.info("Quantity parse failed for %r: %s" % (raw, e))
+					return 'other', raw
+			else:
+				return key, body
+				
+		return 'other', raw
+		
+		
+	# ----------------- payload parsing -----------------
+	def _check_payload(self, raw_payload):
+		"""
+		Update ONLY these keys in self.pwd_tracking_payload:
+		'imageID', 'indexID', 'seqID', 'barcodeList', 'raw_data', 'scanned_date_time'
+		Accepts both:
+			- "<index>_<seq>|token|token|..."
+			-and strings starting with "<index>_<seq>" (without following pipe)
+		"""
+		image_id = None
+		index_id = None
+		seq_id = None
+		barcode_list = []
+		
+		m = self.PAYLOAD_PATTERN.match(raw_payload or '')
+		if not m:
+			head = re.match(r'^(\d{3}_\d{8})', raw_payload or '')
+			if not head:
+				self.logger.warn('Bad payload: cannot find imageID. raw=%r' % raw_payload)
+#				self.log_event('Scan-Event',258,'Payload received improperly formatted')
+				#--Will need to be replaced with alternate values from plc
+				image_id,index_id,seq_id = '99_00000001',99,'00000001'
+			else:
+				image_id = head.group(1)
+				index_id, seq_id = image_id.split('_')
+		else:
+			image_id = m.group('imageID')
+			index_id, seq_id = image_id.split('_')
+			bar = m.group('barcode') or ''
+			barcode_list = bar.split('|') if bar else []
+			
+		# Starting Payload
+#		self.log_event('Scan-Event',200,'Payload received improperly formatted')
+		self.pwd_tracking_payload.update({
+			'imageID': image_id,
+			'indexID': index_id,
+			'seqID': seq_id,
+			'barcodeList': [b for b in barcode_list if b],
+			'raw_data': raw_payload,
+			'scanned_date_time': system.date.now(),
+			})
+		
+		
+		
+	# ----------------- build mongo (found-only) -----------------
+	def _build_mongo_found_only(self,include_other=True):
+		"""
+		Build a dict that contains ONLY discovered fields plus meta.
+		- Meta copied if present: seqID, indexID, imageID, scanned_date_time, raw_payload
+		- Adds only fields actually found among KNOWN_FIELDS
+		- Duplicates: quantity keeps the LOWER value; others go to 'other' if include_other=True
+		"""
+		
+		src = self.pwd_tracking_payload
+		doc = {}
+		other = []
+		
+		# Copy meta if present
+		for k in ('seqID', 'indexID', 'imageID', 'scanned_date_time'):
+			v = src.get(k)
+			if v not in (None, '', []):
+				doc[k] = v
+		if src.get('raw_data'):
+			doc['raw_payload'] = src['raw_data']
+			
+		# Walk tokens and add only what we find
+		if 'NOREAD' not in src.get('barcodeList', []):
+			for token in src.get('barcodeList', []):
+				key, value = self.match_pattern(token)
+				
+				if key not in self.KNOWN_FIELDS:
+					if include_other:
+						other.append({key: value})
+					continue
+					
+				if key in doc:
+					if include_other:
+						other.append({key: value})
+				else:
+					doc[key] = value
+		else:
+			other.append('NOREAD')
+		if include_other and other:
+			doc['other'] = other
+			
+		return doc
+	
+	def _excute_wcs_verification(self,pwd_mongo):
+		
+		"""
+		- Check Mongo collection to see if already exisiting
+			if exisiting check if quantity is greater than new value,
+				if new value is less keep new otherwise keep old
+					and upsert
+			if not exisiting insert new doc
+		"""
+		system.util.getLogger('name').info('%s'%self.pwd_tracking_payload['imageID'])
+		existing = self.select_records(db_name, 'inbound_receiving_info', where_clause={'imageID':self.pwd_tracking_payload['imageID']})
+		if not existing:
+			self.upsert_record(db_name, 'inbound_receiving_info', pwd_mongo, {'imageID':self.pwd_tracking_payload['imageID']})
+		
+		else:
+			existing_doc = existing
+			
+			#----check Quantity----
+			old_quantity = existing_doc['quantity']
+			if pwd_mongo['quantity'] > old_quantity:
+				pwd_mongo['quantity'] = old_quantity
+				self.pwd_tracking_payload['quantity'] = old_quantity
+		
+			self.upsert_record(db_name, 'inbound_receiving_info', pwd_mongo, {'imageID':self.pwd_tracking_payload['imageID']})
+		
+	def _update_plc(self):
+		return
+	
+	def handle_scan(self,payload):
+		
+		self._check_payload(payload)
+		
+		pwd_mongo = self._build_mongo_found_only()
+		
+		self._excute_wcs_verification(pwd_mongo)
+		
+		self._update_plc()
+		
+		
+		
+		
+			
+	
+			
+		
+		

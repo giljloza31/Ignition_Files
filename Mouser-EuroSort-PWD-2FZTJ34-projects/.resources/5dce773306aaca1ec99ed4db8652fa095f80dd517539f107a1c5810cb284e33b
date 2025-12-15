@@ -1,0 +1,184 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 212,
+      "width": 201
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Button",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 162,
+          "width": 129,
+          "x": 28,
+          "y": 18
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M722.48,308.87l1,14.34-1.13.88s.27,10.93-9.59,10.93-9.6-10.93-9.6-10.93l-1.13-.88,1-14.34Z",
+                  "name": "ButtonMount",
+                  "transform": "translate(-701.93 -308.75)",
+                  "type": "path"
+                }
+              ],
+              "name": "ButtonBackground",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "ButtonMessage-2",
+                  "points": "19.51 12.53 20.45 11.99 19.66 1.28 10.85 1.28 2.04 1.28 1.25 11.99 2.2 12.53 19.51 12.53",
+                  "type": "polygon"
+                }
+              ],
+              "name": "ButtonMessage",
+              "style": {
+                "classes": "",
+                "fill": "#F0F0F0",
+                "stroke": "#000000",
+                "strokeWidth": ".255"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonBorder-2",
+                  "r": "9.73",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonBorder",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonColor",
+                  "r": "8.15",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonLight",
+              "style": {
+                "classes": "",
+                "fill": "#FCFCFC",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 21.7 26.84"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\topcServer \u003d \u0027Ignition OPC-UA Server\u0027\n\titemPath \u003d self.custom.plcPath\n\t#writing a 1 directly to PLC tag\n\tsystem.opc.writeValue(opcServer, itemPath, 1)\n\t\n\tsleep(1)\n\t\n\tsystem.opc.writeValue(opcServer, itemPath, 0)\n\t\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 101,
+          "width": 101,
+          "x": 42,
+          "y": 70
+        },
+        "props": {
+          "image": {
+            "height": 80,
+            "icon": {
+              "path": "material/power_settings_new"
+            },
+            "width": 80
+          },
+          "style": {
+            "backgroundColor": "#777777",
+            "borderBottomLeftRadius": 50,
+            "borderBottomRightRadius": 50,
+            "borderStyle": "none",
+            "borderTopLeftRadius": 50,
+            "borderTopRightRadius": 50
+          },
+          "text": ""
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label_36"
+        },
+        "position": {
+          "height": 39.559999999999945,
+          "width": 109,
+          "x": 38,
+          "y": 24
+        },
+        "props": {
+          "text": "POWER",
+          "textStyle": {
+            "fontFamily": "Roboto",
+            "fontSize": 28,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,385 @@
+{
+  "custom": {},
+  "params": {
+    "PE_Name": "value",
+    "PE_Status": 0
+  },
+  "propConfig": {
+    "params.PE_Name": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.PE_Status": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 72,
+      "width": 84
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Convey_Connector",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 8,
+          "x": 12.25,
+          "y": -8.99703
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "fill": "#FFF26E",
+              "height": "41.83",
+              "name": "rect",
+              "stroke": "#000000",
+              "type": "rect",
+              "width": 8.26
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 8.26 41.83"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Convey_Connector_0",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 8,
+          "x": 12.1467,
+          "y": 13.5516
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "fill": "#FFF26E",
+              "height": "41.83",
+              "name": "rect",
+              "stroke": "#000000",
+              "type": "rect",
+              "width": 8.26
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 8.26 41.83"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 23,
+          "rotate": {
+            "angle": 0
+          },
+          "width": 5,
+          "x": 24.762,
+          "y": 5.94172
+        },
+        "propConfig": {
+          "custom.PE-Name": {
+            "binding": {
+              "config": {
+                "path": "view.params.PE_Name"
+              },
+              "type": "property"
+            }
+          },
+          "custom.PE_Color": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/PE/PE_White",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/PE/PE_Black"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "path": "view.params.PE_Status"
+              },
+              "type": "property"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE-Name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Eye\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Beam\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "20.61 100.68 0.27 159.13 40.95 159.13 20.61 100.68",
+                  "style": {},
+                  "type": "polygon"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "style": {},
+                  "type": "line",
+                  "x1": "20.61",
+                  "x2": "20.61",
+                  "y1": 110.19
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 41.23 159.32"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 23,
+          "rotate": {
+            "angle": 0
+          },
+          "width": 5,
+          "x": 2.52,
+          "y": 5.79572
+        },
+        "propConfig": {
+          "custom.PE-Name": {
+            "binding": {
+              "config": {
+                "path": "view.params.PE_Name"
+              },
+              "type": "property"
+            }
+          },
+          "custom.PE_Color": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/PE/PE_White",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/PE/PE_Black"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "path": "view.params.PE_Status"
+              },
+              "type": "property"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE-Name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Eye\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Beam\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "20.61 100.68 0.27 159.13 40.95 159.13 20.61 100.68",
+                  "style": {},
+                  "type": "polygon"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "style": {},
+                  "type": "line",
+                  "x1": "20.61",
+                  "x2": "20.61",
+                  "y1": 110.19
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 41.23 159.32"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

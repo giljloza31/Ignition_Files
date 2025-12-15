@@ -1,0 +1,77 @@
+{
+  "custom": {},
+  "params": {
+    "key": "some key",
+    "value": "this is some asdf text"
+  },
+  "propConfig": {
+    "params.key": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.value": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 25,
+      "width": 465
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "text": "value"
+        },
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "basis": "150px"
+        },
+        "props": {
+          "style": {
+            "classes": "monospace"
+          },
+          "text": "Label"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Icon"
+        },
+        "position": {
+          "basis": "30px"
+        },
+        "props": {
+          "path": "null"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "basis": "189px",
+          "grow": 1
+        },
+        "props": {
+          "style": {
+            "classes": "monospace"
+          },
+          "text": "Label"
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.flex"
+  }
+}

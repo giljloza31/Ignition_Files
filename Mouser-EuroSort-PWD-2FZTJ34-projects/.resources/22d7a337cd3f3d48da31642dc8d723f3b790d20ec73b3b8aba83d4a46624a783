@@ -1,0 +1,182 @@
+from functools import partial
+from time import sleep
+from datetime import datetime
+
+from java.lang import Runtime
+from java.util import Date
+import java.net.InetAddress
+
+# Ignition APIs assumed available: system.tag, system.util, system.net
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+
+import socket
+import re
+import os
+
+class Level1Tracking:
+	# --- Class / device defaults ---
+	base_path     = '[Mouser]Mouser/HSL_Updated'
+	query_path    = base_path + '/IGN_Query'
+	controls_path = base_path + '/Controls'
+	
+	DEFAULT_SICK_IP            = '192.168.1.248'
+	RESTART_DISABLE_SLEEP_SEC  = 30   # wait after disabling device
+	RESTART_ENABLE_SLEEP_SEC   = 10   # wait after re-enabling device
+	PING_TIMEOUT_MS            = 300 # system.net.ping timeout
+	PING_ONLINE_LOG_INTERVAL   = 3000  # seconds between "still online" logs to avoid spam
+
+	def __init__(self, name, **init_config):
+		# IMPORTANT: Jython-safe explicit base init
+		self.name = name
+		self.label = self.name
+		self.cached_scope = 'Level1_Tracking'
+		self.tracking_payload = {}
+		
+		# device IP (allow override from init_config)
+		self.sick_ip = init_config.get('sick_ip', self.DEFAULT_SICK_IP)
+		
+		# logger
+		self.logger = system.util.getLogger('Level1_info')
+		
+		# throttle repeated "online" logs
+		self._last_online_log_ts = 0
+		
+		# monitor state
+		self._monitor_running = False
+		self._monitor_period  = 60
+		self._monitor_thread  = None
+
+	# ---------- Utilities ----------
+	def _safe_sleep(self, seconds):
+		"""Sleep helper that uses a service base if available, otherwise time.sleep."""
+		try:
+			self._safe_wait(seconds)  # provided by your service base
+		except AttributeError:
+			sleep(seconds)
+
+	def _write_to_tags(self, tag_paths, tag_values):
+		return system.tag.writeBlocking(tag_paths, tag_values)
+
+	# ---------- Connection monitor ----------
+	def start_connection_monitor(self, period_sec=60):
+		"""
+		Launch background loop to check scanner connectivity every period_sec.
+		Safe to call multiple times; only one loop will run.
+		"""
+		if self._monitor_running:
+			# Already running; optionally update the period
+			self._monitor_period = int(period_sec)
+			self.logger.info("Connection monitor already running; updated period to %s."%self._monitor_period)
+			return
+
+		self._monitor_period = int(period_sec)
+		self._monitor_running = True
+
+		def _loop():
+			self.logger.info("Connection monitor started (every %s)."%(self._monitor_period))
+			try:
+				while self._monitor_running:
+					self._check_scanner_connection()
+				remaining = self._monitor_period
+				step = 0.25
+				while self._monitor_running and remaining > 0:
+					self._safe_sleep(min(step, remaining))
+					remaining -= step	
+			finally:
+				self.logger.info("Connection monitor stopped.")
+
+		# Launch asynchronously so we don't block the caller
+		try:
+			self._monitor_thread = system.util.invokeAsynchronous(_loop)
+		except Exception:
+			# Fallback to your decorator if you prefer that style
+			try:
+				@async(name='Level1Tracking:conn_monitor', daemon=True)
+				def _decorated_loop():
+					_loop()
+					_decorated_loop()
+			except Exception as e:
+				self._monitor_running = False
+				self.logger.error("Failed to start connection monitor: %s", e)
+
+	def stop_connection_monitor(self):
+		"""Request the background loop to stop."""
+		if not self._monitor_running:
+		    return
+		self._monitor_running = False
+		# invokeAsynchronous returns immediately; the loop will exit on its next check/sleep slice.
+
+	# OPTIONAL: convenience wired to your lifecycle
+	def on_enable(self):
+		# call this from your service enable/start hook
+		self.start_connection_monitor(60)
+
+	def on_disable(self):
+		# call this from your service disable/stop hook
+		self.stop_connection_monitor()
+
+	# ---------- Connectivity + restart ----------
+	def _check_scanner_connection(self):
+		ip = self.sick_ip
+		status = self._ping_device(ip=ip)
+
+		if not status:
+			self.logger.warn("Scan tunnel %s appears offline. Attempting restart..."%ip)
+			self._restart_connection()
+			# After restart, give a brief grace period; polling will re-check
+			self._safe_sleep(2.0)
+			return
+
+		# keep online logs sparse
+		now = system.date.toMillis(system.date.now()) // 1000
+		if (now - self._last_online_log_ts) >= self.PING_ONLINE_LOG_INTERVAL:
+			self.logger.info("Scan tunnel %s online."%ip)
+			self._last_online_log_ts = now
+
+	def _ping_device(self,ip):
+		cmd = "ping -n 1 {}".format(ip)
+        
+		# Run command; 0 = success, nonzero = failure
+		exit_code = os.system(cmd)
+
+		if exit_code == 0:
+			self.logger.info("Device {} is reachable. 1".format(ip))
+			return True
+		else:
+			self.logger.warn("Device {} is NOT reachable (exit code {}).".format(ip, exit_code))
+			return False
+			
+			
+	def _restart_connection(self):
+		device_enabled_tag = '[System]Gateway/Devices/Sick_Tunnel/Enabled'
+		
+		# Disable
+		self._write_to_tags([device_enabled_tag], [False])
+		self.logger.warn("Scanner device disabled. Waiting %s..."%self.RESTART_DISABLE_SLEEP_SEC)
+		self._safe_sleep(self.RESTART_DISABLE_SLEEP_SEC)
+
+		# Re-enable
+		self._write_to_tags([device_enabled_tag], [True])
+		self.logger.warn("Scanner device re-enabled. Waiting %ss for recovery..."%self.RESTART_ENABLE_SLEEP_SEC)
+		self._safe_sleep(self.RESTART_ENABLE_SLEEP_SEC)
+
+	# ---------- Public helpers ----------
+	def level1_connect(self, status):
+		tag = self.controls_path + '/connection_active'  # adjust to your exact tag name
+		bool_status = bool(status)
+		if bool_status:
+			self.on_enable()
+		else:
+			self.on_disable()
+		self._write_to_tags([tag], [bool_status])
+		
+		self.logger.info("Set %s = %s"%(tag, bool(status)))
+
+	def handle_scan_data(self, indexID, payload):
+		self.logger.trace("handle_scan_data indexID=%r payload=%r"%(indexID, payload))
+		return
+
+	def handle_request_data(self, seqID, payload):
+		self.logger.trace("handle_request_data seqID=%r payload=%r"%(seqID, payload))
+		return

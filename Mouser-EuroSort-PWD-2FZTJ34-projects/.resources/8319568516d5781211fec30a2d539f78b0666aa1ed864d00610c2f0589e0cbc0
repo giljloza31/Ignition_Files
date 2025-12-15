@@ -1,0 +1,265 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 238,
+      "width": 405
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "SignOut_User",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/QPS_Sortation/SignOut_User",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Cancel"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 237.5,
+          "y": 193
+        },
+        "props": {
+          "primary": false,
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom shared.pwd.QPS_Sortation import logout_user\n\tuserID \u003d self.getSibling(\"UserID_Entry\").props.text\n\tpassword \u003d self.getSibling(\"UserPassword_Entry\").props.text\n\treasonCode \u003d self.getSibling(\"ReasonCode\").props.value\n\t\n\tif int(reasonCode) !\u003d5:\n\t\treasonLabel \u003d self.getSibling(\"ReasonCode\").props.options[int(reasonCode)].label\n\telse:\n\t\treasonLabel \u003d self.getSibling(\"Other\").props.text\n\t\n\tlogout_user(userID,password,reasonCode,reasonLabel)\n\t\n\t\n\tself.getSibling(\"UserID_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"UserPassword_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"ReasonCode\").props.value \u003d \u0027\u0027\n\tself.getSibling(\"Other\").props.text \u003d \u0027\u0027"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Add User"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 87.5,
+          "y": 193
+        },
+        "props": {
+          "text": "Sign Out"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Password_Label"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 82,
+          "x": 93.8,
+          "y": 65
+        },
+        "props": {
+          "text": "Password:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "UserPassword_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 179.3,
+          "y": 63
+        },
+        "props": {
+          "placeholder": "Enter Password"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "UserID_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 179.3,
+          "y": 26
+        },
+        "propConfig": {
+          "props.text": {
+            "onChange": {
+              "enabled": null,
+              "script": "\t\n\ttext \u003d currentValue.value\n\t\n\tself.props.text \u003d text.upper()"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Enter USERID"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "User_Label"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 71,
+          "x": 104.8,
+          "y": 28
+        },
+        "props": {
+          "text": "UserID:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "ReasonCode"
+        },
+        "position": {
+          "height": 36,
+          "width": 190,
+          "x": 179.3,
+          "y": 100
+        },
+        "props": {
+          "options": [
+            {
+              "label": "End of Shift",
+              "value": 0
+            },
+            {
+              "label": "Lunch",
+              "value": 1
+            },
+            {
+              "label": "Break",
+              "value": 2
+            },
+            {
+              "label": "Assigned New Station",
+              "value": 3
+            },
+            {
+              "label": "Assigned New Area",
+              "value": 4
+            },
+            {
+              "label": "Other",
+              "value": 5
+            }
+          ],
+          "placeholder": {
+            "text": "Select SignOut Reason"
+          }
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "Password_Label_0"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 140,
+          "x": 35.8,
+          "y": 106
+        },
+        "props": {
+          "text": "SignOut Reason:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Other"
+        },
+        "position": {
+          "height": 32,
+          "width": 324,
+          "x": 43,
+          "y": 146
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "../ReasonCode.props.value"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 5,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Enter Reason"
+        },
+        "type": "ia.input.text-field"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

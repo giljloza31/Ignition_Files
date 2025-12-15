@@ -1,0 +1,496 @@
+{
+  "custom": {},
+  "params": {
+    "Area": "High Speed Line",
+    "Horn_Active": false,
+    "SilenceHorn_PB": false,
+    "Silent_Horn": false,
+    "Toggle1": {
+      "ActionPB": false,
+      "StatusPB": false
+    },
+    "popid": "Mouser/Popups/HSL/HSL_Power_Controls"
+  },
+  "propConfig": {
+    "params.Area": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Horn_Active": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.SilenceHorn_PB": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Silent_Horn": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Toggle1": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.popid": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 375,
+      "width": 489
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Button",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 151,
+          "width": 120,
+          "x": 18.02,
+          "y": 58.5
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M722.48,308.87l1,14.34-1.13.88s.27,10.93-9.59,10.93-9.6-10.93-9.6-10.93l-1.13-.88,1-14.34Z",
+                  "name": "ButtonMount",
+                  "transform": "translate(-701.93 -308.75)",
+                  "type": "path"
+                }
+              ],
+              "name": "ButtonBackground",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "ButtonMessage-2",
+                  "points": "19.51 12.53 20.45 11.99 19.66 1.28 10.85 1.28 2.04 1.28 1.25 11.99 2.2 12.53 19.51 12.53",
+                  "type": "polygon"
+                }
+              ],
+              "name": "ButtonMessage",
+              "style": {
+                "classes": "",
+                "fill": "#F0F0F0",
+                "stroke": "#000000",
+                "strokeWidth": ".255"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonBorder-2",
+                  "r": "9.73",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonBorder",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonColor",
+                  "r": "8.15",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonLight",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 21.7 26.84"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "status": 1
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tview \u003d self.view.params.popid\n\ttitle \u003d \u0027Power Control\u0027\n\tsystem.perspective.openPopup(\u0027Power Control\u0027, view,title \u003d \u0027Power Control\u0027)\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Power_PB"
+        },
+        "position": {
+          "height": 93.1,
+          "width": 90.39,
+          "x": 33.78,
+          "y": 108.53299999999999
+        },
+        "propConfig": {
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.status"
+              },
+              "transforms": [
+                {
+                  "fallback": "ButtonStyles/MCP/Solid_Grey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ButtonStyles/MCP/Solid_Red"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ButtonStyles/MCP/Solid_Green"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ButtonStyles/MCP/Flash_Red_Blue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ButtonStyles/MCP/Flash_Red_Yellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ButtonStyles/MCP/Flash_Green_Orange"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ButtonStyles/MCP/Solid_Blue"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "height": 80,
+            "icon": {
+              "path": "material/power_settings_new"
+            },
+            "width": 60
+          },
+          "style": {},
+          "text": "",
+          "textStyle": {
+            "fontSize": ""
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "PowerLabel"
+        },
+        "position": {
+          "height": 28,
+          "width": 75,
+          "x": 40.2812,
+          "y": 70.737
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 26,
+            "textAlign": "center"
+          },
+          "text": "POWER",
+          "textStyle": {
+            "fontSize": 18
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Toggle_template"
+        },
+        "position": {
+          "height": 53,
+          "width": 264,
+          "x": 212,
+          "y": 16.971875
+        },
+        "propConfig": {
+          "props.params.Action_PB": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.Toggle1.ActionPB"
+              },
+              "type": "property"
+            }
+          },
+          "props.params.Status_PB": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.Toggle1.StatusPB"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "params": {
+            "Area": "PA1",
+            "Left_Text": "OFF",
+            "Right_Text": "ON"
+          },
+          "path": "_Templates_V3/Templates_OnScreen/Controls/Toggle_template"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 273,
+          "x": 101.5,
+          "y": -3
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Area"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "SilenceHorn_PB"
+        },
+        "position": {
+          "height": 59,
+          "width": 83,
+          "x": 36.61,
+          "y": 223.10000000000002
+        },
+        "propConfig": {
+          "custom.Horn_Active": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Active"
+              },
+              "type": "property"
+            }
+          },
+          "custom.Silent_Horn": {
+            "binding": {
+              "config": {
+                "path": "view.params.Silent_Horn"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Active"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].visibility": {
+            "binding": {
+              "config": {
+                "path": "this.custom.Silent_Horn"
+              },
+              "transforms": [
+                {
+                  "fallback": "hidden",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "visible"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M23.1,7.3c-10.2,11-13.3,34.4-5.7,42.6s4.6-.7,2.3-8.6c-3.3-11.6-.6-22.6,7.6-31.1C33.4,3.8,35.1,0,31.7,0s-4.8,3.3-8.6,7.3M135,1.7c0,.9,2.8,4.7,6.1,8.3,7.4,8,10.7,19.8,8.2,29.2-3.4,12.4.1,16.8,4.1,5,4.5-13.3,1.6-26.6-8.1-36.9-6.5-7-10.3-9.1-10.3-5.5M77.8,7.8c-1.1,1.5-4.7,4.1-7.9,5.9-13.2,7.2-18.8,17.9-20,38.2-1.2,19.4-1.6,20.7-8.9,29.3-9.5,11.1-7.7,13.3,11.7,13.9,14.9.5,14.9.5,17,5.6,2.2,5.4,9,10.1,14.5,10.1s12.3-4.7,14.5-10.1c2.1-5.1,2.1-5.1,17-5.6,19.4-.6,21.2-2.8,11.7-13.9-7.4-8.6-7.8-9.9-8.9-29.3-1.2-20.8-6.5-30.7-20.1-38.2-3.1-1.7-6.6-4.3-7.7-5.8-2.7-3.5-10.2-3.5-12.9,0M89.6,14.5c2.4,2.3,5.2,4.3,6.2,4.3,8.2,0,16.9,17.3,16.9,33.6,0,14.9,2.2,23,8.2,30.3l4.8,5.9H42.4l4.4-4.9c5.6-6.2,8.9-18.3,8.9-32.1s8.9-32.9,16.9-32.9,3.9-1.9,6.2-4.3c2.4-2.3,4.8-4.3,5.4-4.3s3.1,1.9,5.4,4.3M39.2,16.1c-8.8,8.8-9.9,31.6-1.5,31.6s2.6-.5.3-8.7c-2.2-7.7,0-15.2,6-20.2,2.1-1.7,3.8-4,3.8-5.1,0-3.2-4.1-2.1-8.5,2.3M120.7,13.8c0,1,1.7,3.3,3.8,5.1,5.9,5,8.2,12.5,6,20.2-2.3,8.2-2.3,8.7.4,8.7s6.3-9.4,5.3-17.3c-1.2-9.6-15.4-25-15.4-16.6",
+                  "fill": {
+                    "paint": "#010101",
+                    "rule": "evenodd"
+                  },
+                  "id": "e",
+                  "name": "e",
+                  "type": "path"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "fill": {
+                    "paint": "#010101"
+                  },
+                  "height": "50.7",
+                  "name": "rect",
+                  "transform": "translate(83.9 -109) rotate(56.5)",
+                  "type": "rect",
+                  "width": "7.7",
+                  "x": "139.4",
+                  "y": "-1.8"
+                },
+                {
+                  "fill": {
+                    "paint": "#010101"
+                  },
+                  "height": "50.7",
+                  "name": "rect",
+                  "transform": "translate(55.8 17.1) rotate(123.5)",
+                  "type": "rect",
+                  "width": "7.7",
+                  "x": "19.4",
+                  "y": "-1.8"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 166.5 110.7"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport threading\n\t\n\tdef set_action(view_params, value):\n\t    self.view.params.SilenceHorn_PB \u003d value\n\t\n\tself.view.params.SilenceHorn_PB \u003d True\n\tthreading.Timer(1, set_action, [self.view.params, False]).start()"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "SilenceHorn_PB"
+        },
+        "position": {
+          "height": 34,
+          "width": 123,
+          "x": 16.240000000000002,
+          "y": 295
+        },
+        "propConfig": {
+          "custom.HornActive": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Active"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "view.params.Horn_Active"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "text": "Silence Horn"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "borderBottomLeftRadius": 20,
+        "borderBottomRightRadius": 20,
+        "borderStyle": "solid",
+        "borderTopLeftRadius": 20,
+        "borderTopRightRadius": 20,
+        "borderWidth": 1
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

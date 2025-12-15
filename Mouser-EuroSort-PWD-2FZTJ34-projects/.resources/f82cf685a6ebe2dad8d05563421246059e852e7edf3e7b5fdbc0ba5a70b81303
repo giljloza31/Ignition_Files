@@ -1,0 +1,52 @@
+"""
+	Commands to tell WCS we've moved to a transfer location
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from shared.data.types.enum import Enum
+
+from wcs.config import wcs_post, wcs_delete, WCSDeviceID, WCSLocation
+
+import re
+import datetime
+from java.util import Date
+
+
+def sanitize_username(username = None):
+	username = (username or '').upper()
+	username = re.sub('[^a-zA-Z0-9]+', '', username, re.I)
+	return username[:6]
+
+
+def perfectpick_login(username, perfectpick_name, io_point):
+
+	device_id = WCSDeviceID(perfectpick_name + '_' + io_point.upper())
+	user_id = sanitize_username(username)
+
+	payload = {
+		'userId'  : user_id,
+		'deviceId': device_id,
+	}
+
+	response = wcs_post('sessions/notify?userId={user_id}', payload, user_id=user_id)
+
+	Logger().trace('POST to WCS for user login {username} at {perfectpick_name} {io_point}')
+	return response
+
+
+
+def perfectpick_logout(username, perfectpick_name, io_point):
+
+	device_id = WCSDeviceID(perfectpick_name + '_' + io_point.upper())
+	user_id = sanitize_username(username)
+
+	payload = {
+		'userId'  : user_id,
+		'deviceId': device_id,
+	}
+
+	response = wcs_delete('sessions/notify?userId={user_id}', user_id=user_id)
+
+	Logger().trace('DELETE to WCS for user logout {username}')
+	return response

@@ -1,0 +1,183 @@
+from datetime import datetime
+from system.net import httpClient
+from Database import db_access
+from shared.tools.thread import async
+from shared.tools.global import ExtraGlobal
+import re
+import system
+
+BARCODE_SEPARATOR = ','
+client = httpClient()
+db_name = 'MongoWCS'
+OPCSERVER = 'Ignition OPC-UA Server'
+#lifespan_time = 60 # 60 secs of time
+#lifespan_time = 60*60 # one hour of lifespan
+lifespan_time = 60*60*24 # one day of lifespan
+#lifespan_time = 60*60*24*30 # one month of lifespan
+#lifespan_time = 60*60*24*30*12  #one year of lifespan'''
+
+
+cached_scope = 'HighSpeedLine'
+logger = system.util.getLogger('Print_Process')
+
+PAYLOAD_PATTERN = re.compile(r"""
+    ^
+    (?P<indexid>\d{3})      # exactly 3 digits
+    \|
+    (?P<lpn>.+)             # rest of the line (non-empty)
+    $
+""", re.VERBOSE)
+
+PRINT_ERROR_LIST = {
+    1:  'Success',
+    2:  'Received incorrect payload',
+    3:  'Found No LPN',
+    4:  'Found Multiple LPNs',
+    5:  'Unable to send to printer',
+    6:  'Found Multiple LPNs',  # (kept as-is if intended)
+    7:  'Found No IBN',
+    8:  'Failed marriage API',
+    9:  'Failed manifest API',
+    10: 'No Label Returned',
+    11: 'Could not decode',
+    12: 'Not in DB'
+}
+
+class PrintProcess(object):
+    def __init__(self):
+        super(PrintProcess, self).__init__()
+
+    # ---------- helpers ----------
+    def _update_print_error_state(self, code):
+        self.data.update({
+            'reason_num': code,
+            'reason': PRINT_ERROR_LIST.get(code, 'Unexplained')
+        })
+
+    def _inc(self, key, by=1):
+        # Safe counter increment
+        self.print_counts[key] = self.print_counts.get(key, 0) + by
+
+    @async(name='Clear_print_reg')
+    def clear_print_reg(self, printerId):
+    	try:
+    		print_string = ''
+    		path = '[Mouser]Mouser/HSL/HSL_Print/Print_Process/Post_Data/PA{}'.format(printerId)
+    		system.tag.writeBlocking([path], [print_string])
+    		print_string = '^XA~JA^XZ\r\n'
+    		system.tag.writeBlocking([path], [print_string.encode('utf-8')])
+    		
+    	except Exception as e:
+    		logger.error('Printer send error: {}'.format(e))
+    		
+
+    # ---------- main entry ----------
+    def check_print_payload(self, rec_payload,printerId):
+        """
+        Parse payload, resolve print data (from cache or Mongo),
+        and prime self.data for printing + PLC update.
+        """
+        self.print_data = None
+        status = False
+
+        m = PAYLOAD_PATTERN.match(rec_payload)
+        if not m:
+            # Malformed payload
+            self.data.update({
+                'indexid': 100,
+                'lpn': 'No LPN',
+                'printer_results': 2,
+            })
+            self._inc('Improper Payload')
+            self._inc('Failed LPN')
+            self._update_print_error_state(2)
+            return status
+
+        payload_data = m.groupdict()
+        lpn = payload_data['lpn'].strip()
+        indexid = payload_data['indexid']  # no trailing comma!
+
+        # Normalize and record immediately so downstream has it
+        self.data.update({
+            'indexid': indexid,
+            'lpn': lpn,
+        })
+
+        # Invalid/empty LPNs
+        if lpn in ('NOREAD', 'NODATA', '', 'No LPN'):
+            self.data.update({
+                'printer_results': 2,
+            })
+            self._inc('Failed LPN')
+            self._update_print_error_state(3)
+            return status
+
+        # First try hot cache from induction/manifest
+    	try:
+        	print_data = ExtraGlobal.access(self.data['lpn'],cached_scope)
+        except:
+        	self.data.update({
+        		'printer_results': 2,
+        		})
+    		self._inc('Failed LPN')
+    		self._update_print_error_state(3)
+    		return status
+        
+
+        # If we have a label, we can proceed to printer. If not, PLC gets a no-label result
+        if print_data['print_label']:
+            # Ensure PLC has the index + "success incoming" code early
+            self.update_plc(1)  # success path
+            self.send_to_printer(printerId,print_data['print_label'])
+        else:
+            self.update_plc(2)  # no label
+            # You might still want to try to fetch/regen a label here if your flow supports it.
+        
+        # At this point we have print_data
+        # Merge the relevant fields into self.data
+        self.data.update({
+            "order_nbr":          	print_data.get('order_nbr'),
+            "verification_barcode": print_data.get('verification_barcode'),
+            "printer_results":    	print_data.get('printer_results', 2),
+        })
+
+        self._inc('Passed LPN')
+        self._update_print_error_state(1)
+        return True
+
+  
+    def send_to_printer(self,printerId,label):
+       
+		try:
+			pl = label
+			if not pl:
+				self._update_print_error_state(10)  # No Label Returned
+				return False
+		
+			print_string = pl + '\r\n'
+			path = '[Mouser]Mouser/HSL/HSL_Print/Print_Process/Post_Data/PA{}'.format(printerId)
+			system.tag.writeBlocking([path], [print_string.encode('utf-8')])
+		#			
+			return True
+		except Exception as e:
+			logger.error('Printer send error: {}'.format(e))
+			self._update_print_error_state(5)  # Unable to send to printer
+			return False
+
+    def update_plc(self, print_results):
+        """
+        Writes:
+          - IGNReturnedHSLPrintIndexID
+          - IGNReturnedHSLPrintResult[indexid]
+        Using HSL_Control.PLC_NAME on the child instance.
+        """
+        try:
+            idx = int(self.data.get('indexid', 100))
+            itemPaths = [
+                'ns=1;s=[{}]IGNReturnedHSLPrintIndexID'.format(self.PLC_NAME),
+                'ns=1;s=[{}]IGNReturnedHSLPrintResult[{}]'.format(self.PLC_NAME, idx),
+            ]
+            opcValues = [idx, int(print_results)]
+            system.opc.writeValues(self.OPCSERVER, itemPaths, opcValues)
+        except Exception as e:
+            logger.error('OPC Print Status Write Error: {}'.format(e))

@@ -1,0 +1,48 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1930
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "AlarmJournalTable"
+        },
+        "position": {
+          "basis": "400px"
+        },
+        "props": {
+          "responsive": {
+            "enabled": true
+          }
+        },
+        "type": "ia.display.alarmjournaltable"
+      },
+      {
+        "meta": {
+          "name": "AlarmStatusTable"
+        },
+        "position": {
+          "basis": "400px"
+        },
+        "props": {
+          "responsive": {
+            "enabled": true
+          }
+        },
+        "type": "ia.display.alarmstatustable"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

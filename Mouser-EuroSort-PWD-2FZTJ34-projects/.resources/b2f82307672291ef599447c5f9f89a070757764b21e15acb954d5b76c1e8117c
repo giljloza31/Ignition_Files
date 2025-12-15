@@ -1,0 +1,3 @@
+Insert into  QP_Routing 
+( RouteCode , RoundRobin , Lane_01 ,Lane_02 ,Lane_03 ,Lane_04 ,Lane_05 ,Lane_06 ,Lane_07 ,Lane_08 ,Lane_09 ,Lane_10 ,Lane_11 ,Lane_12 ,Lane_13 ,Lane_14 ,Lane_15 ,Lane_16 ,Lane_17 ,Lane_18 ,Lane_19 ,Lane_20 ,Lane_21 ,Lane_22 ,Lane_23 ,Lane_24 ,Lane_25 ,Lane_26 ,Lane_27 ,Lane_28 ,Lane_29 ,Lane_30 ,Lane_31)
+values ( :inVarRoute ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)

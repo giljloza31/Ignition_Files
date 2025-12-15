@@ -1,0 +1,117 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 132,
+      "width": 384
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "RouteCode"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 168,
+          "y": 34
+        },
+        "props": {
+          "placeholder": "Enter Route"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 37,
+          "width": 133,
+          "x": 24,
+          "y": 31.5
+        },
+        "props": {
+          "text": "Route Code:",
+          "textStyle": {
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\troute_code \u003d self.getSibling(\"RouteCode\").props.text\n\tblankMessage \u003d \u0027Route cannot be empty\u0027\n\texistsMessage \u003d \u0027Route Already in Table\u0027\n\tcount \u003d system.db.runNamedQuery(\u0027Route/Scan1/Route_Table/Get_RouteCount\u0027,{\u0027inVarRoute\u0027:route_code}).getValueAt(0,0)\n\t\n\t\n\tif route_code \u003d\u003d \u0027\u0027:\n\t\tsystem.perspective.openPopup(\u0027Scan1errorpopup\u0027, \u0027Popups/Scan1/Error\u0027,params \u003d {\u0027ErrorMessage\u0027:blankMessage})\n\t\n\tif count\u003d\u003d 0 and route_code !\u003d \u0027\u0027:\n\t\n\t\tsystem.db.runNamedQuery(\u0027Route/Scan1/Route_Table/Insert_RouteTable\u0027,{\u0027inVarRoute\u0027:route_code})\n\t\n\n\t\n\telse:\n\t\tsystem.perspective.openPopup(\u0027errorpopup\u0027, \u0027Popups/Error\u0027,params \u003d {\u0027ErrorMessage\u0027:existsMessage})\n\n\t\n\tself.getSibling(\"RouteCode\").props.text \u003d \u0027\u0027\n\t\n\tsystem.perspective.closePopup(\u0027addRoute\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 72,
+          "y": 79
+        },
+        "props": {
+          "text": "Add"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "addRoute",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/Add_Route",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 80,
+          "x": 203,
+          "y": 79
+        },
+        "props": {
+          "primary": false,
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

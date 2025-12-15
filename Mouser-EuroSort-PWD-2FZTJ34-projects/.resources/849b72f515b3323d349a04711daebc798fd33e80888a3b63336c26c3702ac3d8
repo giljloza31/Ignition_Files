@@ -1,0 +1,161 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 224,
+      "width": 353
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Add_User",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/QPS_Sortation/Add_User",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Cancel"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 221,
+          "y": 123
+        },
+        "props": {
+          "primary": false,
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom shared.pwd.QPS_Sortation import login_user\n\tuserID \u003d self.getSibling(\"UserID_Entry\").props.text\n\tpassword \u003d self.getSibling(\"UserPassword_Entry\").props.text\n\t\n\t\n\tlogin_user(userID,password)\n\t\n\t\n\tself.getSibling(\"UserID_Entry\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"UserPassword_Entry\").props.text \u003d \u0027\u0027\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Add User"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 71,
+          "y": 123
+        },
+        "props": {
+          "text": "Sign In"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Password_Label"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 82,
+          "x": 53,
+          "y": 64
+        },
+        "props": {
+          "text": "Password:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "UserPassword_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 151,
+          "y": 62
+        },
+        "props": {
+          "placeholder": "Enter Password"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "UserID_Entry"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 151,
+          "y": 24
+        },
+        "propConfig": {
+          "props.text": {
+            "onChange": {
+              "enabled": null,
+              "script": "\t\n\ttext \u003d currentValue.value\n\t\n\tself.props.text \u003d text.upper()"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Enter USERID"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "User_Label"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 71,
+          "x": 64,
+          "y": 26
+        },
+        "props": {
+          "text": "UserID:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

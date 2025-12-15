@@ -1,0 +1,73 @@
+"""
+	Base class to build on
+	
+	This sets up the core functionality that the mixins will expand on.
+	It essentially manages the initial defaults and instantiation.
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from sortapi       import EuroSort
+from sortapi.utils import ConfigurationData
+from eurosort.utility import javafy, abspathjoin
+from eurosort.enums import SorterStatus
+import os
+
+
+
+class EuroSorterBase(object):
+
+	CONFIGURATION_DEFAULTS = {
+		'enable_logging': True,
+		'log_path': abspathjoin(os.curdir, 'logs'),
+		'max_log_count': 30, # files
+		'max_log_size': 10000, # kB
+		'dimension_scale': 1.0, # vs mm
+		'weight_scale': 1.0, # vs lbs
+		'log_verbose': True, # LLLLLOOOOOOOGGGGGGGSSSSSS
+		'send_timeout': 2000, # ms
+		'verify_priority': 3, # ???
+	}
+	
+	def __init__(self, name, endpoint_address, **config_overrides):
+		self.name = name
+		self.logger = Logger(self.name)
+		
+		self.address = endpoint_address
+		
+		self.config = self.CONFIGURATION_DEFAULTS.copy()
+		self.config.update({
+				key: value for key, value in config_overrides.items()
+				if key in self.CONFIGURATION_DEFAULTS
+			})
+
+		self._euroSortInterface = None
+
+	
+	@property
+	def euroSortInterface(self):
+		if self._euroSortInterface is None:
+			self._euroSortInterface = EuroSort(self.address, self.configurationData)
+		return self._euroSortInterface
+
+	
+	@property
+	def status(self):
+		if self.euroSortInterface: # return None if not initialized
+			return self.euroSortInterface.getSorterStatus()
+
+	def _check_connection_status(self):
+		if self.status != SorterStatus.READY:
+			self.logger.warn('Sorter connection no longer ready. Crashing out of service thread.')
+			raise IOError('Sorter connection not ready: %r: %r' % (self, self.status,))
+
+	@property
+	def configurationData(self):
+		return ConfigurationData(**{
+			javafy(key): value 
+			for key, value
+			 in self.config.items()
+		})
+
+
+	def __repr__(self):
+		return '<EuroSort %s(%s)@%s>' % (self.name, self.status, self.address)

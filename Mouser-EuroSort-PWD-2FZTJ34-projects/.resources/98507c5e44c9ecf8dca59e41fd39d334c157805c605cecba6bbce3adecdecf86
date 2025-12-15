@@ -1,0 +1,71 @@
+
+
+from shared.tools.global import ExtraGlobal
+
+
+class DictAccessMixin(object):
+
+	def __getitem__(self, variable_name):
+		try:
+			return self._variables[variable_name]
+		except KeyError:
+			try:
+				return self._variables['_' + variable_name]
+			except KeyError:
+				raise KeyError('%r does not seem to be a valid variable name' % (variable_name,))
+	
+	def __setitem__(self, variable_name, new_value):
+		if not variable_name in self._variables:
+			raise KeyError('%r is not configured in the variables' % (variable_name,))
+		if variable_name.startswith('_'):
+			raise KeyError('Please do not directly adjust the private variables like %r' % (variable_name,))
+		self._variables[variable_name] = new_value
+		
+
+
+class MetaGlobalAccessMixin(type):
+	
+	_CACHED_SCOPE = 'Process Simulator'
+	_CACHED_LIFESPAN = 90
+	
+	
+	def __getitem__(cls, process_name):
+		return 	ExtraGlobal.access(label=process_name, scope=cls._CACHED_SCOPE)
+
+	def __setitem__(cls, process_name, process):
+		ExtraGlobal.stash(
+			process,
+			label=process._name,
+			scope=cls._CACHED_SCOPE,
+			lifespan=cls._CACHED_LIFESPAN, # seconds
+			callback=lambda self=process: None if self.TERMINATED else self,		
+		)
+
+
+
+class GlobalAccessMixin(object):
+	"""
+	Allow machines to be retrieved via ExtraGlobal (or something does that on your behalf)
+	
+	Note that this doesn't prevent you from replacing machines. So, well, beware clobbering.
+	One name, one machine.
+	"""
+	__metaclass__ = MetaGlobalAccessMixin
+	
+	
+	def SCRAM(self):
+		self.state = 'TERMINATED'
+		self._variables = {}
+	
+	@property
+	def TERMINATED(self):
+		return self.state == 'TERMINATED'
+	
+	def __init__(self, **keyword_arguments):
+		super(GlobalAccessMixin, self).__init__(**keyword_arguments)
+		type(self)[self._name] = self
+
+
+
+class AccessMixin(DictAccessMixin, GlobalAccessMixin):
+	pass

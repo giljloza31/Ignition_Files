@@ -1,0 +1,113 @@
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from functools import partial
+from Database import db_access
+
+from time import sleep
+from random import random
+from datetime import datetime
+
+import re
+
+
+
+route_reason = {
+		1:'Success',
+		2:'NOREAD',
+		3:'Not in DB',
+		4:'Page count greater than 6',
+		5:'Page count not define, not shipped or married',
+		6:'Lane was disabled at time of scan'
+		
+		}
+		
+@async(name="PSI-Routing-GatherData")
+
+class PSI_Routing:
+	
+	def PSI_gather_data(self,source_path):
+
+		
+		timestart = datetime.now().isoformat()
+		parent_dest = '/'.join(source_path.split('/')[:-2] + ['IGN_Query'])
+	
+	
+		raw_data,lane,enabled = [
+			qv.value for qv in 
+			system.tag.readBlocking([
+				parent_dest + '/' + 'LPN_Data',
+				parent_dest + '/' + 'PSI_Lane',
+				parent_dest + '/' + 'Enabled',
+			])]	
+	
+
+		lpn_lookup = raw_data.split(',') if raw_data else []
+		
+		if not lpn_lookup or 'NOREAD' in lpn_lookup:
+			dest = 3
+			destination = 'Manual'
+			lpn = 'NOREAD'
+			lpn_lookup = 'NOREAD'
+			reason = 2
+			
+	
+	
+
+		lane_String = 'PSI_{}'.format(lane)
+		
+		
+		filter={"_id":{'$in':lpn_lookup}}
+		
+		
+		
+		LPNresults = db_access.select_records(db_name,'bulk_automation_packages',filter)
+			
+		
+		if enabled:
+		
+		
+			if not LPNresults:
+				dest = 3
+				destination = 'Manual'
+				reason = 3
+			
+			elif LPNresults[0]['page_count']<=6:
+				dest = 1
+				destination = lane_String
+				reason = 1
+			elif LPNresults[0]['page_count']>6:
+				dest = 3
+				destination = 'Manual'
+				reason = 4
+			else:
+				dest = 3
+				destination = 'Manual'
+				reason = 5
+		else:
+			dest = 3
+			destination = 'Manual'
+			reason = 6
+			
+	#system.util.getLogger('BAL_PSI').trace('LPN: %r dest: %d' % (lpn_lookup,dest))	
+	
+	LPNresults[0].update({
+		'PSI_Dest_Return': dest,			
+		'PSI_Dest_String_RET': destination,
+		'PSI_Reason':reason,
+		'PSI_Reason_string':route_reason.get(reason)
+	})
+	
+	filter = {'id':LPNresults[0]['_id']}
+	db_name = 'MongoWCS'
+	table = 'bulk_automation_packages'
+	db_access.update_record(db_name, table, LPNresults[0], where_clause=filter)
+	
+	#dump_data(source_path, data)
+	parent_dest += '/'	
+	system.tag.writeAsync(*zip(*[
+		(parent_dest + 'Dest_Return', dest),			
+		(parent_dest + 'Dest_String_RET', destination),	
+		(parent_dest + 'Reason',reason),
+		(parent_dest + 'Reason_string',route_reason.get(reason))
+	]))
+	

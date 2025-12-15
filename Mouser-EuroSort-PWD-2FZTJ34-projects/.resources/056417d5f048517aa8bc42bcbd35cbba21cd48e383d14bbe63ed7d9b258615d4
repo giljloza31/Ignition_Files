@@ -1,0 +1,64 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 1080,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "AlarmJournalTable"
+        },
+        "position": {
+          "height": 798,
+          "width": 1407,
+          "x": 257.2,
+          "y": 211.35
+        },
+        "props": {
+          "columns": {
+            "displayPath": {
+              "enabled": true
+            },
+            "eventId": {
+              "enabled": false
+            },
+            "source": {
+              "enabled": false
+            }
+          },
+          "refreshRate": 1000
+        },
+        "type": "ia.display.alarmjournaltable"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 114.99999999999999,
+          "width": 505.0000000000001,
+          "x": 707.7,
+          "y": 69.01
+        },
+        "props": {
+          "text": "Alarm Journal",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver2-Italics",
+            "fontSize": 65,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

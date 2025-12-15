@@ -1,0 +1,70 @@
+# Inductive Automation
+
+from database.records.mongodb import insert_record
+
+# === SETTINGS =================================================================
+MONGODB = "MongoWCS"
+COLLECTION = "Prod1_Logging"
+
+
+
+def log_event(area, evt_num, end=False, **context):
+	
+	name		= 'log_event_%s'%(area)
+	ts			= system.date.now()
+	start_time	= context.get("start_time")
+	process		= context.get("process")
+	logger		= system.util.getLogger(name)
+	
+	# Handle optional end + runtime
+	if end:
+		# prefer explicit context end_time if provided; else use now
+		end_time = context.get("end_time")
+	else:
+		end_time = None
+
+	# Base doc (authoritative keys)
+	doc = {
+		"timestamp"   : ts,
+		"area"        : area,
+		"event_num"   : evt_num,
+		"process"     : process,
+		"start_time"  : start_time,
+		"end_time"    : end_time,
+		}
+		
+	# Merge extra context WITHOUT overwriting base keys.
+	# Skip Nones to avoid polluting the record.
+	for k, v in context.items():
+		if v is None:
+			continue
+		if k not in doc:
+			doc[k] = v
+			
+	# --- Persist + Log -------------------------------------------------------
+	try:
+		
+		insert_record(MONGODB, COLLECTION, doc)
+		
+	except Exception as e:
+		
+		# Don't raise; capture a minimal error for troubleshooting
+		try:
+			logger.error("Mongo insert failed: {}".format(e))
+		except:
+			pass  # avoid secondary failures
+			
+	# Compact gateway log line (safe lookups)
+	try:
+		
+		line = "[{logger}] {area}:{process} reason={rnum}/{reason} msg={msg}".format(
+			logger	= name,
+			area	= doc.get("area", ""),
+			process	= doc.get("process", ""),
+			rnum	= doc.get("reason_num", ""),
+			reason	= (doc.get("reason") or ""),
+			msg		= doc.get("msg", "")
+			)
+		logger.debug(line)
+	except Exception:
+		pass

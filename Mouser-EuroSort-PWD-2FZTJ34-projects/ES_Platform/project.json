@@ -1,0 +1,7 @@
+{
+  "title": "ES_Platform",
+  "description": "ES_Platform is a reusable automation framework for EuroSort systems that provides reliable state persistence, flexible routing strategies, and comprehensive auditability across multiple sorter instances, with built-in simulation and operational tooling.",
+  "enabled": true,
+  "inheritable": false,
+  "parent": "Platform_Lib"
+}

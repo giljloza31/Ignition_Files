@@ -1,0 +1,112 @@
+{
+  "custom": {},
+  "params": {
+    "CalibrationPB": "value",
+    "TagPath": "value"
+  },
+  "propConfig": {
+    "params.CalibrationPB": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.TagPath": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 161,
+      "width": 274
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 175,
+          "x": 49.5,
+          "y": 16
+        },
+        "props": {
+          "text": "Are you sure?",
+          "textStyle": {
+            "fontSize": 22,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport threading\n\ttagPath \u003d self.view.params.TagPath\n\t\n\tbutton \u003d tagPath + \u0027/Calibrate_PB\u0027\n\taction \u003d tagPath + \u0027/action\u0027\n\tsystem.tag.writeBlocking([button,action], [1,1])\n\t\n\t\n\tcalpos \u003d tagPath + \u0027/Positions\u0027\n\ttagResults \u003d system.tag.browse(calpos)\n\t\n\tfor token in tagResults:\n\t\tGet_parent_dest \u003d str(token.get(\u0027fullPath\u0027))\n\t\t\n\t\tdest \u003d \u0027/\u0027.join(Get_parent_dest.split(\u0027/\u0027)[-1:])\n\t\tsetDest \u003d \u0027/\u0027.join(Get_parent_dest.split(\u0027/\u0027)[:-1])\n\t\tif dest.startswith(\u0027Divert\u0027):\n\t\t\ttagValue \u003d system.tag.readBlocking(Get_parent_dest)\n\t\t\ttagPaths \u003d setDest + \u0027/Last_\u0027+ dest\n\t\t\tsystem.tag.writeBlocking(tagPaths, tagValue[0].value)\n\tthreading.Timer(1, system.tag.writeBlocking, [button, [0]]).start()\n\tsystem.perspective.closePopup(\u0027Confirm\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 31,
+          "y": 89
+        },
+        "props": {
+          "text": "Yes"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Confirm",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Mouser/Popups/Yellow/NE_Receiving/Confirmation",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 161,
+          "y": 89
+        },
+        "props": {
+          "primary": false,
+          "text": "No"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

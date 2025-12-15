@@ -1,0 +1,325 @@
+"""
+	Service wrapper
+	
+	Instantiate this EuroSorter class to use a sorter!
+	Simplifies connection management
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from java.lang import Exception as JavaException
+from java.lang.System import gc as jvm_garbage_collect
+from eurosort.enums import *
+from time import sleep
+import random
+
+from shared.tools.thread import async, getFromThreadScope, findThreads, Thread
+from shared.tools.global import ExtraGlobal
+from eurosort.config  import EuroSorterConfig
+from eurosort.context import EuroSorterContextManagement
+from shared.tools.error import *
+
+from functools import partial
+
+
+
+class EuroSorterService(
+		EuroSorterConfig,
+	):
+
+	SERVICE_CACHE_SCOPE = 'EuroSort-Service'
+	SORTAPI_LOGGING_LEVEL = 'trace' # 'warn'
+
+	CONNECTION_STARTUP_DELAY = 3 # seconds
+	LAUNCH_DELAY = 1 # seconds
+
+	DEFAULT_WAIT_DELAY = 0.05
+
+
+	def __init__(self, name, **init_config):
+		self._wait_iterations = 0 # keep track of iterations
+		self._wait_delay = init_config.get('wait_delay', self.DEFAULT_WAIT_DELAY)
+		super(EuroSorterService, self).__init__(name, **init_config)
+
+
+	@classmethod
+	def _thread_name(cls, sorter_name):
+		return 'EuroSort-%s' % (sorter_name,)
+
+	# WARNING: DO NOT DELAY ON MAIN SORTER CONTROL THREAD
+	@property
+	def _current_thread_is_control(self):
+		return self._thread_name(self.name) == Thread.currentThread().getName()
+
+	def _safe_wait(self, delay=None):
+		if delay:
+			if self._current_thread_is_control:
+				self.logger.warn('Skipping gate open delay: do NOT sleep() in control thread!')
+			else:
+				sleep(delay)
+
+	def _stash_service(self):
+		ExtraGlobal.stash(self, self.name, self.SERVICE_CACHE_SCOPE)
+	def _trash_service(self):
+		cached_instance = ExtraGlobal.get(self.name, self.SERVICE_CACHE_SCOPE, None)
+		if cached_instance and cached_instance is self:
+			ExtraGlobal.trash(self.name, self.SERVICE_CACHE_SCOPE)
+
+	@classmethod
+	def get(cls, name):
+		return ExtraGlobal.get(name, cls.SERVICE_CACHE_SCOPE, None)
+#		try:
+#			thread_name = cls._thread_name(name)
+#			sorter_thread = findThreads(thread_name)[0]
+#			sorter = getFromThreadScope(sorter_thread, 'sorter')
+#			Logger().warn('Found {sorter} for thread {thread_name} for {name}, found {sorter_thread}')
+#			return sorter
+#		except:
+#			return None
+
+	@classmethod
+	def _available_for_control(cls, name):
+		return cls.get(name) is None
+
+	@property
+	def _is_in_control(self):
+		return type(self).get(self.name) is self
+
+
+	@classmethod
+	def launch_if_needed(cls, name):
+		sorter = cls.get(name)
+		
+		if not cls.check_connect_permissive(name):
+			if sorter:
+				sorter.logger.warn('EuroSorter disconnect reqeuested. Stopping {sorter}')
+				sorter.stop()
+				return
+			else:
+				return # do nothing
+	
+		elif sorter is None:
+			Logger().warn('EuroSorter instance not found and connect requested. Launching for {name}')
+			cls.launch(name)
+	
+		elif not sorter.connection_is_live:
+			sorter.logger.warn('EuroSorter connection died. Stopping {sorter} and replacing.')
+			sorter.stop()
+			cls.launch(name)
+	
+		elif not isinstance(sorter, cls):
+			Logger().warn('EuroSorter environment updated. Reloading... (expected %r but currently is %r)' % (cls, sorter))
+			sorter.stop()
+			cls.launch(name)
+
+
+	def stop(self):
+		self._trash_service()
+		try:
+			sorter_thread = findThreads(self._thread_name(self.name))[0]
+			if sorter_thread:
+				sorter_thread.interrupt()
+		except IndexError:
+			pass # thread not found
+
+
+	def wait(self):
+		sleep(self._wait_delay)
+		self._wait_iterations += 1
+
+
+	@classmethod
+	def launch(cls, name, **init_config):
+	
+		@async(
+			startDelaySeconds=cls.LAUNCH_DELAY, 
+			name=cls._thread_name(name,), 
+			ensureOnlyOne=reversed,
+		)
+		def launch_sorter(name, EuroSorterClass=cls, init_config=init_config):
+			from time import sleep
+		
+			Logger().info('EuroSort connection initializing for {name}')
+		
+			Logger().debug('Ensuring any previous connection closes and finalizes...')
+			sleep(2 + 5 * random.random()) # jitter the wait to massively decrease racing
+			jvm_garbage_collect()
+		
+			if not cls._available_for_control(name):
+				Logger().debug('... race deteced, bowing out superfluous instance')
+				return
+		
+			Logger().debug('... done. Connections should be clear and clean.')
+		
+			sorter = EuroSorterClass(name, **init_config)
+			sorter._stash_service()
+		
+			system.util.setLoggingLevel(sorter.logger.loggerName, 'TRACE')
+		
+			sleep(cls.CONNECTION_STARTUP_DELAY-cls.LAUNCH_DELAY)
+			sorter.logger.debug('Connecting...')
+		
+			# verify that this thread won the race
+			if not sorter._is_in_control:
+				raise RuntimeError('Attempted to start up but active service is not myself!')
+		
+			sortapi_logging_level = sorter.SORTAPI_LOGGING_LEVEL
+			
+			with sorter:
+				system.util.getLogger('SortApi').info('EuroSort sorter coming online. Setting log level to %s (squelching telemetry)' % sortapi_logging_level)
+				system.util.setLoggingLevel('SortApi', sortapi_logging_level)
+				sorter.logger.debug('Entering main loop')
+				sleep(cls.CONNECTION_STARTUP_DELAY)
+				try:
+					while sorter.connect_permissive:
+						sorter._check_connection_status()
+						sorter.wait()
+					sorter.logger.warn('Connect permissive removed. Stopping...')
+				except KeyboardInterrupt:
+					sorter.logger.warn('Sorter thread interrupted!')
+					return
+				except Exception as error:
+					sorter.logger.error('Sorter crashing for {error}')
+					sorter.logger.error(python_full_stack())
+				except JavaException as error:
+					sorter.logger.error('Sorter crashing for Java error: {error}')
+					sorter.logger.error(java_full_stack())
+				finally:
+					sorter.logger.warn('EuroSort connection {name} ended.') 
+		
+		sorter_thread = launch_sorter(name)
+		
+		Logger().info('EuroSort connection launched for {name}: {sorter_thread}')
+
+
+
+class EuroSorterServiceIndicatorMixin(object):
+#		EuroSorterContextManagement, # not dealing with the dependency hell going on here
+#		EuroSorterService,
+#	):
+
+	# indicate the service is live
+	def connect(self):
+		super(EuroSorterServiceIndicatorMixin, self).connect()
+		self._write_config_tag('Connection Active', True)
+
+	def disconnect(self):
+		self._write_config_tag('Connection Active', False)
+		super(EuroSorterServiceIndicatorMixin, self).disconnect()
+
+	@property
+	def connection_is_live(self):
+		return self._read_config_tag('Connection Active')
+
+
+class EuroSorterPolling(
+		EuroSorterService,
+	):
+
+	DEFAULT_POLLING_RATE = 2.5 # seconds
+	
+	def __init__(self, name, **init_config):
+	
+		Logger().warn('in init EuroSorterPolling')
+	
+		self._poll_rate = init_config.get('poll_rate', self.DEFAULT_POLLING_RATE)
+	
+		# add to this via super.__init__
+		self._polling_methods = []
+	
+		super(EuroSorterPolling, self).__init__(name, **init_config)
+	
+		self._polling_period_iterations = int(self._poll_rate // self._wait_delay)
+	
+		# holds what polling method gets which iteration slot
+		self._polling_wait_iteration_methods = {} 
+	
+		self._init_polling()
+
+
+
+	def _init_polling(self):
+		# we'll only check every so often since the wait time is so short
+		# and we'll spread the polling methods across the wait iterations
+		# to prevent them creating an excessive delay
+		polling_gap               = self._polling_period_iterations // (len(self._polling_methods)+1)
+		polling_gap_offset        = polling_gap // 2
+	
+		# assert polling is rarified
+		assert polling_gap > 2, 'Wait and polling rates result in too dense polling. Increase the polling rate or reduce the wait delay.'
+	
+		self._polling_wait_iteration_methods = {}
+		for ix, method in enumerate(self._polling_methods):
+			calling_iteration = int((ix * polling_gap) + polling_gap_offset)
+			self._polling_wait_iteration_methods[calling_iteration] = method
+	
+#		self.logger.trace('Polling (re)initialized: %r %r %r %r' % (
+#			self._poll_rate,
+#			self._polling_period_iterations,
+#			self._polling_methods,
+#			self._polling_wait_iteration_methods,
+#		))
+
+
+	def wait(self):
+		super(EuroSorterPolling, self).wait()
+		
+		polling_loop_iteration = self._wait_iterations % self._polling_period_iterations
+		poll_method = self._polling_wait_iteration_methods.get(polling_loop_iteration, None)
+		if poll_method:
+			poll_method()
+
+
+
+class EuroSorterPermissivePolling(
+		EuroSorterPolling,
+	):
+
+	def __init__(self, name, **init_config):
+
+		Logger().warn('in init EuroSorterPermissivePolling')
+
+		self._permissive_tag_path_mapping = {}
+		self._permissive_values = {}
+	
+		super(EuroSorterPermissivePolling, self).__init__(name, **init_config)
+	
+		self._polling_methods.append(self._poll_permissives)
+	
+		self._init_polling()
+
+	def get_permissive(self, permissive):
+		return self._permissive_values.setdefault(permissive, None)
+
+
+	def _poll_permissives(self):
+		tag_paths = []
+		permissives = []
+		for permissive, tag_path in self._permissive_tag_path_mapping.items():
+			permissives.append(permissive)
+			tag_paths.append(tag_path)
+	
+		callback = partial(self._update_permissives, permissives=permissives)
+	
+		system.tag.readAsync(tag_paths, callback)
+
+	def _update_permissives(self, qualifiedValues, permissives):
+		for permissive, qualifiedValue in zip(permissives, qualifiedValues):
+			old_value = self.get_permissive(permissive)
+			new_value = qualifiedValue.value
+			if self._permissive_values[permissive] != new_value:
+				self.logger.debug('Permissive {permissive!r} changing from {old_value} to {new_value}')
+			self._permissive_values[permissive] = new_value
+
+
+#try:
+#	print sorter
+#except NameError:
+#	try:
+#		sorter_thread = findThreads('EuroSort-Test')[0]
+#	except:
+#		sorter_thread = launch_sorter(
+#				r'opc.tcp://10.0.220.3:4840',
+#				r'C:\Workspace\EuroSort',
+#			)
+#	sleep(5.0)
+#	sorter = getFromThreadScope(sorter_thread, 'sorter')

@@ -1,0 +1,71 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+
+
+from eurosort.sorterdata.context import SorterDataContext
+from eurosort.sorterdata.messaging import SorterDataMessaging
+
+from eurosort.sorterdata.destination import SorterDataDestination, SorterDataDestination_DefaultPattern
+from eurosort.sorterdata.dimensions import SorterDataDimensions
+from eurosort.sorterdata.buttons import SorterDataButtons
+from eurosort.sorterdata.lights import SorterDataLights
+from eurosort.sorterdata.tracking import SorterDataTracking
+from eurosort.sorterdata.misc import SorterDataMisc
+
+from eurosort.sorterdata.tag import TagMappingMixin
+
+
+
+class SorterDataWrapper(
+	TagMappingMixin,
+	
+	SorterDataContext,
+	SorterDataMessaging,
+	SorterDataMisc,
+	
+	SorterDataDestination_DefaultPattern,
+	
+	SorterDataDestination,
+	SorterDataDimensions,
+	SorterDataButtons,
+	SorterDataLights,
+	SorterDataTracking,
+	
+	SorterDataBase,
+):
+	pass
+
+
+	# convenience accesors
+	
+	def __setitem__(self, key, val):
+		try:
+			return setattr(self, key, val)
+		except AttributeError:
+			raise KeyError('Key %s is not a valid attribute or property.' % (key,))
+
+	def __getitem__(self, key):
+		try:
+			return getattr(self, key)
+		except AttributeError:
+			raise KeyError('Key %s is not a valid attribute or property.' % (key,))
+
+	def asdict(self):
+		props = {}
+		for attr in dir(self):
+			if attr.startswith('_'):
+				continue
+			maybe_class_property = getattr(type(self), attr, None)
+			if isinstance(maybe_class_property, property):
+				try:
+					value = getattr(self, attr)
+					if value is not None:
+						props[attr] = value
+				except:
+					pass # whatever that value is I don't care
+		return props

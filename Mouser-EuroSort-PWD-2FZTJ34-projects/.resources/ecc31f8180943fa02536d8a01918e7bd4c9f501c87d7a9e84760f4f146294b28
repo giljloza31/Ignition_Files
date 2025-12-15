@@ -1,0 +1,3 @@
+def doGet(request, session):
+
+	return eurosort.api.dispatch.route_webdev(request)

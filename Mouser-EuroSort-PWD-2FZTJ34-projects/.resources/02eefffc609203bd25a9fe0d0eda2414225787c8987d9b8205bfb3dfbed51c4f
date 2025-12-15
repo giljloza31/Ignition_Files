@@ -1,0 +1,304 @@
+{
+  "custom": {},
+  "params": {
+    "ChuteName": "DST-0001-1-1-A",
+    "ChuteStatus": 1,
+    "Faulted": false,
+    "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+    "collection": "eurosort_chutes_db",
+    "connector": "MongoDBLocal",
+    "folderPath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+    "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Filtered/Ind_Filtered",
+    "sortedCount": 0,
+    "volume": 4770.4892112
+  },
+  "propConfig": {
+    "params.ChuteName": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.ChuteStatus": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "chute": "{view.params.ChuteName}"
+          },
+          "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes/{chute}/ChuteStatus"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Faulted": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Path": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.collection": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.connector": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.folderPath": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.indFilteredPath": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.sortedCount": {
+      "binding": {
+        "config": {
+          "bidirectional": true,
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/Count/SortedCount"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.volume": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Volume_Use"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 334,
+      "width": 126
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "MultiStateButton"
+        },
+        "position": {
+          "height": 70,
+          "width": 80,
+          "x": 19.5,
+          "y": 134
+        },
+        "propConfig": {
+          "props.controlValue": {
+            "onChange": {
+              "enabled": null,
+              "script": "\tsetValue \u003d currentValue.value\n\tpath \u003d self.view.params.Path\n\tchute \u003d self.view.params.ChuteName\n\tcollection \u003d self.view.params.collection\n\tconnector \u003d self.view.params.connector\n\tfilterID \u003d {\n\t\t\u0027_id\u0027:chute\n\t\t}\n\n\t\n\tif setValue \u003d\u003d 1:\n\t\tenabled \u003d True\n\telse:\n\t\tenabled \u003d False\n\t\n\ttagPaths \u003d [\n\tpath + \u0027/\u0027 + chute + \u0027/Enabled\u0027\n\t]\n\t\n\tvalues \u003d [\n\tenabled\n\t]\n\tupdates \u003d {\n\t\t\u0027$set\u0027:{\n\t\t\t\u0027enabled\u0027:enabled\n\t\t\t}\n\t\t}\n\tsystem.tag.writeAsync(tagPaths, values)\n\t\n\tsystem.mongodb.updateOne(connector, collection, filterID, updates)\n\t\n\t\n\t"
+            }
+          },
+          "props.indicatorValue": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "chute": "{view.params.ChuteName}"
+                },
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes/{chute}/Enabled"
+              },
+              "transforms": [
+                {
+                  "fallback": 0,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": 1
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "controlValue": 1,
+          "states": [
+            {
+              "selectedStyle": {
+                "backgroundColor": "#FFF275",
+                "classes": ""
+              },
+              "text": "Enabled",
+              "unselectedStyle": {
+                "classes": ""
+              },
+              "value": 1
+            },
+            {
+              "selectedStyle": {
+                "backgroundColor": "#F84553",
+                "classes": ""
+              },
+              "text": "Disable",
+              "unselectedStyle": {
+                "classes": ""
+              },
+              "value": 0
+            }
+          ]
+        },
+        "type": "ia.input.multi-state-button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport threading\n\timport time\n\tfrom datetime import datetime\n\t\n\t# Parameters\n\tchute \u003d self.view.params.ChuteName\n\tpath \u003d self.view.params.Path\n\tcollection \u003d self.view.params.collection\n\tconnector \u003d self.view.params.connector\n\tvolume \u003d self.view.params.volume\n\tsortedCount \u003d self.view.params.sortedCount\n\topen_duration \u003d 30  # Duration in seconds for the chute to stay open\n\tdef checkTagValue(tagPath):\n\t\ttagValue \u003d system.tag.readBlocking([tagPath])[0].value\n\t\treturn tagValue\n\t\t\n\tdef waitForChuteClosed(tagPath):\n\t\ttagPath \u003d \u0027%s/ChuteClosedSW\u0027%(tagPath)\n\t\twhile not checkTagValue(tagPath):\n\t\t\ttime.sleep(0.5)\n\t\t\t\n\tdef waitForChuteOpen(tagPath):\n\t\ttagPath \u003d \u0027%s/ChuteClosedSW\u0027%(tagPath)\n\t\twhile checkTagValue(tagPath):\n\t\t\ttime.sleep(0.5)\n\tdef close_chute():\n\t    # Close the chute by updating the ChuteOpen tag to False\n\t    tagPaths \u003d [\n\t        tag_prefix + \u0027ChuteOpenRequest\u0027,\n\t        tag_prefix + \u0027Queued\u0027\n\t        \n\t    ]\n\t    values \u003d [\n\t        False,# Close the chute\n\t        False\n\t    ]\n\t    \n\t    # Write the updated value to the tags to close the chute\n\t    system.tag.writeAsync(tagPaths, values)\n\t\n\t\t\n\tfilterID \u003d {\n\t    \u0027_id\u0027: chute\n\t}\n\t\n\t# MongoDB Query to get the Chute Count\n\tresults \u003d system.mongodb.find(connector, collection, filterID)\n\tcount \u003d results[0][\u0027ChuteCount\u0027]\n\t\n\t# Update sorted count\n\tself.view.params.sortedCount \u003d sortedCount - count\n\t\n\t# Tag path prefixes\n\ttag_prefix \u003d path + \u0027/\u0027 + chute + \u0027/\u0027\n\t\n\t# Define tags and initial values for when the chute is opened\n\ttagPaths \u003d [\n#\t    tag_prefix + \u0027ChuteOpen\u0027,\n\t    tag_prefix + \u0027ChuteCount\u0027,\n\t    tag_prefix + \u0027ChuteFull\u0027,\n\t    tag_prefix + \u0027Filtered\u0027,\n\t    tag_prefix + \u0027GroupID\u0027,\n\t    tag_prefix + \u0027Occupied\u0027,\n\t    tag_prefix + \u0027Queued\u0027,\n\t    tag_prefix + \u0027ToteFull\u0027,\n\t    tag_prefix + \u0027Volume\u0027,\n\t    tag_prefix + \u0027VolumeFull\u0027,\n\t    tag_prefix + \u0027Zone\u0027\n\t]\n\t\n\tvalues \u003d [\n#\t    True,   # ChuteOpen - Open the chute\n\t    0,      # ChuteCount - Reset the chute count to 0\n\t    False,  # ChuteFull - Not full\n\t    False,  # Filtered - Not filtered\n\t    \u0027\u0027,     # GroupID - Empty\n\t    False,  # Occupied - Not occupied\n\t    False,\t# not Queued\n\t    False,  # ToteFull - Tote is not full\n\t    volume, # Volume - The volume set by the user\n\t    float(0),\n\t    \u0027\u0027      # Zone - No specific zone\n\t]\n\t\n\topenPath \u003d [\n\ttag_prefix + \u0027ChuteOpenRequest\u0027,\n\ttag_prefix + \u0027Queued\u0027\n\t]\n\topenValues \u003d [\n\t    True,\n\t    True\n\t]\n\tsystem.tag.writeBlocking(openPath, openValues)\n\twaitForChuteOpen(tag_prefix)\n\t\n\t\n\t# MongoDB updates\n\tupdates \u003d {\n\t    \u0027$set\u0027: {\n\t        \"Chute\": [],\n\t        \"IBN_List\": \u0027\u0027,\n\t        \"ToteFull\": False,\n\t        \"Occupied\": False,\n\t        \"ChuteFull\": False,\n\t        \"ChuteCount\": 0,\n\t        \"Volume\": float(volume),\n\t        \u0027VolumeFull\u0027:float(0),\n\t        \"zone\": \"\",\n\t        \"group_id\": \"\",\n\t        \"LastUpdated\": datetime.utcnow()\n\t    }\n\t}\n\t\n\t# Write the initial open values to the tags\n\tsystem.tag.writeAsync(tagPaths, values)\n\t\n\t# Update MongoDB with the new chute status\n\tsystem.mongodb.updateOne(connector, collection, filterID, updates)\n\n\twaitForChuteClosed(tag_prefix)\n\t# Schedule the chute to close after the specified open_duration\n\tclose_chute()"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 19.5,
+          "y": 206
+        },
+        "props": {
+          "text": "Release"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Chute_V2"
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 124,
+          "x": -3.01,
+          "y": 51.95
+        },
+        "propConfig": {
+          "props.params.Name": {
+            "binding": {
+              "config": {
+                "path": "view.params.ChuteName"
+              },
+              "transforms": [
+                {
+                  "code": "\treturn value",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.params.Status": {
+            "binding": {
+              "config": {
+                "path": "view.params.ChuteStatus"
+              },
+              "type": "property"
+            }
+          },
+          "props.params.len": {
+            "binding": {
+              "config": {
+                "path": "this.position.width"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "params": {
+            "TextSize": 8
+          },
+          "path": "_Templates_V5/Eurosort/Chute_V3"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport re\n\t\n\n\tconnector \u003d self.view.params.connector\n\tcollection \u003d self.view.params.collection\n\tchuteName \u003d self.view.params.ChuteName\n\tindFilteredPath \u003d self.view.params.indFilteredPath\n\n\tfilterID \u003d {\u0027_id\u0027:chuteName}\n\n\tproject \u003d {\n\t    \u0027Chute\u0027: 0\n\t}\n\t\n\t# Fetch results from MongoDB\n\tresults \u003d system.mongodb.find(connector, collection, filterID, project)\n\t\n\t# Assuming \u0027results\u0027 is an iterable of dictionaries\n\tdata_list \u003d []\n\tcolumns \u003d []\n\t\n\t# Iterate through results to build data for dataset\n\tfor items in results:\n\t    if not columns:  # Capture the columns once\n\t        columns \u003d list(items.keys())\n\t    row \u003d [items[col] for col in columns]\n\t    data_list.append(row)\n\t\n\t# Convert data into a dataset format Ignition expects\n\tdatatodataset \u003d system.dataset.toDataSet(columns, data_list)\n\t\n\t# Write the final dataset to the tag\n\tsystem.tag.writeBlocking([self.view.params.indFilteredPath], [datatodataset])"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 20,
+          "y": 243
+        },
+        "props": {
+          "text": "Filter"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport re\n\t\n\n\tconnector \u003d self.view.params.connector\n\tcollection \u003d self.view.params.collection\n\tchuteName \u003d self.view.params.ChuteName\n\t\n\tfolderPath \u003d self.view.params.folderPath\n\n\tfilterID \u003d {\u0027_id\u0027:chuteName}\n\n\tupdates \u003d {\n\t\t\u0027$set\u0027:{\u0027Faulted\u0027:False}\n\t\t}\n\t\n\t# Fetch results from MongoDB\n\tresults \u003d system.mongodb.updateOne(connector, collection, filterID, updates)\n\t\n\tfolderPath +\u003d \u0027/\u0027 + chuteName \n\tfaultedPath \u003d folderPath + \u0027/Faulted\u0027\n\t\n\ttagPaths \u003d [\n\tfaultedPath\n\t]\n\tsystem.tag.writeBlocking(tagPaths, False)\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_1"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 19.5,
+          "y": 280
+        },
+        "props": {
+          "text": "Reset"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

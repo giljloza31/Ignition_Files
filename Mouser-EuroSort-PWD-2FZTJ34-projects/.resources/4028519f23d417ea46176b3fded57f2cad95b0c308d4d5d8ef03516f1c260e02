@@ -1,0 +1,2878 @@
+{
+  "custom": {},
+  "params": {
+    "Action": false,
+    "Status": 1
+  },
+  "propConfig": {
+    "params.Action": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]ESD-Booster_Tags/Controls/HMI_ESD_On_PB"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Status": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "direct",
+          "tagPath": "[Mouser]ESD-Booster_Tags/Controls/ESD_Status"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 850,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "ConvName": "CP11_MC7021"
+        },
+        "meta": {
+          "name": "CP11_MC7021",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 534,
+          "x": 158.03,
+          "y": 477.05
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_CP11_MC7021_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "ESD_M1"
+        },
+        "meta": {
+          "name": "ESD_M1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 146,
+          "width": 32,
+          "x": 338.3545,
+          "y": 331.0375
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_ESD_M1_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP11_MC7020"
+        },
+        "meta": {
+          "name": "CP11_MC7020",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 542,
+          "x": 689,
+          "y": 477
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_CP11_MC7020_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CP11_MC7019"
+        },
+        "meta": {
+          "name": "CP11_MC7019",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 573,
+          "x": 1206,
+          "y": 477
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_CP11_MC7019_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "ESD_M2"
+        },
+        "meta": {
+          "name": "ESD_M2",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 146,
+          "width": 32,
+          "x": 486.9775,
+          "y": 331.0375
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_ESD_M2_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "ESD_M3"
+        },
+        "meta": {
+          "name": "ESD_M3",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 146,
+          "width": 32,
+          "x": 636.6565,
+          "y": 331.0375
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_ESD_M3_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "ESD_M4"
+        },
+        "meta": {
+          "name": "ESD_M4",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 146,
+          "width": 32,
+          "x": 790.6565,
+          "y": 331.0375
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_ESD_M4_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "ESD_M5"
+        },
+        "meta": {
+          "name": "ESD_M5",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 146,
+          "width": 32,
+          "x": 942.6565,
+          "y": 331.0375
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_ESD_M5_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": 6.5,
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": 303.4,
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "ESD_M6"
+        },
+        "meta": {
+          "name": "ESD_M6",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 146,
+          "width": 32,
+          "x": 1095.6525,
+          "y": 331.0375
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_ESD_M6_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "ESD_M7"
+        },
+        "meta": {
+          "name": "ESD_M7",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 146,
+          "width": 32,
+          "x": 1245.6525,
+          "y": 331.0375
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_ESD_M7_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "ESD_M8"
+        },
+        "meta": {
+          "name": "ESD_M8",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 146,
+          "width": 32,
+          "x": 1395.6525,
+          "y": 331.0375
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_ESD_M8_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "ESD_M9"
+        },
+        "meta": {
+          "name": "ESD_M9",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 146,
+          "width": 32,
+          "x": 1549.6525,
+          "y": 331.0375
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD-Booster_ConveyorStatus/IGN_ESD_M9_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Button_0",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 176,
+          "width": 141,
+          "x": 29.51,
+          "y": 22
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M722.48,308.87l1,14.34-1.13.88s.27,10.93-9.59,10.93-9.6-10.93-9.6-10.93l-1.13-.88,1-14.34Z",
+                  "name": "ButtonMount",
+                  "transform": "translate(-701.93 -308.75)",
+                  "type": "path"
+                }
+              ],
+              "name": "ButtonBackground",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "ButtonMessage-2",
+                  "points": "19.51 12.53 20.45 11.99 19.66 1.28 10.85 1.28 2.04 1.28 1.25 11.99 2.2 12.53 19.51 12.53",
+                  "type": "polygon"
+                }
+              ],
+              "name": "ButtonMessage",
+              "style": {
+                "classes": "",
+                "fill": "#F0F0F0",
+                "stroke": "#000000",
+                "strokeWidth": ".255"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonBorder-2",
+                  "r": "9.73",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonBorder",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonColor",
+                  "r": "8.15",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonLight",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 21.7 26.84"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "plcPath": "ns\u003d1;s\u003d[]",
+          "status": 1
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\tself.view.params.Action \u003d True\n\t\n\tsleep(1)\n\t\n\tself.view.params.Action \u003d False\n\t\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "DivertLane_POWER"
+        },
+        "position": {
+          "height": 108.51,
+          "width": 106.21,
+          "x": 47.16,
+          "y": 79.19
+        },
+        "propConfig": {
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "view.params.Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "ButtonStyles/MCP/Solid_Grey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ButtonStyles/MCP/Solid_Grey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ButtonStyles/MCP/Solid_White"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ButtonStyles/MCP/Solid_Blue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ButtonStyles/MCP/Flash_Yellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ButtonStyles/MCP/Solid_White"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ButtonStyles/MCP/Solid_Red"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "height": 80,
+            "icon": {
+              "path": "material/power_settings_new"
+            },
+            "width": 60
+          },
+          "style": {
+            "borderBottomLeftRadius": 80,
+            "borderBottomRightRadius": 80,
+            "borderStyle": "solid",
+            "borderTopLeftRadius": 80,
+            "borderTopRightRadius": 80,
+            "borderWidth": 2,
+            "color": "#BABABA",
+            "fontSize": 20
+          },
+          "text": "",
+          "textStyle": {
+            "fontSize": ""
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 37.39,
+          "width": 103.46,
+          "x": 47.21,
+          "y": 32.53
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 26,
+            "textAlign": "center"
+          },
+          "text": "POWER"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "EStopName": "CP15-ESPB1"
+        },
+        "meta": {
+          "name": "CP15-ESPB1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 17,
+          "width": 16,
+          "x": 312.063,
+          "y": 345.031
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD_ESR"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    },
+                    {
+                      "input": false,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "26.2656",
+              "name": "rect",
+              "rx": "3.3359",
+              "type": "rect",
+              "width": "26.2656",
+              "x": "0.25",
+              "y": "0.25"
+            },
+            {
+              "d": "M1192.0078,359.5469a3.0894,3.0894,0,0,1,3.086,3.0859v19.5938a3.0894,3.0894,0,0,1-3.086,3.0859h-19.5937a3.0894,3.0894,0,0,1-3.086-3.0859V362.6328a3.0894,3.0894,0,0,1,3.086-3.0859h19.5937m0-.5h-19.5937a3.5859,3.5859,0,0,0-3.586,3.5859v19.5938a3.586,3.586,0,0,0,3.586,3.5859h19.5937a3.586,3.586,0,0,0,3.586-3.5859V362.6328a3.5859,3.5859,0,0,0-3.586-3.5859Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            },
+            {
+              "cx": "13.3828",
+              "cy": "13.3828",
+              "name": "circle",
+              "r": "6.2187",
+              "style": {
+                "classes": "",
+                "fill": "#E00000"
+              },
+              "type": "circle"
+            },
+            {
+              "d": "M1182.2109,366.4609a5.9688,5.9688,0,1,1-5.9687,5.9688,5.9756,5.9756,0,0,1,5.9687-5.9688m0-.5a6.4688,6.4688,0,1,0,6.4688,6.4688,6.4687,6.4687,0,0,0-6.4688-6.4688Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#CCCCCC",
+            "stroke": "#000000"
+          },
+          "viewBox": "0 0 26.7656 26.7656"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP15-ESPB2"
+        },
+        "meta": {
+          "name": "CP15-ESPB2",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 17,
+          "width": 16,
+          "x": 464,
+          "y": 345
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD_ESR"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    },
+                    {
+                      "input": false,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "26.2656",
+              "name": "rect",
+              "rx": "3.3359",
+              "type": "rect",
+              "width": "26.2656",
+              "x": "0.25",
+              "y": "0.25"
+            },
+            {
+              "d": "M1192.0078,359.5469a3.0894,3.0894,0,0,1,3.086,3.0859v19.5938a3.0894,3.0894,0,0,1-3.086,3.0859h-19.5937a3.0894,3.0894,0,0,1-3.086-3.0859V362.6328a3.0894,3.0894,0,0,1,3.086-3.0859h19.5937m0-.5h-19.5937a3.5859,3.5859,0,0,0-3.586,3.5859v19.5938a3.586,3.586,0,0,0,3.586,3.5859h19.5937a3.586,3.586,0,0,0,3.586-3.5859V362.6328a3.5859,3.5859,0,0,0-3.586-3.5859Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            },
+            {
+              "cx": "13.3828",
+              "cy": "13.3828",
+              "name": "circle",
+              "r": "6.2187",
+              "style": {
+                "classes": "",
+                "fill": "#E00000"
+              },
+              "type": "circle"
+            },
+            {
+              "d": "M1182.2109,366.4609a5.9688,5.9688,0,1,1-5.9687,5.9688,5.9756,5.9756,0,0,1,5.9687-5.9688m0-.5a6.4688,6.4688,0,1,0,6.4688,6.4688,6.4687,6.4687,0,0,0-6.4688-6.4688Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#CCCCCC",
+            "stroke": "#000000"
+          },
+          "viewBox": "0 0 26.7656 26.7656"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP15-ESPB3"
+        },
+        "meta": {
+          "name": "CP15-ESPB3",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 17,
+          "width": 16,
+          "x": 615,
+          "y": 345
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD_ESR"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    },
+                    {
+                      "input": false,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "26.2656",
+              "name": "rect",
+              "rx": "3.3359",
+              "type": "rect",
+              "width": "26.2656",
+              "x": "0.25",
+              "y": "0.25"
+            },
+            {
+              "d": "M1192.0078,359.5469a3.0894,3.0894,0,0,1,3.086,3.0859v19.5938a3.0894,3.0894,0,0,1-3.086,3.0859h-19.5937a3.0894,3.0894,0,0,1-3.086-3.0859V362.6328a3.0894,3.0894,0,0,1,3.086-3.0859h19.5937m0-.5h-19.5937a3.5859,3.5859,0,0,0-3.586,3.5859v19.5938a3.586,3.586,0,0,0,3.586,3.5859h19.5937a3.586,3.586,0,0,0,3.586-3.5859V362.6328a3.5859,3.5859,0,0,0-3.586-3.5859Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            },
+            {
+              "cx": "13.3828",
+              "cy": "13.3828",
+              "name": "circle",
+              "r": "6.2187",
+              "style": {
+                "classes": "",
+                "fill": "#E00000"
+              },
+              "type": "circle"
+            },
+            {
+              "d": "M1182.2109,366.4609a5.9688,5.9688,0,1,1-5.9687,5.9688,5.9756,5.9756,0,0,1,5.9687-5.9688m0-.5a6.4688,6.4688,0,1,0,6.4688,6.4688,6.4687,6.4687,0,0,0-6.4688-6.4688Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#CCCCCC",
+            "stroke": "#000000"
+          },
+          "viewBox": "0 0 26.7656 26.7656"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP15-ESPB4"
+        },
+        "meta": {
+          "name": "CP15-ESPB4",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 17,
+          "width": 16,
+          "x": 767,
+          "y": 345
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD_ESR"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    },
+                    {
+                      "input": false,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "26.2656",
+              "name": "rect",
+              "rx": "3.3359",
+              "type": "rect",
+              "width": "26.2656",
+              "x": "0.25",
+              "y": "0.25"
+            },
+            {
+              "d": "M1192.0078,359.5469a3.0894,3.0894,0,0,1,3.086,3.0859v19.5938a3.0894,3.0894,0,0,1-3.086,3.0859h-19.5937a3.0894,3.0894,0,0,1-3.086-3.0859V362.6328a3.0894,3.0894,0,0,1,3.086-3.0859h19.5937m0-.5h-19.5937a3.5859,3.5859,0,0,0-3.586,3.5859v19.5938a3.586,3.586,0,0,0,3.586,3.5859h19.5937a3.586,3.586,0,0,0,3.586-3.5859V362.6328a3.5859,3.5859,0,0,0-3.586-3.5859Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            },
+            {
+              "cx": "13.3828",
+              "cy": "13.3828",
+              "name": "circle",
+              "r": "6.2187",
+              "style": {
+                "classes": "",
+                "fill": "#E00000"
+              },
+              "type": "circle"
+            },
+            {
+              "d": "M1182.2109,366.4609a5.9688,5.9688,0,1,1-5.9687,5.9688,5.9756,5.9756,0,0,1,5.9687-5.9688m0-.5a6.4688,6.4688,0,1,0,6.4688,6.4688,6.4687,6.4687,0,0,0-6.4688-6.4688Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#CCCCCC",
+            "stroke": "#000000"
+          },
+          "viewBox": "0 0 26.7656 26.7656"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP15-ESPB5"
+        },
+        "meta": {
+          "name": "CP15-ESPB5",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 17,
+          "width": 16,
+          "x": 919,
+          "y": 345
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD_ESR"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    },
+                    {
+                      "input": false,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "26.2656",
+              "name": "rect",
+              "rx": "3.3359",
+              "type": "rect",
+              "width": "26.2656",
+              "x": "0.25",
+              "y": "0.25"
+            },
+            {
+              "d": "M1192.0078,359.5469a3.0894,3.0894,0,0,1,3.086,3.0859v19.5938a3.0894,3.0894,0,0,1-3.086,3.0859h-19.5937a3.0894,3.0894,0,0,1-3.086-3.0859V362.6328a3.0894,3.0894,0,0,1,3.086-3.0859h19.5937m0-.5h-19.5937a3.5859,3.5859,0,0,0-3.586,3.5859v19.5938a3.586,3.586,0,0,0,3.586,3.5859h19.5937a3.586,3.586,0,0,0,3.586-3.5859V362.6328a3.5859,3.5859,0,0,0-3.586-3.5859Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            },
+            {
+              "cx": "13.3828",
+              "cy": "13.3828",
+              "name": "circle",
+              "r": "6.2187",
+              "style": {
+                "classes": "",
+                "fill": "#E00000"
+              },
+              "type": "circle"
+            },
+            {
+              "d": "M1182.2109,366.4609a5.9688,5.9688,0,1,1-5.9687,5.9688,5.9756,5.9756,0,0,1,5.9687-5.9688m0-.5a6.4688,6.4688,0,1,0,6.4688,6.4688,6.4687,6.4687,0,0,0-6.4688-6.4688Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#CCCCCC",
+            "stroke": "#000000"
+          },
+          "viewBox": "0 0 26.7656 26.7656"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP15-ESPB6"
+        },
+        "meta": {
+          "name": "CP15-ESPB6",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 17,
+          "width": 16,
+          "x": 1073,
+          "y": 345
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD_ESR"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    },
+                    {
+                      "input": false,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "26.2656",
+              "name": "rect",
+              "rx": "3.3359",
+              "type": "rect",
+              "width": "26.2656",
+              "x": "0.25",
+              "y": "0.25"
+            },
+            {
+              "d": "M1192.0078,359.5469a3.0894,3.0894,0,0,1,3.086,3.0859v19.5938a3.0894,3.0894,0,0,1-3.086,3.0859h-19.5937a3.0894,3.0894,0,0,1-3.086-3.0859V362.6328a3.0894,3.0894,0,0,1,3.086-3.0859h19.5937m0-.5h-19.5937a3.5859,3.5859,0,0,0-3.586,3.5859v19.5938a3.586,3.586,0,0,0,3.586,3.5859h19.5937a3.586,3.586,0,0,0,3.586-3.5859V362.6328a3.5859,3.5859,0,0,0-3.586-3.5859Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            },
+            {
+              "cx": "13.3828",
+              "cy": "13.3828",
+              "name": "circle",
+              "r": "6.2187",
+              "style": {
+                "classes": "",
+                "fill": "#E00000"
+              },
+              "type": "circle"
+            },
+            {
+              "d": "M1182.2109,366.4609a5.9688,5.9688,0,1,1-5.9687,5.9688,5.9756,5.9756,0,0,1,5.9687-5.9688m0-.5a6.4688,6.4688,0,1,0,6.4688,6.4688,6.4687,6.4687,0,0,0-6.4688-6.4688Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#CCCCCC",
+            "stroke": "#000000"
+          },
+          "viewBox": "0 0 26.7656 26.7656"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP15-ESPB7"
+        },
+        "meta": {
+          "name": "CP15-ESPB7",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 17,
+          "width": 16,
+          "x": 1223,
+          "y": 345
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD_ESR"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    },
+                    {
+                      "input": false,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "26.2656",
+              "name": "rect",
+              "rx": "3.3359",
+              "type": "rect",
+              "width": "26.2656",
+              "x": "0.25",
+              "y": "0.25"
+            },
+            {
+              "d": "M1192.0078,359.5469a3.0894,3.0894,0,0,1,3.086,3.0859v19.5938a3.0894,3.0894,0,0,1-3.086,3.0859h-19.5937a3.0894,3.0894,0,0,1-3.086-3.0859V362.6328a3.0894,3.0894,0,0,1,3.086-3.0859h19.5937m0-.5h-19.5937a3.5859,3.5859,0,0,0-3.586,3.5859v19.5938a3.586,3.586,0,0,0,3.586,3.5859h19.5937a3.586,3.586,0,0,0,3.586-3.5859V362.6328a3.5859,3.5859,0,0,0-3.586-3.5859Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            },
+            {
+              "cx": "13.3828",
+              "cy": "13.3828",
+              "name": "circle",
+              "r": "6.2187",
+              "style": {
+                "classes": "",
+                "fill": "#E00000"
+              },
+              "type": "circle"
+            },
+            {
+              "d": "M1182.2109,366.4609a5.9688,5.9688,0,1,1-5.9687,5.9688,5.9756,5.9756,0,0,1,5.9687-5.9688m0-.5a6.4688,6.4688,0,1,0,6.4688,6.4688,6.4687,6.4687,0,0,0-6.4688-6.4688Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#CCCCCC",
+            "stroke": "#000000"
+          },
+          "viewBox": "0 0 26.7656 26.7656"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP15-ESPB8"
+        },
+        "meta": {
+          "name": "CP15-ESPB8",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 17,
+          "width": 16,
+          "x": 1375,
+          "y": 345
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD_ESR"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    },
+                    {
+                      "input": false,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "26.2656",
+              "name": "rect",
+              "rx": "3.3359",
+              "type": "rect",
+              "width": "26.2656",
+              "x": "0.25",
+              "y": "0.25"
+            },
+            {
+              "d": "M1192.0078,359.5469a3.0894,3.0894,0,0,1,3.086,3.0859v19.5938a3.0894,3.0894,0,0,1-3.086,3.0859h-19.5937a3.0894,3.0894,0,0,1-3.086-3.0859V362.6328a3.0894,3.0894,0,0,1,3.086-3.0859h19.5937m0-.5h-19.5937a3.5859,3.5859,0,0,0-3.586,3.5859v19.5938a3.586,3.586,0,0,0,3.586,3.5859h19.5937a3.586,3.586,0,0,0,3.586-3.5859V362.6328a3.5859,3.5859,0,0,0-3.586-3.5859Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            },
+            {
+              "cx": "13.3828",
+              "cy": "13.3828",
+              "name": "circle",
+              "r": "6.2187",
+              "style": {
+                "classes": "",
+                "fill": "#E00000"
+              },
+              "type": "circle"
+            },
+            {
+              "d": "M1182.2109,366.4609a5.9688,5.9688,0,1,1-5.9687,5.9688,5.9756,5.9756,0,0,1,5.9687-5.9688m0-.5a6.4688,6.4688,0,1,0,6.4688,6.4688,6.4687,6.4687,0,0,0-6.4688-6.4688Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#CCCCCC",
+            "stroke": "#000000"
+          },
+          "viewBox": "0 0 26.7656 26.7656"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CP15-ESPB9"
+        },
+        "meta": {
+          "name": "CP15-ESPB9",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 17,
+          "width": 16,
+          "x": 1529,
+          "y": 345
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]ESD-Booster_Tags/ESD_ESR"
+              },
+              "transforms": [
+                {
+                  "fallback": null,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    },
+                    {
+                      "input": false,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "26.2656",
+              "name": "rect",
+              "rx": "3.3359",
+              "type": "rect",
+              "width": "26.2656",
+              "x": "0.25",
+              "y": "0.25"
+            },
+            {
+              "d": "M1192.0078,359.5469a3.0894,3.0894,0,0,1,3.086,3.0859v19.5938a3.0894,3.0894,0,0,1-3.086,3.0859h-19.5937a3.0894,3.0894,0,0,1-3.086-3.0859V362.6328a3.0894,3.0894,0,0,1,3.086-3.0859h19.5937m0-.5h-19.5937a3.5859,3.5859,0,0,0-3.586,3.5859v19.5938a3.586,3.586,0,0,0,3.586,3.5859h19.5937a3.586,3.586,0,0,0,3.586-3.5859V362.6328a3.5859,3.5859,0,0,0-3.586-3.5859Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            },
+            {
+              "cx": "13.3828",
+              "cy": "13.3828",
+              "name": "circle",
+              "r": "6.2187",
+              "style": {
+                "classes": "",
+                "fill": "#E00000"
+              },
+              "type": "circle"
+            },
+            {
+              "d": "M1182.2109,366.4609a5.9688,5.9688,0,1,1-5.9687,5.9688,5.9756,5.9756,0,0,1,5.9687-5.9688m0-.5a6.4688,6.4688,0,1,0,6.4688,6.4688,6.4687,6.4687,0,0,0-6.4688-6.4688Z",
+              "name": "path",
+              "transform": "translate(-1168.8281 -359.0469)",
+              "type": "path"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#CCCCCC",
+            "stroke": "#000000"
+          },
+          "viewBox": "0 0 26.7656 26.7656"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": 445,
+      "y": 547
+    },
+    "type": "ia.container.coord"
+  }
+}

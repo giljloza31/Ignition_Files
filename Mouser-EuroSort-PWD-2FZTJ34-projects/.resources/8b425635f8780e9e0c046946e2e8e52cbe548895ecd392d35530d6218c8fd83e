@@ -1,0 +1,1289 @@
+from shared.tools.thread import async
+from functools import partial
+#	
+from time import sleep
+from random import random
+from datetime import datetime
+from time import sleep
+from random import random
+from datetime import datetime
+from pymongo import MongoClient
+from pymongo import *
+from java.util import Date
+from java.text import SimpleDateFormat
+import re
+#
+ProcessBarcodes = ['RETURN',"TURNIN"]
+#MongoDB Connection URI
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+
+#MongoDB Database connection format
+client = MongoClient(uri)
+db=client.ignition
+DATEFORMAT = "MM-dd-yyyy HH:mm:ss"
+DATEFORMAT2 = "%d:%02d:%02d"
+#
+#
+
+
+class RoutingException(Exception):
+	pass
+	
+class NOPAYLOAD(RoutingException):pass
+
+class DOUBLE(RoutingException):pass
+
+class NORETURN(RoutingException):pass
+
+class NOTREADY(RoutingException):pass
+
+PAYLOAD_SEPERATOR = '|'
+BARCODE_SEPERATOR = ','
+ERROR = ''
+def get_updatedtime(timestart,timeend):
+	try:
+		diverted_time_fmt = system.date.format(timeend, DATEFORMAT) 
+		date_parser = SimpleDateFormat(DATEFORMAT)
+		converted_date = date_parser.parse(timestart)
+		converted_date_2 = date_parser.parse(diverted_time_fmt)
+		secondsdiff = system.date.secondsBetween(converted_date, converted_date_2)
+		
+		
+		mins,secs = divmod(secondsdiff,60)
+		hrs,mins = divmod(mins,60)
+		
+		timeddiff = (DATEFORMAT2%(hrs,mins,secs))
+	except:
+		timeddiff = timestart[-9:]
+	
+
+	return timeddiff
+	
+def cursorToList(cursor):
+	listcursor = []
+	for i in range(cursor.count()):
+		listcursor.append(cursor.next())
+	return listcursor
+
+
+def get_returntime(data):
+	scantimes_list = []
+	totalScanTime = 0 
+	loopcnt = 0
+	scanTimes = data['ReturnTime']
+	
+	
+	#count number of times entered
+	time_count = len(scanTimes)
+	
+	
+	for key,item in scanTimes.items():
+	
+		if loopcnt == 0:
+			firstvalue = key
+		elif loopcnt == time_count-1:
+			lastvalue = key
+			
+		loopcnt += 1
+		
+	
+	if time_count == 10:
+		scanTimes.pop(firstvalue)
+		
+	
+	scanTimes[lastvalue+1] = data['IGN_ReturnTime']
+	
+	
+	for i in scanTimes:
+		totalScanTime += scanTimes[i]
+		
+		
+	
+	ms,remandier = divmod(totalScanTime,10)
+	secs,ms = divmod(time,1000)
+	mins,secs = divmod(secs,60)
+	hrs,mins = divmod(mins,60)
+	
+	formated_time = (DATEFORMAT2%(hrs,mins,secs))
+	
+	
+	data.update({
+	'ReturnTimes':scanTimes,
+	'IGN_AVGReturn_Time':'00:00:00'
+	})
+	
+	
+	
+	
+	
+	return data
+		
+
+
+def get_avgscantime(data):
+	scantimes_list = []
+	totalScanTime = 0 
+	loopcnt = 0
+	scanTimes = data['ScanTimes']
+	
+	
+	#count number of times entered
+	time_count = len(scanTimes)
+	
+	
+	for key,item in scanTimes.items():
+	
+		if loopcnt == 0:
+			firstvalue = key
+		elif loopcnt == time_count-1:
+			lastvalue = key
+			
+		loopcnt += 1
+		
+	
+	if time_count == 10:
+		scanTimes.pop(firstvalue)
+		
+	
+	scanTimes[lastvalue+1] = data['IGN_ScanTime']
+	
+	
+	for i in scanTimes:
+		totalScanTime += scanTimes[i]
+		
+		
+	
+	ms,remandier = divmod(totalScanTime,10)
+	secs,ms = divmod(time,1000)
+	mins,secs = divmod(secs,60)
+	hrs,mins = divmod(mins,60)
+	
+	formated_time = (DATEFORMAT2%(hrs,mins,secs))
+	
+	
+	data.update({
+	'ScanTimes':scanTimes,
+	'IGN_AVG_Time':formated_time
+	})
+	
+	
+	
+	
+	
+	return data
+		
+		
+def get_rate(data):
+
+
+	scanCount = int(data['IGN_Total_ScanCount'])
+	hour = int(data['hrs_loggedin'])
+	
+	if hour == 0:
+		hour = 1
+	
+	ibns,remandier = divmod(1000,hour)
+	
+	data.update({
+	
+	'IGN_Rate':ibns
+	
+	})
+	
+	return data
+
+def get_scantime(time):
+
+	secs,ms = divmod(time,1000)
+	mins,secs = divmod(secs,60)
+	hrs,mins = divmod(mins,60)
+	
+	formated_time = (DATEFORMAT2%(hrs,mins,secs))
+		
+	
+	return formated_time
+
+
+
+def Get_Count(StationName):
+	
+	query = '''
+	SELECT *
+	FROM QPS_Sortation_Stations
+	WHERE Station_Name = ?
+	'''
+	results = system.db.runPrepQuery(query, [StationName], 'SQLServer')
+	
+	return results
+
+
+def Check_Table(ibn):
+	
+	query = '''
+	SELECT count(Payload) as count
+	From QPS_Scan_History
+	WHERE Payload = ?
+	'''
+	
+	results = system.db.runPrepQuery(query, [ibn], 'SQLServer')
+
+	IBNCount = results[0]['Count']
+			
+	
+
+	
+	return IBNCount
+
+
+
+def IBN_lookup(data,barcodeList):
+	
+	
+	filter={
+	   "_id":{'$in':barcodeList}
+	}
+	project={
+    	'_id': 1, 
+	    'consol_zone':1
+	}
+	
+	
+	IBNQuery = db.outbound_scan_sort_ibn.find(
+			filter=filter,
+			projection=project
+			)
+
+	IBNResults = cursorToList(IBNQuery)
+	IBNQuery.close()	
+	IBNCount = len(IBNResults)
+
+
+	if IBNCount != 0:
+
+		
+		data.update({
+		'IGN_Route_Returned':IBNResults[0]['consol_zone'],
+		'IGN_Payload_Returned':IBNResults[0]['_id']
+		})
+		
+	else:
+		raise NORETURN
+
+	return data,IBNCount
+
+def lookup_decode(data):
+	barcode_List = []
+	ZoneCounts = {}
+	zoneResults = []
+	data['ReturnTime'] = 0
+	data['ReturnTime_fmt'] = system.date.format(system.date.now(), DATEFORMAT)
+	barcode_String = data['IGN_Payload']
+	#Get Station Counts
+	StationResults = Get_Count(data['IGN_StationName'])
+	
+	row = StationResults[0]
+	
+	hrs_loggedIn = row['hrs_loggedIn']
+	
+	timein = row['TimeIn']
+	totaltime = get_updatedtime(timein,system.date.now())
+	colon = ':'
+	if colon in totaltime:
+	
+		hrs,mins,sec = totaltime.split(':')
+	else:
+		hrs = 0
+			
+	#Get Zone Counts
+	ZoneCounts = row['ZoneCounts']
+	
+	#Get Scan Times
+	ScanTimes = row['ScanTimes']
+	
+	#Get Return Times
+	ReturnTimes = row['ReturnTimes']
+	
+	data.update({
+		'ZoneCounts':ZoneCounts,
+		'ScanTimes':ScanTimes,
+		'ReturnTimes':ReturnTimes,
+		'hrs_loggedIn':hrs,
+		'timein':timein,
+		'IGN_Rate':0,
+		'IGN_AVG_Time':0,
+		'IGN_AVGReturn_Time':0,
+		'TotalTime':totaltime
+		
+		})	
+	
+	if data['IGN_Payload'] not in ProcessBarcodes:
+		
+		if BARCODE_SEPERATOR in barcode_String:
+			barcode_List = barcode_String.split(BARCODE_SEPERATOR)
+		else:
+			barcode_List.append(barcode_String)
+			
+		
+		data,ibnCount = IBN_lookup(data,barcode_List)
+		
+		# Valid IBN
+#		if ibnCount != 0:
+			
+#			ibnLookupCount = Check_Table(data['IGN_Payload_Returned'])
+			
+			#Not A Duplicate Scan
+#			if ibnLookupCount == 0:
+				
+				
+		
+#				#Update Zone Counts
+#				if data['IGN_Route_Returned'] not in ZoneCounts:
+#					ZoneCounts[data['IGN_Route_Returned']]=1
+#					
+#				else:
+#					ZoneCounts.update({
+#						ZoneCounts['IGN_Route_Returned']:ZoneCounts['IGN_Route_Returned']+1
+#						})
+#						
+			
+#		else:
+#			raise DOUBLE	
+		
+	elif data['IGN_Payload'] == "RETURN":
+		data.update({
+		'IGN_Route_Returned':indexid,
+		'IGN_Payload':payload
+		})
+		Turnin_Status = False
+		system.opc.writeValue('Ignition OPC UA Server', 'ns=1;s=[QPS_Sortation]TurnIn_Scan_Barcode[0].%s'%(data['IGN_StationNum']), Turnin_Status)
+				
+		returnTime = [
+			qv.value for qv in 
+			system.tag.readBlocking([
+				Get_parent_dest + '/' + 'Return_Back_Time'
+			])]
+			
+		data['ReturnTime'] = returnTime[0].value
+			
+		returntime_format = get_scantime(data['ReturnTime'])
+		
+		data['ReturnTime_fmt'] = '00:00:00'
+			
+		data.update(get_returntime(data))
+			
+	elif data['IGN_Payload'] == "TURNIN":	
+		data.update({
+		'IGN_Route_Returned':indexid,
+		'IGN_Payload':payload
+		})
+		Turnin_Status = True
+		system.opc.writeValue('Ignition OPC UA Server', 'ns=1;s=[QPS_Sortation]TurnIn_Scan_Barcode[0].%s'%(data['IGN_StationNum']), Turnin_Status)
+				
+		
+	
+	
+	else:
+		raise NORETURN
+		 
+	 
+			
+	
+	
+	
+	return data
+
+
+@async(name = "QPS_Gather_Data")
+def QPS_Gather_Data(source_path):
+	Turnin_Status = False
+	mongo_payload = {}
+	ReceiveTime = system.date.now()
+	rec_time_fmt = system.date.format(ReceiveTime, DATEFORMAT) 
+	Get_parent_dest = '/'.join(source_path.split('/')[:-1])
+	stationName =  source_path.split('/')[-2:-1]
+	
+	
+
+
+	scanData,scanCount,totalcount,turnin,scanTime,userid,historyindx,turninEnabled= [
+	qv.value for qv in 
+	system.tag.readBlocking([
+		Get_parent_dest + '/' + 'Scan_Data',
+		Get_parent_dest + '/' + 'Scan_Count',
+		Get_parent_dest + '/' + 'Total_Scan_Count',
+		Get_parent_dest + '/' + 'TurnIn_Count',
+		Get_parent_dest + '/' + 'Scan_Time',
+		Get_parent_dest + '/' + 'UserID',
+		Get_parent_dest + '/' + 'HistoryIndx',
+		Get_parent_dest + '/' + 'Enable_Turn_Scan'
+	])]
+	scantime_format = get_scantime(scanTime)
+
+	data = {
+		'IGN_StationName':stationName[0],
+		'IGN_StationNum':int(stationName[0].rpartition(' ')[2]),
+		'IGN_UserID':userid,
+		'IGN_ScanCount':scanCount,
+		'IGN_ScanTime':scanTime,
+		'IGN_Total_ScanCount':totalcount
+		}
+
+	
+
+	
+
+	try:
+		
+		
+		if PAYLOAD_SEPERATOR in scanData:
+			
+			if PAYLOAD_SEPERATOR in scanData:
+				indexid,payload = scanData.split('|')
+			else:
+				raise NOPAYLOAD
+			
+			if payload == '':
+				raise NOPAYLOAD
+			
+			data.update({					
+			'IGN_IndexID_Returned':indexid,
+			'IGN_Payload':payload
+			})
+			
+	
+			if turninEnabled:
+				raise NOTREADY
+				
+			else:
+				data.update(lookup_decode(data))
+
+		else:
+			raise NOPAYLOAD
+			
+	
+	
+	except NOPAYLOAD:
+		data = {
+			'IGN_StationName':stationName[0],
+			'IGN_StationNum':int(stationName[0].rpartition(' ')[2]),
+			'IGN_UserID':userid,
+			'IGN_ScanCount':scanCount,
+			'IGN_IndexID_Returned':99,
+			'IGN_Payload':scanData
+			}
+		
+	except DOUBLE:
+			
+		data = {
+			'IGN_StationName':stationName[0],
+			'IGN_StationNum':int(stationName[0].rpartition(' ')[2]),
+			'IGN_UserID':userid,
+			'IGN_ScanCount':scanCount,
+			'IGN_IndexID_Returned':99,
+			'IGN_Payload':scanData
+			}
+	except NORETURN:
+			
+		data = {
+			'IGN_StationName':stationName[0],
+			'IGN_StationNum':int(stationName[0].rpartition(' ')[2]),
+			'IGN_UserID':userid,
+			'IGN_ScanCount':scanCount,
+			'IGN_IndexID_Returned':99,
+			'IGN_Payload':scanData
+			}
+		
+	except NOTREADY:
+					
+		data = {
+				'IGN_StationName':stationName[0],
+				'IGN_StationNum':int(stationName[0].rpartition(' ')[2]),
+				'IGN_UserID':userid,
+				'IGN_ScanCount':scanCount,
+				'IGN_IndexID_Returned':indexid,
+				'IGN_Payload':payload
+				}
+	
+	
+	
+	
+			
+			
+	
+	
+	if data['IGN_IndexID_Returned']!=99:
+		
+	#	data.update(get_avgscantime(data))
+		
+	#	data.update(get_rate(data))
+		ZoneCounts_data2 = {}
+		ZoneCounts_data = system.util.jsonEncode(ZoneCounts_data2)
+		ScanTimes_data2 = {}
+		ScanTimes_data = system.util.jsonEncode(ScanTimes_data2)
+		
+		
+		ReturnTimes_data2 = {}
+		ScanTimes_data = system.util.jsonEncode(ReturnTimes_data2)
+
+	#update scan history log
+		updateScanhistory = '''
+		Insert Into QPS_Scan_History
+		(IndexID,UserID,Station_Num,Station_Name,Payload,Zone,ScanTime,Timestamp)
+		Values (?,?,?,?,?,?,?,?)
+		'''
+		updateScanhistory_args = [data['IGN_IndexID_Returned'],data['IGN_UserID'],data['IGN_StationNum'],data['IGN_StationName'],data['IGN_Payload'],data['IGN_Route_Returned'],scantime_format,rec_time_fmt]
+		
+		mongo_payload.update({
+			'_id':data['IGN_Payload'],
+			'IndexID':data['IGN_IndexID_Returned'],
+			'userID':data['IGN_UserID'],
+			'Stationindx':data['IGN_StationNum'],
+			'Station_Name':data['IGN_StationName'],
+			'zone':data['IGN_Route_Returned'],
+			'scanTime':data['IGN_AVG_Time'],
+			'Timestamp':datetime.utcnow()
+			})			
+		
+		
+
+	#update userlog
+		updateUserLog = '''
+		Update QPS_History_Log
+		set CurrentCount = ?,
+		TotalCount = ?,
+		TotalTurnInCount = ?,
+		Rate = ?,
+		AvgScanTime = ?,
+		AVGReturnTime = ?,
+		TotalTime = ?,
+		ZoneCounts = ?,
+		hrs_loggedIn = ?
+		WHERE historyindx = ?
+		'''
+
+		updateUserLog_args = [scanCount,totalcount,turnin,data['IGN_Rate'],scantime_format,data['ReturnTime_fmt'],data['TotalTime'],'',data['hrs_loggedIn'],historyindx]
+		
+	#update stationlog
+		queryUpdate_Station = '''
+		UPDATE QPS_Sortation_Stations
+		SET CurrentCount = ? ,
+		TotalCount = ?,
+		TotalTurnInCount = ?,
+		Rate = ?,
+		TotalTime = ?,
+		AVGScanTime = ?,
+		AVGReturnTime = ?,
+		ZoneCounts = ?,
+		ScanTimes = ?,
+		ReturnTimes = ?,
+		hrs_loggedIn = ?
+		WHERE Station_Name = ?
+		'''	
+			
+
+		queryUpdate_Station_args = [scanCount,totalcount,turnin,data['IGN_Rate'],data['TotalTime'],data['IGN_AVG_Time'],data['ReturnTime_fmt'],'','','',data['hrs_loggedIn'],data['IGN_StationName']]		
+	
+		system.db.runPrepUpdate(updateScanhistory, updateScanhistory_args, 'SQLServer')
+		system.db.runPrepUpdate(updateUserLog, updateUserLog_args, 'SQLServer')
+		system.db.runPrepUpdate(queryUpdate_Station, queryUpdate_Station_args, 'SQLServer')
+		
+		filter={
+		  "_id":data['IGN_Payload']
+		}
+				
+		
+		MongoTry = db.qp_sortation_scan_log.find(
+			filter=filter
+			)
+		MongoTryresult = cursorToList(MongoTry)
+		MongoTry.close()
+		MongoTrycount = len(MongoTryresult)
+		
+		if MongoTrycount == 0:
+				
+			db.qp_sortation_scan_log.insert(mongo_payload)
+	else:
+		logerror ='''
+			Insert Into QPS_Scan_History
+			(IndexID,UserID,Station_Num,Station_Name,Payload,Zone,ScanTime)
+			Values (?,?,?,?,?,?,?)
+			'''
+		
+		logvalues = [data['IGN_IndexID_Returned'],data['IGN_UserID'],data['IGN_StationNum'],data['IGN_StationName'],data['IGN_Payload'],'',rec_time_fmt]
+					
+	
+		system.db.runPrepUpdate(logerror, logvalues, 'SQLServer')
+		
+		
+
+
+	
+def get_next():
+	PCStations = [19,20]
+	query = '''
+	SELECT TOP(1)*
+	FROM QPS_Sortation_Stations
+	Where UserID = ? and Station_Enabled = 1
+	'''
+	
+	results = system.db.runPrepQuery(query, [''], 'SQLServer')
+	
+	if not results:
+		nextAvail = 0
+	
+	else:
+	
+		row = results[0]
+		
+		nextAvail = row['stationindx']
+		
+		if nextAvail in PCStations:
+			nextAvail = 0
+	
+	return nextAvail
+	
+def login_user(userID,password):
+	timeIn = system.date.now()
+	time_fmt = system.date.format(timeIn, DATEFORMAT) 
+	emptyZones = {}
+	emptyZones_data = system.util.jsonEncode(emptyZones)
+	#Check if user active
+	queryCount = '''
+	Select Count(UserID) as Count
+	From UserLogin
+	Where UserID = ?
+	'''
+	#number = int(station[0].rpartition('_')[2])	
+	countResults = system.db.runPrepQuery(queryCount, [userID], 'SQLServer')
+		
+	count = countResults[0]['Count']
+		
+		
+	if count == 1:
+		#Check if Password is correct
+		queryInfo = '''
+			Select *
+			From UserLogin
+			Where UserID = ?
+			'''
+		queryValues = [userID]
+		
+		queryResults = system.db.runPrepQuery(queryInfo, queryValues,'SQLServer')
+		row = queryResults[0]
+		
+		if row['Password'] == password:
+		
+			
+			queryStation = '''
+				Select *
+				From QPS_Sortation_Stations
+				Where UserID = ?
+				'''
+			queryStation_args = [userID]
+			
+			queryStation_Results = system.db.runPrepQuery(queryStation, queryStation_args,'SQLServer')
+			
+			
+			
+			if queryStation_Results:
+				row = queryStation_Results[0]
+				system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'User Logged in %s already'%(row['Station_Name'])})
+			
+			else:								
+		
+				nextAvail = get_next()
+				
+				if nextAvail !=0:
+					
+					create_historyLog = '''
+					insert into QPS_History_Log
+					(UserID,Station_Num,Station_Name,TotalCount,TotalTurnInCount,Rate,AvgScanTime,AVGReturnTime,TotalTime,TimeIn,TimeOut,Reason_Code,Reason_Str,ZoneCounts,hrs_loggedIn)
+					Values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+					'''
+					create_historyLog_args = [userID,nextAvail,'Station %s'%(nextAvail),0,0,0.0,'00:00:00','00:00:00','00:00:00',time_fmt,'',0,'','',0]
+					
+					queryUpdate_Station = '''
+					UPDATE QPS_Sortation_Stations
+					SET UserID = ?, 
+					CurrentCount = ? ,
+					TotalCount = ?,
+					TotalTurnInCount = ?,
+					Rate = ?,
+					TotalTime = ?, 
+					TimeIn = ?,
+					AVGScanTime = ?,
+					AVGReturnTime = ?,
+					ZoneCounts = ?,
+					ScanTimes = ?,
+					ReturnTimes = ?,
+					hrs_loggedIn = ? 
+					WHERE stationindx = ?
+					'''
+					
+					queryUpdate_Station_Args = [userID,0,0,0,0.0,'00:00:00',time_fmt,0.0,'00:00:00','','','',0,nextAvail]
+					
+					queryUpdate_User = '''
+					Update UserLogin
+					SET Timestamp = ?
+					Where UserID = ?
+					'''
+					historyindx = system.db.runPrepUpdate(create_historyLog, create_historyLog_args,'SQLServer',getKey=1)
+					system.db.runPrepUpdate(queryUpdate_Station, queryUpdate_Station_Args,'SQLServer',getKey=1)
+					system.db.runPrepUpdate(queryUpdate_User, [system.date.now(),userID],'SQLServer')
+					
+				
+					tagpath = '[Mouser]Mouser/QPS_Sortation/'
+					
+					
+					system.tag.writeBlocking(*zip(*[
+							(tagpath  + 'Station %s/UserID'%(nextAvail),userID),
+							(tagpath  + 'Station %s/HistoryIndx'%(nextAvail),historyindx),
+							(tagpath  + 'Station %s/Station_Occupied'%(nextAvail),1)
+						]))
+					system.perspective.closePopup('SignIn_User')
+			
+				else:
+				
+					system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'No Stations Available'})
+					system.perspective.closePopup('SignIn_User')
+		else:
+			system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'Incorrect Password'})
+		
+	else:
+		system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'User Not Active. Please add'})	
+		system.perspective.closePopup('SignIn_User')
+	
+	
+	
+
+	
+
+
+
+def logout_user(userID,password,reasonCode,reasonLabel):
+	tagpath = '[Mouser]Mouser/QPS_Sortation/'
+	timeOut = system.date.now()
+	time_fmt = system.date.format(timeOut, DATEFORMAT) 
+	emptyZones = {}
+	emptyZones_data = system.util.jsonEncode(emptyZones)
+	#Check if user active
+	queryCount = '''
+	Select Count(UserID) as Count
+	From UserLogin
+	Where UserID = ?
+	'''
+	#number = int(station[0].rpartition('_')[2])	
+	countResults = system.db.runPrepQuery(queryCount, [userID], 'SQLServer')
+		
+	count = countResults[0]['Count']
+		
+		
+	if count == 1:
+		#Check if Password is correct
+		queryInfo = '''
+			Select *
+			From UserLogin
+			Where UserID = ?
+			'''
+		queryValues = [userID]
+		
+		queryResults = system.db.runPrepQuery(queryInfo, queryValues,'SQLServer')
+		row = queryResults[0]
+		
+		if row['Password'] == password:
+		
+			
+			queryStation = '''
+				Select *
+				From QPS_Sortation_Stations
+				Where UserID = ?
+				'''
+			queryStation_args = [userID]
+			
+			queryStation_Results = system.db.runPrepQuery(queryStation, queryStation_args,'SQLServer')
+			
+			
+			
+			if not queryStation_Results:
+				
+				system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'User is not logged in'})
+			
+			else:								
+				
+				
+				
+				row = queryStation_Results[0]
+				#prev_ZoneCounts = row['ZoneCounts']
+				history_zones = ''
+				totaltime = get_updatedtime(row['TimeIn'],timeOut)
+				historyindx = [
+				
+					qv.value for qv in 
+					system.tag.readBlocking([
+						tagpath + '/' + '%s/HistoryIndx'%(row['Station_Name']),
+					])]
+		
+				hrs,mins,sec = totaltime.split(':')
+				#update history login
+				history_log = '''
+				UPDATE QPS_History_Log
+				SET CurrentCount = ?,
+				TotalCount = ?,
+				TotalTurnInCount = ?,
+				Rate = ?,
+				AvgScanTime = ?,
+				AVGReturnTime = ?,
+				TotalTime = ?,
+				TimeIn = ?,
+				TimeOut = ?,
+				Reason_Code = ?,
+				Reason_Str = ?,
+				ZoneCounts = ?,
+				hrs_loggedIn = ?
+				WHERE historyindx = ?
+				'''
+				
+				history_log_args = [row['CurrentCount'],row['TotalCount'],row['TotalTurnInCount'],row['Rate'],row['AVGScanTime'],row['AVGReturnTime'],totaltime,row['TimeIn'],time_fmt,reasonCode,reasonLabel,history_zones,hrs,historyindx[0]]
+				#update station to default
+				
+				queryUpdate_Station = '''
+				UPDATE QPS_Sortation_Stations
+				SET UserID = ?, 
+				CurrentCount = ? ,
+				TotalCount = ?,
+				TotalTurnInCount = ?,
+				Rate = ?,
+				TotalTime = ?, 
+				TimeIn = ?,
+				AVGScanTime = ?,
+				ZoneCounts = ?,
+				ScanTimes = ?,
+				ReturnTimes = ?,
+				hrs_loggedIn = ?
+				WHERE stationindx = ?
+				'''
+				queryUpdate_Station_Args = ['',0,0,0,0.0,'00:00:00','',0.0,emptyZones_data,'','',0,row['stationindx']]
+					
+			
+				system.db.runPrepUpdate(history_log, history_log_args,'SQLServer')
+				system.db.runPrepUpdate(queryUpdate_Station, queryUpdate_Station_Args,'SQLServer')
+				tagpath = '[Mouser]Mouser/QPS_Sortation/'
+				system.tag.writeBlocking(*zip(*[
+					(tagpath  + 'Station %s/UserID'%(row['stationindx']),''),
+					(tagpath  + 'Station %s/HistoryIndx'%(row['stationindx']),0),
+					(tagpath  + 'Station %s/Station_Occupied'%(row['stationindx']),0)
+				]))
+				system.perspective.closePopup('SignOut_User')
+			
+		else:
+			system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'Incorrect Password'})
+		
+	else:
+		system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'User Not Active. Please add'})	
+		system.perspective.closePopup('SignOut_User')
+	
+	
+	
+
+def admin_login_user(userID,station_num,station_name):
+	tagpath = '[Mouser]Mouser/QPS_Sortation/'
+	timeIn = system.date.now()
+	time_fmt = system.date.format(timeIn, DATEFORMAT) 
+	emptyZones = {}
+	emptyZones_data = system.util.jsonEncode(emptyZones)
+	#Check if user active
+	queryCount = '''
+	Select Count(UserID) as Count
+	From UserLogin
+	Where UserID = ?
+	'''
+	#number = int(station[0].rpartition('_')[2])	
+	countResults = system.db.runPrepQuery(queryCount, [userID], 'SQLServer')
+		
+	count = countResults[0]['Count']
+		
+		
+	if count == 1:
+		#Check if Password is correct
+		queryInfo = '''
+			Select *
+			From UserLogin
+			Where UserID = ?
+			'''
+		queryValues = [userID]
+		
+		queryResults = system.db.runPrepQuery(queryInfo, queryValues,'SQLServer')
+		row = queryResults[0]
+		
+		
+		
+			
+		queryStation = '''
+			Select *
+			From QPS_Sortation_Stations
+			Where UserID = ?
+			'''
+		queryStation_args = [userID]
+		
+		queryStation_Results = system.db.runPrepQuery(queryStation, queryStation_args,'SQLServer')
+		
+		
+		
+		if queryStation_Results:
+			row = queryStation_Results[0]
+			system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'User Logged in %s already'%(row['Station_Name'])})
+		
+		else:								
+	
+			
+			
+			create_historyLog = '''
+			insert into QPS_History_Log
+			(UserID,Station_Num,Station_Name,CurrentCount,TotalCount,TotalTurnInCount,Rate,AvgScanTime,AVGReturnTime,TotalTime,TimeIn,TimeOut,Reason_Code,Reason_Str,ZoneCounts,hrs_loggedIn)
+			Values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+			'''
+			create_historyLog_args = [userID,station_num,station_name,0,0,0,0.0,'00:00:00','00:00:00','00:00:00',time_fmt,'',0,'','',0]
+			
+			queryUpdate_Station = '''
+			UPDATE QPS_Sortation_Stations
+			SET UserID = ?,
+			CurrentCount = ? , 
+			TotalCount = ?,
+			TotalTurnInCount = ?,
+			Rate = ?,
+			TotalTime = ?, 
+			TimeIn = ?,
+			AVGScanTime = ?,
+			AVGReturnTime = ?,
+			ZoneCounts = ?,
+			ScanTimes = ?,
+			ReturnTimes = ?,
+			hrs_loggedIn = ? 
+			WHERE stationindx = ?
+			'''
+			
+			queryUpdate_Station_Args = [userID,0,0,0,0.0,'00:00:00',time_fmt,'00:00:00','00:00:00','','','',0,station_num]
+			
+			queryUpdate_User = '''
+			Update UserLogin
+			SET Timestamp = ?
+			Where UserID = ?
+			'''
+			historyindx = system.db.runPrepUpdate(create_historyLog, create_historyLog_args,'SQLServer',getKey=1)
+			system.db.runPrepUpdate(queryUpdate_Station, queryUpdate_Station_Args,'SQLServer',getKey=1)
+			system.db.runPrepUpdate(queryUpdate_User, [system.date.now(),userID],'SQLServer')
+			
+			
+			system.tag.writeBlocking(*zip(*[
+				(tagpath  + 'Station %s/UserID'%(station_num),userID),
+				(tagpath  + 'Station %s/HistoryIndx'%(station_num),historyindx),
+				(tagpath  + 'Station %s/Station_Occupied'%(station_num),1)
+			]))
+			
+			
+	
+		
+	else:
+		system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'User Not Active. Please add'})	
+		
+	
+	
+	
+	
+
+	
+
+	
+
+
+	
+def adminlogout_user(userID,reasonCode,reasonLabel):
+	tagpath = '[Mouser]Mouser/QPS_Sortation/'
+	timeOut = system.date.now()
+	time_fmt = system.date.format(timeOut, DATEFORMAT) 
+	emptyZones = {}
+	emptyZones_data = system.util.jsonEncode(emptyZones)
+	#Check if user active
+	queryCount = '''
+	Select Count(UserID) as Count
+	From UserLogin
+	Where UserID = ?
+	'''
+	#number = int(station[0].rpartition('_')[2])	
+	countResults = system.db.runPrepQuery(queryCount, [userID], 'SQLServer')
+		
+	count = countResults[0]['Count']
+		
+		
+	if count == 1:
+		#Check if Password is correct
+		queryInfo = '''
+			Select *
+			From UserLogin
+			Where UserID = ?
+			'''
+		queryValues = [userID]
+		
+		queryResults = system.db.runPrepQuery(queryInfo, queryValues,'SQLServer')
+		row = queryResults[0]
+		
+		
+		
+			
+		queryStation = '''
+			Select *
+			From QPS_Sortation_Stations
+			Where UserID = ?
+			'''
+		queryStation_args = [userID]
+		
+		queryStation_Results = system.db.runPrepQuery(queryStation, queryStation_args,'SQLServer')
+		
+		
+		
+		if not queryStation_Results:
+			
+			system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'User is not logged in'})
+		
+		else:								
+			
+			
+			
+			row = queryStation_Results[0]
+			prev_ZoneCounts = row['ZoneCounts']
+			history_zones = system.util.jsonEncode(prev_ZoneCounts)
+			totaltime = get_updatedtime(row['TimeIn'],timeOut)
+			historyindx = [	
+				qv.value for qv in 
+				system.tag.readBlocking([
+					tagpath + '/' + '%s/HistoryIndx'%(row['Station_Name']),
+				])]
+					
+			hrs,mins,sec = totaltime.split(':')
+			#update history login
+			history_log = '''
+			UPDATE QPS_History_Log
+			SET CurrentCount = ?,
+			TotalCount = ?,
+			TotalTurnInCount = ?,
+			Rate = ?,
+			AvgScanTime = ?,
+			AVGReturnTime = ?,
+			TotalTime = ?,
+			TimeIn = ?,
+			TimeOut = ?,
+			Reason_Code = ?,
+			Reason_Str = ?,
+			ZoneCounts = ?,
+			hrs_loggedIn = ?
+			WHERE historyindx = ?
+			'''
+			
+			history_log_args = [row['CurrentCount'],row['TotalCount'],row['TotalTurnInCount'],row['Rate'],row['AVGScanTime'],row['AVGReturnTime'],totaltime,row['TimeIn'],time_fmt,reasonCode,reasonLabel,'',hrs,historyindx[0]]
+			#update station to default
+			
+			queryUpdate_Station = '''
+			UPDATE QPS_Sortation_Stations
+			SET UserID = ?, 
+			CurrentCount = ? ,
+			TotalCount = ?,
+			TotalTurnInCount = ?,
+			Rate = ?,
+			TotalTime = ?, 
+			TimeIn = ?,
+			AVGScanTime = ?,
+			ZoneCounts = ?,
+			ScanTimes = ?,
+			ReturnTimes = ?,
+			hrs_loggedIn = ?
+			WHERE stationindx = ?
+							'''
+			queryUpdate_Station_Args = ['',0,0,0,0.0,'00:00:00','',0.0,emptyZones_data,'','',0,row['stationindx']]
+				
+		
+			system.db.runPrepUpdate(history_log, history_log_args,'SQLServer')
+			system.db.runPrepUpdate(queryUpdate_Station, queryUpdate_Station_Args,'SQLServer')
+			
+			system.tag.writeBlocking(*zip(*[
+				(tagpath  + 'Station %s/UserID'%(row['stationindx']),''),
+				(tagpath  + 'Station %s/HistoryIndx'%(row['stationindx']),0),
+				(tagpath  + 'Station %s/Station_Occupied'%(row['stationindx']),0)
+			]))	
+			system.perspective.closePopup('SignOut_User')
+			
+		
+		
+	else:
+		system.perspective.openPopup('SortationError', 'Popups/QPS_Sortation/Error',params = {'ErrorMessage':'User Not Active. Please add'})	
+		
+	
+	
+	
+
+def turnin_all_Stations():
+	opcServer = 'Ignition OPC-UA Server'
+
+	query = '''
+	SELECT stationindx
+	FROM QPS_Sortation_Stations
+	Where UserID <> ? and UserID IS NOT NULL
+	'''
+			
+	results = system.db.runPrepQuery(query, [''], 'SQLServer')
+	
+
+	
+	for i in range(len(results)):
+		
+		system.opc.writeValue(opcServer, 'ns=1;s=[QPS_Sortation]HMI_Manual_TurnIn[0].%s'%(i), True)
+		sleep(1)
+		system.opc.writeValue(opcServer, 'ns=1;s=[QPS_Sortation]HMI_Manual_TurnIn[0].%s'%(i), False)
+		
+@async(name = "QPS_timedout_Data")		
+def Timeout_user(source_path):
+	Get_parent_dest = '/'.join(source_path.split('/')[:-1])
+	userid,historyindx= [
+		qv.value for qv in 
+		system.tag.readBlocking([
+			Get_parent_dest + '/' + 'UserID',
+			Get_parent_dest + '/' + 'HistoryIndx',
+			])]
+	tagpath = '[Mouser]Mouser/QPS_Sortation/'
+	timeOut = system.date.now()
+	time_fmt = system.date.format(timeOut, DATEFORMAT) 
+	emptyZones = {}
+	emptyZones_data = system.util.jsonEncode(emptyZones)
+			
+	queryStation = '''
+		Select *
+		From QPS_Sortation_Stations
+		Where UserID = ?
+		'''
+	queryStation_args = [userid]
+	
+	queryStation_Results = system.db.runPrepQuery(queryStation, queryStation_args,'SQLServer')
+	
+			
+	row = queryStation_Results[0]
+	#prev_ZoneCounts = row['ZoneCounts']
+	history_zones = ''
+	totaltime = get_updatedtime(row['TimeIn'],timeOut)
+	
+	
+#	hrs,mins,sec = totaltime.split(':')
+	hrs = 0
+	#update history login
+	history_log = '''
+	UPDATE QPS_History_Log
+	SET CurrentCount = ?,
+	TotalCount = ?,
+	TotalTurnInCount = ?,
+	Rate = ?,
+	AvgScanTime = ?,
+	AVGReturnTime = ?,
+	TotalTime = ?,
+	TimeIn = ?,
+	TimeOut = ?,
+	Reason_Code = ?,
+	Reason_Str = ?,
+	ZoneCounts = ?,
+	hrs_loggedIn = ?
+	WHERE historyindx = ?
+	'''
+	
+	history_log_args = [row['CurrentCount'],row['TotalCount'],row['TotalTurnInCount'],row['Rate'],row['AVGScanTime'],row['AVGReturnTime'],totaltime,row['TimeIn'],time_fmt,6,'Timed-Out','',hrs,historyindx]
+	#update station to default
+	
+	queryUpdate_Station = '''
+		UPDATE QPS_Sortation_Stations
+		SET UserID = ?, 
+		CurrentCount = ? ,
+		TotalCount = ?,
+		TotalTurnInCount = ?,
+		Rate = ?,
+		TotalTime = ?, 
+		TimeIn = ?,
+		AVGScanTime = ?,
+		ZoneCounts = ?,
+		ScanTimes = ?,
+		ReturnTimes = ?,
+		hrs_loggedIn = ?
+		WHERE stationindx = ?
+		'''
+	queryUpdate_Station_Args = ['',0,0,0,0.0,'00:00:00','',0.0,emptyZones_data,'','',0,row['stationindx']]
+		
+
+	system.db.runPrepUpdate(history_log, history_log_args,'SQLServer')
+	system.db.runPrepUpdate(queryUpdate_Station, queryUpdate_Station_Args,'SQLServer')
+	
+	#write 0 to logout user
+	system.tag.writeBlocking(*zip(*[
+		(tagpath  + 'Station %s/UserID'%(row['stationindx']),''),
+		(tagpath  + 'Station %s/HistoryIndx'%(row['stationindx']),0),
+		(tagpath  + 'Station %s/Station_Occupied'%(row['stationindx']),0)
+	]))
+
+#def historyLogDB_update(data):
+	
+#	payload ={
+#		'historyindx':
+#		'TotalCount':
+#		'TotalTurnInCount'
+#		'Rate':
+#		'AvgScanTime':
+#		'AVGReturnTime':
+#		'TotalTime':
+#		'TimeIn':
+#		'TimeOut':
+#		'Reason_Code':
+#		'Reason_Str':
+#		'ZoneCounts':
+#		'hrs_loggedIn':
+#		}
+		
+					
+							
+	
+	
+	
+#def stationDB_update(data):
+#		
+#	payload = '''
+#				UPDATE QPS_Sortation_Stations
+#				SET UserID = ?, 
+#				TotalCount = ?,
+#				CurrentCount = ? ,
+#				TotalTurnInCount = ?,
+#				Rate = ?,
+#				TotalTime = ?, 
+#				TimeIn = ?,
+#				AVGScanTime = ?,
+#				AVGReturnTime = ?,
+#				ZoneCounts = ?,
+#				ScanTimes = ?,
+#				ReturnTimes = ?,
+#				hrs_loggedIn = ?
+#				WHERE stationindx = ?
+#				'''			
+						
+								
+		
+	
+	
+		
+#def ScanhistoryDB_update(data):
+#					
+#	payload = {
+#	'IndexID':data['IGN_IndexID_Returned'],
+#	'UserID':data['IGN_UserID'],
+#	'Station_Num':data['IGN_StationNum'],
+#	'Station_Name':data['IGN_StationName'],
+#	'Payload':data['IGN_Payload'],
+#	'Zone':data['IGN_Route_Returned'],
+#	'ScanTime':data['IGN_AVG_Time'],
+#	'Timestamp':datetime.utcnow()
+#	}							
+														
+																									
+					
+	 				

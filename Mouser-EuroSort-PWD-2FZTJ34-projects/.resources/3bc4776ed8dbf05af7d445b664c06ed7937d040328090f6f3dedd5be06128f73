@@ -1,0 +1,32 @@
+{
+  "pages": {
+    "/buttonsandbeacons": {
+      "viewPath": "ButtonsAndBeacons"
+    },
+    "/": {
+      "viewPath": "ButtonsAndBeacons"
+    },
+    "/alarmsresponsive": {
+      "viewPath": "AlarmsResponsive"
+    }
+  },
+  "sharedDocks": {
+    "cornerPriority": "top-bottom",
+    "top": [
+      {
+        "viewPath": "Headers/Large",
+        "id": "",
+        "viewParams": {},
+        "size": 150,
+        "resizable": false,
+        "iconUrl": "",
+        "modal": false,
+        "show": "visible",
+        "anchor": "fixed",
+        "content": "push",
+        "autoBreakpoint": 480,
+        "handle": "hide"
+      }
+    ]
+  }
+}

@@ -1,0 +1,209 @@
+from shared.tools.thread import async
+from functools import partial
+from time import sleep
+from random import random
+from datetime import datetime
+from time import sleep
+from random import random
+from datetime import datetime
+from java.util import Date
+import re
+from pymongo import MongoClient
+from pymongo import *
+import uuid
+
+# Constants and configuration
+PAYLOAD_SEPARATOR = '|'
+BARCODE_SEPARATOR = ','
+OPC_SERVER = 'Ignition OPC-UA Server'
+PLC_NAME = 'ns=1;s=[L330ER_Opex_OIO]'
+DATE_FORMAT = 'MM-dd-yyyy HH:mm:ss'
+ENDOFLINE = [7, 10, 13, 15]
+MAINLINE = [2, 3, 4]
+DIRECTION = {
+    3: 'Sent Straight',
+    1: 'Diverted Left',
+    2: 'Diverted Right'
+}
+
+DESTINATION = {
+2:{'AA':1,'AB':1,'AC':1,'BA':1,'BB':1,'BC':1},
+3:{'CA':1,'CB':1,'CC':1,'DA':1,'DB':1,'DC':1},
+4:{'EA':1,'EB':1,'EC':1,'FA':1,'FB':1,'FC':1,'LA':1,'LB':1,'LC':1,'MA':1,'MB':1,'MC':1,'NA':1,'NB':1,'NC':1,
+	'OA':1,'OB':1,'OC':1,'OF':1,'VA':1},
+5:{'AC':1,'BC':2},
+6:{'AB':1,'BB':2},
+7:{'AA':1,'BA':2}, #end of line
+8:{'CC':1,'DC':2},
+9:{'CB':1,'DB':2},
+10:{'CA':1,'DA':2}, #end of line
+11:{'EC':1,'FC':2},
+12:{'EB':1,'FB':2},
+13:{'EA':1,'FA':2,'LA':2,'LB':2,'LC':2,'MA':2,'MB':2,'MC':2,'NA':2,'NB':2,'NC':2,
+	'OA':2,'OB':2,'OC':2,'OF':2,'VA':2},#end of line
+15:{'GA':1,'GD':2,'SG':2,'NOREAD':2}#end of line
+
+}
+#Mongo Connections
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+client = MongoClient(uri,connectTimeoutMS=5000, socketTimeoutMS=5000)
+db=client.ignition
+
+#Routing Exceptions
+class RoutingException(Exception):pass
+
+class NoPayload(RoutingException):pass
+
+
+
+def query_ibn(barcode_list):
+    projection = {'_id': 1, 'consol_zone': 1}
+    
+    with db.outbound_scan_sort_ibn.find(
+            {'_id': {'$in': barcode_list}},
+            projection=projection
+        ) as cursor:
+        results = list(cursor)
+    if results:
+        return results[0]['consol_zone'], ','.join(barcode_list)
+    return '', ','.join(barcode_list)
+
+def determine_direction(scannerID):
+    """Determine the default routing direction based on scanner ID."""
+    if scannerID in ENDOFLINE:
+        return 2, DIRECTION[2]  # Diverted Right
+    elif scannerID in MAINLINE:
+        return 3, DIRECTION[3]  # Sent Straight
+    return 3, DIRECTION[3]     # Default to Sent Straight if not specified
+
+
+
+def lookup_and_decode(data,ibns):
+	ibn_list = ibns.replace('\x03', '').replace('\x02', '').split(BARCODE_SEPARATOR)
+	ibn_list = [item for item in ibn_list if item not in {"NOREAD", "??????"}]
+	
+	if ibn_list:
+		zone, ibn_string = query_ibn(ibn_list)
+		data.update({'IGN_Route_Returned': zone, 'IGN_Payload_Returned': ibn_string})
+        
+   	else:
+   		data.update({'IGN_Route_Returned': 'NOREAD', 'IGN_Payload_Returned': 'NOREAD'})
+        
+	
+	default, direction = determine_direction(int(data['IGN_ScannerID']))
+
+	dest = DESTINATION.get(data['IGN_ScannerID'], {}).get(data.get('IGN_Route_Returned', ''), default)
+	
+	if dest == 1:
+	    direction = DIRECTION[1]
+	    
+	
+
+	    
+	data.update({
+		'IGN_Destination_Returned':dest,
+		'IGN_Destination_String':direction
+	})
+	
+	
+	return data
+
+@async(name = "Consol_gatherData")
+def consol_gather_data(source_path,payload,scannerID):
+    Get_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+    Got_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+    
+    Get_Counts = '[Mouser]Mouser/Consolidation/Scanners/Consol/Scan%s/Counts'%(scannerID)
+    
+ 
+    leftCNT,rightCNT,straightCNT = [
+    qv.value for qv in system.tag.readBlocking([
+		Get_Counts + '/' + 'DVT_LEFT',
+		Get_Counts + '/' + 'DVT_RIGHT',
+		Get_Counts + '/' + 'DVT_STRAIGHT'
+	])]
+	
+    data = {'guid': str(uuid.uuid4()), 'IGN_ReceiveTime': datetime.now(), 'IGN_ScannerID': scannerID, 'IGN_LEFT_COUNT':int(leftCNT),'IGN_RIGHT_COUNT':int(rightCNT),'IGN_STRAIGHT_COUNT':int(straightCNT)} 
+    
+    try:
+	    if PAYLOAD_SEPARATOR in payload:
+	    	indexID, ibns = payload.split(PAYLOAD_SEPARATOR)
+	    	data.update({
+	    		'IGN_IndexID_Returned':int(indexID),
+	    		'Raw_Payload':payload
+	    	})
+	    
+	    	data.update(lookup_and_decode(data,ibns))
+	    	
+	    else:
+	       	raise NoPayload
+	        
+    except NoPayload:
+    	
+    	scannerID = int(scannerID)
+    	default, direction = determine_direction(scannerID)
+	
+    	data.update({
+	    	'IGN_IndexID_Returned':int(99),
+	    	'Raw_Payload':payload,
+			'IGN_Destination_Returned':default,
+			'IGN_Destination_String':direction,
+			'IGN_Payload_Returned':payload,
+			'IGN_Route_Returned':'NoPayload'		
+	    })
+    except:
+    	
+    	scannerID = int(scannerID)
+    	default, direction = determine_direction(scannerID)
+	
+    	data.update({
+	    	'IGN_IndexID_Returned':int(99),
+	    	'Raw_Payload':payload,
+			'IGN_Destination_Returned':default,
+			'IGN_Destination_String':direction,
+			'IGN_Payload_Returned':payload,
+			'IGN_Route_Returned':'Error'
+	    })
+	
+    opcServer = 'Ignition OPC-UA Server'
+    itemPath = 'ns=1;s=[L330ER_Opex_OIO]Scan_%s_Destination_Code'%(scannerID)
+    value = data['IGN_Destination_Returned']
+    
+    if data['IGN_Destination_Returned'] == 1:
+    	data.update({'IGN_LEFT_COUNT':(data['IGN_LEFT_COUNT'] + 1)})
+    elif data['IGN_Destination_Returned'] == 2:
+      	data.update({'IGN_RIGHT_COUNT':(data['IGN_RIGHT_COUNT'] + 1)})
+    elif data['IGN_Destination_Returned'] == 3:
+    	data.update({'IGN_STRAIGHT_COUNT':(data['IGN_STRAIGHT_COUNT'] + 1)})  
+    
+    system.opc.writeValue(opcServer, itemPath, value)	
+    
+    Got_parent_dest += '/'
+    Get_Counts += '/'
+    system.tag.writeBlocking(*zip(*[
+    	(Got_parent_dest + 'Dest_Send', data['IGN_Destination_Returned']),
+    	(Got_parent_dest + 'Payload_Returned', data['IGN_Payload_Returned']),
+    	(Got_parent_dest + 'Direction', data['IGN_Destination_String']),
+    	(Got_parent_dest + 'Route_Returned', data['IGN_Route_Returned']),
+    	(Get_Counts + 'DVT_LEFT',data['IGN_LEFT_COUNT']),
+    	(Get_Counts + 'DVT_RIGHT',data['IGN_RIGHT_COUNT']),
+    	(Get_Counts + 'DVT_STRAIGHT',data['IGN_STRAIGHT_COUNT'])
+    ]))
+    
+    data.update({
+    	'IGN_SentTime':system.date.now()
+    })
+    
+    consolQuery = '''
+    	INSERT INTO Consol_History_Table
+    	(timestamp,json_data)
+    	VALUES (?,?)
+    	'''
+    consolData = system.util.jsonEncode(data)
+	
+    consolArgs = [system.date.now(),consolData]
+    
+    system.db.runPrepUpdate(consolQuery, consolArgs, 'SQLServer')
+	
+    	
+

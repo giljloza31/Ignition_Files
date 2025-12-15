@@ -1,0 +1,889 @@
+"""
+	Track order info as requested by routing
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from shared.tools.error import python_full_stack
+
+from database.core import db_select_records
+
+from eurosort.config            import EuroSorterConfig
+from eurosort.routing           import DefaultRoutingStrategies
+from eurosort.service           import EuroSorterPolling
+from eurosort.tracking.contents import EuroSorterContentTracking, EuroSorterBayGrouping
+from eurosort.tracking.gates    import EuroSorterGateMechanics, EuroSorterChuteDestRelease
+from eurosort.tracking.lights   import EuroSorterLightControl
+from eurosort.tracking.wcs      import EuroSorterAccessWCS, EuroSorterWCSRoutingExceptions
+
+from eurosort.enums import MessageCode, FAILURE_MESSAGES
+from eurosort.tracking.contents import Destination, Dests, Chutes, Sides
+
+from eurosort.utility import now, seconds_since
+
+import datetime
+from time import sleep
+
+from collections import defaultdict
+from itertools import cycle
+
+import json
+
+
+
+
+class SorterWarning(UserWarning): pass
+
+class ChuteAlreadyOccupied(SorterWarning):
+	"""Notify that the system couldn't move forward because it's already occupied"""
+	pass
+
+
+
+def nop(*args, **kwargs):
+	"""Does nothing"""
+	pass
+
+
+
+
+class PackoutLightControl(
+		EuroSorterBayGrouping,
+		EuroSorterPolling,
+		EuroSorterLightControl,
+
+	):
+
+	#DEFAULT_PACKOUT_ALLOWED_BLINKING_PER_BAY = 1
+
+	CONTINUOUSLY_REEVALUATE_LIGHTS = False
+
+
+	def __init__(self, name, **init_config):
+		super(PackoutLightControl, self).__init__(name, **init_config)
+		#self._allowed_blinking_per_bay = self.DEFAULT_PACKOUT_ALLOWED_BLINKING_PER_BAY
+		self._bay_light_cursor = cycle(
+			[bay_name for bay_name in self.bays]
+		)
+	
+		self._polling_methods.append(self.poll_reevaluate_bay_packout_lights)
+		self._init_polling()
+
+	@property
+	def _allowed_blinking_per_bay(self):
+		lights_per_bay = self._read_config_tag('Packout Lights Allowed Per Bay')
+		if lights_per_bay <= 0:
+			return 1
+		else:
+			return lights_per_bay 
+
+
+	def _assign_bays(self):
+		super(PackoutLightControl, self)._assign_bays()
+		self._bay_light_cursor = cycle(
+			[bay_name for bay_name in self.bays]
+		)
+
+
+	def poll_reevaluate_bay_packout_lights(self):
+		if not self.CONTINUOUSLY_REEVALUATE_LIGHTS:
+			return
+		bay_name = next(self._bay_light_cursor)
+		self.reevaluate_bay_packout_light_indicators(bay_name)
+
+
+	def reevaluate_group_light_indicators(self, destination):
+		target_chute_info = self[destination]
+		self.reevaluate_bay_packout_light_indicators(target_chute_info.bay)
+
+
+	def reevaluate_bay_packout_light_indicators(self, bay_name):
+		sibling_chute_infos = self[bay_name]
+	
+		# FIFO - if not available, now is at late as can be
+		sibling_chute_infos.sort(key=lambda info: (
+			min([info.available[order_number].get('priority', 10000) 
+				for order_number in info.get('available', {})] + [10000]),
+			- seconds_since(info.available_timestamp),
+		))
+	
+		priority_remaining = self._allowed_blinking_per_bay # deprecated and ignored in favor of error indication
+		for chute_info in sibling_chute_infos:
+			if not chute_info.available:
+				
+				self.set_light(chute_info.destination, 'off')
+			else: #if chute_info.available:
+				# check if this is a consolidated order
+				is_consolidated = False
+				for order_number in chute_info.available:
+					order = chute_info.available[order_number]
+					if order['status'] == 'consolidated':
+						is_consolidated = True
+			
+				if is_consolidated:
+					self.set_light(chute_info.destination, 'solid')
+					continue
+			
+				# get the longest idling order in the front of the chute
+				# if it's been there too long, blink like an error
+				consolidation_start_timestamp = max([0] + [
+					chute_info.available[order_number].get('consolidation_start_timestamp', 0)
+					for order_number 
+					in chute_info.available
+				])
+			
+				if seconds_since(consolidation_start_timestamp) > self._max_consolidation_rental_seconds:
+					self.logger.debug('Notifying operator that this chute should be evaluated: {destination} ({consolidation_start_timestamp} past time: {max_time}',
+					destination = chute_info.destination,
+					max_time = self._max_consolidation_rental_seconds,
+					)
+					self.set_light(chute_info.destination, 'blink2')
+					continue
+			
+				self.set_light(chute_info.destination, 'solid')
+			
+			#	# drain priority first (as sorted)
+			#	if priority_remaining:
+			#		self.set_light(chute_info.destination, 'blink1')
+			#		priority_remaining -= 1
+			#	else:
+			#		self.set_light(chute_info.destination, 'solid')
+#			
+#			else:
+#				self.set_light(chute_info.destination, 'off')
+
+
+
+class EuroSorterOrderRouting(
+		EuroSorterChuteDestRelease,
+	
+		PackoutLightControl,
+		EuroSorterBayGrouping,
+		EuroSorterContentTracking,
+
+		EuroSorterWCSRoutingExceptions,
+		DefaultRoutingStrategies,
+		
+		EuroSorterGateMechanics, # before content?
+		EuroSorterPolling,
+		EuroSorterAccessWCS,
+		EuroSorterLightControl,
+	):
+
+#	MAX_CONSOLIDATION_RENTAL_SECONDS = 20 * 60 # 20 minutes (in seconds)
+
+	WCS_AVAILABLE_COOLDOWN_SECONDS = EuroSorterGateMechanics.GATE_TRANSITION_DWELL_TIME + 1
+
+
+	def __init__(self, name, **init_config):
+		super(EuroSorterOrderRouting, self).__init__(name, **init_config)
+	
+		self._router_sequence = [
+				self._router_noread,
+				self._router_order,
+				self._router_eponymous,
+				self._router_explicit,
+				#self._router_default,
+			]
+		
+		self._polling_methods.append(self.poll_consolidating)
+		self._polling_methods.append(self.poll_wcs_location_cleared)
+		self._polling_methods.append(self.poll_order_status_cleanup)
+	
+		self._init_polling()
+
+
+	@property
+	def _max_consolidation_rental_seconds(self):
+		return self._read_config_tag('Max consolidation chute rental seconds')
+
+
+	def chute_orders(self, destination):
+		chute_info = self[destination]
+		order_numbers = set()
+		for order_group in (chute_info.consolidating, chute_info.available):
+			for order_number in order_group:
+				order_numbers.add(order_number)
+		return order_numbers
+
+	def chute_issues(self, destination, include_available=True, include_consolidating=True):
+		chute_info = self[destination]
+		issue_ibns = set()
+		if include_consolidating:
+			for order_number in chute_info.consolidating:
+				for issue_ibn in chute_info.consolidating[order_number].get('issues', {}):
+					issue_ibns.add(issue_ibn)
+		if include_available:
+			for order_number in chute_info.available:
+				for issue_ibn in chute_info.available[order_number].get('issues', {}):
+					issue_ibns.add(issue_ibn)
+		return issue_ibns
+
+
+	def _untrack_issue(self, issue_ibn, remove_target=None, keep_target=None):
+		drain_targets = [remove_target] if remove_target else self
+		for destination in drain_targets:
+			# allow the issue to stay in the target
+			if destination == keep_target:
+				continue
+		
+			chute_info = self[destination]
+		
+			for order_group in (chute_info.consolidating, chute_info.available):
+				for order_number in order_group:
+					# remove the issue from the order in that chute
+					if issue_ibn in order_group[order_number].issues:
+						del order_group[order_number].issues[issue_ibn]
+					# clear out any empty orders with no issues as well
+					if not order_group[order_number].issues:
+						del order_group[order_number]
+
+	def _untrack_issues(self, issue_ibns, remove_targets=None, keep_targets=None):
+		# all at once
+		drain_targets = remove_targets if remove_targets else self
+		keep_targets = keep_targets or []
+		for destination in drain_targets:
+			# allow the issue to stay in the target
+			if destination in keep_targets:
+				continue
+		
+			chute_info = self[destination]
+		
+			for order_group in (chute_info.consolidating, chute_info.available):
+				for order_number in order_group:
+					# remove the issue from the order in that chute
+					issues_to_remove = issue_ibns.intersection(set(order_group[order_number].issues))
+					for issue_ibn in issues_to_remove:
+						del order_group[order_number].issues[issue_ibn]
+				
+					# clear out any empty orders with no issues as well
+					if not order_group[order_number].issues:
+						del order_group[order_number]
+
+
+	def clear_destination_issues(self, destination, include_available=True, include_consolidating=True):
+		for issue_ibn in self.chute_issues(destination):
+			self._untrack_issue(issue_ibn, remove_target=destination)
+			self.notify_wcs_issue_removed(issue_ibn)
+
+
+	def clear(self):
+		# drain all issues out of the machine before we Forget Everything
+		for destination in self:
+			self.clear_destination_issues(destination)
+		super(EuroSorterOrderRouting, self).clear()
+
+
+
+	def clear_chute(self, destination, include_available=True, include_consolidating=False):
+		"""Effectively a macro for an operator/WCS clearing the front of the chute
+		"""
+		# coerce
+		destination = Destination.parse(destination)
+		self.logger.warn('Clearing all tracking data from front of chute %s' % (destination,))
+	
+		# skip moving consolidation issues so that they don't get moved to the EUSRT10 transit location
+		self.clear_destination_issues(destination, include_available=include_available, include_consolidating=include_consolidating)
+	
+		# WCS cleanup
+		if include_consolidating:
+			self._mark_destination_occupied(destination, is_occupied=False, dest='1')
+	
+		if include_available:
+			self._clear_available(destination) # releases the gate to close
+		
+			self._mark_destination_occupied(destination, is_occupied=False, dest='2')
+			self.set_light(destination, 'off')
+	
+		#reinitialized_contents = self._init_destination(destination.station, destination.chute, destination.side)
+		#self._destination_contents[destination] = reinitialized_contents
+
+
+	def clear_packout(self):
+		self.logger.warn('Clearing all tracking data from PACKOUT chutes!')
+		
+		for destination in self.packout_chutes:
+			self.clear_chute(destination)
+
+
+	@property
+	def packout_chutes(self):
+		for destination in self:
+			if not self.is_packout_chute(destination):
+				continue
+			yield destination
+
+#	@property
+#	def _allowed_chutes(self):
+#		for destination in self[{'side':'A'}]:
+#			if not self._destination_is_disallowed(destination):
+#				yield destination
+
+
+	def _find_matching_issue(self, sorter_data):
+		# picks first of the barcodes found that's valid
+		# there's no tie breaking if multiple barcodes work (and that should fail anyhow)
+		for barcode in sorter_data.barcodes:
+			issue = self.wcs_get_issue(barcode)
+			if issue:
+				self.logger.trace('Matched scan to an issue: {barcode} => {issue}')
+				return issue
+		return None
+
+
+	def _router_order(self, sorter_data):
+	
+		issue = self._find_matching_issue(sorter_data)
+		if issue is None:
+			return None
+	
+		line  = self.wcs_get_line_from_issue(issue)
+		order = self.wcs_get_order_from_issue(issue)
+		assert order, "Issue with no matching order - contact WCS for correction!"
+		assert line,  "Issue with no matching line - contact WCS for correction!"
+	
+		issue_ibn    = issue['ibn']
+		issue_status = issue['status']
+		order_number = order['order']
+		order_status = order['status']
+	
+		if order.get('qp_error'):
+			self.logger.warn('Order {order_number} is marked as QP Error. Sending {issue_ibn} to JACKPOT')
+			return self._route_invalid_barcode
+	
+		if order['status'] in ('consolidated', 'cancelled', 'held'):
+			self.logger.warn('Order {order_number} already marked as {order_status}. Sending {issue_ibn} to JACKPOT')
+			return self._route_invalid_barcode
+	
+		if issue_status in ('cancelled',):
+			self.logger.warn('Issue {issue_ibn} already marked as {issue_status}. Sending {issue_ibn} to JACKPOT')
+			return self._route_invalid_barcode
+	
+		# status should be started, issued
+	
+		# first see if the order is already somewhere
+		self.logger.trace('Finding a spot for the order: {order_number}')
+
+		# search for any actively consolidating (including front!)
+		chutes_with_order = self._chutes_with_orders(order_number)
+	
+		if chutes_with_order:
+		
+			current_home_for_order = chutes_with_order[0] # TODO: failover to futher in case of overflow constraints (if there are more than one chute)
+			chute_info = self[current_home_for_order]
+		
+			# have we already promoted forward? If so the JACKPOT because we're done with the active system consolidation phase
+			if order_number in chute_info.available:
+				self.logger.trace('Found! BUT {order_number} is alreay released at {destination!r}. Sending {issue_ibn} to JACKPOT.')
+				destination = self._route_invalid_barcode
+				return destination
+		
+			destination = current_home_for_order
+			self.logger.trace('Found! {order_number} ==> {destination!r} (order status: {status}', status=order['status'])
+		
+			self._update_chute_order_info(destination, order, issue)
+		
+		elif any([
+				order['status'] == 'cancelled',
+				line['status']  == 'cancelled',
+				issue['status'] == 'cancelled',
+			]):
+			destination = self._route_invalid_barcode
+			self.logger.trace('Cancelled! issue/line {issue_ibn} of order {order_number} ==> {destination!r} (jackpot)')
+		
+		else:
+			destination = self._next_chute_without_order()
+		
+			if not destination:
+				return StopIteration('Machine full! Recirculate!')
+		
+			self.logger.trace('Claiming! {order_number} ==> {destination}')
+		
+			self._update_chute_order_info(destination, order, issue)
+	
+		return destination
+
+
+	def _update_chute_order_info(self, destination, order, issue=None):
+		
+		if destination in (self._route_invalid_barcode, self._route_noread):
+			self.logger.warn('Attempted to update chute data for the JACKPOT/NOREAD chutes. No.')
+			return
+		
+		chute_info = self[destination]
+		
+		order_number = order['order']
+		if not chute_info.consolidating[order_number]:
+			chute_info.consolidating[order_number]['consolidation_start_timestamp'] = now()
+	
+		chute_info.consolidating[order_number].update(order)
+		chute_info.consolidating[order_number]['last_sorter_timestamp'] = now()
+	
+		if issue:
+			chute_info.consolidating[order_number]['issues'][issue['ibn']].update(issue)
+			chute_info.consolidating[order_number]['issues'][issue['ibn']]['last_sorter_timestamp'] = now()
+	
+		self.logger.debug('Updating chute {destination} order info with {order} (and issue {issue})')
+
+
+	def _chutes_with_orders(self, order_number):
+		return [
+			destination
+			for destination 
+			 in self
+			if (   order_number in self[destination].consolidating 
+			    or order_number in self[destination].available)
+			  and self.is_packout_chute(destination)
+		]
+
+	@property
+	def _allow_delivery_to_chutes_with_available(self):
+		return self._read_control_tag('Allow delivery if front occupied')
+#		system.tag.readBlocking([
+#			self.CONTROL_TAG_PATH + '/Allow delivery if front occupied'
+#		])[0].value
+
+
+	def _next_chute_without_order(self):
+		allow_concurrent_consolidation = self._allow_delivery_to_chutes_with_available
+		for bay_name in reversed(self.bays):
+			for chute_info in reversed(self[bay_name: 'B': 'LOWER'] + self[bay_name: 'B': 'UPPER']):
+				if allow_concurrent_consolidation:
+					# find first unoccupied rear chute and ensure door is closed
+					if not chute_info.consolidating:
+						if not self.is_gate_closed(chute_info.destination):
+							continue
+						return chute_info.destination
+				else:
+					# find first completely unoccupied chute
+					if not chute_info.consolidating and not chute_info.available:
+						return chute_info.destination
+		self.logger.debug('Next packout chute not resolved. Returning None...')
+
+
+# TODO: FOR TESTING ONLY to hold the gate open until cleared
+#			for chute_info in reversed(self[bay_name: 'B': 'LOWER'] + self[bay_name: 'B': 'UPPER']):
+#				# second see if there's just space in the rear open for consolidation
+#				if not chute_info.consolidating:
+#					return chute_info.destination
+
+			# third, check the next bay!
+
+
+	def router_cancelled_order(self, sorter_data):
+		raise NotImplementedError('If the order is cancelled, we might send to chute (front) anyway (and let QP deal) or jackpot immediately')
+
+	def router_cancelled_issue(self, sorter_data):
+		raise NotImplementedError('If the issue is cancelled, we might send to order anyway (and let QP deal) or jackpot immediately')
+
+
+
+
+
+	def handle_verify(self, sorter_data):
+		super(EuroSorterOrderRouting, self).handle_verify(sorter_data)
+		
+		chute_info = self[sorter_data]
+	
+		if not chute_info:
+			self.logger.warn('Message does not resolve to a location: {destination}', destination = sorter_data.destination)
+			return # what to do?
+	
+		# ensure it's a packout bay
+		if not self.is_packout_chute(chute_info.destination):
+			return
+	
+		self.logger.trace('VERIFY: PACKOUT {message_code!r}: {tracking} for {barcode}', 
+			message_code = sorter_data.message_code,
+			tracking=sorter_data.track_id, 
+			barcode=sorter_data.barcode,
+		)
+		#self.logger.debug('VERIFY message contents: {info!r}', info = sorter_data.asdict(),)
+	
+		if sorter_data.message_code in FAILURE_MESSAGES:
+			self.logger.warn('VERIFY failure: {message_code!r}', message_code = sorter_data.message_code)
+			return
+	
+		if sorter_data.message_code == MessageCode.DISCHARGED_AT_DESTINATION:
+			try:
+				destination = chute_info.destination
+			except AttributeError as error:
+				self.logger.error('VERIFY: SorterData returned no destination mapped to a chute: {sorter_data} ==> {error}, for {sd_dest}', sd_dest=sorter_data.destination)
+				return
+		
+			issue = self._find_matching_issue(sorter_data)
+		
+			# update stored info
+		
+			if not issue:
+				self.logger.warn('Potentially cancelled issue delivered to {destination}.')
+				if not chute_info.consolidating:
+					self.pulse_gate_open(chute_info.destination)
+					if not chute_info.available:
+						self.logger.warn('Potentially cancelled issue dumped to front of {destination}.')
+					else:
+						self.logger.warn('Potentially cancelled issue dumped to front of {destination} with another (previously same?) order.')
+				return
+		
+			# let the WCS know the jackpot holds this issue
+			if chute_info.destination == self._route_invalid_barcode:
+				self.notify_wcs_issue_delivered(issue, chute_info.destination, dest=Dests.FRONT)
+				return
+		
+			issue['discharged_delivered_timestamp']= now()
+		
+			order = self.wcs_get_order_from_issue(issue)
+		
+			issue_ibn = issue['ibn']
+			order_number = order['order']
+		
+			# make sure that the straggler gets added
+			if order_number in chute_info.available:
+				self.logger.debug('Issue {issue_ibn} delivered for already available order {order_number}: dropping to front.')
+				self.pulse_gate_open(chute_info.destination)
+				# this shouldn't happen since chutes are "reserved" as soon as the induct route is set
+				# but iff it ever does happen it really needs an error logged
+				if (set(chute_info.consolidating) - set([order_number])):
+					self.logger.error('Multiple orders moved to front in {destination}')
+			
+				self.notify_wcs_issue_delivered(issue, chute_info.destination, dest=Dests.FRONT)
+			
+				self._make_available(destination, force_release=True)
+			
+				return
+		
+			self._update_chute_order_info(chute_info.destination, order, issue)
+		
+			self._mark_destination_occupied(chute_info.destination, is_occupied=True, dest=Dests.REAR)
+		
+			self.notify_wcs_issue_delivered(issue, chute_info.destination)
+	
+		return
+
+
+	def is_packout_chute(self, destination):
+		return bool(self[destination].get('bay', False))
+
+
+	def _make_available(self, destination, force_release=False):
+		super(EuroSorterOrderRouting, self)._make_available(destination, force_release)
+		if self.is_packout_chute(destination):
+			self.reevaluate_group_light_indicators(destination)
+
+
+	def _clear_available(self, destination):
+		# buffer the available orders that are getting cleared
+		orders_available = {}
+		if self.is_packout_chute(destination):
+			chute_info = self[destination]
+			orders_available = dict(chute_info.available).copy()
+	
+		# clears the available entry
+		super(EuroSorterOrderRouting, self)._clear_available(destination)
+	
+		# do additional housekeeping based on state before clearing
+		if self.is_packout_chute(destination):
+			for order_number in orders_available:
+				for issue in self.wcs_get_issues_from_order(order_number):
+					self._untrack_issue(issue['ibn'])
+				
+#				for issue_ibn in orders_available[order_number]:
+#					self._untrack_issue(issue_ibn)
+			self.reevaluate_group_light_indicators(destination)
+
+
+
+	def poll_trap_consolidated(self):
+		"""Search for a failure mode: find an IBN that didn't get notified"""
+		consolidation_stall_cooldown = 180 # seconds - how long an issue should wait before we think it might be stalled
+		
+		# gather info for checking
+		issues_waiting = {}
+		orders_waiting = set()
+		for chute_info in self.chute_infos:
+			if chute_info.consolidating:
+				for order_number in chute_info.consolidating:
+					order_info = chute_info.consolidating[order_number]
+				
+					# make sure all issues have had a chance to get to their chute first
+					for issue_ibn, issue in chute_info.consolidating[order_number]['issues'].items():
+						# ensure bookkeeping - not needed later
+						if 'last_sorter_timestamp' not in issue:
+							issue['last_sorter_timestamp'] = now()
+						
+#						if seconds_since(issue['last_sorter_timestamp']) < consolidation_stall_cooldown:
+#							break # bail out
+					else:
+						# all issues are past the cooldown
+						for issue_ibn in chute_info.consolidating[order_number]['issues']:
+							issues_waiting[issue_ibn] = chute_info.destination
+						
+						orders_waiting.add(order_number)
+	
+		# ask the WCS for what it's waiting for
+		pconsol_issues_results = db_select_records('pconsol_issues', {'order': list(orders_waiting)})
+	
+		# collate the results
+		order_issues = defaultdict(set)
+		for issue in pconsol_issues_results:
+			order_issues[issue['order']].add(issue['ibn'])
+		order_issues = dict(order_issues)
+	
+		# check if all ibns of an order have been reserved into the machine
+		all_sorter_ibns = set(issues_waiting)
+		orders_seemingly_complete = set()
+		for order_number, issue_ibns in order_issues.items():
+			if all_sorter_ibns.issuperset(issue_ibns):
+				orders_seemingly_complete.add(order_number)
+	
+		# bail if no orders seem complete (all ibns are in a consolidating chute)
+		if not orders_seemingly_complete:
+			return
+	
+		# ask the WCS for order state
+		pconsol_orders_results = db_select_records('pconsol_orders', {'order': list(orders_seemingly_complete)})
+	
+		# finally, check if there's any problems
+		potentially_unacked_orders = set()
+		for order in pconsol_orders_results:
+			if order['status'] not in ('consolidated', 'cancelled', 'held'):
+				potentially_unacked_orders.add(order['order'])
+		
+		if potentially_unacked_orders:
+			self.logger.warn('Potentially unacked issue delivery detected. Dumping core for reference.')
+			self._dump_core()
+		
+			for order_number in potentially_unacked_orders:
+				issue_ibns = list(sorted(order_issues[order_number]))
+				expected_chutes = list(sorted(set(
+						issues_waiting[issue_ibn]
+						for issue_ibn
+						 in issue_ibns
+					)))
+				self.logger.warn('Possible ibn got lost for order {order_number} with {issue_ibns!r} across chutes {expected_chutes!r}')
+				
+				# reset the clock to prevent log spam
+				for issue_ibn in issue_ibns:
+					destination = issues_waiting[issue_ibn]
+					chute_info = self[destination]
+					chute_info.consolidating[order_number]['issues'][issue_ibn]['last_sorter_timestamp'] = now()
+			
+			# summarize (repeats above, but for the file)
+		
+			destinations_to_check = {}
+		
+			for order_number in potentially_unacked_orders:
+				issue_ibns = list(sorted(order_issues[order_number]))
+			
+				for issue_ibn in issue_ibns:
+					destination = str(issues_waiting[issue_ibn])
+				
+					if not destination in destinations_to_check:
+						destinations_to_check[destination] = {}
+					if not order_number in destinations_to_check[destination]:
+						destinations_to_check[destination][order_number] = {
+							'expected': [],
+							'missing': []
+						}
+					destinations_to_check[destination][order_number]['expected'].append(issue_ibn)
+					
+					if not self[destination].consolidating[order_number]['issues'][issue_ibn].get('discharged_delivered_timestamp'):
+						destinations_to_check[destination][order_number]['missing'].append(issue_ibn)
+		
+			json_payload = json.dumps(destinations_to_check, indent=2, sort_keys=True, default=repr)
+		
+			timestamp = now().replace(':', '')[:17]
+			filepath = self.config['log_path'] + '/' + 'unacked-ibn-trap.' + timestamp + '.json'
+		
+			with open(filepath, 'w') as f:
+				f.write(json_payload)
+			
+			self.logger.warn('Potentially unacked orders are logged at {filepath}.')
+
+
+	def poll_consolidating(self):
+		awaiting_consolidiation = defaultdict(set)
+		for chute_info in self.chute_infos:
+			# only consolidate on packout!
+			if not self.is_packout_chute(chute_info.destination):
+				continue
+		
+			try: # trap for a weird bug; not sure why this could fail as a KeyError given AdHocObjects create keys automatically on reference
+				assert chute_info.available
+			except AssertionError:
+				pass
+			except Exception as error:
+				self.logger.error("AdHoc failed on the following: {chute_info} with {error}. See also {destination}", destination = chute_info.destination)
+		
+			# skip chutes we can't dump forward into
+			if chute_info.available:
+				continue
+	
+			# ... and only check those that are actively consolidating
+			if chute_info.consolidating:
+				for order_number in chute_info.consolidating:
+					awaiting_consolidiation[order_number].add(chute_info.destination)
+	
+		results = db_select_records('pconsol_orders', {'order': list(awaiting_consolidiation)})
+	
+		for order in results:
+			order_number = order['order']
+			for destination in awaiting_consolidiation[order_number]:
+			
+				chute_info = self[destination]
+			
+				consolidation_start_timestamp = chute_info.consolidating.get(order_number, {}).get('consolidation_start_timestamp')
+			
+				# skip those that aren't a trigger for moving forward
+				if not any([
+						# move forward if order can't be consolidated
+						order['status'] in ('consolidated', 'cancelled', 'held', 'shipped'),
+						
+						# move forward if order has been in the chute too long (assume a human should look at it)
+						seconds_since(consolidation_start_timestamp) > self._max_consolidation_rental_seconds,
+					]):
+					continue
+			
+				# one last update <--- TODO use change streams to keep up to date
+				chute_info.consolidating[order_number].update(order)
+#				chute_info.available[order_number].update(order)
+				
+#				Logger().trace('Consolidation result at {destination}: {available} vs {consolidating}', 
+##					available     = chute_info.available[order_number], 
+#					consolidating = chute_info.consolidating[order_number],
+#					)
+			
+				# TODO: check that the gate is in the expected position
+				self._make_available(destination)                         # <---- this prevents repeat checks
+			
+				self.notify_wcs_order_available(order, destination)
+			
+				self.logger.debug('Location available for QP: {destination} (for order: {order_number})')
+
+
+	def poll_wcs_location_cleared(self):
+		
+#		self.logger.trace("Polling: check if locations are cleared/QP'd")
+		
+		awaiting_cleared = {}
+		for chute_info in self.chute_infos:
+			# skip chutes that are unoccupied
+			if not chute_info.available:
+				continue
+		
+			#guardrail
+			if chute_info.available_timestamp is None:
+				chute_info.available_timestamp = now() # better late than never, right?
+		
+			# skip until the stuff's been available long enough to react properly to
+			if seconds_since(chute_info.available_timestamp) < self.WCS_AVAILABLE_COOLDOWN_SECONDS:
+				continue
+		
+			wcs_location = self.get_wcs_location_from_destination(chute_info.destination, dest=Dests.FRONT)
+			awaiting_cleared[wcs_location] = chute_info.destination
+	
+		results = db_select_records('eurosort_location_info', {'wcs_location': list(awaiting_cleared)})
+	
+		for location in results:
+			# skip locations that haven't been cleared
+			if location['is_occupied']:
+				continue
+		
+			if location['last_updated_by'] == 'Ignition':
+				self.logger.warn('Location {location} shows as last updated by Ignition despite waiting for clearing')
+		
+			wcs_location = location['wcs_location']
+			destination = awaiting_cleared[wcs_location]
+			
+			# TODO: check that the gate is in the expected position
+			self._clear_available(destination)                   # <---- this prevents repeat checks
+		
+			self.logger.debug('Location cleared: {destination} (from wcs: {wcs_location})')
+
+
+	def poll_order_status_cleanup(self):
+		"""Redundant check to super extra double check that the order still exists"""
+		order_numbers = set()
+		for destination in self:
+			order_numbers.update(self.chute_orders(destination))
+	
+		order_statuses = self.wcs_get_order_statuses(order_numbers)
+	
+		shipped_orders = set(
+				order_number 
+				for order_number 
+				 in order_statuses
+				if order_statuses[order_number] == 'shipped'
+			)
+	
+		shipped_ibns = set(
+				entry['ibn'] 
+				for entry
+				 in self.wcs_get_issues_from_orders(shipped_orders, limit_fields=('ibn',))
+			)
+	
+		# clear junk out of the machine
+		self._untrack_issues(shipped_ibns)
+	
+		# scan over machine and perform cleanup/maintenance
+		for destination in self:
+			chute_info = self[destination]
+		
+			if chute_info.consolidating:
+			
+				# check the rear of the chute
+				for order_number in chute_info.consolidating:
+					if order_number not in order_statuses:
+						self.logger.debug('Order (consolidating) not included in status update {order_number} in {destination}, likely because it was shipped')
+						continue
+				
+					order_status = order_statuses[order_number]
+					if order_status == 'shipped':
+						del chute_info.consolidating[order_number]
+					else:
+						chute_info.consolidating[order_number].status = order_status
+				
+				if not chute_info.consolidating:
+					self._mark_destination_occupied(destination, is_occupied=False, dest=Dests.REAR)
+		
+			if chute_info.available:
+			
+				# check the front of the chute
+				for order_number in chute_info.available:
+					if order_number not in order_statuses:
+						self.logger.debug('Order (available) not included in status update {order_number} in {destination}, likely because it was shipped')
+						continue
+				
+					order_status = order_statuses[order_number]
+					if order_status == 'shipped':
+						del chute_info.available[order_number]
+					else:
+						chute_info.available[order_number].status = order_status
+				
+				if not chute_info.available:
+					self._mark_destination_occupied(destination, is_occupied=False, dest=Dests.FRONT)
+					self._clear_available(destination)
+
+
+	def locate_order(self, order_number):
+		for destination in self.packout_chutes:
+			chute_info = self[destination]
+			if order_number in chute_info.consolidating:
+				return destination # REAR
+			if order_number in chute_info.available:
+				return destination # FRONT
+		raise ValueError('Order %r not found in sorter metadata' % (order_number,))
+
+	def locate_issue(self, issue_ibn):
+		for destination in self.packout_chutes:
+			chute_info = self[destination]
+			for order in chute_info.consolidating:
+				if issue_ibn in chute_info.consolidating[order]:
+					return destination # REAR
+			for order in chute_info.available:
+				if issue_ibn in chute_info.available[order]:
+					return destination # FRONT
+		raise ValueError('Issue %r not found in sorter metadata' % (issue_ibn,))
+
+
+

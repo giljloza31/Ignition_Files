@@ -1,0 +1,134 @@
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from shared.pwd.Mouser.RST.ScanTunnel_Script import RST_Data
+from functools import partial
+from time import sleep
+from datetime import datetime
+from pymongo import MongoClient
+
+from java.util import Date
+
+import re
+import socket
+import pymongo
+
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+
+client = MongoClient(uri)
+db=client.ignition
+
+CACHE_LIFESPAN = 3.0 # seconds
+
+CLEAR_WAIT_TIME  = 0.026
+FAILSAFE_TIMEOUT = 6.0
+
+rst = RST_Data()
+
+PAYLOAD_PATTERN = re.compile(r"""
+	^
+	(?P<imageID>\d{3}_\d{8})
+	\|
+	(?P<barcode>.*)
+	$
+	""", re.VERBOSE)
+	
+
+
+class Routing_Exception(Exception):pass
+
+class Error(Routing_Exception):
+	def _init_(self,data,route,message,num):
+		self.data = data
+		self.route = route
+		self.message = message
+		self.num = num
+
+
+
+@async(name="RST-ReceiveData")
+def rst_gather_data(source_path):
+	parent_dest = '/'.join(source_path.split('/')[:-1])
+
+	
+	data = {
+		'trackno':None,
+		'IBN':None,
+		'packlist':None,
+		'po_nbr':None,
+		'partno':None,
+		'supplier_partno':None,
+		'poline':None,
+		'quantity':None,
+		'datecode':None,
+		'lotcode':None,
+		'coo':None,
+		'msl':None,
+		'msl_drying_time':None,
+		'scanned_date_time':None,
+		'payload':None,
+		'imageID':'',
+		'indexID':0,
+		'seqID':0,
+		'Cloud9_Data':[],
+		'Time_Diff':None,
+		'API_Receieved_Time':None
+		
+		
+	}
+	string_input,CNT21,CNT29,CNTNOPO = [
+
+		qv.value for qv in 
+		system.tag.readBlocking([
+			parent_dest + '/' + 'ScanPayload',
+			parent_dest + '/' + 'Count_021',
+			parent_dest + '/' + 'Count_029',
+			parent_dest + '/' + 'No_PO',
+			])]
+	
+	rawPayload = string_input[1:]	
+	
+	data.update({
+	'raw_data':rawPayload
+	})
+	
+	try:
+		# Match incomming payload to the pattern match 
+		payload_data_match = PAYLOAD_PATTERN.match(rawPayload)
+		
+		# if no return then raise improper format, otherwise continue with process
+		if not payload_data_match:
+			raise Error(data,'ImproperFormat','Incorrect payload receieved',2)
+		payloadData = payload_data_match.groupdict()
+		
+		if payloadData['barcode'] == 'NOREAD':
+			raise Error(data,'NOREAD','No barcodes found',3)
+		barcodeList = payloadData['barcode'].split('|')
+		imageID = payloadData['imageID']
+		indexID,seqID = imageID.split('_')
+	
+		data.update({
+			'imageID':imageID,
+			'indexID':indexID,
+			'seqID':seqID,
+			'barcodeList':barcodeList,
+			'raw_Data':rawPayload
+		})	
+			
+		rst.build_payload(data,CNT21,CNT29,CNTNOPO)
+		
+	except Error as values:
+		data = values[0]
+
+		data.update({
+			'imageID':'100_00000000',
+			'indexID':100,
+			'seqID':00000000,
+			'route':values[1],
+			'reason':values[2],
+			'reason_code':values[3]
+			})
+		db.inbound_receiving_info.insert(data)
+	
+	
+	
+	

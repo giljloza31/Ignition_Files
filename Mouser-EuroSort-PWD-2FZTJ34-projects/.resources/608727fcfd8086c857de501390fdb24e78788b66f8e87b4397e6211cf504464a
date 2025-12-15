@@ -1,0 +1,67 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from shared.data.messaging import Message, Request
+from perfectpick.tracking import Tracking
+from utility.timestamp import timedelta_since_iso8601
+
+import datetime
+
+
+
+PERSPECTIVE_UPDATE_MESSAGE = slice('EuroSortInterface', 'Tracking: Updates')
+
+UPDATE_TIMEOUT_SECONDS = 15 * 60 # 
+
+
+def event_handler(tracking, signal, **session):
+	"""Handle events as tracking updates"""
+	Logger().trace('Event handler: {signal} for {tracking}') # ==> {session!r}')
+
+	# check if the timeout should be aborted and renewed
+	# it uses a request instead of a message specifically to block
+	# in case a reply for the timeout wants to preempt and signal, "yes, renew!"
+	
+	if signal == 'timeout':
+	
+		should_continue_tracking = False
+	
+		# if never updated, then, well, this rule won't apply
+		if 'last_update' in session:
+			time_since_last_update = timedelta_since_iso8601(session['last_update']).total_seconds()
+			if time_since_last_update <= UPDATE_TIMEOUT_SECONDS:
+				should_continue_tracking = True
+	
+#		# don't drop something that's sitting in front of an operator
+#		# other things are ok, since they can get rescanned
+#		if session['zone']:
+#			should_continue_tracking = True
+		
+		# convert the timeout signal to an update since it's not expiring
+		if should_continue_tracking:
+			signal = 'updates'
+		
+		notify_perspective_sessions(tracking, callback=signal, **session)
+		
+		Logger().trace('Timeout handler for {tracking} should continue: {should_continue_tracking}')
+		return should_continue_tracking
+	else:
+		notify_perspective_sessions(tracking, callback=signal, **session)
+
+
+
+def notify_perspective_sessions(tracking, callback, **details):
+	pass
+	#Logger().trace('Perspective notify update: {callback} for {tracking}')
+	
+#	with Message[PERSPECTIVE_UPDATE_MESSAGE] as message:
+#		message.filters.scope = 'perspective session'
+#		message.payload.tracking = tracking
+#		message.payload.callback = callback
+#		message.payload.update(details)
+
+
+

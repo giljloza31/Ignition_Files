@@ -1,0 +1,706 @@
+from shared.pwd.Mouser.Connection_Driver.Sort_Config import SorterConfig
+from shared.pwd.Mouser.Connection_Driver.Sort_Scheduler import Scheduler
+from shared.pwd.Route_tables.RouteStorage import RoutingStorage
+from shared.tools.global import ExtraGlobal
+from shared.pwd.Mouser.Consolidation.Consol_Tracking.Content_Tote_Tracking import ToteContentData
+from shared.helpers.tools import safe_tag_read, safe_tag_write, ensure_list
+from database.records.mongodb import select_record, select_records, update_record
+import system
+import re
+
+MONGODB = 'MongoWCS'
+
+# payload: <indexid>|<tote_id>
+SCAN_PAYLOAD_RE = re.compile(r'^(?P<indexid>\d{3})\|(?P<tote_id>ST[0-9]{4})$')
+
+# error-style route codes (same as Scan1)
+ERROR_ROUTE_CODES = (
+    'NOROUTE',
+    'NODEST',
+    'NOREAD',
+    'MULTI',
+    'ERROR',
+    'NORETURN',
+    'NOPAYLOAD'
+)
+
+ROUTING_COLLECTION = "routing_tables"
+ROUTING_TTL_SEC = 60 * 60
+
+ROUTING_STORE = RoutingStorage(
+    db_name=MONGODB,
+    coll_name=ROUTING_COLLECTION,
+    ttl_sec=ROUTING_TTL_SEC
+)
+
+
+class Consol_Router(object):
+
+    def __init__(self, name):
+
+        self.name = name
+        self.log = system.util.getLogger("Consol")
+        self.cfg = SorterConfig(name)
+
+        # list of all Consol scanners we expect
+        self.scanner_ids = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15]
+        self.scanner_tag_root = "[Mouser]Mouser/Consol/Main/Scanners"
+
+        self.CONSOL_SYSTEM = "Consol"
+        self.CONSOL_TABLE = "consol_route_table"
+
+        self.record = {}
+
+        # routing table cached in this instance:
+        # {
+        #    "station_scanners": { "5": { "AC": {left:bool,right:bool}, ...}, ... },
+        #    "main_scanners":    { "2": {"divert_num":1,"scanners":[5,6,7]}, ... }
+        # }
+        self.route_table = {}
+
+        try:
+            self.totes = ToteContentData('ScanTotes')
+            # initial load of consol routing table from Mongo via ROUTING_STORE
+            self._reload_routes(initial=True)
+        except Exception as e:
+            self.log.warn('Consol initialization load failed: %s' % e)
+
+        # metrics: per-scanner sliding window for rate/hr
+        self._scan_timestamps_by_scanner = {}  # scanner_id(str) -> [millis,...]
+        self._rate_window_sec = 300           # 5-minute window
+
+        # one scheduler = one thread
+        self.sched = Scheduler(
+            name="Sched.%s" % name,
+            tick_resolution=0.05   # loop sleep time; can be tighter if needed
+        )
+        self.perm_values = {}
+
+        # register periodic jobs
+        self.sched.add(self._read_permissives, every_sec=0.25, run_immediately=True)
+        self.sched.add(self._check_routes_changed, every_sec=60.0)
+
+    def start(self):
+        self.log.info("Starting Consol router: %s" % (self.name))
+        self.sched.start()
+
+        if not safe_tag_read("%s/Connected" % self.cfg.CONFIG_PATH):
+            safe_tag_write("%s/Connected" % self.cfg.CONFIG_PATH, True)
+
+    def stop(self):
+        self.log.info("Stopping Consol router: %s" % (self.name))
+        self.sched.stop()
+        if safe_tag_read("%s/Connected" % self.cfg.CONFIG_PATH):
+            safe_tag_write("%s/Connected" % self.cfg.CONFIG_PATH, False)
+
+    # ---------------- internal helpers: routing table ----------------
+    def _reload_routes(self, initial=False):
+        """
+        Load or reload the Consol route table from Routing Database into self.route_table.
+        Expected structure from Mongo (data field):
+            {
+                "station_scanners": { ... },
+                "main_scanners":    { ... }
+            }
+        """
+        try:
+            data = ROUTING_STORE.get_data(self.CONSOL_SYSTEM, self.CONSOL_TABLE)
+            if isinstance(data, dict):
+                self.route_table = data
+                msg = "initial" if initial else "refreshed"
+                self.log.info("Consol: %s route table %s from Mongo" %
+                              (self.CONSOL_SYSTEM, msg))
+            else:
+                self.log.warn(
+                    "Consol: route table data for %s is not a dict (%r)" %
+                    (self.CONSOL_SYSTEM, type(data))
+                )
+        except Exception as e:
+            self.log.warn("Consol: failed to load route table from store: %s" % e)
+
+    def _check_routes_changed(self):
+        """
+        Explicit poll of RoutingStore for external changes to Consol route table.
+        If changed in Mongo → refresh local cache.
+        Call this from polling jobs.
+        """
+        try:
+            changed = ROUTING_STORE.poll_refresh(self.CONSOL_SYSTEM, self.CONSOL_TABLE)
+        except Exception as e:
+            self.log.warn("Consol: poll_refresh failed: %s" % e)
+            return
+
+        if changed:
+            # re-pull the latest data into this router
+            self._reload_routes(initial=False)
+
+    # ---------------- permissives ----------------
+    def _read_permissives(self):
+        paths = {}
+
+        for sid in self.scanner_ids:
+            sid_str = str(sid)  # station folder uses raw number (no zero-pad)
+            key_base = "S%s" % sid_str
+
+            base = "%s/Station %s/Control" % (self.scanner_tag_root, sid_str)
+
+            paths["%s_online" % key_base] = base + "/Scanner_Online"
+            paths["%s_faulted" % key_base] = base + "/Scanner_Faulted"
+            paths["%s_triggered" % key_base] = base + "/Scanner_Triggered"
+
+        if not paths:
+            return
+        try:
+            qvs = system.tag.readBlocking(paths.values())
+        except Exception as e:
+            self.log.warn('Consol permissive read failed: %s' % e)
+            return
+
+        for (key, path), qv in zip(paths.items(), qvs):
+            val = getattr(qv, 'value', None)
+            if hasattr(val, 'toDict'):
+                val = val.toDict()
+            old = self.perm_values.get(key)
+
+            if old != val:
+                if key.endswith('triggered'):
+                    # don't spam logs on triggers
+                    pass
+                else:
+                    self.log.info("Consol permissive %s: %s to %s" %
+                                  (key, old, val))
+            self.perm_values[key] = val
+
+    def get_permissive(self, perm_name):
+        return self.perm_values.get(perm_name)
+
+    # =========================================
+    # Payload + Zone resolution
+    # =========================================
+    def _parse_payload(self, payload):
+        """
+        Consol payload: <indexid>|<tote_id>
+
+        Sets self.record['index_id'] and self.record['tote_id'].
+
+        Returns:
+            True  on success
+            False on failure (reason_code / reason set)
+        """
+        self.record = {
+            "raw_payload": payload,
+            "reason_code": 0,
+            "reason": None
+        }
+
+        m = SCAN_PAYLOAD_RE.match(payload or "")
+        if not m:
+            self.record.update({
+                "index_id": None,
+                "tote_id": None,
+                "reason_code": 1,
+                "reason": "Payload did not match pattern <indexid>|STdddd",
+                "route_code": "NOPAYLOAD"
+            })
+            self.log.warn("Consol: payload did not match pattern: %r" % payload)
+            return False
+
+        gd = m.groupdict()
+        # note: regex group name is "indexid"
+        index_id = gd.get("indexid")
+        tote_id = gd.get("tote_id")
+
+        self.record.update({
+            "index_id": index_id,
+            "tote_id": tote_id
+        })
+
+        return True
+
+    def _get_zone_from_tote(self, tote_id):
+        """
+        Look up zone based on tote_id via ToteContentData.
+
+        Returns:
+            (zone, route_code)
+
+        route_code:
+            - zone (e.g. 'AA','AB',...)
+            - or error route: 'NODEST','NOREAD'
+        """
+        if not tote_id:
+            return None, 'NOREAD'
+
+        try:
+            zone = self.totes.get_tote_zone(tote_id)
+        except Exception as e:
+            self.log.warn("Consol: failed reading tote zone for %s: %s" %
+                          (tote_id, e))
+            return None, 'ERROR'
+
+        if not zone:
+            return None, 'NODEST'
+
+        return zone, str(zone).upper()
+
+    # Optional / currently unused – leave for future if you want IBN-based lookups
+    def _resolve_zone_from_ibns(self, ibn_list):
+        """
+        Look up zone based on IBNs from outbound_scan_sort_ibn.
+
+        Returns:
+            (zone, route_code)
+
+        route_code:
+            - zone (e.g. 'AA','AB',...)
+            - or error route: 'NODEST','MULTI','ERROR'
+        """
+        if not ibn_list:
+            return None, 'NOREAD'
+
+        col = "outbound_scan_sort_ibn"
+        qf = {"_id": {"$in": ibn_list}}
+        es = {"projection": {"_id": 1, "zone": 1}}
+
+        try:
+            docs = select_records(
+                col,
+                qf,
+                target_database=MONGODB,
+                engine_specific=es
+            ) or []
+        except Exception as e:
+            self.log.warn("Consol: Mongo zone lookup failed for IBNs %r: %s" %
+                          (ibn_list, e))
+            return None, 'ERROR'
+
+        if not docs:
+            # no destinations for these IBNs
+            return None, 'NODEST'
+
+        first_zone = docs[0].get('zone')
+        if not first_zone:
+            return None, 'NODEST'
+
+        # ensure all zones match
+        for d in docs[1:]:
+            if d.get('zone') != first_zone:
+                return None, 'MULTI'
+
+        return first_zone, str(first_zone).upper()
+
+    # =========================================
+    # Wrong-path / line-home resolution
+    # =========================================
+    def _find_expected_zone_home(self, zone_code):
+        """
+        For a given zone, figure out which line(s) it belongs to.
+
+        Returns dict:
+            {
+              "zone": "AA",
+              "station_scanners": [5,6,7],
+              "main_scanners": [2],
+              "lines": [
+                  {"main": 2, "stations": [5,6,7]}
+              ]
+            }
+        """
+        rt = self.route_table or {}
+        station_scanners = rt.get('station_scanners', {}) or {}
+        main_scanners = rt.get('main_scanners', {}) or {}
+
+        z = str(zone_code).upper()
+
+        # Which station scanners have this zone configured?
+        station_hits = set()
+        for sid_str, zones in station_scanners.items():
+            for zc in zones.keys():
+                if str(zc).upper() == z:
+                    try:
+                        station_hits.add(int(sid_str))
+                    except Exception:
+                        pass
+
+        lines = []
+        main_hits = set()
+
+        # Which main scanners have a line that contains any of those station scanners?
+        for main_sid_str, group in main_scanners.items():
+            try:
+                main_sid = int(main_sid_str)
+            except Exception:
+                continue
+
+            line = group.get("scanners") or []
+            line_stations = [int(s) for s in line]
+            if station_hits.intersection(line_stations):
+                main_hits.add(main_sid)
+                lines.append({
+                    "main": main_sid,
+                    "stations": line_stations
+                })
+
+        return {
+            "zone": z,
+            "station_scanners": sorted(station_hits),
+            "main_scanners": sorted(main_hits),
+            "lines": lines
+        }
+
+    # =========================================
+    # Routing decision using route_table
+    # =========================================
+    def _decide_direction(self, scanner_id, zone_code, route_code):
+        """
+        Determine direction for this Consol scanner.
+
+        Uses self.route_table['station_scanners'] and 'main_scanners'.
+
+        Returns:
+            (direction_code, route_code, next_scanner, wrong_path)
+
+        direction_code:
+            1 = Divert Left
+            2 = Divert Right
+            3 = Sent Straight
+
+        route_code:
+            zone ('AA',...) or error route ('NOROUTE', etc.)
+        """
+        rt = self.route_table or {}
+        station_scanners = rt.get('station_scanners', {}) or {}
+        main_scanners = rt.get('main_scanners', {}) or {}
+
+        sid = int(scanner_id)
+        z = zone_code
+        rc = route_code or (z and str(z).upper()) or "NOROUTE"
+
+        # If this is already an error-style route, just send straight and stop
+        if rc in ERROR_ROUTE_CODES:
+            return 3, rc, None, False
+
+        wrong_path = False
+
+        # ---------- station scanner logic ----------
+        if str(sid) in station_scanners:
+            line_map = station_scanners.get(str(sid), {}) or {}
+            zone_cfg = line_map.get(rc) or line_map.get(z)
+
+            # figure out next_scanner on this line
+            next_scanner = None
+            for main_sid, group in main_scanners.items():
+                line = group.get("scanners") or []
+                if sid in line:
+                    try:
+                        idx = line.index(sid)
+                        if idx + 1 < len(line):
+                            next_scanner = line[idx + 1]
+                        else:
+                            next_scanner = None  # end-of-line
+                    except Exception:
+                        next_scanner = None
+                    break
+
+            if not zone_cfg:
+                # zone not configured on this line → treat as wrong path, straight
+                wrong_path = True
+                return 3, 'NODEST', next_scanner, wrong_path
+
+            left = bool(zone_cfg.get('left'))
+            right = bool(zone_cfg.get('right'))
+
+            if left and not right:
+                dir_code = 1
+            elif right and not left:
+                dir_code = 2
+            else:
+                dir_code = 3
+
+            return dir_code, rc, next_scanner, wrong_path
+
+        # ---------- main scanner logic ----------
+        if str(sid) in main_scanners:
+            group = main_scanners.get(str(sid)) or {}
+            div_num = int(group.get("divert_num", 0) or 0)
+            line = group.get("scanners") or []
+
+            # Build set of zones configured on this line (all stations on this line)
+            zones_on_line = set()
+            for st_sid in line:
+                line_map = station_scanners.get(str(st_sid), {}) or {}
+                for zc in line_map.keys():
+                    zones_on_line.add(str(zc).upper())
+
+            if rc in zones_on_line:
+                # divert off main to first station in this line
+                if div_num == 1:
+                    dir_code = 1
+                elif div_num == 2:
+                    dir_code = 2
+                elif div_num == 3:
+                    dir_code = 3
+                else:
+                    dir_code = 3
+
+                next_scanner = line[0] if line else None
+                return dir_code, rc, next_scanner, wrong_path
+
+            # zone not on this line → straight (stay on main)
+            return 3, rc, None, wrong_path
+
+        # ---------- unknown scanner ----------
+        # Default: straight, NOROUTE
+        return 3, 'NOROUTE', None, False
+
+    # =========================================
+    # Apply Consol route to PLC/tags (placeholder)
+    # =========================================
+    def _apply_route(self, scanner_id, direction_code, route_code, next_scanner):
+        """
+        Placeholder for actual PLC/tag writes for Consol.
+
+        Map direction_code and/or route_code to the bits that
+        drive the QPS / line diverts for this scanner.
+        """
+        self.log.info(
+            "Consol apply route: scanner=%s dir=%s route=%s next=%s" %
+            (scanner_id, direction_code, route_code, next_scanner)
+        )
+        # TODO: implement tag writes here when tag layout is finalized.
+        return True
+
+    # =========================================
+    # Metrics per scanner (Consol)
+    # =========================================
+    def _update_metrics(self, scanner_id, direction_code, route_code):
+        """
+        Update metrics for a specific Consol scanner.
+
+        Tag pattern:
+            {MAIN_PATH}/Scanners/Station <scanner_id>/Metrics/<MetricName>
+
+        Metrics:
+            Cycle_Count
+            Divert_Left_Count
+            Sent_Straight_Count
+            Divert_Right_Count
+            Error_<ROUTECODE>  (for each error-style route)
+            RatePerHour_Current
+            RatePerHour_Min
+            RatePerHour_Max
+            Last_Scan_Timestamp
+        """
+        if not scanner_id:
+            return
+
+        sid_str = str(scanner_id).zfill(3)
+        base = "%s/Scanners/Station %s/Metrics" % (self.cfg.MAIN_PATH, sid_str)
+        now = system.date.now()
+        now_ms = system.date.toMillis(now)
+
+        # init timestamp window list
+        ts_list = self._scan_timestamps_by_scanner.get(sid_str)
+        if ts_list is None:
+            ts_list = []
+            self._scan_timestamps_by_scanner[sid_str] = ts_list
+
+        route = (route_code or "NOROUTE").upper()
+        dir_code = int(direction_code or 0)
+
+        is_error_route = (route in ERROR_ROUTE_CODES)
+
+        # -------- read existing metrics --------
+        metric_paths = [
+            base + "/Cycle_Count",
+            base + "/Divert_Left_Count",
+            base + "/Sent_Straight_Count",
+            base + "/Divert_Right_Count",
+            base + "/RatePerHour_Min",
+            base + "/RatePerHour_Max"
+        ]
+
+        error_paths = []
+        for ec in ERROR_ROUTE_CODES:
+            error_paths.append(base + "/Error_%s" % ec)
+
+        all_paths = metric_paths + error_paths
+
+        try:
+            qvs = system.tag.readBlocking(all_paths)
+        except Exception as e:
+            self.log.warn("Consol: metrics read failed for scanner %s: %s" %
+                          (sid_str, e))
+            return
+
+        cycle_count = int(qvs[0].value or 0)
+        div_left_count = int(qvs[1].value or 0)
+        sent_straight_cnt = int(qvs[2].value or 0)
+        div_right_count = int(qvs[3].value or 0)
+        rate_min = float(qvs[4].value or 0.0)
+        rate_max = float(qvs[5].value or 0.0)
+
+        error_vals = {}
+        idx = len(metric_paths)
+        for i, ec in enumerate(ERROR_ROUTE_CODES):
+            val = int(qvs[idx + i].value or 0)
+            error_vals[ec] = val
+
+        # -------- update counters --------
+        cycle_count += 1
+
+        if dir_code == 1:
+            div_left_count += 1
+        elif dir_code == 2:
+            div_right_count += 1
+        elif dir_code == 3:
+            sent_straight_cnt += 1
+
+        if is_error_route:
+            error_vals[route] = error_vals.get(route, 0) + 1
+
+        # -------- rate per hour (sliding window) --------
+        window_ms = self._rate_window_sec * 1000
+        ts_list.append(now_ms)
+        ts_list[:] = [ts for ts in ts_list if (now_ms - ts) <= window_ms]
+        count_window = len(ts_list)
+
+        if count_window > 0:
+            rate_current = (float(count_window) / float(self._rate_window_sec)) * 3600.0
+        else:
+            rate_current = 0.0
+
+        if rate_min == 0.0 and rate_current > 0.0:
+            rate_min = rate_current
+        elif rate_current > 0.0:
+            rate_min = min(rate_min, rate_current)
+
+        rate_max = max(rate_max, rate_current)
+
+        # -------- write back metrics --------
+        write_paths = [
+            base + "/Cycle_Count",
+            base + "/Divert_Left_Count",
+            base + "/Sent_Straight_Count",
+            base + "/Divert_Right_Count",
+            base + "/RatePerHour_Current",
+            base + "/RatePerHour_Min",
+            base + "/RatePerHour_Max",
+            base + "/Last_Scan_Timestamp"
+        ]
+
+        write_vals = [
+            cycle_count,
+            div_left_count,
+            sent_straight_cnt,
+            div_right_count,
+            rate_current,
+            rate_min,
+            rate_max,
+            now
+        ]
+
+        for ec in ERROR_ROUTE_CODES:
+            write_paths.append(base + "/Error_%s" % ec)
+            write_vals.append(error_vals.get(ec, 0))
+
+        try:
+            system.tag.writeBlocking(write_paths, write_vals)
+        except Exception as e:
+            self.log.warn("Consol: metrics write failed for scanner %s: %s" %
+                          (sid_str, e))
+
+    # =========================================
+    # Logging + metrics hook
+    # =========================================
+    def record_scan_hop(self, scanner_id, zone_code, direction_code,
+                        route_code, next_scanner=None, wrong_path=False):
+        """
+        Call this once per Consol scan after you’ve decided the hop.
+        """
+        route = route_code or zone_code or "NOROUTE"
+        self.log.info(
+            "Consol: scanner=%s zone=%s dir=%s route=%s next=%s wrong_path=%s" %
+            (scanner_id, zone_code, direction_code, route, next_scanner, wrong_path)
+        )
+
+        # if wrong path, figure out where this zone *should* be
+        if wrong_path and zone_code:
+            try:
+                home = self._find_expected_zone_home(zone_code)
+                self.log.warn(
+                    "Consol WRONG PATH: zone=%s scanned at station %s. "
+                    "Configured on main scanner(s) %s, station scanner(s) %s. "
+                    "Lines: %r" %
+                    (home.get("zone"),
+                     scanner_id,
+                     home.get("main_scanners"),
+                     home.get("station_scanners"),
+                     home.get("lines"))
+                )
+                # stash in record for visibility
+                self.record["wrong_path"] = True
+                self.record["wrong_path_scanner"] = scanner_id
+                self.record["wrong_path_zone"] = home.get("zone")
+                self.record["expected_main_scanners"] = home.get("main_scanners")
+                self.record["expected_station_scanners"] = home.get("station_scanners")
+            except Exception as e:
+                self.log.warn("Consol: failed wrong-path home lookup: %s" % e)
+
+        # update per-scanner metrics
+        try:
+            self._update_metrics(scanner_id, direction_code, route)
+        except Exception as e:
+            self.log.warn("Consol: metrics update failed for scanner %s: %s" %
+                          (scanner_id, e))
+
+    # =========================================
+    # Public entrypoint – call this at EACH Consol scanner
+    # =========================================
+    def scan_request(self, scanner_id, payload):
+        """
+        Main entrypoint for a Consol scanner payload.
+
+        scanner_id:
+            current station scanner ID (int), e.g. 5, 6, 7...
+
+        Steps:
+            - parse payload -> index_id + tote_id
+            - resolve zone from ToteContentData (Scan51 previously assigned)
+            - decide direction (left/right/straight) + route_code + next_scanner
+            - write PLC/tags via _apply_route (placeholder)
+            - update metrics + logging (including WRONG PATH detection)
+        """
+        # parse payload
+        parsed_ok = self._parse_payload(payload)
+        tote_id = self.record.get('tote_id')
+
+        if not parsed_ok:
+            # treat as NOPAYLOAD error route
+            zone = None
+            route_code = self.record.get("route_code") or "NOPAYLOAD"
+        else:
+            # resolve zone and initial route_code from tote
+            zone, route_code = self._get_zone_from_tote(tote_id)
+
+        # decide direction using route_table
+        dir_code, final_route_code, next_scanner, wrong_path = self._decide_direction(
+            scanner_id=scanner_id,
+            zone_code=zone,
+            route_code=route_code
+        )
+
+        # drive Consol / QPS outputs
+        self._apply_route(scanner_id, dir_code, final_route_code, next_scanner)
+
+        # update metrics + logging
+        self.record_scan_hop(
+            scanner_id=scanner_id,
+            zone_code=zone,
+            direction_code=dir_code,
+            route_code=final_route_code,
+            next_scanner=next_scanner,
+            wrong_path=wrong_path
+        )
+
+        return True

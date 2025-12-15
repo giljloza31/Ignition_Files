@@ -1,0 +1,120 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 194,
+      "width": 370
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 181,
+          "width": 368,
+          "y": 12
+        },
+        "props": {
+          "alignVertical": "top",
+          "text": "Add New Route",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "TextField"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 109,
+          "y": 55.5
+        },
+        "props": {
+          "placeholder": "Enter New Route",
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "AddRoute_NE_REC",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Mouser/Popups/Yellow/NE_Receiving/AddRoute",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 199,
+          "y": 122.5
+        },
+        "props": {
+          "primary": false,
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\troute \u003d self.getSibling(\"TextField\").props.text\n\t\n\tif route:\n\t\tQuery \u003d \u0027\u0027\u0027\n\t\t\tSELECT Count(Route_Code) as Count\n\t\t\tFROM NE_Receiving_route_table\n\t\t\tWHERE Route_Code \u003d ?\n\t\t\u0027\u0027\u0027\n\n\t\targs \u003d [route]\n\n\t\tresults \u003d system.db.runPrepQuery(Query,args,\u0027SQLServer\u0027)\n\n\t\trow \u003d results[0]\n\n\t\tif row[\u0027count\u0027] \u003d\u003d 0:\n\t\t\tinsertQuery \u003d \u0027\u0027\u0027\n\t\t\t\tINSERT INTO NE_Receiving_route_table\n\t\t\t\t(Route_Code,RoundRobin,Lane_01,Lane_02,Lane_03,Lane_04,Lane_05,Lane_06,Lane_07,Lane_08,Lane_09,Lane_10,Lane_11,Lane_12,Lane_13,Lane_14,Lane_15,Lane_16,Lane_17,Lane_18,Lane_19,Lane_20,Lane_21,Lane_22,Lane_23,Lane_24,Lane_25,Lane_26,Lane_27,Lane_28,Lane_29,Lane_30,Lane_31,Lane_32)\n\t\t\t\tVALUES\n\t\t\t\t(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)\n\t\t\t\u0027\u0027\u0027\n\t\t\t\n\t\t\targs \u003d [route,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]\n\t\t\t\n\t\t\t\n\t\t\tsystem.db.runPrepUpdate(insertQuery, args, \u0027SQLServer\u0027)\n\t\telse:\n\t\t\tsystem.perspective.openPopup(\u0027ErrorMessage_NE_Rec\u0027, \u0027Mouser/Popups/Yellow/NE_Receiving/ErrorMessage\u0027, params \u003d {\u0027Message\u0027:\u0027Already in table!\u0027})\n\t\t\n\t\tself.getSibling(\"TextField\").props.text \u003d \u0027\u0027"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Add Route"
+        },
+        "position": {
+          "height": 34,
+          "width": 88,
+          "x": 81,
+          "y": 122.5
+        },
+        "props": {
+          "text": "Add Route"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": 8,
+      "y": -1
+    },
+    "type": "ia.container.coord"
+  }
+}

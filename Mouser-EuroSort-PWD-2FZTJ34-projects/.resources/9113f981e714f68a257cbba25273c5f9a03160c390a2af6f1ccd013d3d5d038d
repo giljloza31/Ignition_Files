@@ -1,0 +1,329 @@
+# -*- coding: utf-8 -*-
+"""
+foundation.mongo.proxy
+
+MongoProxy for ES_Platform.
+
+Goals:
+	- One Mongo access surface for the whole platform (no spiderweb)
+	- Works in Gateway and Script Console
+	- Uses direct system.mongodb.* if present
+	- Falls back to a Request/Message proxy ("MongoDB Proxy") if configured
+	- Provides consistent method signatures + safe conveniences
+
+IMPORTANT:
+	- This module does NOT enforce schema. It is a thin, reliable transport + helper layer.
+	- Upstream code (StateStore, Layout, etc.) owns field naming + meaning.
+
+Configuration (recommended):
+	- project: Ignition project name that hosts the proxy handler (often current project)
+	- request_name: name of the message handler/service, default "MongoDB Proxy"
+	- default_connector: Mongo connector name, e.g. "MongoWCS"
+"""
+
+import system
+
+try:
+	from shared.data.messaging import Request
+except:
+	Request = None
+
+
+class MongoProxy(object):
+	def __init__(self,
+			project=None,
+			request_name="MongoDB Proxy",
+			default_connector=None,
+			logger=None):
+		self.project = project
+		self.request_name = request_name
+		self.default_connector = default_connector
+		self.log = logger
+
+	def _log(self, level, msg, **fields):
+		try:
+			if self.log and hasattr(self.log, "event"):
+				self.log.event(level, msg, **fields)
+		except:
+			pass
+
+	def _resolve_connector(self, connector):
+		conn = connector or self.default_connector
+		if not conn:
+			raise ValueError("MongoProxy connector is required (set default_connector or pass connector=...)")
+		return conn
+
+	def _system_mongodb_method(self, method_name):
+		mongodb_mod = getattr(system, "mongodb", None)
+		if not mongodb_mod:
+			return None
+		return getattr(mongodb_mod, method_name, None)
+
+	def _proxy_call(self, method, connector, collection, record_mapping, args=None, kwargs=None):
+		if not Request:
+			raise ValueError("MongoProxy fallback requires shared.data.messaging.Request, but import failed.")
+
+		if not self.project:
+			raise ValueError("MongoProxy fallback requires 'project' name for Request bus calls.")
+
+		args = args or []
+		kwargs = kwargs or {}
+
+		with Request(self.project, self.request_name) as req:
+			req.payload = {
+				"method": method,
+				"connector": connector,
+				"collection": collection,
+				"record_mapping": record_mapping,
+				"args": args,
+				"kwargs": kwargs,
+			}
+		return req.results
+
+	def _call(self, method, connector, collection, record_mapping, *args, **kwargs):
+		conn = self._resolve_connector(connector)
+
+		# 1) Try direct gateway function first
+		fn = self._system_mongodb_method(method)
+		if fn:
+			return fn(conn, collection, record_mapping, *args, **kwargs)
+
+		# 2) Fallback proxy call (script console friendly)
+		return self._proxy_call(method, conn, collection, record_mapping, args=list(args), kwargs=dict(kwargs))
+
+	# ----------------------------
+	# Helpers: projection / sort / filter coercion
+	# ----------------------------
+
+	def _projection(self, projection=None, include_fields=None, exclude_fields=None):
+		proj = {}
+		if projection:
+			try:
+				proj.update(projection)
+			except:
+				pass
+
+		if include_fields:
+			for f in include_fields:
+				proj[f] = 1
+
+		if exclude_fields:
+			for f in exclude_fields:
+				proj[f] = 0
+
+		return proj or None
+
+	def _sort(self, sort):
+		"""
+		Accept:
+			- None
+			- dict: {"field": 1/-1} or {"field": "asc"/"desc"}
+			- list: [("field", 1), ("other", -1)]
+		Return:
+			- None or list of tuples
+		"""
+		if not sort:
+			return None
+
+		if isinstance(sort, (list, tuple)):
+			out = []
+			for p in sort:
+				try:
+					out.append((p[0], p[1]))
+				except:
+					pass
+			return out or None
+
+		# dict
+		out = []
+		try:
+			for k, v in sort.items():
+				if v in (-1, "desc", "DESC", True):
+					out.append((k, -1))
+				else:
+					out.append((k, 1))
+		except:
+			return None
+
+		return out or None
+
+	def _coerce_in(self, filt):
+		"""
+		Convenience: convert list values into {"$in":[...]}.
+		Does NOT override operator dicts ({"$gt":...}).
+		"""
+		if not filt:
+			return {}
+
+		out = {}
+		for k, v in filt.items():
+			# Allow top-level operators
+			if isinstance(k, basestring) and k.startswith("$"):
+				out[k] = v
+				continue
+
+			# Preserve operator dicts
+			if isinstance(v, dict):
+				out[k] = v
+				continue
+
+			# Convert list/tuple/set to $in (avoid empty $in)
+			if isinstance(v, (list, tuple, set, frozenset)):
+				vals = list(v)
+				if len(vals) == 0:
+					out[k] = v
+				else:
+					out[k] = {"$in": vals}
+				continue
+
+			out[k] = v
+
+		return out
+
+	# ----------------------------
+	# Public API
+	# ----------------------------
+
+	def find_one(self, collection, filt=None, connector=None,
+			projection=None, include_fields=None, exclude_fields=None,
+			coerce_in=True, **opts):
+		f = filt or {}
+		if coerce_in:
+			f = self._coerce_in(f)
+		proj = self._projection(projection, include_fields, exclude_fields)
+		if proj:
+			opts["projection"] = proj
+		return self._call("findOne", connector, collection, f, **opts)
+
+	def find(self, collection, filt=None, connector=None,
+			projection=None, include_fields=None, exclude_fields=None,
+			sort=None, limit=None, skip=None,
+			coerce_in=True, **opts):
+		f = filt or {}
+		if coerce_in:
+			f = self._coerce_in(f)
+
+		proj = self._projection(projection, include_fields, exclude_fields)
+		s = self._sort(sort)
+
+		if proj:
+			opts["projection"] = proj
+		if s:
+			opts["sort"] = s
+		if limit is not None:
+			opts["limit"] = int(limit)
+		if skip is not None:
+			opts["skip"] = int(skip)
+
+		return self._call("find", connector, collection, f, **opts)
+
+	def insert_one(self, collection, doc, connector=None, **opts):
+		return self._call("insertOne", connector, collection, doc or {}, **opts)
+
+	def insert_many(self, collection, docs, connector=None, **opts):
+		return self._call("insertMany", connector, collection, docs or [], **opts)
+
+	def update_one(self, collection, filt, update_doc, connector=None, upsert=False, **opts):
+		opts.setdefault("upsert", bool(upsert))
+		return self._call("updateOne", connector, collection, filt or {}, update_doc or {}, **opts)
+
+	def update_many(self, collection, filt, update_doc, connector=None, upsert=False, **opts):
+		opts.setdefault("upsert", bool(upsert))
+		return self._call("updateMany", connector, collection, filt or {}, update_doc or {}, **opts)
+
+	def delete_one(self, collection, filt, connector=None, **opts):
+		return self._call("deleteOne", connector, collection, filt or {}, **opts)
+
+	def delete_many(self, collection, filt, connector=None, **opts):
+		return self._call("deleteMany", connector, collection, filt or {}, **opts)
+
+	def replace_one(self, collection, filt, doc, connector=None, upsert=False, **opts):
+		opts.setdefault("upsert", bool(upsert))
+		return self._call("replaceOne", connector, collection, filt or {}, doc or {}, **opts)
+
+	# ----------------------------
+	# Convenience: upsert patterns
+	# ----------------------------
+
+	def upsert_one(self, collection, key, doc,
+			connector=None,
+			set_on_insert=True,
+			inc_version_field=None,
+			**opts):
+		"""
+		Upsert a document by 'key' filter.
+
+		- key: dict used as filter (typically stable identifiers)
+		- doc: dict of fields to set (keys removed from $set to avoid accidental key edits)
+		- set_on_insert: if True, put key fields into $setOnInsert
+		- inc_version_field: if provided (e.g. "version"), increments that field by 1
+
+		This produces an update_doc like:
+			{
+				"$set": {...non-key fields...},
+				"$setOnInsert": {...key...},
+				"$inc": {"version": 1}
+			}
+		"""
+		key = key or {}
+		doc = doc or {}
+
+		set_doc = dict(doc)
+		for k in key.keys():
+			if k in set_doc:
+				set_doc.pop(k)
+
+		update_doc = {"$set": set_doc}
+
+		if set_on_insert:
+			update_doc["$setOnInsert"] = dict(key)
+
+		if inc_version_field:
+			update_doc.setdefault("$inc", {})
+			update_doc["$inc"][inc_version_field] = 1
+
+		opts.setdefault("upsert", True)
+		return self._call("updateOne", connector, collection, key, update_doc, **opts)
+
+	def upsert_set(self, collection, key, set_fields,
+			connector=None,
+			set_on_insert=None,
+			inc_fields=None,
+			**opts):
+		"""
+		General update builder for state docs:
+			- $set set_fields
+			- optional $setOnInsert set_on_insert
+			- optional $inc inc_fields
+			- upsert True by default
+		"""
+		key = key or {}
+		set_fields = set_fields or {}
+		update_doc = {"$set": dict(set_fields)}
+
+		if set_on_insert:
+			update_doc["$setOnInsert"] = dict(set_on_insert)
+
+		if inc_fields:
+			update_doc["$inc"] = dict(inc_fields)
+
+		opts.setdefault("upsert", True)
+		return self._call("updateOne", connector, collection, key, update_doc, **opts)
+
+
+# ----------------------------
+# Quick usage examples (Script Console friendly)
+# ----------------------------
+#
+# from shared.foundation.mongo.proxy import MongoProxy
+# mongo = MongoProxy(project="ES_Platform", default_connector="MongoWCS")
+#
+# doc = mongo.find_one("es_platform_state", {"systemCode":"MOUSER-ES-A19","entityType":"CHUTE","entityId":"DST-0001-1-1-A"})
+# print(doc)
+#
+# mongo.upsert_one(
+# 	"es_platform_state",
+# 	key={"systemCode":"MOUSER-ES-A19","entityType":"CHUTE","entityId":"DST-0001-1-1-A"},
+# 	doc={"status":"READY","enabled":True},
+# 	inc_version_field="version"
+# )

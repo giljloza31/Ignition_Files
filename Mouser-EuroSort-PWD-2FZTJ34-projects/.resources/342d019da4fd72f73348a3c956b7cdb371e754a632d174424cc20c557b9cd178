@@ -1,0 +1,42 @@
+"""
+	Commands to tell WCS we've delivered
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+
+from wcs.config import wcs_put, WCSDeviceID, WCSLocation
+from wcs.api.outgoing.users import sanitize_username
+
+import re
+import datetime
+from java.util import Date
+
+
+def wcs_timestamp(timestamp=None):
+	if timestamp is None:
+		timestamp = datetime.datetime.now()
+	return timestamp.strftime('%Y%m%d%H%M%S')
+
+
+
+def perfectpick_issue(perfectpick_name, issue_ibn, tote_tag, cell_tag='A', username=None):
+
+	device_id = WCSDeviceID(perfectpick_name + '_' + 'FRONT')
+	user_id = sanitize_username(username)
+
+	timestamp = wcs_timestamp()
+
+	payload = {
+		'userId'  : user_id,
+		'time'    : timestamp,
+		'deviceId': device_id,
+		'ibn'     : issue_ibn,
+		'binid'   : tote_tag,
+		'celpos'  : cell_tag,
+	}
+
+	response = wcs_put('issues/{issue}/deliver-notify', payload, issue=issue_ibn)
+
+	Logger().trace('PUT to WCS for deliver-notify {issue_ibn} at {device_id}: {json} ==> {response}', json =system.util.jsonEncode(payload, 2))
+	return response

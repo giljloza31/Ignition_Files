@@ -1,0 +1,59 @@
+{
+  "custom": {},
+  "params": {
+    "text": "this is some asdf text"
+  },
+  "propConfig": {
+    "params.text": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 250,
+      "width": 345
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "TextArea"
+        },
+        "position": {
+          "basis": "160px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "struct": {
+                  "highlights": "{session.custom.highlight}",
+                  "text": "{view.params.text}"
+                },
+                "waitOnAll": true
+              },
+              "transforms": [
+                {
+                  "code": "\ttext \u003d value[\u0027text\u0027]\n\thighlights \u003d value[\u0027highlights\u0027]\n\n\timport re, fnmatch\n\n\tmatches \u003d []\n\tfor highlight in highlights:\n\t\tpattern \u003d highlight[\u0027pattern\u0027]\n\t\tfor match in re.finditer(pattern, text, re.MULTILINE):\n\t\t\tmatches.append((match, highlight))\n\n\tfor match, highlight in matches:\n\t\tpass\n\n\treturn text",
+                  "type": "script"
+                }
+              ],
+              "type": "expr-struct"
+            }
+          }
+        },
+        "type": "ia.input.text-area"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

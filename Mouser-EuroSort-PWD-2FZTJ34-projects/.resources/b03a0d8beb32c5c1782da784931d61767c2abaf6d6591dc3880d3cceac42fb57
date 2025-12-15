@@ -1,0 +1,457 @@
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from shared.tools.meta import is_redundant_active
+from functools import partial
+from Database import db_access	
+from time import sleep
+from random import random
+from datetime import datetime
+
+
+from java.util import Date
+
+import re
+import socket
+
+
+CACHE_LIFESPAN = 3.0 # seconds
+
+CLEAR_WAIT_TIME  = 0.026
+FAILSAFE_TIMEOUT = 6.0
+
+logger = system.util.getLogger('Dimensioner')
+
+#DIMENSIONER_ENDPOINT = 'http://wcsdev:8099/ws/v1/dimensions/%s'
+DIMENSIONER_ENDPOINT = 'http://wcs01:8085/ws/v1/dimensions/%s'
+
+#seq,ibn,l,w,h
+DEFAULT_DIMENSION_DATA_CACHE_LIFESPAN = 60 # seconds to stay in the cache
+
+
+
+class RoutingException(Exception):
+	pass
+
+class NoMatchingRoute(RoutingException): pass
+
+class NoMatchingRule(RoutingException): pass
+
+class MultipleMatchingRules(RoutingException): pass
+
+class NoReturnedRoute(RoutingException): pass
+
+class NOREAD(RoutingException): pass
+
+
+
+class API_Error(RoutingException): pass
+
+class ImproperFormat(RoutingException): pass
+
+
+class TOTE_LOOKUP(RoutingException): pass
+
+
+
+
+def decode_route_row(sql_results, row_number=0):
+	bitArray = 0
+	route_code = ''
+	
+	for selected,columnName in zip(sql_results[row_number], sql_results.columnNames):
+	
+		if columnName == 'Route_Code':
+			route_code = selected
+			continue
+	
+		if not columnName.startswith('Lane_'):
+			continue
+		
+		# Get the second half on the underscore.
+		# (rpartition splits on a thing, always retruning
+		#  the left, split thing, and right of it)
+		# And make it an int so we can shift on it
+		# ... minus one because we are zero indexed, and lanes are one-indexed
+		shift = int(columnName.rpartition('_')[2]) - 1
+	
+		# Take the result bit array so far, 
+		#  and or it with the value SQL returned, 
+		#  bit shifted the number of lanes 
+		bitArray |= selected << shift
+	
+	return route_code, bitArray
+
+
+
+def purple_data_lookup_and_decode(raw_dimension_data,data):
+
+	tote_route = []
+	ibn_list = []
+	routing_barcodes = []	
+	#8QRCRN;16.4,13.2,11.8
+	DIMENSION_PATTERN = re.compile(""" #https://regex101.com/r/W0B97Y/2
+		^# sequence number follows last
+		#  (?P<seq>[0-9]+) ;  # deprecated 
+		  (?P<ibn>[^;]+)
+		; (?P<length>[0-9.]+)
+		, (?P<width>[0-9.]+)
+		, (?P<height>[0-9.]+)
+		$""", re.I + re.X)
+	dimension_data_match = DIMENSION_PATTERN.match(raw_dimension_data)
+	DIMENSIONER_ENDPOINT = 'http://wcs01:8085/ws/v1/dimensions/%s'
+	if not dimension_data_match:
+		raise ImproperFormat(raw_dimension_data,data)
+	
+	dimension_data = dimension_data_match.groupdict()
+	system.util.getLogger('purple').trace('%s'%(dimension_data))
+	rawIBN = set(dimension_data['ibn'].split(',')) # set deduplicates lists
+	ibn_list = list(rawIBN)
+	
+	# raw input (not payload processed ints)
+	dimension_string = '%(length)s,%(width)s,%(height)s' % dimension_data
+	
+	for token in ibn_list:
+		if token.startswith("RVT") or token.startswith("TSBX"):
+			data.update({'IGN_Barcode_Returned':token})
+			raise TOTE_LOOKUP(data)
+		elif re.match('[0-9A-Z]{6}',token):
+			if token not in routing_barcodes:
+				routing_barcodes.append(token)
+
+	system.util.getLogger('purple').trace('%s'%(routing_barcodes))
+	if len(routing_barcodes) >= 2:
+		raise MultipleMatchingRules(routing_barcodes,data)
+	if len(routing_barcodes) == 0:
+		raise NOREAD(raw_dimension_data,data)
+
+
+
+	ibn = routing_barcodes[0] # only a single IBN here
+	system.util.getLogger('purple').trace('%s'%(ibn))
+	# Generate the response to the endpoint
+	endpoint = DIMENSIONER_ENDPOINT % ibn
+
+	apiPayload = {
+		"height": int(float(dimension_data['height'])*10),
+		"length": int(float(dimension_data['length'])*10),
+		"width":  int(float(dimension_data['width' ])*10),
+		}
+			
+	apiPayload_json_string = system.util.jsonEncode(apiPayload) # STRING
+	
+
+
+	
+	response = system.net.httpPost(
+		url=endpoint, 
+		contentType='application/json',
+		postData=apiPayload_json_string,
+		throwOnError = False,
+		)
+
+
+	system.util.getLogger('purple').trace('%s'%(response))
+		
+	result = system.util.jsonDecode(response)
+		
+
+
+	if result['statusCode']!=0: #  == 'success':
+		if result['statusCode'] == 280:
+			error_code = 'NODIMENSIONS'
+			raise API_Error(raw_dimension_data,data)
+		
+		elif result['statusCode'] == 254:
+			error_code = 'WCSERROR'
+			raise API_Error(raw_dimension_data,data)
+		
+		elif result['statusCode'] == 279:
+			error_code = 'NOIBN'
+			raise API_Error(raw_dimension_data,data)
+			
+		else:
+			error_code = 'WCSERROR'
+			raise API_Error(raw_dimension_data,data)
+
+	
+	
+	
+
+	# lookup and calculate the destination from zone 
+	zone = result['zone']
+	if zone == '':
+		raise NoReturnedRoute(raw_dimension_data,data)
+		
+	sql_results = system.db.runPrepQuery(
+		"""select * from DimRoute_Table where [Route_Code] = ?""" , 
+		[zone], 
+		'SQLServer')
+
+#	system.util.getLogger('purple').trace('%s'%(zone))
+	
+	if sql_results:
+		route_code, destination = decode_route_row(sql_results)
+	else:
+		# check if the zone was returned to even lookup
+		if result['zone'].strip():
+			error_code = 'NODESTINATION'
+			raise NoMatchingRoute(raw_dimension_data,data)
+		else:
+			error_code = 'NOROUTE'
+			raise NoReturnedRoute(raw_dimension_data,data)
+			
+
+
+	
+	system.util.getLogger('purple').trace('%s,%s,%s'%(route_code,destination,dimension_string))
+	data.update({
+		'IGN_Barcode_Returned':ibn,
+		'IGN_Destination_Returned':destination,
+		'IGN_RouteCode_Returned':route_code,
+		'IGN_Dimension_Returned':dimension_string
+		})
+
+
+	system.util.getLogger('purple').trace('%s'%(data))
+	return data
+
+
+
+
+
+@async(name="Handshake-Purple_GatherDimensionData")
+def purple_gather_dimension_data(source_path):
+	
+
+	timestart = datetime.now().isoformat()
+	
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	#system.tag.write(parent_dest + 'IGN_GotData_Returned', False)
+	# read the needed values in
+	sequence_id, raw_dimension_data = [
+		qv.value for qv in 
+		system.tag.readBlocking([
+			parent_dest + '/' + 'IGN_IndexID_Sent',
+			parent_dest + '/' + 'lastbarcode',
+			])]
+
+	system.tag.writeAsync([parent_dest + '/' + 'IGN_GetData_ACK'], [True])
+
+	data = {
+	
+		'IGN_IndexID_Returned':sequence_id,
+
+	}
+
+
+	try:
+		try:
+			data.update(purple_data_lookup_and_decode(raw_dimension_data,data))
+
+		except Exception, error:
+			system.util.getLogger('Purple Dimensioner Error').trace(repr(error))
+			raise error
+
+
+	except TOTE_LOOKUP:
+		sql_results = system.db.runPrepQuery(
+		"""select * from Tote_RouteTable where [ToteLicense_Num] = ?""", 
+		[data['IGN_Barcode_Returned']], 
+		'SQLServer')
+		if not sql_results:
+			destination = 1
+		else:
+			row = sql_results[0]
+	
+			destination = row['Destination']
+			destination_str = row['DestinationString']
+		if data['IGN_Barcode_Returned'].startswith("RVT"):
+			toteName = "RVT"
+		else:
+			toteName = "TSBX"
+		data.update({
+		'IGN_Destination_Returned':destination,
+		'IGN_RouteCode_Returned':toteName,
+		'IGN_Dimension_Returned':'0.0,0.0,0.0'
+		})
+
+
+	except MultipleMatchingRules:
+		error_code = 'MULTIPLEIBN'
+		sql_results = system.db.runPrepQuery(
+		"""select * from DimRoute_Table where [Route_Code] = ?""" , 
+		[error_code], 
+		'SQLServer')
+		
+		route_code, destination = decode_route_row(sql_results)
+		
+		data.update({
+		'IGN_Barcode_Returned':raw_dimension_data,
+		'IGN_Destination_Returned':destination,
+		'IGN_RouteCode_Returned':route_code,
+		'IGN_Dimension_Returned':'0.0,0.0,0.0'
+		})
+	except NoReturnedRoute:
+		error_code = 'NoRouteReturned'
+		sql_results = system.db.runPrepQuery(
+		"""select * from DimRoute_Table where [Route_Code] = ?""" , 
+		[error_code], 
+		'SQLServer')
+		
+		route_code, destination = decode_route_row(sql_results)
+		
+		data.update({
+		'IGN_Barcode_Returned':raw_dimension_data,
+		'IGN_Destination_Returned':destination,
+		'IGN_RouteCode_Returned':route_code,
+		'IGN_Dimension_Returned':'0.0,0.0,0.0'
+		})
+	except NOREAD:
+		error_code = 'NOREAD'
+		sql_results = system.db.runPrepQuery(
+		"""select * from DimRoute_Table where [Route_Code] = ?""" , 
+		[error_code], 
+		'SQLServer')
+		
+		route_code, destination = decode_route_row(sql_results)
+		
+		data.update({
+		'IGN_Barcode_Returned':raw_dimension_data,
+		'IGN_Destination_Returned':destination,
+		'IGN_RouteCode_Returned':route_code,
+		'IGN_Dimension_Returned':'0.0,0.0,0.0'
+		})
+		
+	except API_Error:
+		error_code = 'WCSERROR'
+		sql_results = system.db.runPrepQuery(
+		"""select * from DimRoute_Table where [Route_Code] = ?""" , 
+		[error_code], 
+		'SQLServer')
+		
+		route_code, destination = decode_route_row(sql_results)
+		
+		data.update({
+		'IGN_Barcode_Returned':raw_dimension_data,
+		'IGN_Destination_Returned':destination,
+		'IGN_RouteCode_Returned':route_code,
+		'IGN_Dimension_Returned':'0.0,0.0,0.0'
+		})
+	except NoMatchingRoute:
+		error_code = 'NODESTINATION'
+		sql_results = system.db.runPrepQuery(
+		"""select * from DimRoute_Table where [Route_Code] = ?""" , 
+		[error_code], 
+		'SQLServer')
+		
+		route_code, destination = decode_route_row(sql_results)
+		
+		data.update({
+		'IGN_Barcode_Returned':raw_dimension_data,
+		'IGN_Destination_Returned':destination,
+		'IGN_RouteCode_Returned':route_code,
+		'IGN_Dimension_Returned':'0.0,0.0,0.0'
+		})
+	except ImproperFormat:
+		error_code = 'ImproperFormat'
+		sql_results = system.db.runPrepQuery(
+		"""select * from DimRoute_Table where [Route_Code] = ?""" , 
+		[error_code], 
+		'SQLServer')
+		
+		route_code, destination = decode_route_row(sql_results)
+		
+		data.update({
+		'IGN_Barcode_Returned':raw_dimension_data,
+		'IGN_Destination_Returned':destination,
+		'IGN_RouteCode_Returned':route_code,
+		'IGN_Dimension_Returned':'0.0,0.0,0.0'
+		})
+
+	except:
+		error_code = 'Error'
+		sql_results = system.db.runPrepQuery(
+		"""select * from DimRoute_Table where [Route_Code] = ?""", 
+		[error_code], 
+		'SQLServer')
+		
+		route_code, destination = decode_route_row(sql_results)
+		
+		data.update({
+		'IGN_Barcode_Returned':raw_dimension_data,
+		'IGN_Destination_Returned':destination,
+		'IGN_RouteCode_Returned':route_code,
+		'IGN_Dimension_Returned':'0.0,0.0,0.0'
+		})
+
+	
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	parent_dest += '/'
+	system.tag.writeBlocking(parent_dest + 'IGN_GotData_Returned', True)
+	system.tag.writeBlocking(*zip(*[
+		(parent_dest + 'IGN_Barcode_Returned', data['IGN_Barcode_Returned']),	
+		(parent_dest + 'IGN_IndexID_Returned', data['IGN_IndexID_Returned']),			
+		(parent_dest + 'IGN_Destination_Returned', data['IGN_Destination_Returned']),	
+		(parent_dest + 'IGN_RouteCode_Returned', data['IGN_RouteCode_Returned']),	
+		(parent_dest + 'IGN_Dimension_Returned', data['IGN_Dimension_Returned']),
+	]))
+	mongoupdate(data)
+	log_dimensioner({
+			'destination': data['IGN_Destination_Returned'],
+			'InductID': data['IGN_IndexID_Returned'],
+			'barcode': data['IGN_Barcode_Returned'],
+			'RouteCode': data['IGN_RouteCode_Returned'],
+		})	
+	
+	
+		
+	
+
+
+
+def mongoupdate(data):
+	payload = {
+			'IGN_Barcode_Returned': data['IGN_Barcode_Returned'],
+			'IGN_Destination_Returned': data['IGN_Destination_Returned'],	
+			'IGN_IndexID_Returned': data['IGN_IndexID_Returned'],
+			'IGN_Dimension_Returned': data['IGN_Dimension_Returned'],
+			'RouteCode_Returned': data['IGN_RouteCode_Returned'],
+			'TimeStamp': datetime.utcnow()
+
+			}
+	db_access.insert_record(db_name, 'Purple_Receiving_Induct', payload)
+
+
+
+
+
+
+
+def log_dimensioner(payload):
+	query = """	
+		insert into [Dimensioner_InductSorter_1] (
+			Destination
+		,	DestinationString
+		,	InductID
+		,   IBN
+		,	RouteCode
+		,	TimeStamp
+		)
+		select	dd.destination
+			,	dd.DestinationString
+			,	? -- InductID
+			,	? -- barcode
+			,	? -- RouteCode
+			,	getdate()
+		from DestinationDecode_Dimensioner as dd
+		where dd.mode = 40
+			and dd.destination = ?
+	"""
+	
+	system.db.runPrepUpdate(query, [
+			payload['InductID'],
+			payload['barcode'],
+			payload['RouteCode'],
+			payload['destination'],	
+		], 'SQLServer')
+	

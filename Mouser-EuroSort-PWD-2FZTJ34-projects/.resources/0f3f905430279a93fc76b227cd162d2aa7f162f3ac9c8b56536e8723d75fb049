@@ -1,0 +1,16 @@
+"""
+	WCS feedback routines
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+import re
+import datetime
+from java.util import Date
+
+
+
+def wcs_timestamp(timestamp=None):
+	if timestamp is None:
+		timestamp = datetime.datetime.now()
+	return timestamp.strftime('%Y%m%d%H%M%S')

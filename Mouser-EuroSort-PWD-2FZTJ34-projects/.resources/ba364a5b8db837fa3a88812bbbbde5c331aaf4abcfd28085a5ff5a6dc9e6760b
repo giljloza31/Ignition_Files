@@ -1,0 +1,79 @@
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_01' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_01 
+WHERE TrackNo like :InVarTrack  
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_02' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_02 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_03' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_03 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_04' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_04 
+WHERE TrackNo like :InVarTrack  
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_05' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_05  
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_06' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_06 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_07' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_07 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_08' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_08 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_09' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_09 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT  IndexIDLane, TrackNo, RouteCode, 'Lane_10' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_10 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT  IndexIDLane, TrackNo, RouteCode, 'Lane_11' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_11 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_12' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_12 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_13' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_13 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_14' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_14 
+WHERE TrackNo like :InVarTrack 
+
+UNION ALL
+SELECT IndexIDLane, TrackNo, RouteCode, 'Lane_15' as DestinationLane , TimeStamp 
+FROM ShippingSorter_Lane_15 
+WHERE TrackNo like :InVarTrack 
+ORDER BY TimeStamp DESC;
+
+
+
+
+

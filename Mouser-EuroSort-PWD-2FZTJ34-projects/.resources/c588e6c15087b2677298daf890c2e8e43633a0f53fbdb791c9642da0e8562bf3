@@ -1,0 +1,223 @@
+from shared.tools.global import ExtraGlobal
+import csv
+import os
+import shutil
+
+#back Locations
+CHUTE_LOCATIONS = {
+    1: {
+        "1UB": "DST-0001-2-1-A",
+        "2UB": "DST-0002-2-1-A",
+        "3UB": "DST-0003-2-1-A",
+        "4UB": "DST-0004-2-1-A",
+        "5UB": "DST-0005-2-1-A",
+        "1LB": "DST-0001-1-1-A",
+        "2LB": "DST-0002-1-1-A",
+        "3LB": "DST-0003-1-1-A",
+        "4LB": "DST-0004-1-1-A",
+        "5LB": "DST-0005-1-1-A",
+    },
+    2: {
+        "1UB": "DST-0006-2-1-A",
+        "2UB": "DST-0007-2-1-A",
+        "3UB": "DST-0008-2-1-A",
+        "4UB": "DST-0009-2-1-A",
+        "5UB": "DST-0010-2-1-A",
+        "1LB": "DST-0006-1-1-A",
+        "2LB": "DST-0007-1-1-A",
+        "3LB": "DST-0008-1-1-A",
+        "4LB": "DST-0009-1-1-A",
+        "5LB": "DST-0010-1-1-A",
+    },
+    3: {
+        "1UB": "DST-0011-2-1-A",
+        "2UB": "DST-0012-2-1-A",
+        "3UB": "DST-0013-2-1-A",
+        "4UB": "DST-0014-2-1-A",
+        "5UB": "DST-0015-2-1-A",
+        "1LB": "DST-0011-1-1-A",
+        "2LB": "DST-0012-1-1-A",
+        "3LB": "DST-0013-1-1-A",
+        "4LB": "DST-0014-1-1-A",
+        "5LB": "DST-0015-1-1-A",
+    },
+    4: {
+        "1UB": "DST-0016-2-1-A",
+        "2UB": "DST-0017-2-1-A",
+        "3UB": "DST-0018-2-1-A",
+        "4UB": "DST-0019-2-1-A",
+        "5UB": "DST-0020-2-1-A",
+        "1LB": "DST-0016-1-1-A",
+        "2LB": "DST-0017-1-1-A",
+        "3LB": "DST-0018-1-1-A",
+        "4LB": "DST-0019-1-1-A",
+        "5LB": "DST-0020-1-1-A",
+    },
+    5: {
+        "1UB": "DST-0021-2-1-A",
+        "2UB": "DST-0022-2-1-A",
+        "3UB": "DST-0023-2-1-A",
+        "4UB": "DST-0024-2-1-A",
+        "5UB": "DST-0025-2-1-A",
+        "1LB": "DST-0021-1-1-A",
+        "2LB": "DST-0022-1-1-A",
+        "3LB": "DST-0023-1-1-A",
+        "4LB": "DST-0024-1-1-A",
+        "5LB": "DST-0025-1-1-A",
+    },
+    6: {
+        "1UB": "DST-0026-2-1-A",
+        "2UB": "DST-0027-2-1-A",
+        "3UB": "DST-0028-2-1-A",
+        "4UB": "DST-0029-2-1-A",
+        "5UB": "DST-0030-2-1-A",
+        "1LB": "DST-0026-1-1-A",
+        "2LB": "DST-0027-1-1-A",
+        "3LB": "DST-0028-1-1-A",
+        "4LB": "DST-0029-1-1-A",
+        "5LB": "DST-0030-1-1-A",
+    },
+    7: {
+        "1UB": "DST-0031-2-1-A",
+        "2UB": "DST-0032-2-1-A",
+        "3UB": "DST-0033-2-1-A",
+        "4UB": "DST-0034-2-1-A",
+        "5UB": "DST-0035-2-1-A",
+        "1LB": "DST-0031-1-1-A",
+        "2LB": "DST-0032-1-1-A",
+        "3LB": "DST-0033-1-1-A",
+        "4LB": "DST-0034-1-1-A",
+        "5LB": "DST-0035-1-1-A",
+    },
+}
+
+
+class OpexStations:
+
+
+
+	def __init__(self, file_path='C:\\Workspace\\OPEX\\'):
+		"""Initialize with a default CSV file path."""
+		self.file_path = file_path
+
+
+
+
+	def read_station_rows(self,station_num):
+		"""Reads rows corresponding to a given station number and returns them as a list of dictionaries."""
+		result = []
+		read_path = self.file_path + 'opex_positions.csv'
+		try:
+			if not os.path.exists(read_path):
+				raise FileNotFoundError("CSV file not found: %s"%read_path)
+				
+			with open(read_path, 'r') as csvfile:
+				reader = csv.DictReader(csvfile)
+				for row in reader:
+					if not row['opex_num']:
+						continue
+					if int(row['opex_num']) == int(station_num):
+						result.append(dict(row))
+		except Exception as e:
+			system.util.getLogger('name').trace("Error reading file: %s"%e)  # Logs the error for debugging
+		return result  # Always returns the result, even if empty
+
+
+
+
+	def store_new_positions(self,data,station,chute):
+		if not data:
+			chute['position'] = 1
+			chute['chute_location'] = CHUTE_LOCATIONS.get(station).get(chute['chute_name'])
+			
+			data.append(chute)
+			
+		
+		else:
+			
+			max_position = max([item.get('position', 0) for item in data])
+			chute['position']= max_position + 1
+			chute['chute_location'] = CHUTE_LOCATIONS.get(station).get(chute['chute_name'])
+			data.append(chute)
+			
+		
+		return data
+
+
+
+
+	def reset_new_positions(self,station):
+
+		data = []
+			
+		
+		return data
+
+
+
+
+
+	def update_station_rows(self, data):
+		"""
+		Updates the 'position' column in the CSV file for matching opex_num and chute_name.
+		If no match is found, it appends a new row.
+		
+		:param data: A list of dictionaries containing the new opex_num, chute_name, and position values.
+		"""
+		read_path = self.file_path + 'opex_positions.csv'
+		
+		try:
+			if not os.path.exists(read_path):
+				raise IOError("CSV file not found: " + read_path)
+				
+				
+			all_rows = []
+			updated_rows = set()  # Track which `opex_num` + `chute_name` were updated
+			
+			# Read existing data
+			with open(read_path, 'r') as csvfile:  # Removed `newline=''` for Jython compatibility
+				reader = csv.DictReader(csvfile)
+				fieldnames = reader.fieldnames
+				
+				for row in reader:
+					row_key = (str(row['opex_num']), row['chute_name'])
+					if row_key in updated_rows:
+						continue  # Skip duplicates
+						
+					match_found = False
+					
+					for new_row in data:
+						new_row_key = (str(new_row['opex_num']), new_row['chute_name'])
+						if row_key == new_row_key:
+							all_rows.append(new_row)  # Replace row with updated data
+							updated_rows.add(new_row_key)
+							match_found = True
+							break  # Stop checking once updated
+							
+							
+					if not match_found:
+						all_rows.append(row)  # Keep existing row if no match
+			os.remove(read_path)
+			
+			
+			# Append new rows from data that weren't in the file
+			for new_row in data:
+				new_row_key = (str(new_row['opex_num']), new_row['chute_name'])
+				if new_row_key not in updated_rows:
+					all_rows.append(new_row)
+					updated_rows.add(new_row_key)
+					
+			# Write the updated data back to a new temp file
+			with open(read_path, 'w') as temp_csv:
+				writer = csv.DictWriter(temp_csv, fieldnames=fieldnames)
+				writer.writeheader()
+				for row in all_rows:
+					writer.writerow(row)
+					
+					
+			temp_csv.close()  # Ensure file is closed before renaming
+			
+			
+			
+		except Exception as e:
+			system.util.getLogger('OPEX_Update').trace("Error updating file: %s"%e)

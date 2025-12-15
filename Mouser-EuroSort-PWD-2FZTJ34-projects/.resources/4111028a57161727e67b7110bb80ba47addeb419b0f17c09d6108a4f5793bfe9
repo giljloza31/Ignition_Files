@@ -1,0 +1,299 @@
+# shared/pwd/Mouser/Consolidation/common/sorter_config.py
+from shared.helpers.tools import safe_tag_read, safe_tag_write
+import system
+
+# Jython-safe "is string" check (handles str/unicode on 2.7)
+try:
+	_STR_TYPES = (str, unicode)
+except NameError:
+	_STR_TYPES = (str,)
+class SorterConfig(object):
+	"""
+	Tag path helper for a named sorter. Supports batch reads/writes (sync + async),
+	and convenient increments.
+
+	READ input shapes:
+	  'TagA'                              -> returns value
+	  ['A','B'] / ('A','B')               -> returns {'A': vA, 'B': vB}
+	  {'aliasA': 'RealA'}                 -> returns {'aliasA': vA}
+
+	WRITE input shapes:
+	  {'A': 1, 'B': 2}
+	  ('A', 1)
+	  [('A', 1), ('B', 2)]
+	"""
+
+	ROOT_TAG_PATH = "[Mouser]Mouser"
+	CONFIG_ADDER  = "Config"
+	CONTROL_ADDER = "Control"
+	MAIN_ADDER    = "Main"
+	METRICS_ADDER = "Metrics"
+
+	# ---------- path builders ----------
+	
+	def __init__(self, name):
+		self.name = str(name)
+		
+	def _section_root(self, name, section):
+		return '/'.join([self.ROOT_TAG_PATH, str(name), section])
+		
+	@property
+	def CONFIG_PATH(self):  return self._section_root(self.name, self.CONFIG_ADDER)
+	@property
+	def CONTROL_PATH(self): return self._section_root(self.name, self.CONTROL_ADDER)
+	@property
+	def MAIN_PATH(self):    return self._section_root(self.name, self.MAIN_ADDER)
+	@property
+	def METRICS_PATH(self): return self._section_root(self.name, self.METRICS_ADDER)
+
+	# ---------- normalization helpers ----------
+	@staticmethod
+	def _normalize_names(names):
+		"""
+		For READS: produce (keys, relpaths).
+		  'X' -> (['X'], ['X'])
+		  ['A','B'] -> (['A','B'], ['A','B'])
+		  {'aliasA':'RealA'} -> (['aliasA'], ['RealA'])
+		"""
+		if isinstance(names, _STR_TYPES):
+			return [names], [names]
+		if isinstance(names, dict):
+			keys = list(names.keys())
+			rels = [names[k] for k in keys]
+			return keys, rels
+		rels = list(names)
+		return list(rels), list(rels)
+
+	@staticmethod
+	def _normalize_writes(items):
+		"""
+		For WRITES: return (relpaths[], values[]).
+		  {'A':1, 'B':2}
+		  ('A', 1)
+		  [('A',1), ('B',2)]
+		"""
+		# dict
+		if isinstance(items, dict):
+			names = list(items.keys())
+			return names, [items[n] for n in names]
+
+		# single pair ('A', 1)
+		if (isinstance(items, (tuple, list))
+				and len(items) == 2
+				and not isinstance(items[0], (tuple, list, dict))):
+			return [items[0]], [items[1]]
+
+		# sequence of pairs
+		names, values = [], []
+		for pair in list(items):
+			# tolerate malformed pair lengths
+			if not isinstance(pair, (list, tuple)) or len(pair) < 2:
+				continue
+			names.append(pair[0]); values.append(pair[1])
+		return names, values
+
+	@staticmethod
+	def _join_paths(root, rels):
+		return [root + '/' + str(r) for r in rels]
+
+	# ---------- SYNC core ----------
+	def _read_section(self, section_root, names):
+		keys, rels = self._normalize_names(names)
+		paths = self._join_paths(section_root, rels)
+
+		try:
+			qvs = system.tag.readBlocking(paths)
+			values = [qv.value for qv in qvs]
+		except Exception:
+			# fallback: read one-by-one
+			values = []
+			for p in paths:
+				try:
+					values.append(safe_tag_read(p))
+				except Exception:
+					values.append(None)
+
+		if isinstance(names, _STR_TYPES):
+			return values[0] if values else None
+		return dict(zip(keys, values))
+
+	def _write_section(self, section_root, items):
+		names, values = self._normalize_writes(items)
+		paths = self._join_paths(section_root, names)
+		try:
+			system.tag.writeBlocking(paths, values)
+			return True
+		except Exception:
+			# fallback: best-effort per-tag
+			ok = True
+			for p, v in zip(paths, values):
+				try:
+					safe_tag_write(p, v)
+				except Exception:
+					ok = False
+			return ok
+
+	# ---------- SYNC public ----------
+	def read_config(self, names):   return self._read_section(self.CONFIG_PATH,  names)
+	def read_control(self, names):  return self._read_section(self.CONTROL_PATH, names)
+	def read_main(self, names):     return self._read_section(self.MAIN_PATH,    names)
+	def read_metrics(self, names):  return self._read_section(self.METRICS_PATH, names)
+
+	def write_config(self, items):  return self._write_section(self.CONFIG_PATH,  items)
+	def write_control(self, items): return self._write_section(self.CONTROL_PATH, items)
+	def write_main(self, items):    return self._write_section(self.MAIN_PATH,    items)
+	def write_metrics(self, items): return self._write_section(self.METRICS_PATH, items)
+
+	# ---------- ASYNC core ----------
+	def _read_section_async(self, section_root, names, callback):
+		keys, rels = self._normalize_names(names)
+		paths = self._join_paths(section_root, rels)
+
+		def _on_reads(qvs):
+			try:
+				values = [getattr(qv, 'value', None) for qv in qvs]
+				if isinstance(names, _STR_TYPES):
+					result = values[0] if values else None
+				else:
+					result = dict(zip(keys, values))
+				try:
+					callback(result)
+				except Exception:
+					system.util.getLogger('SorterConfig').warn('read_async callback raised')
+			except Exception as e:
+				system.util.getLogger('SorterConfig').warn('read_async mapping error: %s' % e)
+				try:
+					callback(None)
+				except Exception:
+					pass
+
+		try:
+			system.tag.readAsync(paths, _on_reads)
+		except Exception as e:
+			log = system.util.getLogger('SorterConfig')
+			log.warn('readAsync failed (%s). Falling back to sync.' % e)
+			res = self._read_section(section_root, names)
+			try:
+				callback(res)
+			except Exception:
+				pass
+
+	def _write_section_async(self, section_root, items, callback=None):
+		names, values = self._normalize_writes(items)
+		paths = self._join_paths(section_root, names)
+
+		def _on_writes(qcs):
+			try:
+				status_map = dict(zip(names, qcs))
+				if callback:
+					try:
+						callback(status_map)
+					except Exception:
+						system.util.getLogger('SorterConfig').warn('write_async callback raised')
+			except Exception as e:
+				system.util.getLogger('SorterConfig').warn('write_async mapping error: %s' % e)
+				if callback:
+					try:
+						callback(None)
+					except Exception:
+						pass
+
+		try:
+			system.tag.writeAsync(paths, values, _on_writes if callback else None)
+		except Exception as e:
+			log = system.util.getLogger('SorterConfig')
+			log.warn('writeAsync failed (%s). Falling back to sync.' % e)
+			ok = self._write_section(section_root, items)
+			if callback:
+				try:
+					if isinstance(items, dict):
+						callback(dict((k, ok) for k in items.keys()))
+					elif (isinstance(items, (tuple, list))
+						  and len(items) == 2
+						  and not isinstance(items[0], (tuple, list, dict))):
+						callback({items[0]: ok})
+					else:
+						callback(dict((k, ok) for (k, _v) in items))
+				except Exception:
+					pass
+
+	# ---------- ASYNC public ----------
+	def read_config_async(self, names, callback):   return self._read_section_async(self.CONFIG_PATH,  names, callback)
+	def read_control_async(self, names, callback):  return self._read_section_async(self.CONTROL_PATH, names, callback)
+	def read_main_async(self, names, callback):     return self._read_section_async(self.MAIN_PATH,    names, callback)
+	def read_metrics_async(self, names, callback):  return self._read_section_async(self.METRICS_PATH, names, callback)
+
+	def write_config_async(self, items, callback=None):  return self._write_section_async(self.CONFIG_PATH,  items, callback)
+	def write_control_async(self, items, callback=None): return self._write_section_async(self.CONTROL_PATH, items, callback)
+	def write_main_async(self, items, callback=None):    return self._write_section_async(self.MAIN_PATH,    items, callback)
+	def write_metrics_async(self, items, callback=None): return self._write_section_async(self.METRICS_PATH, items, callback)
+
+	# ---------- increments ----------
+	def _increment_section(self, section_root, deltas):
+		"""
+		deltas: dict {rel: +delta} or [("rel", +delta)]
+		Reads current, applies delta, writes back as batch.
+		"""
+		if not isinstance(deltas, dict):
+			deltas = dict((k, v) for (k, v) in deltas)
+
+		current = self._read_section(section_root, deltas.keys())  # dict
+		to_write = {}
+		for rel, delta in deltas.items():
+			base = current.get(rel, 0)
+			try:
+				if isinstance(base, float) or isinstance(delta, float):
+					new_val = float(base) + float(delta)
+				else:
+					new_val = int(base) + int(delta)
+			except Exception:
+				try:
+					new_val = float(base) + float(delta)
+				except Exception:
+					new_val = delta
+			to_write[rel] = new_val
+		return self._write_section(section_root, to_write)
+
+	def increment_control(self, deltas): return self._increment_section(self.CONTROL_PATH, deltas)
+	def increment_config(self, deltas):  return self._increment_section(self.CONFIG_PATH,  deltas)
+	def increment_main(self, deltas):    return self._increment_section(self.MAIN_PATH,    deltas)
+
+	# ---------- convenience single-tag ----------
+	def get_config(self, tag_name):  return self.read_config(tag_name)
+	def get_control(self, tag_name): return self.read_control(tag_name)
+	def get_main(self, tag_name):    return self.read_main(tag_name)
+	def get_metrics(self, tag_name): return self.read_metrics(tag_name)
+
+	def set_config(self, tag_name, value):  return self.write_config((tag_name, value))
+	def set_control(self, tag_name, value): return self.write_control((tag_name, value))
+	def set_main(self, tag_name, value):    return self.write_main((tag_name, value))
+	def set_metrics(self, tag_name, value): return self.write_metrics((tag_name, value))
+
+	# ---------- connect permissive ----------
+	@property
+	def connect_permissive(self):
+		if self.check_connect_permissive(self.name):
+			self.log.info("%s already connected" % self.name)
+			return True
+		try:
+			self._connect_permissive(self.name)
+			self.log.info("%s is connected and Running" % self.name)
+			return True
+		except Exception:
+			return False
+
+	@classmethod
+	def check_connect_permissive(cls, name):
+		path = cls._config_root(name) + '/Connected'
+		try:
+			return system.tag.readBlocking([path])[0].value
+		except Exception:
+			return safe_tag_read(path)
+
+	@classmethod
+	def _connect_permissive(cls, name):
+		path = cls._config_root(name) + '/Connected'
+		try:
+			system.tag.writeBlocking([path], [True])
+		except Exception:
+			safe_tag_write(path, True)

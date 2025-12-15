@@ -1,0 +1,4 @@
+SELECT TOP( :inVarRange )*
+FROM  QPS_Scan_History 
+WHERE UserID = ?
+ORDER BY  scanindx DESC

@@ -1,0 +1,112 @@
+from datetime import datetime
+from Database import db_access
+
+from shared.tools.thread import async
+import re
+db_name = 'MongoWCS'
+logger = system.util.getLogger('Cloud9_API')
+
+TRANSLATE = {
+    'tracking_number': {'alias': 'trackno', 'NEDA': 'ZZ', 'index': 2},
+    'packing_list_number': {'alias': 'packlist', 'NEDA': '11k', 'index': 3},
+    'customer_po': {'alias': 'po_nbr', 'NEDA': 'K', 'index': 1},
+    'supplier_part_number': {'alias': 'supplier_partno', 'NEDA': '1P', 'index': 2},
+    'customer_part_number': {'alias': 'partno', 'NEDA': 'P', 'index': 1},
+    'quantity': {'alias': 'quantity', 'NEDA': 'Q', 'index': 1},
+    'date_code_9d_10d': {'alias': 'datecode', 'NEDA': ['9D', '10D'], 'index': 1},
+    'lot_code': {'alias': 'lotcode', 'NEDA': '1T', 'index': 2},
+    'country_of_origin': {'alias': 'coo', 'NEDA': '4L', 'index': 2},
+}
+
+class Cloud9Handler:
+	
+	@async(name="RST-Cloud9", maxAllowedRuntime=10)
+	def process(self, seqID, payload, message):
+		payload_data = self._extract_payload_data(payload)
+		mongo_results = db_access.select_records(db_name,'inbound_receiving_info',where_clause={'seqID': seqID},sort=sort('scanned_date_time', -1))
+		
+		
+		if mongo_results:
+			self._update_existing(seqID, mongo_results[0], payload, payload_data)
+		else:
+			self._insert_new(seqID, payload, payload_data)
+			
+	def _extract_payload_data(self, payload):
+		if not payload or not payload['pallet_data']['stacks']:
+			return []
+		return payload['pallet_data']['stacks'][0]['cases'][0]['field_data']
+		
+	
+	
+	def parse_number(self,num):
+		if num == 'MIXED':
+			return int(0)
+		elif ',' in num:
+			return int(num.replace(',', ''))
+		elif '.' in num:
+			return int(float(num))  # returns 2 for "2.000"
+		else:
+			return int(num)
+	
+	
+	def _build_field_data(self, payload_data):
+		data = {}
+		for token in payload_data:
+			items = TRANSLATE.get(token['category'], 'Unknown')
+			if items == 'Unknown':
+				continue
+				
+			value = token['values'][0]['value']
+			if items['alias'] == 'datecode':
+				if re.match('^9D.*', value):
+					value = value[2:]
+				elif re.match('^10D.*', value):
+					value = value[3:]
+			elif items['alias'] == 'quantity':
+
+				value = self.parse_number(value[items['index']:])
+			else:
+				value = value[items['index']:]
+				
+			data[items['alias']] = value
+			
+		return data
+	
+	def _update_existing(self, seqID, existing_doc, payload, payload_data):
+		scanned_time = existing_doc['scanned_date_time'] or datetime.now()
+		received_time = datetime.now()
+		time_diff = (received_time - scanned_time).seconds
+		
+		cloud_data = existing_doc.get('Cloud9_Data', [])
+		if not isinstance(cloud_data, list):
+			cloud_data = [cloud_data]
+			
+			
+		cloud_data.append(payload)
+		
+		insert_items = self._build_field_data(payload_data)
+		insert_items.update({
+			'API_receieved_time': received_time,
+			'time_diff': time_diff,
+			'Cloud9_Data': cloud_data
+		})
+		cloud9 = {'Cloud9_Data': [payload],'API_receieved_time': received_time}
+		db_access.update_record(db_name,'inbound_receiving_info',insert_items,where_clause={'_id': existing_doc['_id']})
+		db_access.insert_record(db_name, 'cloud9_data', cloud9)
+		
+		
+	def _insert_new(self, seqID, payload, payload_data):
+		received_time = datetime.now()
+		insert_items = {
+			'trackno': None, 'IBN': None, 'packlist': None, 'po_nbr': None, 'partno': None,
+			'supplier_partno': None, 'poline': None, 'quantity': None, 'datecode': None,
+			'lotcode': None, 'coo': None, 'msl': None, 'msl_drying_time': None,
+			'scanned_date_time': received_time, 'payload': None, 'imageID': '', 'indexID': 0,
+			'seqID': seqID, 'Cloud9_Data': [payload], 'time_diff': 0, 'API_receieved_time': received_time,
+			'raw_data': None,'vendor_info':[]
+			}
+			
+		cloud9 = {'Cloud9_Data': [payload],'API_receieved_time': received_time}
+		insert_items.update(self._build_field_data(payload_data))
+		db_access.insert_record(db_name, 'inbound_receiving_info', insert_items)
+		db_access.insert_record(db_name, 'cloud9_data', cloud9)

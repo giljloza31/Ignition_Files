@@ -1,0 +1,259 @@
+
+import re
+
+# Expect db_access to provide: select_record/insert_record/update_record if you add DB ops later.
+class PWD_payload_Verifier(db_access):
+    """
+    Parses a raw scanner payload of the form "<indexID>_<seqID>|token|token|..."
+    and builds a dict containing ONLY the fields actually found in the tokens,
+    plus meta (seqID/indexID/imageID/timestamp, raw_payload).
+
+    - NEDA prefixes (K, 11K, 9D/10D, ZZ, etc.) are OPTIONAL in tokens.
+      If present, they are stripped from returned values.
+    - Quantity is converted to int; for duplicates, the LOWER value wins.
+    - Duplicate non-quantity fields are appended to 'other' (if include_other=True).
+    - Jython 2.7 friendly (no f-strings).
+    """
+
+    # Header regex: "<index>_<seq>|<rest>"
+    PAYLOAD_PATTERN = re.compile(r"""
+        ^
+        (?P<imageID>\d{3}_\d{8})
+        \|
+        (?P<barcode>.*)
+        $
+    """, re.VERBOSE)
+
+    # Control separators sometimes present in streams
+    CTRL_SPLIT = re.compile(r'[|\x1D\x1E\x1F]')
+
+    # BODY patterns have NO NEDA prefixes (prefixes are made optional when compiled)
+    REGEX_BODY = {
+        'trackno':           [r'(?:1Z)[0-9A-Z]{16}', r'9622\d{30}'],
+        'packlist':          [r'[A-Za-z0-9]{1,10}'],
+        'po_nbr':            [r'(?:021|029)-[0-9A-Z]{5}'],
+        'partno':            [r'[A-Z0-9-]{1,30}'],
+        'supplier_partno':   [r'[A-Z0-9-]{1,40}'],
+        'poline':            [r'\d{1,3}'],
+        'quantity':          [r'\d+'],                 # after stripping 'Q'
+        'datecode':          [r'[0-9A-Z]{1,12}'],      # after stripping 9D/10D
+        'lotcode':           [r'[A-Z0-9-]{1,20}'],     # after stripping 1T
+        'coo':               [r'[A-Za-z]{2,3}'],       # after stripping 4L
+        'cco':               [r'[A-Z]{1,3}'],          # after stripping 21L
+        'aco':               [r'[A-Z]{1,3}'],          # after stripping 23L
+    }
+
+    # NEDA prefixes that MAY or MAY NOT be present in tokens
+    TRANSLATE = {
+        'trackno': 'ZZ',
+        'packlist': '11K',
+        'po_nbr': 'K',
+        'partno': 'P',
+        'supplier_partno': '1P',
+        'poline': '4K',
+        'quantity': 'Q',
+        'datecode': ['9D', '10D'],
+        'lotcode': '1T',
+        'coo': '4L',
+        'cco': '21L',
+        'aco': '23L',
+    }
+
+    # Mongo field names we will set from tokens
+    KNOWN_FIELDS = set([
+        'trackno', 'po_nbr', 'packlist', 'partno', 'supplier_partno',
+        'quantity', 'datecode', 'lotcode', 'coo', 'aco', 'cco'
+    ])
+
+    def __init__(self, name='Level1'):
+        self.logger = system.util.getLogger(name)
+        self.db_name = 'default'  # optional, if you later add DB ops
+
+        # Minimal tracking payload; will be updated EXACTLY as requested in _check_payload
+        self.pwd_tracking_payload = {
+            'imageID': None,
+            'indexID': None,
+            'seqID': None,
+            'barcodeList': [],
+            'raw_data': None,
+            'scanned_date_time': None,
+        }
+
+        # Compile optional-prefix patterns once
+        self.compiled_opt = self._compile_optional_prefix_patterns()
+
+    # ----------------- compile optional prefix patterns -----------------
+
+    def _compile_optional_prefix_patterns(self):
+        """
+        For each key, build: ^(?:<prefixes>)?(?P<body>(body1|body2|...))$
+        Prefix group is OPTIONAL. We use re.escape for safety.
+        """
+        compiled = {}
+        for key, body_pats in self.REGEX_BODY.items():
+            prefixes = self.TRANSLATE.get(key)
+            if prefixes is None:
+                prefix_opt = ''
+            elif isinstance(prefixes, list):
+                # e.g., (?:9D|10D)?
+                prefix_opt = '(?:' + '|'.join([re.escape(p) for p in prefixes]) + ')?'
+            else:
+                # e.g., (?:K)?
+                prefix_opt = '(?:' + re.escape(prefixes) + ')?'
+
+            body_union = '(?:' + '|'.join(body_pats) + ')'
+            pat = '^(?:' + prefix_opt + ')(?P<body>' + body_union + ')$'
+            compiled[key] = re.compile(pat)
+        return compiled
+
+    # ----------------- helpers -----------------
+
+    def _clean_token(self, t):
+        return self.CTRL_SPLIT.sub('', t).strip() if t is not None else ''
+
+    def _parse_quantity_int(self, s):
+        s = str(s).strip()
+        if not s.isdigit():
+            raise ValueError('quantity not numeric: %r' % s)
+        return int(s)
+
+    # ----------------- classification -----------------
+
+    def match_pattern(self, token):
+        """
+        Tries each compiled optional-prefix pattern. If it matches,
+        returns (key, body) where 'body' has the NEDA removed if it was present.
+        Quantity is converted to int. Unknown -> ('other', raw).
+        """
+        raw = self._clean_token(token)
+        for key, cre in self.compiled_opt.items():
+            m = cre.match(raw)
+            if not m:
+                continue
+
+            body = m.group('body').strip()  # <-- NEDA removed here
+            if key == 'quantity':
+                try:
+                    return key, self._parse_quantity_int(body)
+                except Exception as e:
+                    self.logger.info("Quantity parse failed for %r: %s" % (raw, e))
+                    return 'other', raw
+            else:
+                return key, body
+
+        return 'other', raw
+
+    # ----------------- payload parsing -----------------
+
+    def _check_payload(self, raw_payload):
+        """
+        Update ONLY these keys in self.pwd_tracking_payload:
+            'imageID', 'indexID', 'seqID', 'barcodeList', 'raw_data', 'scanned_date_time'
+        Accepts both:
+          - "<index>_<seq>|token|token|..."
+          - and strings starting with "<index>_<seq>" (without following pipe)
+        """
+        image_id = None
+        index_id = None
+        seq_id = None
+        barcode_list = []
+
+        m = self.PAYLOAD_PATTERN.match(raw_payload or '')
+        if not m:
+            head = re.match(r'^(\d{3}_\d{8})', raw_payload or '')
+            if not head:
+                self.logger.warn('Bad payload: cannot find imageID. raw=%r' % raw_payload)
+                return False
+            image_id = head.group(1)
+            index_id, seq_id = image_id.split('_')
+        else:
+            image_id = m.group('imageID')
+            index_id, seq_id = image_id.split('_')
+            bar = m.group('barcode') or ''
+            barcode_list = bar.split('|') if bar else []
+
+        # EXACT starting update as requested
+        self.pwd_tracking_payload.update({
+            'imageID': image_id,
+            'indexID': index_id,
+            'seqID': seq_id,
+            'barcodeList': [b for b in barcode_list if b],
+            'raw_data': raw_payload,
+            'scanned_date_time': system.date.now(),
+        })
+        return True
+
+    # ----------------- build mongo (found-only) -----------------
+
+    def build_mongo_found_only(self, include_other=True):
+        """
+        Build a dict that contains ONLY discovered fields plus meta.
+        - Meta copied if present: seqID, indexID, imageID, scanned_date_time, raw_payload
+        - Adds only fields actually found among KNOWN_FIELDS
+        - Duplicates: quantity keeps the LOWER value; others go to 'other' if include_other=True
+        """
+        src = self.pwd_tracking_payload
+        doc = {}
+        other = []
+
+        # Copy meta if present
+        for k in ('seqID', 'indexID', 'imageID', 'scanned_date_time'):
+            v = src.get(k)
+            if v not in (None, '', []):
+                doc[k] = v
+        if src.get('raw_data'):
+            doc['raw_payload'] = src['raw_data']
+
+        # Walk tokens and add only what we find
+        for token in src.get('barcodeList', []):
+            key, value = self.match_pattern(token)
+
+            if key not in self.KNOWN_FIELDS:
+                if include_other:
+                    other.append({key: value})
+                continue
+
+            if key == 'quantity':
+                if 'quantity' in doc:
+                    old = doc['quantity']
+                    # Jython/Py2/Py3-friendly integer type check
+                    try:
+                        integer_types = (int, long)
+                    except NameError:
+                        integer_types = (int,)
+                    if isinstance(old, integer_types) and isinstance(value, integer_types):
+                        if value < old:
+                            doc['quantity'] = value
+                        else:
+                            if include_other:
+                                other.append({key: value})
+                    else:
+                        if include_other:
+                            other.append({key: value})
+                else:
+                    doc['quantity'] = value
+            else:
+                if key in doc:
+                    if include_other:
+                        other.append({key: value})
+                else:
+                    doc[key] = value
+
+        if include_other and other:
+            doc['other'] = other
+
+        return doc
+
+    # ----------------- public entrypoint -----------------
+
+    def process(self, raw_payload, include_other=True):
+        """
+        Full flow: parse header then build a found-only document.
+        Returns a dict with only discovered fields plus meta.
+        """
+        if not self._check_payload(raw_payload):
+            return {'ok': False, 'reason': 'bad_payload', 'raw': raw_payload}
+
+        doc = self.build_mongo_found_only(include_other=include_other)
+        doc['ok'] = True
+        return doc

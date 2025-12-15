@@ -1,0 +1,466 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 240,
+      "width": 1200
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "sqaure"
+        },
+        "position": {
+          "height": 206,
+          "width": 1200,
+          "x": -0.57,
+          "y": 30.32
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "162.85",
+              "name": "rect",
+              "type": "rect",
+              "width": "162.85"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#B8B8B8"
+          },
+          "viewBox": "0 0 162.85 162.85"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "AlarmStatusTable"
+        },
+        "position": {
+          "height": 204,
+          "width": 800.0000000000001,
+          "x": 199.86,
+          "y": 30.33
+        },
+        "props": {
+          "style": {
+            "borderColor": "#8E8E8E",
+            "borderStyle": "outset",
+            "borderWidth": 10
+          },
+          "toolbar": {
+            "enabled": false
+          }
+        },
+        "type": "ia.display.alarmstatustable"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 28.999999999999993,
+          "width": 171.0000000000001,
+          "x": 1012.93,
+          "y": 36.46
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "dateFormat(now(), \"MM/dd/yyyy hh:mm:ss a\")"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 14,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Image"
+        },
+        "position": {
+          "height": 54.99999999999999,
+          "width": 187,
+          "x": 7.43,
+          "y": 36.27
+        },
+        "props": {
+          "fit": {
+            "mode": "fill"
+          },
+          "source": "/system/images/LOGO/PW360 (No BG 10 (Refect Arrow)).png"
+        },
+        "type": "ia.display.image"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 21.61,
+          "rotate": {
+            "anchor": "50% 37%"
+          },
+          "width": 87.62,
+          "x": 8.6203,
+          "y": 67.76
+        },
+        "props": {
+          "style": {
+            "color": "#c02228",
+            "fontFamily": "Roboto",
+            "fontSize": 11,
+            "fontWeight": "bold",
+            "textAlign": "left"
+          },
+          "text": "www.pwdus.com"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 18.000000000000014,
+          "width": 63,
+          "x": 33.8,
+          "y": 115.8
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 13
+          },
+          "text": "Logged In:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "login"
+            }
+          }
+        },
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "height": 26.870000000000005,
+          "width": 91.47,
+          "x": 66.1752,
+          "y": 134.519
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 13
+          },
+          "text": "Switch User"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "logout"
+            }
+          }
+        },
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "height": 23.879999999999995,
+          "width": 61.50999999999999,
+          "x": 66.1752,
+          "y": 162.959
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 13
+          },
+          "text": "Log Out"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "login"
+            }
+          }
+        },
+        "meta": {
+          "name": "Icon"
+        },
+        "position": {
+          "height": 15.680000000000007,
+          "width": 14.189999999999998,
+          "x": 46.8052,
+          "y": 140.109
+        },
+        "props": {
+          "path": "material/supervised_user_circle"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "logout"
+            }
+          }
+        },
+        "meta": {
+          "name": "Icon_0"
+        },
+        "position": {
+          "height": 15.680000000000007,
+          "width": 14.189999999999998,
+          "x": 46.8052,
+          "y": 167.059
+        },
+        "props": {
+          "path": "material/login"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "meta": {
+          "name": "Image_0"
+        },
+        "position": {
+          "height": 113.99999999999999,
+          "width": 118,
+          "x": 1039.4,
+          "y": 82.64
+        },
+        "props": {
+          "fit": {
+            "mode": "fill"
+          },
+          "source": "/system/images/LOGO/TTI.jpg"
+        },
+        "type": "ia.display.image"
+      },
+      {
+        "meta": {
+          "name": "HorizontalMenu"
+        },
+        "position": {
+          "height": 30,
+          "width": 1200,
+          "x": -0.58
+        },
+        "props": {
+          "items": [
+            {
+              "enabled": true,
+              "icon": {
+                "color": "#6C6C6C",
+                "path": "material/home"
+              },
+              "items": [],
+              "label": "Home",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "color": "",
+                "path": ""
+              },
+              "items": [
+                {
+                  "enabled": true,
+                  "icon": {
+                    "color": "",
+                    "path": ""
+                  },
+                  "items": [],
+                  "label": "Receiving",
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/TAS-Receiving"
+                },
+                {
+                  "enabled": true,
+                  "icon": {
+                    "color": "",
+                    "path": ""
+                  },
+                  "items": [],
+                  "label": "ECC",
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/TAS-ECC"
+                }
+              ],
+              "label": "Views",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Tools",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Alarm Journal",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Data",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Reports",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "User Management",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Windows",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            },
+            {
+              "enabled": true,
+              "icon": {
+                "path": ""
+              },
+              "items": [],
+              "label": "Help",
+              "style": {
+                "classes": ""
+              },
+              "target": ""
+            }
+          ],
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 13
+          }
+        },
+        "type": "ia.navigation.horizontalmenu"
+      },
+      {
+        "meta": {
+          "name": "Label_4"
+        },
+        "position": {
+          "height": 18,
+          "width": 34,
+          "x": 100,
+          "y": 115.8
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "session.props.auth.user.userName"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 13,
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

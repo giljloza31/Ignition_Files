@@ -1,0 +1,204 @@
+# shared.gitsync
+# Centralized Git sync/commit/push logic for Ignition gateways.
+# Triggered by:
+# - Gateway Event Scripts -> Project -> Update (armed publish)
+# - Tag Change scripts -> ForceSnapshotNow / ForcePushNow
+
+import os
+import system
+
+# Tag provider is the customer name, and the folder structure is:
+# [Mouser]Mouser/System/Config/GitSync/...
+BASE = "[Mouser]Mouser/System/Config/GitSync/"
+
+DEFAULT_SOURCE  = r"C:\Program Files\Inductive Automation\Ignition\data\projects"
+DEFAULT_REPOROOT = r"C:\Users\GilLozaPWDUS\OneDrive - Sammons Industrial\Documents\GitHub\Ignition"
+DEFAULT_PS1     = r"C:\IgnitionTools\sync_commit.ps1"
+
+
+def _log():
+	return system.util.getLogger("GitSync")
+
+
+def _read_tag(path, default=None):
+	try:
+		val = system.tag.readBlocking([path])[0].value
+		if val is None:
+			return default
+		return val
+	except Exception as e:
+		_log().error("Tag read failed: %s (%s)" % (path, e))
+		return default
+
+
+def _write_tag(path, value):
+	try:
+		system.tag.writeBlocking([path], [value])
+	except Exception as e:
+		_log().error("Tag write failed: %s=%r (%s)" % (path, value, e))
+
+
+def _read_config():
+	customer    = _read_tag(BASE + "Customer", "")
+	systemName  = _read_tag(BASE + "SystemName", "")
+	note        = _read_tag(BASE + "CommitNote", "")
+	pushOnPub   = bool(_read_tag(BASE + "PushOnPublish", False))
+
+	# Optional overrides (tag-configurable paths)
+	source   = _read_tag(BASE + "SourcePath", DEFAULT_SOURCE)
+	reporoot = _read_tag(BASE + "RepoRoot", DEFAULT_REPOROOT)
+	ps1      = _read_tag(BASE + "Ps1Path", DEFAULT_PS1)
+
+	return customer, systemName, note, pushOnPub, source, reporoot, ps1
+
+
+def validate(action="sync"):
+	"""
+	Validate configuration and environment. Returns True if OK, else False.
+	Logs a clear message for each failing condition.
+	"""
+	log = _log()
+	customer, systemName, note, pushOnPub, source, reporoot, ps1 = _read_config()
+
+	ok = True
+
+	# Required tags
+	if not str(customer).strip():
+		log.error("GitSync invalid: missing/blank tag %sCustomer" % BASE)
+		ok = False
+	if not str(systemName).strip():
+		log.error("GitSync invalid: missing/blank tag %sSystemName" % BASE)
+		ok = False
+
+
+	# Paths
+	if not os.path.isdir(source):
+		log.error("GitSync invalid: SourcePath not found: %r" % source)
+		ok = False
+	if not os.path.isdir(reporoot):
+		log.error("GitSync invalid: RepoRoot not found: %r" % reporoot)
+		ok = False
+	if not os.path.isfile(ps1):
+		log.error("GitSync invalid: Ps1Path not found: %r" % ps1)
+		ok = False
+
+	# Git availability (best effort; PowerShell will still be the real execution)
+	try:
+		# Check git using common absolute paths (service-safe)
+		git_candidates = [
+			r"C:\Program Files\Git\bin\git.exe",
+			r"C:\Program Files\Git\cmd\git.exe"
+		]
+		found = False
+		for g in git_candidates:
+			if os.path.isfile(g):
+				try:
+					res = system.util.execute([g, "--version"])
+					if res:
+						found = True
+						break
+				except:
+					pass
+		
+		if not found:
+			log.warn("GitSync: could not run git from known paths (%r). PATH may be missing for service, but PS1 may still work." % git_candidates)
+	
+	except Exception as e:
+		log.warn("GitSync: could not run 'git --version' (%s). If commits fail, set full git path in PS1 or fix PATH." % e)
+		
+		if ok:
+			log.info(
+				"GitSync validate OK (action=%s) customer=%s system=%s source=%r reporoot=%r ps1=%r"
+				% (action, customer, systemName, source, reporoot, ps1)
+			)
+		return ok
+
+
+def _run_ps(action, push=False, forcePush=False, actor="gateway"):
+	log = _log()
+
+	customer, systemName, note, pushOnPub, source, reporoot, ps1 = _read_config()
+
+	projectName = system.project.getProjectName()
+	gatewayName = system.net.getHostName()
+
+	cmd = [
+		"powershell.exe",
+		"-ExecutionPolicy", "Bypass",
+		"-File", ps1,
+		"-Source", str(source),
+		"-RepoRoot", str(reporoot),
+		"-Customer", str(customer),
+		"-SystemName", str(systemName),
+		"-GatewayName", str(gatewayName),
+		"-ProjectName", str(projectName),
+		"-Actor", str(actor),
+		"-CommitNote", str(note or ""),
+		"-Action", str(action),
+	]
+
+	if push:
+		cmd.append("-Push")
+	if forcePush:
+		cmd.append("-ForcePush")
+
+	log.info(
+		"GitSync executing: action=%s push=%s forcePush=%s gateway=%s project=%s"
+		% (action, push, forcePush, gatewayName, projectName)
+	)
+
+	def _do():
+		try:
+			system.util.execute(cmd)
+		except Exception as e:
+			log.error("GitSync PowerShell execution failed (%s). cmd=%r" % (e, cmd))
+
+	system.util.invokeAsynchronous(_do)
+ 
+
+def handle_publish_update():
+	"""
+	Called from Gateway Event Script: Project -> Update.
+	Only acts when ArmCommitOnNextPublish is True, then resets it.
+	"""
+	if not validate(action="publish"):
+		return
+
+	armed = bool(_read_tag(BASE + "ArmCommitOnNextPublish", False))
+	if not armed:
+		return
+
+	# Reset immediately to avoid double commits if update event fires multiple times
+	_write_tag(BASE + "ArmCommitOnNextPublish", False)
+
+	pushOnPublish = bool(_read_tag(BASE + "PushOnPublish", False))
+
+	_run_ps(action="publish", push=pushOnPublish, forcePush=False, actor="gateway")
+
+
+def handle_force_trigger(trigger_tag_path):
+	"""
+	Called by Tag Change scripts (ForceSnapshotNow / ForcePushNow).
+	Always resets the triggering tag back to False.
+	"""
+
+	def _reset_trigger():
+		try:
+			# reset the exact triggering tag path (already fully-qualified)
+			system.tag.writeBlocking([trigger_tag_path], [False])
+		except Exception as e:
+			_log().error("Failed to reset trigger tag %r (%s)" % (trigger_tag_path, e))
+
+	if not validate(action="force"):
+		_reset_trigger()
+		return
+
+	tp = str(trigger_tag_path)
+	is_force_push = tp.endswith("ForcePushNow")
+
+	action = "force-push" if is_force_push else "snapshot"
+
+	# Force actions push by default (snapshot + force-push both push)
+	_run_ps(action=action, push=True, forcePush=is_force_push, actor="gateway")
+
+	_reset_trigger()

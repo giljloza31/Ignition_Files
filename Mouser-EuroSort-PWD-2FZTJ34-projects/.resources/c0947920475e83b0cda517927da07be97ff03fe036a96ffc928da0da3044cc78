@@ -1,0 +1,503 @@
+{
+  "custom": {
+    "Blink": {},
+    "BlinkPhase": 0.282,
+    "Defaults": {
+      "Blue": true,
+      "Green": false,
+      "Period": 1.5,
+      "PhaseOffset": 0.2,
+      "Red": false,
+      "Yellow": true
+    },
+    "State": {},
+    "UpdateRate": 0.1,
+    "Values": {}
+  },
+  "params": {
+    "Blink": {
+      "Blue": true,
+      "Green": false,
+      "Period": 1.5,
+      "PhaseOffset": 0.2,
+      "Red": false,
+      "Yellow": true
+    },
+    "Blue": "[default]Beacon/Blue",
+    "Green": "[default]Beacon/Green",
+    "Red": "[default]Beacon/Red",
+    "Yellow": "[default]Beacon/Yellow"
+  },
+  "propConfig": {
+    "custom.Blink": {
+      "persistent": true
+    },
+    "custom.Blink.Blue": {
+      "binding": {
+        "config": {
+          "expression": "try({view.params.Blink.Blue}, {view.custom.Defaults.Blue})"
+        },
+        "type": "expr"
+      }
+    },
+    "custom.Blink.Green": {
+      "binding": {
+        "config": {
+          "expression": "try({view.params.Blink.Green}, {view.custom.Defaults.Green})"
+        },
+        "type": "expr"
+      }
+    },
+    "custom.Blink.Period": {
+      "binding": {
+        "config": {
+          "expression": "try({view.params.Blink.Period}, {view.custom.Defaults.Period})"
+        },
+        "type": "expr"
+      }
+    },
+    "custom.Blink.PhaseOffset": {
+      "binding": {
+        "config": {
+          "expression": "try({view.params.Blink.PhaseOffset}, {view.custom.Defaults.PhaseOffset})"
+        },
+        "type": "expr"
+      }
+    },
+    "custom.Blink.Red": {
+      "binding": {
+        "config": {
+          "expression": "try({view.params.Blink.Red}, {view.custom.Defaults.Red})"
+        },
+        "type": "expr"
+      }
+    },
+    "custom.Blink.Yellow": {
+      "binding": {
+        "config": {
+          "expression": "try({view.params.Blink.Yellow}, {view.custom.Defaults.Yellow})"
+        },
+        "type": "expr"
+      }
+    },
+    "custom.BlinkPhase": {
+      "binding": {
+        "config": {
+          "expression": "// calculate the current duty cycle position\r\n( now(1000*{view.custom.UpdateRate})\r\n   % (1000*{view.params.Blink.Period})\r\n)  / (1000*{view.params.Blink.Period})"
+        },
+        "type": "expr"
+      },
+      "persistent": true
+    },
+    "custom.Defaults": {
+      "persistent": true
+    },
+    "custom.State": {
+      "persistent": true
+    },
+    "custom.State.Blue": {
+      "binding": {
+        "config": {
+          "expression": "try(\r\n// does it need to be lit?\r\nif( {view.custom.Values.Blue}\r\n    // if so, does it need to flash?\r\n,\tif( {view.custom.Blink.Blue} \u0026\u0026\r\n        ((({view.custom.BlinkPhase} + (1*{view.custom.Blink.PhaseOffset})) % 1.0) \r\n\t\t  // is the phase less than the duty cycle?\r\n\t\t // note that this handles bools (50%), floats, and percents (from strings)\r\n\t\t\u003e switch( {view.custom.Blink.Blue}\r\n\t\t\t// convert bools to duty cycles\r\n\t\t\t,\ttrue, false\r\n\t\t\t,\t0.5,   1.0\r\n\t\t\t// otherwise try it as a percent\r\n\t\t\t,\ttry( if( \tright({view.custom.Blink.Blue}, 1) \u003d \u0027%\u0027\r\n\t\t\t\t\t\t,\ttoInt(left({view.custom.Blink.Blue}, \r\n\t\t\t\t\t\t\t\t\t   len({view.custom.Blink.Blue}) - 1\r\n\t\t\t\t\t\t\t\t))/100.0\r\n\t\t\t\t\t\t     // if over 1 assume a percent, \r\n\t\t\t\t\t\t    //otherwise it\u0027s just the duty cycle fraction\r\n\t\t\t\t\t\t,\tif(\t{view.custom.Blink.Blue} \u003e 1.0\r\n\t\t\t\t\t\t\t,\t{view.custom.Blink.Blue} / 100.0\r\n\t\t\t\t\t\t\t,\t{view.custom.Blink.Blue}\r\n\t\t\t\t\t\t\t)\r\n\t\t\t\t\t\t), 0.5)))\r\n\t,\t2  // contrast flash color\r\n\t,\t1 // bright color\r\n\t)\r\n,\t0 // dim color\r\n)  \r\n, -1)"
+        },
+        "type": "expr"
+      }
+    },
+    "custom.State.Green": {
+      "binding": {
+        "config": {
+          "expression": "try(\r\n// does it need to be lit?\r\nif( {view.custom.Values.Green}\r\n    // if so, does it need to flash?\r\n,\tif( {view.custom.Blink.Green} \u0026\u0026\r\n        ((({view.custom.BlinkPhase} + (2*{view.custom.Blink.PhaseOffset})) % 1.0) \r\n\t\t  // is the phase less than the duty cycle?\r\n\t\t // note that this handles bools (50%), floats, and percents (from strings)\r\n\t\t\u003e switch( {view.custom.Blink.Green}\r\n\t\t\t// convert bools to duty cycles\r\n\t\t\t,\ttrue, false\r\n\t\t\t,\t0.5,   1.0\r\n\t\t\t// otherwise try it as a percent\r\n\t\t\t,\ttry( if( \tright({view.custom.Blink.Green}, 1) \u003d \u0027%\u0027\r\n\t\t\t\t\t\t,\ttoInt(left({view.custom.Blink.Green}, \r\n\t\t\t\t\t\t\t\t\t   len({view.custom.Blink.Green}) - 1\r\n\t\t\t\t\t\t\t\t))/100.0\r\n\t\t\t\t\t\t     // if over 1 assume a percent, \r\n\t\t\t\t\t\t    //otherwise it\u0027s just the duty cycle fraction\r\n\t\t\t\t\t\t,\tif(\t{view.custom.Blink.Green} \u003e 1.0\r\n\t\t\t\t\t\t\t,\t{view.custom.Blink.Green} / 100.0\r\n\t\t\t\t\t\t\t,\t{view.custom.Blink.Green}\r\n\t\t\t\t\t\t\t)\r\n\t\t\t\t\t\t), 0.5)))\r\n\t,\t2  // contrast flash color\r\n\t,\t1 // bright color\r\n\t)\r\n,\t0 // dim color\r\n)\r\n, -1) "
+        },
+        "type": "expr"
+      }
+    },
+    "custom.State.Red": {
+      "binding": {
+        "config": {
+          "expression": "try(\r\n// does it need to be lit?\r\nif( {view.custom.Values.Red}\r\n    // if so, does it need to flash?\r\n,\tif( {view.custom.Blink.Red} \u0026\u0026\r\n        ((({view.custom.BlinkPhase} + (3*{view.custom.Blink.PhaseOffset})) % 1.0) \r\n\t\t  // is the phase less than the duty cycle?\r\n\t\t // note that this handles bools (50%), floats, and percents (from strings)\r\n\t\t\u003e switch( {view.custom.Blink.Red}\r\n\t\t\t// convert bools to duty cycles\r\n\t\t\t,\ttrue, false\r\n\t\t\t,\t0.5,    1.0\r\n\t\t\t// otherwise try it as a percent\r\n\t\t\t,\ttry( if( \tright({view.custom.Blink.Red}, 1) \u003d \u0027%\u0027\r\n\t\t\t\t\t\t,\ttoInt(left({view.custom.Blink.Red},\r\n\t\t\t\t\t\t\t\t\t   len({view.custom.Blink.Red}) - 1\r\n\t\t\t\t\t\t\t\t))/100.0\r\n\t\t\t\t\t\t     // if over 1 assume a percent, \r\n\t\t\t\t\t\t    //otherwise it\u0027s just the duty cycle fraction\r\n\t\t\t\t\t\t,\tif(\t{view.custom.Blink.Red} \u003e 1.0\r\n\t\t\t\t\t\t\t,\t{view.custom.Blink.Red} / 100.0\r\n\t\t\t\t\t\t\t,\t{view.custom.Blink.Red}\r\n\t\t\t\t\t\t\t)\r\n\t\t\t\t// failsafe to 50%\r\n\t\t\t\t), 0.5)))\r\n\t,\t2  // contrast flash color\r\n\t,\t1 // bright color\r\n\t)\r\n,\t0 // dim color\r\n)\r\n, -1)  "
+        },
+        "type": "expr"
+      }
+    },
+    "custom.State.Yellow": {
+      "binding": {
+        "config": {
+          "expression": "try(\r\n// does it need to be lit?\r\nif( {view.custom.Values.Yellow}\r\n    // if so, does it need to flash?\r\n,\tif( {view.custom.Blink.Yellow} \u0026\u0026\r\n        ((({view.custom.BlinkPhase} + (4*{view.custom.Blink.PhaseOffset})) % 1.0) \r\n\t\t  // is the phase less than the duty cycle?\r\n\t\t // note that this handles bools (50%), floats, and percents (from strings)\r\n\t\t\u003e switch( {view.custom.Blink.Yellow}\r\n\t\t\t// convert bools to duty cycles\r\n\t\t\t,\ttrue, false\r\n\t\t\t,\t0.5,    1.0\r\n\t\t\t// otherwise try it as a percent\r\n\t\t\t,\ttry( if( \tright({view.custom.Blink.Yellow}, 1) \u003d \u0027%\u0027\r\n\t\t\t\t\t\t,\ttoInt(left({view.custom.Blink.Yellow}, \r\n\t\t\t\t\t\t\t\t\t   len({view.custom.Blink.Yellow}) - 1\r\n\t\t\t\t\t\t\t\t))/100.0\r\n\t\t\t\t\t\t     // if over 1 assume a percent, \r\n\t\t\t\t\t\t    //otherwise it\u0027s just the duty cycle fraction\r\n\t\t\t\t\t\t,\tif(\t{view.custom.Blink.Yellow} \u003e 1.0\r\n\t\t\t\t\t\t\t,\t{view.custom.Blink.Yellow} / 100.0\r\n\t\t\t\t\t\t\t,\t{view.custom.Blink.Yellow}\r\n\t\t\t\t\t\t\t)\r\n\t\t\t\t\t\t), 0.5)))\r\n\t,\t2  // contrast flash color\r\n\t,\t1 // bright color\r\n\t)\r\n,\t0 // dim color\r\n) \r\n, -1)"
+        },
+        "type": "expr"
+      }
+    },
+    "custom.UpdateRate": {
+      "persistent": true
+    },
+    "custom.Values": {
+      "persistent": true
+    },
+    "custom.Values.Blue": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "Blue": "{view.params.Blue}"
+          },
+          "tagPath": "{Blue}"
+        },
+        "type": "tag"
+      }
+    },
+    "custom.Values.Green": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "Green": "{view.params.Green}"
+          },
+          "tagPath": "{Green}"
+        },
+        "type": "tag"
+      }
+    },
+    "custom.Values.Red": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "Red": "{view.params.Red}"
+          },
+          "tagPath": "{Red}"
+        },
+        "type": "tag"
+      }
+    },
+    "custom.Values.Yellow": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "Yellow": "{view.params.Yellow}"
+          },
+          "tagPath": "{Yellow}"
+        },
+        "type": "tag"
+      }
+    },
+    "params.Blink": {
+      "binding": {
+        "type": null
+      },
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Blink.Blue": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Blink.Green": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Blink.Period": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Blink.PhaseOffset": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Blink.Red": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Blink.Yellow": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Blue": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Green": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Red": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Yellow": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 270,
+      "width": 297
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "beacon-with-post"
+        },
+        "position": {
+          "basis": "270px"
+        },
+        "propConfig": {
+          "props.elements[0].elements[0].elements[0].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "view.custom.State.Green"
+              },
+              "transforms": [
+                {
+                  "fallback": "#D5D5D5",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#CCFFCC"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#00FF00"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#00D900"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[1].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "view.custom.State.Red"
+              },
+              "transforms": [
+                {
+                  "fallback": "#D5D5D5",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#FFCCCC"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#FF0000"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#D90000"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[2].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "view.custom.State.Yellow"
+              },
+              "transforms": [
+                {
+                  "fallback": "#D5D5D5",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#FFFFCC"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#FFFF00"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#D9D900"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[3].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "view.custom.State.Blue"
+              },
+              "transforms": [
+                {
+                  "fallback": "#D5D5D5",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#CCCCFF"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#3394FF"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#0054D9"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "fill": {
+                        "opacity": "1",
+                        "rule": "evenodd"
+                      },
+                      "height": "19.55818",
+                      "name": "GreenSegment",
+                      "ry": "0.42882681",
+                      "stroke": {
+                        "dasharray": "none",
+                        "miterlimit": "4",
+                        "opacity": "1",
+                        "paint": "#000000",
+                        "width": "0.44182"
+                      },
+                      "style": {},
+                      "type": "rect",
+                      "width": "42.558182",
+                      "x": "43.060818",
+                      "y": "48.352486"
+                    },
+                    {
+                      "fill": {
+                        "opacity": "1",
+                        "rule": "evenodd"
+                      },
+                      "height": "19.556986",
+                      "name": "RedSegment",
+                      "ry": "0.42880061",
+                      "stroke": {
+                        "dasharray": "none",
+                        "miterlimit": "4",
+                        "opacity": "1",
+                        "paint": "#000000",
+                        "width": "0.443014"
+                      },
+                      "style": {},
+                      "type": "rect",
+                      "width": "42.791161",
+                      "x": "42.827843",
+                      "y": "67.910667"
+                    },
+                    {
+                      "fill": {
+                        "opacity": "1",
+                        "rule": "evenodd"
+                      },
+                      "height": "19.556986",
+                      "name": "YellowSegment",
+                      "ry": "0.42880061",
+                      "stroke": {
+                        "dasharray": "none",
+                        "miterlimit": "4",
+                        "opacity": "1",
+                        "paint": "#000000",
+                        "width": "0.443014"
+                      },
+                      "style": {},
+                      "type": "rect",
+                      "width": "42.791161",
+                      "x": "42.827843",
+                      "y": "87.467651"
+                    },
+                    {
+                      "d": "M 48.46243,-43.204808 A 20.460447,21.279282 0 0 1 29.721319,-53.287793 20.460447,21.279282 0 0 1 29.512507,-75.231445 20.460447,21.279282 0 0 1 48.058071,-85.698211 Z",
+                      "fill": {},
+                      "name": "BlueSegment",
+                      "stroke": {
+                        "dasharray": "none",
+                        "linecap": "round",
+                        "miterlimit": "4",
+                        "opacity": "1",
+                        "paint": "#000000",
+                        "width": "0.440994"
+                      },
+                      "style": {},
+                      "transform": "rotate(90)",
+                      "type": "path"
+                    },
+                    {
+                      "fill": {
+                        "paint": "#2B2B2B",
+                        "rule": "evenodd"
+                      },
+                      "height": "20.248396",
+                      "name": "pole",
+                      "ry": "0.55935454",
+                      "stroke": {
+                        "opacity": "1",
+                        "paint": "#000000",
+                        "width": "0.22027"
+                      },
+                      "style": {},
+                      "type": "rect",
+                      "width": "10.954516",
+                      "x": "57.761517",
+                      "y": "107.05948"
+                    }
+                  ],
+                  "name": "Stack",
+                  "type": "group"
+                }
+              ],
+              "name": "layer1",
+              "transform": "translate(-42.632794,-26.465494)",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 43.307112 100.95252"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "overflow": "hidden"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

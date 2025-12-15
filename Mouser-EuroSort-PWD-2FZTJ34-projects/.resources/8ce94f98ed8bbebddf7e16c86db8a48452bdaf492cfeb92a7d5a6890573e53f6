@@ -1,0 +1,83 @@
+"""
+	Context management
+	
+	Because managing connections is a pain.
+	
+	Ensures connections are maintained and cleaned up when done.
+	Use in conjunction with the messaging to make message handling
+	nearly declarative.
+	
+	with sorter:
+		with sorter.scan as message:
+			message.destination = 'DST-CH-0001-1-A'
+			message.destinationStatus = 'not ready'
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from java.lang import Runtime, Thread, Exception as JavaException
+from java.lang import Exception as JavaException
+
+from eurosort.dispatch import EuroSorterDispatch
+from eurosort.enums    import *
+
+
+
+class CrashCallback(Thread):
+	def __init__(self, target_object):
+		self.target = target_object
+	def run(self):
+		self.target._on_jvm_shutdown()
+
+
+
+class EuroSorterContextManagement(EuroSorterDispatch):
+
+	def __init__(self, *args, **kwargs):
+		self._jvm_shutdown_callback = CrashCallback(self)
+		super(EuroSorterContextManagement, self).__init__(*args, **kwargs)
+
+
+	def _on_jvm_shutdown(self):
+		"""Do additional work on shutdown (as opposed to normal service stop/restart)"""
+		pass
+
+
+	def connect(self):
+		assert self.status != SorterStatus.READY, "Can not connect when already online!"
+		self.euroSortInterface.start()
+
+	
+	def disconnect(self):
+		if self._euroSortInterface is None:
+			return # nop
+		try:
+			self.euroSortInterface.disconnect()
+		except:
+			pass 
+			# if we're already disconnected or in a broken state, 
+			# then move along - the exception is likely what triggered the disconnect attempt.
+		finally:
+			# but make sure that the interface HAS died
+			self.euroSortInterface.stop()
+
+
+	def __enter__(self):
+		self._register_callbacks()
+		self.connect()
+		Runtime.getRuntime().addShutdownHook(self._jvm_shutdown_callback)
+		return self
+
+
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		try:
+			self._unregister_callbacks()
+			Runtime.getRuntime().removeShutdownHook(self._jvm_shutdown_callback)
+		except (Exception,JavaException) as error:
+			raise error
+		finally:
+			# disconnect, no matter what, when context ends
+			self.disconnect()
+
+
+	

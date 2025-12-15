@@ -1,0 +1,2 @@
+SELECT Route_Code
+From Scan1_Divert_Table

@@ -1,0 +1,73 @@
+"""
+	Storage for transit locations
+
+"""
+raise DeprecationWarning('Use perfectpick.transit instead, since this does NOT cooperate with the real WCS.')
+
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from shared.data.messaging import Message, Request
+from database.core import PERFECTPICK_DB, WCS_DB, select_record, select_records, update_record
+from wcs.config import WCSLocation, WCSTransitMovePurposes
+
+
+
+PERSPECTIVE_UPDATE_MESSAGE_LISTENERS = [
+	slice('PerfectPickInterface_Front', 'Transit: Updates'),
+]
+
+
+
+def get_location_inventory(location):
+	wcs_location = WCSLocation(location)
+	entry = select_record(PERFECTPICK_DB, 'transit', {'wcs_location': wcs_location})
+	return entry
+
+
+def notify_location_update(location, entry):
+	for listener in PERSPECTIVE_UPDATE_MESSAGE_LISTENERS:
+		with Message[listener] as message:
+			message.filters.scope    = 'perspective session'
+			message.payload.location = location
+			message.payload.entry    = entry
+
+
+def move_issue_to_location(location, issue_ibn):
+	entry = get_location_inventory(location)
+	if not issue_ibn in entry['ibns']:
+		entry['ibns'].append(issue_ibn)
+		update_record(PERFECTPICK_DB, 'transit', {'wcs_location': wcs_location,
+				'ibns': entry['ibns'],
+			}, ['wcs_location'])
+		notify_location_update(location)
+
+
+def remove_issue_from_location(location, issue_ibn):
+	entry = get_location_inventory(location)
+	if issue_ibn in entry['ibns']:
+		entry['ibns'].remove(issue_ibn)
+		update_record(PERFECTPICK_DB, 'transit', {'wcs_location': wcs_location,
+				'ibns': entry['ibns'],
+			}, ['wcs_location'])
+		notify_location_update(location)
+
+
+
+
+
+#def _initialize_transit_stored():
+#	Logger().warn("Initializing transit locations into stored collection...")
+#	from database.core import PERFECTPICK_DB, upsert_record
+#	for wcs_location in WCSLocation:
+#		#for purpose in WCSTransitMovePurposes:
+#		perfectpick_name, _, loc_purpose = WCSLocation.key(wcs_location).partition('_')
+#		upsert_record(PERFECTPICK_DB, 'transit', {
+#			'wcs_location' : wcs_location,	
+#			'ibns': [],
+#			'perfectpick': perfectpick_name,
+#			'purpose': purpose,	
+#		}, ['wcs_location'])
+
+
+
+

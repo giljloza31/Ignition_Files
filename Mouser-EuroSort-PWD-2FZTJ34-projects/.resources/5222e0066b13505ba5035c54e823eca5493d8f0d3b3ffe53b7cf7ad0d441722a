@@ -1,0 +1,212 @@
+
+{
+  "custom": {
+    "length": 500,
+    "width": 24,
+    "speed": 80,
+    "boxes": [],
+    "tick": 0
+  },
+  "events": {
+    "component": {
+      "messageHandlers": [
+        {
+          "messageType": "addBox",
+          "scripts": [
+            {
+              "language": "python",
+              "script": "# payload may include: id, width, color, startX, y\nb = {\n  'id':    payload.get('id', 'box_' + system.date.format(system.date.now(), 'HHmmssSSS')),\n  'width': float(payload.get('width', 40)),\n  'color': payload.get('color', '#FFCA8A'),\n  'startX': float(payload.get('startX', 0)),\n  'y': float(payload.get('y', 3.2))\n}\nboxes = list(self.custom.get('boxes', []))\n# Optional spacing so new boxes enter slightly later if startX not specified\nif boxes and 'startX' not in payload:\n    b['startX'] = -10.0\nboxes.append(b)\nself.custom.boxes = boxes\n"
+            }
+          ]
+        },
+        {
+          "messageType": "clearBoxes",
+          "scripts": [
+            {
+              "language": "python",
+              "script": "self.custom.boxes = []\n"
+            }
+          ]
+        },
+        {
+          "messageType": "setSpeed",
+          "scripts": [
+            {
+              "language": "python",
+              "script": "if 'speed' in payload:\n    self.custom.speed = float(payload['speed'])\n"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "meta": {
+    "name": "Conveyor_w_box"
+  },
+  "position": {
+    "x": 48,
+    "y": 164
+  },
+  "propConfig": {
+    "position.height": {
+      "binding": {
+        "config": {
+          "path": "this.custom.width"
+        },
+        "type": "property"
+      }
+    },
+    "position.width": {
+      "binding": {
+        "config": {
+          "path": "this.custom.length"
+        },
+        "type": "property"
+      }
+    },
+    "custom.tick": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "dateExtract(now(), 'second')*1000 + dateExtract(now(), 'millisecond')"
+        }
+      }
+    },
+    "props.elements[0].elements[0].elements[0].elements[0].width": {
+      "binding": {
+        "config": {
+          "path": "this.custom.length"
+        },
+        "type": "property"
+      }
+    },
+    "props.elements[0].elements[0].elements[0].elements[1].elements[0].width": {
+      "binding": {
+        "config": {
+          "path": "this.custom.length"
+        },
+        "type": "property"
+      }
+    },
+    "props.elements[0].elements[0].elements[0].elements[1].elements[1].width": {
+      "binding": {
+        "config": {
+          "path": "this.custom.length"
+        },
+        "type": "property"
+      }
+    },
+    "props.elements[0].elements[0].elements[1].elements": {
+      "binding": {
+        "type": "script",
+        "config": {
+          "language": "python",
+          "script": "# inputs[0]: boxes array, inputs[1]: tick\nboxes = inputs[0] or []\n_ = inputs[1]\nself = value\n\nspeed  = float(self.custom.get('speed', 80.0))\nlength = float(self.custom.get('length', 500.0))\nbelt_h = float(self.custom.get('width', 24.0))\nnow_ms = system.date.toMillis(system.date.now())\n\nelements = []\nalive = []\n\nfor item in boxes:\n    b = dict(item)\n    w   = float(b.get('width', 40))\n    y   = float(b.get('y', 3.2))\n    x0  = float(b.get('startX', 0))\n    col = b.get('color', '#FFCA8A')\n    sid = b.get('id', 'box')\n\n    t0 = b.get('startTime')\n    if t0 is None:\n        t0 = now_ms\n        b['startTime'] = t0\n\n    dt = max(0.0, (now_ms - t0) / 1000.0)\n    x  = x0 + dt * speed\n\n    if x <= length:\n        alive.append(b)\n        elements.append({\n            'type': 'rect',\n            'name': sid,\n            'id': sid,\n            'x': x,\n            'y': y,\n            'width': w,\n            'height': max(12.0, belt_h - 6.0),\n            'fill': {'paint': col},\n            'stroke': {'paint': '#231f20', 'miterlimit': '10'},\n            'style': {'classes': ''}\n        })\n\n# prune off-screen boxes\nif len(alive) != len(boxes):\n    self.custom.boxes = alive\n\nreturn elements\n",
+          "inputs": [
+            {
+              "type": "property",
+              "path": "this.custom.boxes"
+            },
+            {
+              "type": "property",
+              "path": "this.custom.tick"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "props": {
+    "elements": [
+      {
+        "elements": [
+          {
+            "elements": [
+              {
+                "elements": [
+                  {
+                    "fill": {
+                      "paint": "#fff"
+                    },
+                    "height": "23.97",
+                    "id": "Main",
+                    "name": "Main",
+                    "stroke": {
+                      "miterlimit": "10",
+                      "paint": "#231f20"
+                    },
+                    "style": {
+                      "classes": ""
+                    },
+                    "type": "rect",
+                    "x": ".5",
+                    "y": ".53"
+                  },
+                  {
+                    "elements": [
+                      {
+                        "fill": {
+                          "paint": "#fff"
+                        },
+                        "height": "2.82",
+                        "id": "Rail",
+                        "name": "Rail",
+                        "stroke": {
+                          "miterlimit": "10",
+                          "paint": "#231f20"
+                        },
+                        "style": {
+                          "classes": ""
+                        },
+                        "type": "rect",
+                        "x": ".5",
+                        "y": "21.68"
+                      },
+                      {
+                        "fill": {
+                          "paint": "#fff"
+                        },
+                        "height": "2.82",
+                        "id": "Rail-2",
+                        "name": "Rail-2",
+                        "stroke": {
+                          "miterlimit": "10",
+                          "paint": "#231f20"
+                        },
+                        "style": {
+                          "classes": ""
+                        },
+                        "type": "rect",
+                        "x": ".5",
+                        "y": ".5"
+                      }
+                    ],
+                    "id": "Rails",
+                    "name": "Rails",
+                    "type": "group"
+                  }
+                ],
+                "id": "Straight_Horz",
+                "name": "Straight_Horz",
+                "type": "group"
+              },
+              {
+                "name": "Boxes",
+                "type": "group",
+                "elements": []
+              }
+            ],
+            "name": "group",
+            "type": "group"
+          }
+        ],
+        "id": "Layer_1-2",
+        "name": "Layer_1-2",
+        "type": "group"
+      }
+    ],
+    "preserveAspectRatio": "none",
+    "viewBox": "1 1 2 25"
+  },
+  "type": "ia.shapes.svg"
+}

@@ -1,0 +1,360 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 585,
+      "width": 1077
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "PushButton-Template"
+        },
+        "position": {
+          "height": 208,
+          "width": 173,
+          "x": 14.5,
+          "y": 58
+        },
+        "propConfig": {
+          "props.params.Action": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Consolidation/MCP/QP_Power"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Consolidation/MCP/Consolidation_QP_Status"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "path": "-Templates_new/PushButton-Template"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 142,
+          "x": 30,
+          "y": 26
+        },
+        "props": {
+          "text": "QP Power",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "CB_IB_PB"
+        },
+        "position": {
+          "height": 208,
+          "width": 173,
+          "x": 187.5,
+          "y": 58
+        },
+        "propConfig": {
+          "props.params.Action": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/CatchBox/MCP/HMI_Catchbox_Inbound_On_PB"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/CatchBox/MCP/Catchbox_Inbound_Status"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "path": "-Templates_new/PushButton-Template"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 39,
+          "width": 142,
+          "x": 203,
+          "y": 22
+        },
+        "props": {
+          "text": "CatchboxVA Inbound",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "CB_OB_PB"
+        },
+        "position": {
+          "height": 208,
+          "width": 173,
+          "x": 352.5,
+          "y": 58
+        },
+        "propConfig": {
+          "props.params.Action": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/CatchBox/MCP/HMI_Catchbox_Outbound_On_PB"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/CatchBox/MCP/Catchbox_Outbound_Status"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "path": "-Templates_new/PushButton-Template"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 38,
+          "width": 142,
+          "x": 368,
+          "y": 24
+        },
+        "props": {
+          "text": "CatchboxVA Outbound",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "BulkShipping"
+        },
+        "position": {
+          "height": 208,
+          "width": 173,
+          "x": 525.5,
+          "y": 58
+        },
+        "propConfig": {
+          "props.params.Action": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/BulkShipping/MCP/HMI_Bulk_Ship_On_PB"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/BulkShipping/MCP/Bulk_Shipping_Status"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "path": "-Templates_new/PushButton-Template"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "height": 38,
+          "width": 142,
+          "x": 541,
+          "y": 24
+        },
+        "props": {
+          "text": "BulkShipping",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "BulkShipping_0"
+        },
+        "position": {
+          "height": 208,
+          "width": 173,
+          "x": 698.5,
+          "y": 58
+        },
+        "propConfig": {
+          "props.params.Action": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/LowerMezz/CP10/MCP/HMI_CP10_On_PB"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/LowerMezz/CP10/MCP/CP10_Status"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "path": "-Templates_new/PushButton-Template"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "height": 38,
+          "width": 142,
+          "x": 714,
+          "y": 24
+        },
+        "props": {
+          "text": "CP10",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "BulkShipping_1"
+        },
+        "position": {
+          "height": 208,
+          "width": 173,
+          "x": 871.5,
+          "y": 58
+        },
+        "propConfig": {
+          "props.params.Action": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/LowerMezz/MCP/HMI_CP11_On_PB"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/LowerMezz/MCP/CP11_Status"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "path": "-Templates_new/PushButton-Template"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "Label_4"
+        },
+        "position": {
+          "height": 38,
+          "width": 142,
+          "x": 887,
+          "y": 24
+        },
+        "props": {
+          "text": "CP11 Lower MEZZ",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

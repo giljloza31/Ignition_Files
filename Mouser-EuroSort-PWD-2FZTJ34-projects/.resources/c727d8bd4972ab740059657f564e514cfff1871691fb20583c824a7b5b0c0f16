@@ -1,0 +1,3 @@
+SELECT *
+FROM QPS_Sortation_Stations 
+ORDER BY stationindx ASC

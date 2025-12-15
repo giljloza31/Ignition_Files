@@ -1,0 +1,23 @@
+"""
+
+
+"""
+
+
+class DestData(object):
+	
+	__slots__ = [
+		'_address',
+		'_light_status', '_light_color',
+		'_full', 
+		'_available', '_enabled',
+	
+	]
+
+
+class ChuteData(object):
+	"""Holds and links state for destinations."""
+	
+	__slots__ = [
+		'_front_full', '_rear_full', 
+	]

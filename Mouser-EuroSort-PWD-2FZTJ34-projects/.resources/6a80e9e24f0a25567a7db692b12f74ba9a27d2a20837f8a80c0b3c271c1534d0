@@ -1,0 +1,150 @@
+{
+  "custom": {},
+  "params": {
+    "DivertCount": 0,
+    "FullCount": 0,
+    "JamCount": 0
+  },
+  "propConfig": {
+    "params.DivertCount": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.FullCount": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.JamCount": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 48,
+      "width": 259
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "DivertCount",
+          "tooltip": {
+            "enabled": true,
+            "text": "Divert Count"
+          }
+        },
+        "position": {
+          "height": 36,
+          "width": 80,
+          "x": 3,
+          "y": 3
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.DivertCount"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "outlineStyle": "solid",
+            "outlineWidth": "2"
+          },
+          "textStyle": {
+            "fontSize": 20,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Full Count",
+          "tooltip": {
+            "enabled": true,
+            "text": "Full Count"
+          }
+        },
+        "position": {
+          "height": 36,
+          "rotate": {
+            "anchor": "50% 39%"
+          },
+          "width": 80,
+          "x": 86,
+          "y": 3
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.FullCount"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "outlineStyle": "solid",
+            "outlineWidth": "2"
+          },
+          "textStyle": {
+            "fontSize": 20,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Jam Count",
+          "tooltip": {
+            "enabled": true,
+            "text": "Jam Count"
+          }
+        },
+        "position": {
+          "height": 36,
+          "rotate": {
+            "anchor": "50% 39%"
+          },
+          "width": 80,
+          "x": 169,
+          "y": 3
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.JamCount"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "outlineStyle": "solid",
+            "outlineWidth": "2"
+          },
+          "textStyle": {
+            "fontSize": 20,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

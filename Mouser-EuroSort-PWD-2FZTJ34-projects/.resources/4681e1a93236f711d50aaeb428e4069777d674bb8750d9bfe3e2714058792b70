@@ -1,0 +1,135 @@
+"""
+	Test implementation of the driver!
+
+"""
+
+from eurosort.core import EuroSorter
+
+from eurosort.tracking.contents import EuroSorterContentTracking
+from eurosort.tracking.orders   import EuroSorterOrderRouting
+from eurosort.tracking.batch    import EuroSorterBatchRouting
+
+from eurosort.enums import MessageCode, FAILURE_MESSAGES
+
+from database.core import db_select_records
+import json, datetime, os
+from collections import defaultdict
+
+
+
+class TestEuroSorterService(
+		EuroSorter
+	):
+
+	def handle_request(self, sorter_data):
+		super(TestEuroSorterService, self).handle_request(sorter_data)
+	
+		destination = self.route_destination(sorter_data)
+		
+		if destination is None:
+			self.logger.error('Failed to resolve {scanned} (even default!)', 
+							  scanned=sorter_data.barcode)
+			return
+		elif destination is StopIteration:
+			self.logger.debug('Not applying a route for {scanned}', 
+							  scanned=sorter_data.barcode)
+			return
+		if self._destination_is_disallowed(destination):
+			self.logger.warn('Route disallowed: {destination}. Failing resolution for {scanned}',
+							 scanned=sorter_data.barcode,)
+			return
+		
+		self.logger.info('Routing to {destination}')
+		
+		# send on its merry way!
+		sorter_data.destination = str(destination)
+		self.send(sorter_data)
+
+
+	def handle_scan(self, sorter_data):
+		self.logger.trace('SCAN: {tracking} for {barcode}', tracking=sorter_data.track_id, barcode=sorter_data.barcode)
+		super(TestEuroSorterService, self).handle_scan(sorter_data)
+
+
+
+class OpexEuroSorter(
+		EuroSorterBatchRouting,
+		EuroSorterOrderRouting,
+		
+		TestEuroSorterService,
+		EuroSorterContentTracking,
+	):
+	
+	def __init__(self, name, **init_config):
+		super(OpexEuroSorter, self).__init__(name, **init_config)
+
+
+	def handle_request(self, sorter_data):
+		self.logger.trace('REQUEST: {tracking} for {barcode}', tracking=sorter_data.track_id, barcode=sorter_data.barcode)
+		
+		super(OpexEuroSorter, self).handle_request(sorter_data)
+
+
+
+	def summarize_by_consol_zone(self):
+		summary = {}
+		
+		sorter_name = self.name
+	
+		for sort_state in ('consolidating', 'available'):
+			ibn_locations = {
+				issue_ibn: destination
+				for	destination
+				 in self
+				for order_number, order
+				 in (self[destination][sort_state] or {}).items()
+				for issue_ibn
+				 in order.get('issues', {})
+			}
+			all_ibns = set(ibn_locations)
+	
+			consol_zone_orders = db_select_records('outbound_scan_sort_ibn', {'_id': list(all_ibns)})
+	
+			target_counts    = defaultdict(int)
+			zone_orders      = defaultdict(dict)
+			destination_ibns = defaultdict(list)
+			
+			for entry in consol_zone_orders:
+				zone = entry['consol_zone'] + entry['consol_subzone']
+				target_counts[zone] += 1
+				ibn = entry['_id']
+				location = str(ibn_locations.get(ibn, '???'))
+				zone_orders[zone][ibn] = location
+				destination_ibns[location].append(ibn)
+			target_counts    = dict(target_counts)
+			zone_orders      = dict(zone_orders)
+			destination_ibns = dict(destination_ibns)
+		
+			self.logger.info('Sorter %s in progress (%d %r grouped up by zone): %r' % (
+				sorter_name, len(all_ibns), sort_state, target_counts,))
+			self.logger.info('Sorter %s in progress IBNs by zones: %r' % (
+				sorter_name, zone_orders,))
+		
+			summary[sort_state] = {
+				'zones': target_counts,
+				'ibns': zone_orders,
+				'destinations': destination_ibns,
+			}
+	
+		json_payload = json.dumps(summary, indent=2, sort_keys=True, default=repr)
+		
+		timestamp = datetime.datetime.now().isoformat('_').replace(':', '')[:17]
+	
+		core_dump_dir = self.config['log_path'] + '/' + 'coredump'
+		if not os.path.exists(core_dump_dir):
+			os.makedirs(core_dump_dir)
+	
+		filepath = core_dump_dir + '/' + 'pending_summarized.' + timestamp + '.json'
+	
+		with open(filepath, 'w') as f:
+			f.write(json_payload)
+
+
+
+
+

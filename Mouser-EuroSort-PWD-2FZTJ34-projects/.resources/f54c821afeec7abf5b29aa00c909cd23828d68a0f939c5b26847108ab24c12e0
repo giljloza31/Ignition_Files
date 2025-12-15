@@ -1,0 +1,548 @@
+from shared.tools.thread import async
+from functools import partial
+from time import sleep
+from random import random
+from time import sleep
+from random import random
+from datetime import datetime
+from Database import db_access
+from java.text import SimpleDateFormat
+import re
+
+
+db_name = 'MongoWCS'
+PAYLOAD_PATTERN = re.compile(r"""
+	^
+	(?P<indexID>\d{3})					# indexID 101-399
+	\|									# Pipe seperator
+	(?P<Payload>.*)						# payload
+	$
+	""", re.VERBOSE)
+
+LPN_PATTERN = [
+        '^(M)[0-9A-Z]{11}$',
+        '^(M)[0-9A-Z]{7}$',
+        '^[0-9A-Z]{8}$',
+        '^(I4)[0-9A-Z]{6}$',
+        '^(I5)[0-9A-Z]{6}$',
+        '^(R)[0-9A-Z]{11}$',
+        '^(T)[0-9A-Z]{11}$',
+        '^(P)[0-9A-Z]{11}$',
+        '^(H0)[0-9]{6}$',
+        '^(H0)[0-9]{6}     $',# 5 trailing spaces
+        '^(BAL)[0-9A-Z]
+	]
+TOTE_PATTERN = [
+        '^(TS)[0-9A-Z]{4}$',
+	]
+IBN_PATTERN = [
+	'^[0-9A-Z]{6}$',
+	]
+lpnList = "(" + ")|(".join(LPN_PATTERN) + ")"
+toteList = "(" + ")|(".join(TOTE_PATTERN) + ")"
+ibnList =  "(" + ")|(".join(IBN_PATTERN) + ")"
+
+
+class Scan16_Routing:
+	
+	def _log_data(self,data):
+	
+		db_name = 'SQLServer'
+		start = data['Received_Data_Time']
+		stop = system.date.now()
+		stopFormat = system.date.format(stop, "yyyy-MM-dd HH:mm:ss")
+		table = 'Scan16_Tracking_Table'
+		payload = {
+		'IndexID':data['IGN_IndexID_Returned'],
+		'Payload':data['IGN_Payload_Returned'],
+		'Gap':0,
+		'Length':0,
+		'Dest_Binary_Returned':data['IGN_Destination_Returned'],
+		'Dest_String_Returned':data['IGN_Dest_String_Returned'],
+		'Route_Returned':data['IGN_Route_Returned'],
+		'Route_Reason':data['Route_Reason'],
+		'Route_Reason_Num':data['Route_Reason_Num'],
+		'Divert_Path':0,
+		'Divert_Path_String':'',
+		'Divert_Reason_String':'',
+		'Divert_Reason_Num':0,
+		'Induct_TimeStamp':stopFormat,
+		'Divert_TimeStamp':'',
+		'Query_Time_ms':system.date.millisBetween(start, stop),
+		'Travel_Time_ms':0
+		}
+		
+		db_access.insert_record(db_name, table, payload)
+	
+		
+	def _error_lookup(self,data,ERROR):
+
+		results = db_access.select_records('SQLServer','Scan16_Divert_Table',where_clause={'Route_Code':ERROR})
+		# Decode the results
+				
+		# We get only one result if any because of the UNIQUE constraint on the table
+		row = results[0]
+		
+		
+		# Get RoutedPaylod
+		
+		routedString = row['Route_Code']
+		# Decode the Divert columns into a bit array int
+		
+		# Start with no routes
+		destinations = 0
+		
+		# Start with an Empty list for the selected Diverts
+		divert_list = []
+		divert_String = ''
+		for selected,columnName in zip(row, results.columnNames):
+			
+			#Loop through and find where route is divert is selected	
+			if not columnName.startswith('Divert_'): # TODO: Fix column names to match		
+				continue
+					
+			# Get the second half on the underscore.
+			# (rpartition splits on a thing, always retruning
+			#  the left, split thing, and right of it)
+			# And make it an int so we can shift on it
+			# ... minus one because we are zero indexed, and lanes are one-indexed
+			shift = int(columnName.rpartition('_')[2]) - 1 # TODO: Fix column names to match
+			if row[columnName]:
+				divert_list.append(columnName)
+			#shift = int(columnName[-2:]) - 1
+		
+			# Take the result bit array so far, 
+			#  and or it with the value SQL returned, 
+			#  bit shifted the number of lanes 
+			destinations |= selected << shift
+		
+		
+		if destinations == 0:
+			data.update({
+			'Route_Reason':"Found %s Route No Lane Assigned"%(data['IGN_Route_Returned']),
+			'Route_Reason_Num':5
+			})	
+			
+		divert_String = '|'.join(divert_list)
+		
+				
+		data.update({
+			'IGN_Destination_Returned': destinations,
+			'IGN_Route_Returned':routedString,
+			'IGN_Dest_String_Returned': divert_String,
+			'IGN_Payload_Returned':data['IGN_RawPayload']
+	
+		})
+		
+	def _decode_results(self,data):
+		
+		results = db_access.select_records('SQLServer','Scan16_Divert_Table',where_clause={'Route_Code':data['IGN_Route_Returned']})
+		
+		if not results:
+			
+			results = db_access.select_records('SQLServer','Scan16_Divert_Table',where_clause={'Route_Code':'NODEST'})
+			data.update({
+				'Route_Reason':"Route not in Divert Table",
+				'Route_Reason_Num':6,
+				'nodestCNT':data['nodestCNT']+1
+				})		
+			
+			
+		# Decode the results
+				
+		# We get only one result if any because of the UNIQUE constraint on the table
+		row = results[0]
+		
+		# Return the Routed string
+		routedString = row['Route_Code']
+	
+		
+		# Decode the Divert columns into a bit array int
+		# Start with no routes	
+		destinations = 0
+		
+		# Start with an Empty list for the selected Diverts
+		divert_list = []
+		divert_String = ''
+		for selected,columnName in zip(row, results.columnNames):
+			
+		
+			if not columnName.startswith('Divert_'): # TODO: Fix column names to match		
+				continue
+				
+			# Get the second half on the underscore.
+			# (rpartition splits on a thing, always retruning
+			#  the left, split thing, and right of it)
+			# And make it an int so we can shift on it
+			# ... minus one because we are zero indexed, and lanes are one-indexed
+			shift = int(columnName.rpartition('_')[2]) - 1 # TODO: Fix column names to match
+			if row[columnName]:
+				divert_list.append(columnName)
+			#shift = int(columnName[-2:]) - 1
+		
+			# Take the result bit array so far, 
+			#  and or it with the value SQL returned, 
+			#  bit shifted the number of lanes 
+			destinations |= selected << shift
+		
+		if destinations == 0:
+			data.update({
+			'Route_Reason':"Found %s Route No Lane Assigned"%(data['IGN_Route_Returned']),
+			'Route_Reason_Num':5
+			})
+			
+		divert_String = '|'.join(divert_list)
+		
+				
+		data.update({
+			'IGN_Destination_Returned': destinations,
+			'IGN_Dest_String_Returned': divert_String
+			})
+		
+		return data
+
+	def _define_barcode(self, barcode_list):
+		
+		seen = set()
+		LPN_LIST, TOTE_LIST, IBN_LIST = [], [], []
+		
+		for barcode in barcode_list:
+			if barcode in seen:
+				continue
+			seen.add(barcode)
+			if re.match(lpnList, barcode):
+				LPN_LIST.append(barcode)
+			elif re.match(toteList, barcode):
+				TOTE_LIST.append(barcode)
+			elif re.match(ibnList, barcode):
+				IBN_LIST.append(barcode)
+				
+		return LPN_LIST, TOTE_LIST, IBN_LIST
+	
+	
+	def _lookup_barcodes(self,data):
+		lpn_results,tote_results,ibn_results = {},{},{}
+		LPN_List,Tote_list,IBN_list = self._define_barcode(data['barcode_list'])
+		
+		project={'_id': 1,'destination': 1}
+		
+		if LPN_List:
+			filter = filter={"_id":{'$in':LPN_List}}
+			lpn_results = db_access.select_records(db_name,'qc_pack_barcode',where_clause=filter,projection=project)
+		
+		if Tote_list:
+			filter = filter={"_id":{'$in':Tote_list}}
+			tote_results = db_access.select_records(db_name,'qc_pack_barcode',where_clause=filter,projection=project)
+		
+		if IBN_list:
+			filter = filter={"_id":{'$in':IBN_list}}
+			project={'_id': 1,'catchbox_flag': 1,'consol_zone':1,'va_flag':1}
+			ibn_results = db_access.select_records(db_name,'outbound_scan_sort_ibn',where_clause=filter,projection=project)
+		
+		
+	
+		if lpn_results:
+			data.update({
+				'IGN_Route_Returned':lpn_results[0]['destination'],
+				'IGN_Payload_Returned':lpn_results[0]['_id']
+				})
+		elif tote_results:
+			data.update({
+				'IGN_Route_Returned':tote_results[0]['destination'],
+				'IGN_Payload_Returned':tote_results[0]['_id']
+				})
+		elif ibn_results:
+	
+			zone = ibn_results[0]['consol_zone']
+			vaFlag = ibn_results[0]['va_flag']
+			caFlag = ibn_results[0]['catchbox_flag']
+			
+			if not caFlag and not vaFlag:
+				dest = ibn_results[0]['consol_zone']
+			else:
+				dest = 'VA/CB'
+			data.update({
+				'IGN_Route_Returned':dest,
+				'IGN_Payload_Returned':ibn_results[0]['_id']
+				})
+		else:
+			self._error_lookup(data,'NORETURN')
+			data.update({
+			'Route_Reason':"No Results found in Production Table",
+			'Route_Reason_Num':4,
+			'noreturnCNT':data['noreturnCNT']+1
+			})
+		
+		data = self._decode_results(data)
+		
+		return data
+	
+	def _check_payload(self,data):
+		status = False
+		payload_data_match = PAYLOAD_PATTERN.match(data['raw_payload'])
+		
+		if not payload_data_match:
+			data.update({
+			'IGN_IndexID_Returned':99,
+			'IGN_RawPayload':rawPayload})
+			self._error_lookup(data,'NOPAYLOAD')
+			
+			data.update({
+			'Route_Reason':"Wrong Payload Received",
+			'Route_Reason_Num':2,
+			'nopayloadCNT':data['nopayloadCNT']+1
+			})
+			return status
+		
+		payload_data = payload_data_match.groupdict()
+		
+		data.update({
+			'IGN_IndexID_Returned':payload_data['indexID'],
+			'barcode_list':payload_data['Payload'].split(',')
+			})
+			
+		return True
+	
+	
+	@async(name = "Scan16_Routing_logic")
+	def scan16_gatherdata(self,source_path):
+		
+		check_status = False
+		Receive_time = system.date.now()
+		Get_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+		Got_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+		Get_Counts = Got_parent_dest + '/Counts'
+		
+		rawPayload,error_cnt,multi_cnt,nodest_cnt,nopayload_cnt,noread_cnt, \
+			noreturn_cnt,noroute_cnt,success_cnt,code_exc,dvt1,dvt2,dvt3,dvt4,dvt5 = [
+	
+		qv.value for qv in 
+		system.tag.readBlocking([
+			Get_parent_dest + '/' + 'IGN_Payload_Sent',
+			Get_Counts + '/' + 'ERROR',
+			Get_Counts + '/' + 'MULTI',
+			Get_Counts + '/' + 'NODEST',
+			Get_Counts + '/' + 'NOPAYLOAD',
+			Get_Counts + '/' + 'NOREAD',
+			Get_Counts + '/' + 'NORETURN',
+			Get_Counts + '/' + 'NOROUTE',
+			Get_Counts + '/' + 'SUCCESS',
+			Get_Counts + '/' + 'CODE_EXC',
+			Get_Counts + '/' + 'DVT_1',
+			Get_Counts + '/' + 'DVT_2',
+			Get_Counts + '/' + 'DVT_3',
+			Get_Counts + '/' + 'DVT_4',
+			Get_Counts + '/' + 'DVT_5'
+		])]
+	
+		data = {
+			'Route_Reason_Num':0,
+			'Route_Reason':'Success',
+			'raw_payload':rawPayload,
+			'Receive_time':Receive_time,
+			'errorCNT':int(error_cnt),
+			'multiCNT':int(multi_cnt),
+			'nodestCNT':int(nodest_cnt),
+			'nopayloadCNT':int(nopayload_cnt),
+			'noreadCNT':int(noread_cnt),
+			'noreturnCNT':int(noreturn_cnt),
+			'norouteCNT':int(noroute_cnt),
+			'successCNT':int(success_cnt),
+			'code_exc':int(code_exc),
+			'dvt1':int(dvt1),
+			'dvt2':int(dvt2),
+			'dvt3':int(dvt3),
+			'dvt4':int(dvt4),
+			'dvt5':int(dvt5)
+			}
+
+			
+		
+		check_status = self._check_payload(data)
+		if check_status:
+			data = self._lookup_barcodes(data)
+		
+		
+		data.update({
+		'Received_Data_Time':Receive_time,
+		'Sent_Data_Time':system.date.now()
+		})
+		
+		
+		
+		
+		if data['Route_Reason_Num'] == 0:
+			
+			data.update({
+				'successCNT':data['successCNT']+1
+				})
+		elif data['Route_Reason_Num'] == 5:
+			
+			data.update({
+				'nodestCNT':data['nodestCNT']+1
+				})
+				
+		if data['IGN_Destination_Returned']==1:
+			data.update({'dvt1':data['dvt1']+1})
+		elif data['IGN_Destination_Returned']==2:
+			data.update({'dvt2':data['dvt2']+1})
+		elif data['IGN_Destination_Returned']==4:
+			data.update({'dvt3':data['dvt3']+1})
+		elif data['IGN_Destination_Returned']==8:
+			data.update({'dvt4':data['dvt4']+1})
+		elif data['IGN_Destination_Returned']==16:
+			data.update({'dvt5':data['dvt5']+1})
+			
+			
+	 	opcPaths = [
+	 	'ns=1;s=[L330ER_Opex_OIO]Scan16_Binary_Destination_Lookup[%s]'%(data['IGN_IndexID_Returned']),
+	 	'ns=1;s=[L330ER_Opex_OIO]Scan16_String_Destination_Lookup[%s]'%(data['IGN_IndexID_Returned']),
+	 	'ns=1;s=[L330ER_Opex_OIO]Scan16_Barcode_Lookup[%s]'%(data['IGN_IndexID_Returned'])
+	 	]
+		
+	 	opcValues = [
+		data['IGN_Destination_Returned'],
+		data['IGN_Dest_String_Returned'],
+		data['IGN_Payload_Returned'],
+		]
+				
+	 	system.opc.writeValues('Ignition OPC-UA Server', opcPaths, opcValues)	
+		
+		data.update({
+		'code_exc':data['code_exc']+1
+		})
+		data['TOTAL'] = data['errorCNT']+data['multiCNT']+data['nodestCNT']+data['nopayloadCNT']+data['noreadCNT']+data['noreturnCNT']+data['norouteCNT']+data['successCNT']
+		
+		Got_parent_dest += '/'
+		Get_Counts += '/'
+	
+				
+		system.tag.writeBlocking(*zip(*[
+			(Got_parent_dest + 'IGN_IndexID_Returned', data['IGN_IndexID_Returned']),	
+			(Got_parent_dest + 'IGN_Route_Returned', data['IGN_Route_Returned']),			
+			(Got_parent_dest + 'IGN_Payload_Returned', data['IGN_Payload_Returned']),	
+			(Got_parent_dest + 'IGN_Destination_Returned', data['IGN_Destination_Returned']),	
+			(Got_parent_dest + 'IGN_Dest_String_Returned', data['IGN_Dest_String_Returned']),
+			(Get_Counts  + 'ERROR',data['errorCNT']),
+			(Get_Counts  + 'MULTI',data['multiCNT']),
+			(Get_Counts  + 'NODEST',data['nodestCNT']),
+			(Get_Counts  + 'NOPAYLOAD',data['nopayloadCNT']),
+			(Get_Counts  + 'NOREAD',data['noreadCNT']),
+			(Get_Counts  + 'NORETURN',data['noreturnCNT']),
+			(Get_Counts  + 'NOROUTE',data['norouteCNT']),
+			(Get_Counts  + 'SUCCESS',data['successCNT']),
+			(Get_Counts  + 'TOTAL',data['TOTAL']),
+			(Get_Counts  + 'CODE_EXC',data['code_exc']),
+			(Get_Counts  + 'DVT_1',data['dvt1']),
+			(Get_Counts  + 'DVT_2',data['dvt2']),
+			(Get_Counts  + 'DVT_3',data['dvt3']),
+			(Get_Counts  + 'DVT_4',data['dvt4']),
+			(Get_Counts  + 'DVT_5',data['dvt5'])
+		]))
+			
+	
+	
+	
+	
+		self._log_data(data)
+	@async(name = "Scan16_Divert_Confirmation")	
+	def Scan16_Divert_Confirmation(self,source_path):
+		
+		DIVERTASSIGNMENT = {
+		0:'Divert_05',
+		1:'Divert_01',
+		2:'Divert_02',
+		4:'Divert_03',
+		8:'Divert_04',
+		16:'Divert_05'
+		}
+		comma = ','
+		opcServer = 'Ignition OPC-UA Server'
+		date_format = "yyyy-MM-dd HH:mm:ss"
+		diverted_time = system.date.now()
+		diverted_time_fmt = system.date.format(diverted_time, date_format) 
+		
+		Get_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+		Got_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+		Get_Counts = '/'.join(source_path.split('/')[:-2] + ['Got_Data/Counts'])
+		
+		indexid,divertedpath,successCNT,fullCNT,missedCNT,code_exc = [
+	
+		qv.value for qv in 
+		system.tag.readBlocking([
+			Get_parent_dest + '/' + 'IGN_IndexID_Send',
+			Get_parent_dest + '/' + 'Diverted_path',
+			Get_Counts + '/' + 'SUCCESS',
+			Get_Counts + '/' + 'FULL',
+			Get_Counts + '/' + 'MISSED',
+			Get_Counts + '/' + 'CODE_EXC'
+		])]
+		
+		successCNT = int(successCNT)
+		code_exc = int(code_exc)
+		
+		itemPaths = [
+			'ns=1;s=[L330ER_Opex_OIO]Scan16_Barcode_Lookup[%s]'%(indexid)
+		]
+		opcData = system.opc.readValues(opcServer, itemPaths)
+		
+		payload = opcData[0].value
+
+	
+		timeQuery = '''
+			SELECT TOP(100)*
+			FROM Scan16_Tracking_Table
+			WHERE IndexID = ? and Payload = ?
+			order by inductindx desc
+			'''
+			
+		timeArgs = {
+		'IndexID':indexid,
+		'Payload':payload
+		}
+		
+		results = select_record('SQLServer', 'Scan16_Tracking_Table', columns='TOP(100)*', where_clause=timeArgs, order_params='inductindx desc')
+		
+		row = results[0]
+		
+		
+		date_parser = SimpleDateFormat(date_format)
+		inductindx = row['inductindx']
+		
+		
+		converted_date = date_parser.parse(row['Induct_TimeStamp'])
+		converted_date_2 = date_parser.parse(diverted_time_fmt)
+		
+		timeddiff = system.date.secondsBetween(converted_date, converted_date_2)
+		
+
+		args = {
+		
+		'Divert_Path':divertedpath,
+		'Divert_Path_String':DIVERTASSIGNMENT.get(divertedpath,'Unknown'),
+		'Divert_Reason_Num':'Successful Divert',
+		'Divert_Reason_Num':0,
+		'Divert_TimeStamp':diverted_time_fmt,
+		'Travel_Time_ms':timeddiff,
+		}
+		where = {
+		'inductindx':inductindx
+		}
+		
+		db_access.update_record('SQLServer', 'Scan16_Tracking_Table', args, where_clause=where)
+		
+		Get_Counts += '/'
+		Got_parent_dest += '/'
+			
+		successCNT = successCNT+1
+		code_exc = code_exc+1
+	
+		total = successCNT
+		
+		system.tag.writeBlocking(*zip(*[
+			(Get_Counts  + 'MISSED',0),
+			(Get_Counts  + 'FULL',0),
+			(Get_Counts  + 'SUCCESS',successCNT),
+			(Get_Counts  + 'TOTAL',total),
+			(Get_Counts  + 'CODE_EXC',code_exc)
+		]))	

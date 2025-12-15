@@ -1,0 +1,489 @@
+"""
+	Dimensioner data wrangling
+	
+	Allows for the async posting of data to a remote endpoint.
+"""
+
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from shared.tools.meta import is_redundant_active
+
+from datetime import datetime
+import re
+
+logger = system.util.getLogger('Dimensioner')
+
+#DIMENSIONER_ENDPOINT = 'http://wcsdev:8099/ws/v1/dimensions/%s'
+DIMENSIONER_ENDPOINT = 'http://wcs01:8085/ws/v1/dimensions/%s'
+
+#seq,ibn,l,w,h
+DEFAULT_DIMENSION_DATA_CACHE_LIFESPAN = 60 # seconds to stay in the cache
+
+DIMENSION_PATTERN = re.compile(""" #https://regex101.com/r/W0B97Y/2
+	^# sequence number follows last
+	#  (?P<seq>[0-9]+) ;  # deprecated 
+	  (?P<ibn>[^;]+)
+	; (?P<length>[0-9.]+)
+	, (?P<width>[0-9.]+)
+	, (?P<height>[0-9.]+)
+	$""", re.I + re.X)
+
+DIMENSIONER_ROUTE_TABLE_NAME = 'DimRoute_Table'
+TOTE_ROUTE_TABLE_NAME = 'Tote_RouteTable'
+
+
+def decode_route_row(sql_results, row_number=0):
+	bitArray = 0
+	route_code = ''
+	
+	for selected,columnName in zip(sql_results[row_number], sql_results.columnNames):
+	
+		if columnName == 'Route_Code':
+			route_code = selected
+			continue
+	
+		if not columnName.startswith('Lane_'):
+			continue
+		
+		# Get the second half on the underscore.
+		# (rpartition splits on a thing, always retruning
+		#  the left, split thing, and right of it)
+		# And make it an int so we can shift on it
+		# ... minus one because we are zero indexed, and lanes are one-indexed
+		shift = int(columnName.rpartition('_')[2]) - 1
+	
+		# Take the result bit array so far, 
+		#  and or it with the value SQL returned, 
+		#  bit shifted the number of lanes 
+		bitArray |= selected << shift
+	
+	return route_code, bitArray
+
+
+
+def dimension_data_error_handling(source_path, plc_sequence_number, raw_dimension_data, error_code='SCANERROR'):
+	"""Write back to the PLC the data in the route table for a scan error."""
+
+#	system.util.getLogger('DimensionTest').warn('Trashing for (%s) - %s - %s' % (plc_sequence_number, error_code, source_path))
+	
+	# clear because the sequencing is already likely lost on scan errors
+	if error_code == 'SCANERROR':
+		try:
+			ExtraGlobal.trash(label='Last Sequence', scope=source_path)
+		except Exception, error:
+			#logger.error('Failed on trash: %r' % error)
+			pass
+		return
+	
+	# attempt to deal with the error code, if any
+	sql_results = system.db.runPrepQuery(
+		"""select * from [%s] where [Route_Code] = ?""" % DIMENSIONER_ROUTE_TABLE_NAME, 
+		[error_code], 
+		'SQLServer')	
+		
+	try:
+		assert sql_results, "Failsafe lookup failed for %r!" % error_code
+		route_code, destination = decode_route_row(sql_results)	
+
+		# write results back
+		parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+		parent_dest += '/'
+
+		system.tag.writeBlocking(*zip(*[
+			(parent_dest + 'IGN_Barcode_Returned', ''),	
+			(parent_dest + 'IGN_IndexID_Returned', plc_sequence_number),			
+			(parent_dest + 'IGN_Destination_Returned', destination),	
+			(parent_dest + 'IGN_RouteCode_Returned', route_code),	
+	
+			(parent_dest + 'IGN_Dimension_Returned', ''),
+			
+		]))
+		
+		system.tag.write(parent_dest + 'IGN_GotData_Returned', True)
+		
+		log_dimensioner({
+					'destination': destination,
+					'InductID': plc_sequence_number,
+					'barcode': error_code,
+					'RouteCode': route_code,
+				})	
+							
+		return			
+	except:
+		# Final failure
+		dimension_data_error_handling(source_path, plc_sequence_number, raw_dimension_data, error_code='SCANERROR')	
+		#logger.warn("Error handling dimension data: %r" % raw_dimension_data)
+		return
+#		raise ValueError('Error handling dimension data: %r' % raw_dimension_data)
+
+	
+	#raise NotImplementedError("Write back to the PLC that the scan failed")
+
+def tote_route_lookup(source_path, plc_sequence_id,raw_dimension_data, tote_num):
+	#lookup tote
+	sql_results = system.db.runPrepQuery(
+		"""select * from [%s] where [ToteLicense_Num] = ?""" % TOTE_ROUTE_TABLE_NAME, 
+		[tote_num], 
+		'SQLServer')
+
+	row = sql_results[0]
+	
+	destination = row['Destination']
+	destination_str = row['DestinationString']
+	
+	try:
+		
+		# write results back
+		parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+		parent_dest += '/'
+
+		system.tag.writeBlocking(*zip(*[
+			(parent_dest + 'IGN_Barcode_Returned', tote_num),	
+			(parent_dest + 'IGN_IndexID_Returned', plc_sequence_id),			
+			(parent_dest + 'IGN_Destination_Returned', destination),	
+			(parent_dest + 'IGN_RouteCode_Returned', 'RVT'),	
+	
+			(parent_dest + 'IGN_Dimension_Returned', ''),
+			
+		]))
+		
+		system.tag.write(parent_dest + 'IGN_GotData_Returned', True)
+		
+		log_dimensioner({
+					'destination': destination,
+					'InductID': plc_sequence_id,
+					'barcode': tote_num,
+					'RouteCode': 'RVT',
+				})	
+							
+		return			
+	except:
+		# Final failure
+		dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='SCANERROR')	
+		#logger.warn("Error handling dimension data: %r" % raw_dimension_data)
+		return
+#		raise ValueError('Error handling dimension data: %r' % raw_dimension_data)
+	
+
+
+@async(name="Handshake-GatherDimensionData")
+def gather_dimension_data(source_path):
+	timestart = datetime.now().isoformat()
+	
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	#system.tag.write(parent_dest + 'IGN_GotData_Returned', False)
+	# read the needed values in
+	plc_sequence_id, raw_dimension_data = [
+		qv.value for qv in 
+		system.tag.readBlocking([
+			parent_dest + '/' + 'IGN_IndexID_Sent',
+			parent_dest + '/' + 'IGN_Barcode_Sent',
+			])]
+
+	system.tag.writeAsync([parent_dest + '/' + 'IGN_GetData_ACK'], [True])
+	
+	# decode and lookup what the route for a barcode is
+	# handle exceptional/failed lookups
+	#data = {
+		#'IGN_IndexID_Returned': sequence_id,
+		#'Get_Time': timestart,
+			
+		#'mode': 40, # dimensioner get/got (arb. choice)
+	#}
+
+	
+	# cover the base cases	
+	dimension_data_match = DIMENSION_PATTERN.match(raw_dimension_data)
+	
+	if not dimension_data_match:
+		# assume it's actually a failure mode passed in to be routed
+		dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code=raw_dimension_data)	
+		#logger.warn("Raw dimension data didn't follow expected pattern: %r" % raw_dimension_data)
+		#destination = error_code
+		return
+#		raise ValueError("Raw dimension data didn't follow expected pattern: %r" % raw_dimension_data)
+	
+	dimension_data = dimension_data_match.groupdict()
+	
+	# get the buffered last sequence number for this get/got
+	last_seq = ExtraGlobal.setdefault(
+					label='Last Sequence', 
+					scope=source_path, 
+					default=None, 
+					lifespan=DEFAULT_DIMENSION_DATA_CACHE_LIFESPAN,
+				)
+	
+#	# check if duplicate scan
+#	if last_seq == plc_sequence_id:
+#		dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='SCANERROR')	
+#		logger.warn("Sequence already scanned!") # replace with route table lookup?
+#		
+#		return
+##		raise ValueError("Sequence already scanned!") # replace with route table lookup?
+	
+	# Any one of these pases, so check for the opposite for a failure
+	# If no last sequence for check, don't worry
+#	if last_seq is not None:
+#		# if not rolled over or incremented by one, you're outta sequence
+#		if not (plc_sequence_id in (0,1) or (plc_sequence_id - int(last_seq) == 1)):
+#			dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='SCANERROR')
+#			logger.warn("Out of sequence dimensioner data at %r: %r" % (source_path, dimension_data))
+#			return
+#			raise RuntimeError("Out of sequence dimensioner data at %r: %r" % (source_path, dimension_data))
+	
+	# Sequence checks complete, update to the current one
+	ExtraGlobal.stash( plc_sequence_id ,
+		label='Last Sequence', 
+		scope=source_path, 
+		lifespan=DEFAULT_DIMENSION_DATA_CACHE_LIFESPAN,
+		)
+
+	# check that the IBN isn't a duplicate, and if so is identical
+	ibns = set(dimension_data['ibn'].split(',')) # set deduplicates lists
+	ibn_list = list(ibns)
+	tote_route = []
+	
+	for i in range(len(ibn_list)):
+	    check = ibn_list[i]
+	    if check.startswith('RVT'):
+	        tote_route.append(check)
+	    elif check.startswith('TSBX'):
+	    	tote_route.append(check)
+	
+	if tote_route:
+		tote_num = tote_route[0]
+		tote_route_lookup(source_path, plc_sequence_id,raw_dimension_data,tote_num)
+		return	
+	
+	
+	
+	
+	if len(ibns) > 1:
+		dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='MULTIPLEIBN')
+		logger.warn("More than one (non-unique) ibns returned: %r (from %r)" % (ibns, raw_dimension_data))
+		
+		return
+#		raise ValueError("More than one (non-unique) ibns returned: %r (from %r)" % (ibns, raw_dimension_data))
+	
+	
+	ibn = ibns.pop() # only a single IBN here
+	
+	# Fail on no read value
+	if ibn == 'NOREAD':
+		dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='NOREAD')
+		#logger.warn("Dimension data not read: %r" % raw_dimension_data)
+
+		return
+#		raise RuntimeError("Dimension data not read: %r" % raw_dimension_data)
+	
+	# Generate the response to the endpoint
+	endpoint = DIMENSIONER_ENDPOINT % ibn
+
+	payload = {
+		"height": int(float(dimension_data['height'])*10),
+		"length": int(float(dimension_data['length'])*10),
+		"width":  int(float(dimension_data['width' ])*10),
+		}
+			
+	payload_json_string = system.util.jsonEncode(payload) # STRING
+	
+	logger.trace('Sending request:[%r:%r] >>> payload: %r' % (
+			plc_sequence_id, raw_dimension_data, payload_json_string))
+
+	
+	try:
+		response = system.net.httpPost(
+			url=endpoint, 
+			contentType='application/json',
+			postData=payload_json_string,
+			throwOnError = False,
+			)
+	except Exception, error:
+		dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='WCSERROR')
+		#logger.warn("Error POSTing data to endpoint: %r\n\t%r" % (raw_dimension_data, repr(error)))
+		
+		return
+#		raise IOError("Error posting data to endpoint: %r\n\t%r" % (raw_dimension_data, repr(error)))
+		
+	result = system.util.jsonDecode(response)
+		
+	# save the results for a little while just in case it's needed later	
+	cached_data = {
+		'payload': payload,
+		'raw': raw_dimension_data,
+		'ibn': ibn,
+		'seq': plc_sequence_id,
+	}
+	
+	ExtraGlobal.stash( cached_data,
+		label=ibn, 
+		scope=source_path, 
+		lifespan=DEFAULT_DIMENSION_DATA_CACHE_LIFESPAN,
+		)
+	
+
+	#End of ACK:[158:u'8HSZHA;07.9,08.2,01.9'] 
+	#>>> payload: {'raw': u'8HSZHA;07.9,08.2,01.9', 'ibn': u'8HSZHA', 'payload':
+	#    {'length': 79, 'width': 82, 'height': 19}, 'seq': 158}
+	
+	# >>> response: u'{"status":"success","relabel":false,
+	#       "ibn":"8HSZHA","zoneType":"HV","zone":"IN",
+	#       "wcsSessionState":"established","desc":"No Errors",
+	#       "location":"IT01L2","wcsSessionId":"8fe8bf42-b9f7-11eb-826b-76345080f104",
+	#         "statusCode":0}'
+
+	# consider validating the response, if desired
+	#assert result['status'] == 'success', 'Failed on API call: %r' % response
+	if result['statusCode']: #  == 'success':
+		if result['statusCode'] == 280:
+			dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='NODIMENSIONS')
+			#logger.warn("Error POSTing data to endpoint: %r\n\t%r" % (raw_dimension_data, repr(response)))
+			
+			return
+		
+		elif result['statusCode'] == 254:
+			dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='WCSERROR')
+			#logger.warn("Error POSTing data to endpoint: %r\n\t%r" % (raw_dimension_data, repr(response)))
+			
+			return
+		
+		elif result['statusCode'] == 279:
+			dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='NOIBN')
+			#logger.warn("Error POSTing data to endpoint: %r\n\t%r" % (raw_dimension_data, repr(response)))
+			
+			return
+			
+		else:
+			#logger.info("WCS Error: >>> %r >>> %r" % (raw_dimension_data, repr(response)))
+			dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='WCSERROR')
+			#logger.warn("Error POSTing data to endpoint: %r\n\t%r" % (raw_dimension_data, repr(response)))
+			
+			return
+#			raise IOError("Error posting data to endpoint: %r\n\t%r" % (raw_dimension_data, repr(response)))
+
+	
+	# write results back
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	parent_dest += '/'
+	
+	# lookup and calculate the destination from zone 
+	zone = result['zone']
+	sql_results = system.db.runPrepQuery(
+		"""select * from [%s] where [Route_Code] = ?""" % DIMENSIONER_ROUTE_TABLE_NAME, 
+		[zone], 
+		'SQLServer')
+	
+	
+	if sql_results:
+		route_code, destination = decode_route_row(sql_results)
+	else:
+		# check if the zone was returned to even lookup
+		if result['zone'].strip():
+			dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='NODESTINATION')
+			#logger.warn("Dimension route missing from %s: %r (Endpoint reply zone: %r)" % (
+			#		DIMENSIONER_ROUTE_TABLE_NAME, raw_dimension_data, result['zone']))
+		# zone was missing from reply
+		else:
+			dimension_data_error_handling(source_path, plc_sequence_id, raw_dimension_data, error_code='NODESTINATION')
+			#logger.warn("Dimensioner endpoint replied with empty string zone: %s" % (raw_dimension_data))
+		
+		return
+		#raise RuntimeError("Dimension data did not have a valid destination: %r" % raw_dimension_data)
+
+
+	# raw input (not payload processed ints)
+	dimension_string = '%(length)s,%(width)s,%(height)s' % dimension_data
+	
+		
+	system.tag.writeBlocking(*zip(*[
+		(parent_dest + 'IGN_Barcode_Returned', result['ibn']),	
+		(parent_dest + 'IGN_IndexID_Returned', plc_sequence_id),			
+		(parent_dest + 'IGN_Destination_Returned', destination),	
+		(parent_dest + 'IGN_RouteCode_Returned', route_code),	
+		(parent_dest + 'IGN_Dimension_Returned', dimension_string),
+	]))
+	
+
+
+	system.tag.write(parent_dest + 'IGN_GotData_Returned', True)
+	
+	log_dimensioner({
+			'destination': destination,
+			'InductID': plc_sequence_id,
+			'barcode': result['ibn'],
+			'RouteCode': route_code,
+			'height': payload['height'],
+			'length':payload['length'],
+			'width':payload['width'],
+		})	
+	
+	logger.trace('End of ACK:[%r:%r] >>> payload: %r >>> response: %r' % (
+			plc_sequence_id, raw_dimension_data, cached_data, response))
+
+		
+	
+
+
+def log_dimensioner(payload):
+	query = """	
+		insert into [Dimensioner_InductSorter_1] (
+			Destination
+		,	DestinationString
+		,	InductID
+		,   IBN
+		,	RouteCode
+		,	Length
+		,	Width
+		,	Height
+		,	TimeStamp
+		)
+		select	dd.destination
+			,	dd.DestinationString
+			,	? -- InductID
+			,	? -- barcode
+			,	? -- RouteCode
+			,	? -- Length
+			,	? -- Width
+			,	? -- Height
+			,	getdate()
+		from DestinationDecode_Dimensioner as dd
+		where dd.mode = 40
+			and dd.destination = ?
+	"""
+	
+	system.db.runPrepUpdate(query, [
+			payload['InductID'],
+			payload['barcode'],
+			payload['RouteCode'],
+			payload['length'],
+			payload['width'],
+			payload['height'],
+			payload['destination'],	
+		], 'SQLServer')
+	
+
+
+
+### Example test case
+##	'http://txulingdev01:8088/system/webdev/Mouser/dimensions/test',
+#endpoint = 'http://wcsdev:8099/ws/v1/dimensions/8GJSPW'
+#
+#
+#ibn = '8GJSPW'
+#
+#payload ={
+#		"height": 2,
+#		"length": 4,
+#		"width": 6,
+#		}
+#		
+#payload = system.util.jsonEncode(payload) # STRING
+#
+#response = system.net.httpPost(
+#	url=endpoint, 
+#	contentType='application/json', # I will be FURIOUS if this fixes it
+#	postData=payload, # DOUBLY SO HERE
+##	postParams=payload,
+#	)
+#	
+#print response

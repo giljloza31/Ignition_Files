@@ -1,0 +1,235 @@
+"""
+	Signatures - arbitrary buckets of data
+	
+	Two main flavors: tuples and sets (frozenset)
+	
+	Use TupleSignature for things where ordering matters.
+	Use SetSignature for any other applications, since it further deduplicates.
+	
+	NOTE: we store the references as a tuple regardless. 
+		This is because it's slightly simpler for consistency-sake, and that
+		there's no speedup advantage to using a frozenset re hashing.
+		Thus to resolve "is this already instantiated?" a tuple is *slightly* faster.
+	So we can render the frozen set only on request.
+"""
+
+
+
+from shared.data.types.deduplicated.persistence.attribute import Meta1IndexedAttributePersistenceMixin
+from shared.data.types.deduplicated.persistence.combined import MetaFullPersistenceMixin
+from shared.data.types.deduplicated.persistence.instance import PersistableInstanceLookupMixin, InstanceReferencesHandler
+from shared.data.types.deduplicated.persistence.memo import EnumeratedLookupFilePersistenceHandlerMixin
+from shared.data.binary.handlers.string import StringHandler
+from shared.data.binary.handlers.numeric import LongHandler
+from shared.data.binary.handlers.helper import UnsignedIntTupleAsLongHandler
+
+from collections import defaultdict
+
+
+
+__all__ = [
+	'TupleSignature',
+	'SetSignature',
+]
+
+
+
+class SignatureInstanceReferencesBincoder(
+		InstanceReferencesHandler,
+		EnumeratedLookupFilePersistenceHandlerMixin, 
+		StringHandler, 
+		UnsignedIntTupleAsLongHandler, 
+		LongHandler
+	):
+	
+	def write_entry(self, entry):
+		encoded_instance_value = self.encode_long_from_tuple_of_unsigned_ints(entry._data)
+		self.write_long(encoded_instance_value)
+
+	def read_entry(self):
+		lng = self.read_long()
+		references_tuple = self.decode_tuple_of_unsigned_ints_from_long(lng)
+		return self.representing_class(references_tuple, _bypass_encoding=True)
+	
+	def read_entries(self):
+		# sanity check follows in super
+		super(SignatureInstanceReferencesBincoder, self).read_entries()
+
+
+
+class MetaSignature(Meta1IndexedAttributePersistenceMixin, MetaFullPersistenceMixin):
+
+	_INSTANCE_BINCODER_TYPE = SignatureInstanceReferencesBincoder
+
+
+	def __new__(metacls, class_name, class_bases, class_configuration):
+		# for resolving and deduplicating
+		class_configuration['__instance_configurations__'] = {}
+
+		new_class = super(MetaSignature, metacls).__new__(metacls, class_name, class_bases, class_configuration)        
+		return new_class
+
+
+	def init_cache(cls, seed=None):
+		super(MetaSignature, cls).init_cache(seed)
+		cls.__instance_configurations__.clear()
+
+
+	def encode(cls, *values):
+		"""Convert values into integer indexes for lookup"""
+		return cls.__lookup__.encode(*values)
+
+	def decode(cls, *indexes):
+		"""Resolve indexes into their respective values."""
+		return cls.__lookup__.decode(*indexes)
+
+
+
+class Signature(PersistableInstanceLookupMixin):
+	__slots__ = ['_data']
+	__signature_type__ = NotImplemented
+
+	__metaclass__ = MetaSignature
+
+
+	def __new__(cls, entry, _bypass_encoding=False):
+		"""Build an instance, assigning the entry to _data,
+		but automatically encoding them for deduplication via EnumeratedLookup,
+		unless bypassed.
+		"""
+		if _bypass_encoding: # allow for pre-computed references (i.e. for reloading)
+			instance_key = entry
+		else:
+			instance_key = cls.encode(*entry)
+			   
+		if instance_key not in cls.__instance_configurations__:
+			# create only if needed
+			instance = super(Signature, cls).__new__(cls, instance_key, _bypass_encoding=True)
+			cls.__instance_configurations__[instance_key] = instance
+		return cls.__instance_configurations__[instance_key]
+
+
+	def __init__(self, entry, _bypass_encoding=False):
+		if _bypass_encoding:
+			assert all(isinstance(v,int) for v in entry)
+			self._data = entry
+		else:
+			self._data = type(self).encode(*entry)
+
+	@property
+	def data(self):
+		return self.__signature_type__(self.__lookup__.value(ix) for ix in self._data)
+
+	@data.setter
+	def data(self, new_entries):
+		raise ValueError('References can not be directly set - settable on instantiation only')
+		# self._data = tuple(self.__lookup__.index(value) for value in new_entries)
+
+	def references(self):
+		return self._data
+
+	def __iter__(self):
+		for index in self._data:
+			yield self.__lookup__.value(index)
+
+
+
+class TupleSignature(Signature):
+	
+	__signature_type__ = tuple
+	
+	def __repr__(self):
+		try:
+			return '<Sig: ('+ ', '.join(repr(v) for v in self) + ')>'
+		except IndexError:
+			return '<Sig(!) ('+ ', '.join(repr(v) for v in self._data) + ')>'
+
+
+
+class SetSignature(Signature):
+	__signature_type__ = frozenset
+		
+	def __repr__(self):
+		return '<Sig: {'+ ', '.join(repr(v) for v in self) + '}>'
+
+
+
+
+def _run_tests(dump_location = r'C:\Workspace\temp\coredump'):
+	
+	from shared.tools.pretty import p,pdir,install;install() 
+	
+	print 'Running roundtrip persistence test: %r' % (dump_location,)
+	print '   (for %r)' % (TupleSignature.__classpath__,)
+	
+	
+	s1 = TupleSignature(tuple('abc'))
+	s2 = TupleSignature(tuple('accd'))
+	
+	
+	TupleSignature.__lookup__.__lookup_table__
+	TupleSignature.__instance_lookup__.__lookup_table__
+	
+	
+	current_seed = TupleSignature.__lookup__.seed
+	
+	
+	TupleSignature.dump(dump_location)
+	
+	_ = TupleSignature(('aa', 'bb', 'c', 'dd'))
+	
+	TupleSignature.dump(dump_location)
+	
+	TupleSignature.init_cache(123456)
+	
+	TupleSignature.load(dump_location, current_seed)
+	
+	
+	print 'Round trip'
+	print '=== values ==='
+	p(TupleSignature.__lookup__.__lookup_table__)
+	
+	print '=== instances ==='
+	p(TupleSignature.__instance_lookup__.__lookup_table__)
+	
+	
+	assert TupleSignature.__instance_lookup__.__lookup_table__[-1].references() == (5,6,3,7)
+	
+	
+	
+	
+	print 'Running roundtrip persistence test: %r' % (dump_location,)
+	print '   (for %r)' % (SetSignature.__classpath__,)
+	
+	
+	s1 = SetSignature(frozenset('abc'))
+	s2 = SetSignature(frozenset('accd'))
+	
+	
+	SetSignature.__lookup__.__lookup_table__
+	SetSignature.__instance_lookup__.__lookup_table__
+	
+	
+	current_seed = SetSignature.__lookup__.seed
+	
+	
+	SetSignature.dump(dump_location)
+	
+	_ = SetSignature(('aa', 'bb', 'c', 'dd'))
+	
+	SetSignature.dump(dump_location)
+	
+	SetSignature.init_cache(123456)
+	
+	SetSignature.load(dump_location, current_seed)
+	
+	
+	print 'Round trip'
+	print '=== values ==='
+	p(SetSignature.__lookup__.__lookup_table__)
+	
+	print '=== instances ==='
+	p(SetSignature.__instance_lookup__.__lookup_table__)
+	
+	
+	assert SetSignature.__instance_lookup__.__lookup_table__[-1].references() == (5,6,3,7)

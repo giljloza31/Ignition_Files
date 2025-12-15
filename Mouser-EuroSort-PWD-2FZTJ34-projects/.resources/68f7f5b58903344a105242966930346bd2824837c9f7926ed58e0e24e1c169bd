@@ -1,0 +1,91 @@
+{
+  "custom": {},
+  "params": {
+    "path": "value"
+  },
+  "propConfig": {
+    "params.path": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 171,
+      "width": 394
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 49,
+          "width": 198,
+          "x": 97.5,
+          "y": 13.5
+        },
+        "props": {
+          "text": "Calibration Complete",
+          "textStyle": {
+            "fontSize": 18,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "TextField"
+        },
+        "position": {
+          "height": 39,
+          "width": 187,
+          "x": 108,
+          "y": 62.5
+        },
+        "props": {
+          "placeholder": "Enter Name",
+          "style": {
+            "textAlign": "center"
+          },
+          "text": "Gil"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tName \u003d self.getSibling(\"TextField\").props.text\n\tTimestamp \u003d system.date.format(system.date.now(),\u0027MM-dd-yy HH:mm:ss.SSS\u0027)\n\tpath \u003d self.view.params.path\n\t\n\tsystem.tag.writeBlocking(*zip(*[\n\n\t\t(path + \u0027/\u0027 + \u0027Name\u0027,Name),\n\t\t(path + \u0027/\u0027 + \u0027Timestamp\u0027,Timestamp)\n\t]))\n\tsystem.perspective.closePopup(\u0027Calibrate Complete\u0027)\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 161.5,
+          "y": 123.5
+        },
+        "props": {
+          "text": "OK"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1200
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 50,
+          "x": 609,
+          "y": 157
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "collection": "eurosort_location_info",
+                "connector": "MongoWCS",
+                "enableValueCache": true,
+                "polling": {
+                  "enabled": true,
+                  "rate": "1"
+                },
+                "struct": {
+                  "aggregate": [
+                    "[{\u0027$match\u0027:{\u0027_id\u0027:{\u0027$regex\u0027:\u0027^A\u0027},\u0027is_occupied\u0027:False}},(\u0027$count\u0027:\u0027Count\u0027}]"
+                  ],
+                  "collation": {}
+                },
+                "type": "Aggregate"
+              },
+              "type": "connectorMongoDb.query"
+            }
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

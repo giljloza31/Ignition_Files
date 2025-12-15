@@ -1,0 +1,167 @@
+"""
+
+
+"""
+
+
+from shared.data.types.dictslots import DictSlotsMixin
+from shared.data.types.mixins import CountInstanceMixin, ImmutableDictMixin, TemporaryContextMixin
+from shared.data.types.deduplicated.persistence.dictslots import PersistableDictSlots
+from shared.data.types.deduplicated.persistence.hierarchy import PersistableHierarchy
+
+from shared.tools.monitoring.context.base import StackTrace_FilteringMixin
+
+from collections import defaultdict
+import re
+
+
+
+class JavaClassPath(PersistableHierarchy):
+	__DELIMITER__ = '.'
+
+
+JAVA_STACKTRACE_IGNORE_CLASS_PATTERN = re.compile(r"""^
+(
+	com\.inductiveautomation\.ignition\.(
+		common|client|designer|gateway)\.script\.(ScriptManager|Designer)
+|	org\.python\.(
+		pycode\._
+	|	core\.Py
+	|	modules\._
+	)
+|	java\.lang\.(
+		reflect\.
+	|	Thread\.
+	)
+|	jdk\.internal\.
+).*$
+""", re.I + re.X)
+
+
+
+class StackEntry(
+		CountInstanceMixin, 
+		ImmutableDictMixin,
+		PersistableDictSlots,
+	):
+	__slots__ = (
+		'module', 'module_version', 
+		'class_path', 'class_generated', 'method_name',
+		'is_native', 'file_name', 'line_number', 
+		'raw_java_str',
+	)
+	
+	@classmethod
+	def generate(cls, java_stacktrace_line):
+		module         = java_stacktrace_line.getModuleName()
+		module_version = java_stacktrace_line.getModuleVersion()
+		class_path, _, class_generated = java_stacktrace_line.getClassName().partition('$$')
+		method_name    = java_stacktrace_line.getMethodName()
+		
+		try:
+			class_path = JavaClassPath(class_path)
+		except Exception as error:
+			print class_path
+			raise error
+		
+		is_native = java_stacktrace_line.isNativeMethod()
+		
+		if is_native:
+			file_name   = None
+			line_number = None
+		else:
+			file_name   = java_stacktrace_line.getFileName()
+			line_number = java_stacktrace_line.getLineNumber()
+			
+		raw_java_str = str(java_stacktrace_line)
+		
+		# errors here mean that the init missed a calc
+		local_vars = locals()
+		slot_values = tuple(local_vars[attr] for attr in cls.keys())
+		return cls(*slot_values)
+
+
+	@property
+	def location(self):
+		if self.is_native:
+			return 'native engine'
+		elif self.file_name is None and self.line_number == -1:
+			return 'stack'
+		elif self.class_generated:
+			return '%(class_generated)s' % self		
+		else:
+			return '%(file_name)s:%(line_number)d' % self
+
+
+	def __repr__(self):
+		return '<%(method_name)s of %(class_path)s in %(location)s>' % self
+
+
+
+class StackTrace(
+		ImmutableDictMixin,
+		StackTrace_FilteringMixin,
+		TemporaryContextMixin,
+		DictSlotsMixin,
+	):
+	__slots__ = (
+		'entries', 'depth',
+		'raw_trace', # temp 
+	)
+	
+	_ignore_filters = [
+		[ ('class_path', JAVA_STACKTRACE_IGNORE_CLASS_PATTERN), ],
+	]
+	
+	# global running metadata statistics
+	_stack_top_instance_counts = defaultdict(int)
+	
+	def __init__(self, java_thread, with_raw=False):
+		java_stacktrace = java_thread.getStackTrace()
+		self.entries = [
+			StackEntry.generate(entry) 
+			for entry
+			in java_stacktrace
+		]
+
+		# depth is the unfiltered stack length
+		self.depth = len(self.entries)
+		
+		self._stack_top_instance_counts[self.entries[0]] += 1
+		
+		# to allow for temporary holding for context, if needed
+		if with_raw:
+			self.raw_trace = java_stacktrace
+		else:
+			self.raw_trace = None
+	
+	def release(self):
+		self.raw_trace = None
+	
+	@staticmethod
+	def _access_or_none(list_like, index):
+		try:
+			return list_like[index]
+		except IndexError:
+			return None
+
+	@property
+	def head(self):
+		return self._access_or_none(self.entries, -1)
+
+	@property
+	def root(self):
+		return self._access_or_none(self.entries, 0)
+
+	def __getitem__(self, index):
+		return self.entries[index]
+
+	def __iter__(self):
+		for entry in self.entries:
+			yield entry
+	
+	def __len__(self):
+		return len(self.entries)
+
+	def __repr__(self):
+		return '<Java Stacktrace %d entries>' % len(self)

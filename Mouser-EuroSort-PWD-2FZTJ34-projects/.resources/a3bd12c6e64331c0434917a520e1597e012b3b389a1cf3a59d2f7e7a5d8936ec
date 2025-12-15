@@ -1,0 +1,395 @@
+"""
+	Order management
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from wcs.config import *
+from wcs.api.incoming.base import WCS_Incoming
+
+from shared.data.types.enum import Enum
+
+from database.core import *
+
+
+
+AUTO_REPLY_202_ASYNC = False
+
+PROCESS_REQUESTS_BLOCKING = not AUTO_REPLY_202_ASYNC
+
+
+
+class OrderStatus(Enum):
+	Downloaded    = 'downloaded'
+	Scheduled     = 'scheduled'
+	Started       = 'started'
+	Issued        = 'issued'
+	Consolidated  = 'consolidated'
+	Printed       = 'plPrinted'
+	Checked       = 'checked'
+	Shipped       = 'shipped'
+	Held          = 'held'
+	Special       = 'specialServ'
+	Cancelled     = 'cancelled'
+	Catchbox      = 'catchbox'
+	PickException = 'pickException'
+
+
+class Regions(Enum):
+	APAC = 'APAC'
+	EMEA = 'EMEA'
+	AMER = 'AMER'
+	USPS = 'USPS'
+
+
+class BinSize(Enum):
+	A = 'A'
+	B = 'B'
+	C = 'C'
+	D = 'D'
+	E = 'E'
+	F = 'F'
+
+
+#def ensure_order(url_tokens, payload):
+#	if 'order' in payload:
+#		assert url_tokens['order'] == payload['order'], 'Payload mismatch to endpoint order: %r vs payload %r' % (url_tokens, payload)
+#	else:
+#		payload['order'] = url_tokens['order']
+#	
+#	return url_tokens['order']
+
+_REGISTERED_REACTIONS = {
+	'order': set(),
+	'line' : set(),
+	'issue': set(),
+}
+
+
+
+def register_reaction(target):
+	def targetted_reaction_registration_decorator(callback):
+		# add the callback
+		_REGISTERED_REACTIONS[target].add(callback)
+		# don't modify the callback, just passing through
+		return callback
+	return targetted_reaction_registration_decorator
+
+
+def react_to(target, entry):
+	for callback in _REGISTERED_REACTIONS[target]:
+		try:
+			_ = callback(entry)
+		except Exception as error:
+			Logger().error("Reaction to WCS update for {target} failed on {entry}: {callback} => {error}")
+
+react_to_order = partial(react_to, 'order')
+react_to_line  = partial(react_to, 'line')
+react_to_issue = partial(react_to, 'issue')
+
+
+@WCS_Incoming.GET('orders/{order}', await_result=PROCESS_REQUESTS_BLOCKING)
+def get_order(payload, params, **url_tokens): #order):
+	return 	select_record(WCS_DB, 'pconsol_orders',  {'order': url_tokens['order']})
+
+
+@WCS_Incoming.POST('orders/{order}', await_result=PROCESS_REQUESTS_BLOCKING)
+def add_order(payload, params, **url_tokens): #order):
+
+	order = url_tokens['order']
+	lineitems = payload.pop('lines', [])
+
+	payload['order'] = order
+
+	for lineitem in lineitems:
+		lineitem['order'] = order
+
+	insert_record(WCS_DB, 'pconsol_orders', payload)
+	if lineitems:
+		insert_records(WCS_DB, 'pconsol_lines', lineitems)
+
+
+	Logger().debug('WCS request [POST] to ADD order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_order(payload)
+	for lineitem in lineitems:
+		react_to_line(lineitem)
+
+	#	example_payload = {
+	#		'order': 'A'*9,
+	#		'status': ('A'*12)[:12],
+	#		'priority': 'A',
+	#		'region': 'A'*4,
+	#		'downloadTime': 'YYYYMMDDHHMMSS',
+	#		'estBinSize': 'A',
+	#		'lines': [
+	#			{
+	#				'orderLine': '123',
+	#				'status': ('A'*12)[:12],
+	#				'partNumber': ('A'*30)[:30],
+	#				'partDesc': ('A'*60)[:60],
+	#				'quantity': 123,
+	#			},
+	#		]
+	#	}
+
+
+@WCS_Incoming.PUT('orders/{order}', await_result=PROCESS_REQUESTS_BLOCKING)
+def upsert_order(payload, params, **url_tokens): #order):
+
+	order = url_tokens['order']
+	lineitems = payload.pop('lines', [])
+
+	for lineitem in lineitems:
+		lineitem['order'] = order
+
+	upsert_record(WCS_DB, 'pconsol_orders', payload, ('order',))
+
+	for lineitem in lineitems:
+		upsert_record(WCS_DB, 'pconsol_lines', lineitem, ('order', 'orderLine',))
+
+	Logger().debug('WCS request [PUT] to UPDATE/ADD order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_order(payload)
+	for lineitem in lineitems:
+		react_to_line(lineitem)
+
+	#	example_payload = {
+	#		'order': 'A'*9,
+	#		'status': ('A'*12)[:12],
+	#		'priority': 'A',
+	#		'region': 'A'*4,
+	#		'downloadTime': 'YYYYMMDDHHMMSS',
+	#		'estBinSize': 'A',
+	#		'lines': [
+	#			{
+	#				'orderLine': '123',
+	#				'status': ('A'*12)[:12],
+	#				'partNumber': ('A'*30)[:30],
+	#				'partDesc': ('A'*60)[:60],
+	#				'quantity': 123,
+	#			},
+	#		]
+	#	}
+
+@WCS_Incoming.PATCH('orders/{order}', await_result=PROCESS_REQUESTS_BLOCKING)
+def update_order(payload, params, **url_tokens): #order):
+
+	order = url_tokens['order']
+	lineitems = payload.pop('lines', [])
+
+	for lineitem in lineitems:
+		lineitem['order'] = order
+
+	update_record(WCS_DB, 'pconsol_orders', payload, ('order',))
+
+	for lineitem in lineitems:
+		upsert_record(WCS_DB, 'pconsol_lines', lineitem,  ('order', 'orderLine',))
+
+	Logger().debug('WCS request [PATCH] to TWEAK order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_order(payload)
+	for lineitem in lineitems:
+		react_to_line(lineitem)
+
+	#	example_payload = {'status': 'CONSOLIDATED'}
+
+
+@WCS_Incoming.DELETE('orders/{order}', await_result=PROCESS_REQUESTS_BLOCKING)
+def delete_order(payload, params, **url_tokens): #order):
+
+	delete_record (WCS_DB, 'pconsol_orders',     {'order': url_tokens['order']}, ('order',))
+	delete_records(WCS_DB, 'pconsol_lines', 	 {'order': url_tokens['order']}, ('order',))
+	delete_records(WCS_DB, 'pconsol_issues',     {'order': url_tokens['order']}, ('order',))
+
+	Logger().debug('WCS request [DELETE] to DELETE order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+	#	example_payload = {}
+
+
+@WCS_Incoming.PATCH('orders/{order}/lines', await_result=PROCESS_REQUESTS_BLOCKING)
+def update_order_lines(payload, params, **url_tokens): #order):
+
+	payload['order'] = url_tokens['order']
+
+	update_records(WCS_DB, 'pconsol_lines', payload, ('order',))
+
+	Logger().debug('WCS request [PATCH] to BULK UPDATE LINES of an order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_line(payload)
+
+	#	example_payload = {'status': 'CONSOLIDATED'}
+
+
+
+@WCS_Incoming.POST('orders/{order}/lines/{order_line}', await_result=PROCESS_REQUESTS_BLOCKING)
+def add_order_line_item(payload, params, **url_tokens): #order):
+	
+	payload['order'] = url_tokens['order']
+	payload['orderLine'] = url_tokens['order_line']
+	
+	insert_record(WCS_DB, 'pconsol_lines', payload)
+
+	Logger().debug('WCS request [POST] to ADD LINE to an order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_line(payload)
+
+	#	example_payload = {
+	#		'order': 'A'*9,
+	#		'orderLine': '123',
+	#		'status': ('A'*12)[:12],
+	#		'partNumber': ('A'*30)[:30],
+	#		'partDesc': ('A'*60)[:60],
+	#		'quantity': 123,
+	#	}
+
+
+@WCS_Incoming.PUT('orders/{order}/lines/{order_line}', await_result=PROCESS_REQUESTS_BLOCKING)
+def upsert_order_line_item(payload, params, **url_tokens): #order):
+
+	payload['order'] = url_tokens['order']
+	payload['orderLine'] = url_tokens['order_line']
+
+	upsert_record(WCS_DB, 'pconsol_lines', payload, ('order', 'orderLine',))
+
+	Logger().debug('WCS request [PUT] to UPDATE LINE item to an order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_line(payload)
+
+	#	example_payload = {
+	#		'order': 'A'*9,
+	#		'orderLine': '123',
+	#		'status': ('A'*12)[:12],
+	#		'partNumber': ('A'*30)[:30],
+	#		'partDesc': ('A'*60)[:60],
+	#		'quantity': 123,
+	#	}
+
+
+@WCS_Incoming.PATCH('orders/{order}/lines/{order_line}', await_result=PROCESS_REQUESTS_BLOCKING)
+def update_order_line_item(payload, params, **url_tokens): #order):
+
+	payload['order'] = url_tokens['order']
+	payload['orderLine'] = url_tokens['order_line']
+
+	update_record(WCS_DB, 'pconsol_lines', payload, ('order', 'orderLine',))
+
+	Logger().debug('WCS request [PATCH] to TWEAK LINE item to an order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_line(payload)
+
+	#	example_payload = { # up to, but may be fewer
+	#		'order': 'A'*9,
+	#		'orderLine': '123',
+	#		'status': ('A'*12)[:12],
+	#		'quantity': 123,
+	#	}
+
+
+@WCS_Incoming.PATCH('orders/{order}/lines/{order_line}/issues', await_result=PROCESS_REQUESTS_BLOCKING)
+def update_order_line_item_issues(payload, params, **url_tokens): #order):
+
+	payload['order'] = url_tokens['order']
+	payload['orderLine'] = url_tokens['order_line']
+
+	update_records(WCS_DB, 'pconsol_issues', payload, ('order', 'orderLine',))
+
+	Logger().debug('WCS request [PATCH] to TWEAK LINE ISSUES to an order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_line(payload)
+
+	#	example_payload = {
+	#		'order': 'A'*9,
+	#		'orderLine': '123',
+	#		'status': ('A'*12)[:12],
+	#	}
+
+
+@WCS_Incoming.PATCH('orders/{order}/issues', await_result=PROCESS_REQUESTS_BLOCKING)
+def update_order_issues(payload, params, **url_tokens): #order):
+
+	payload['order'] = url_tokens['order']
+
+	update_records(WCS_DB, 'pconsol_issues', payload, ('order',))
+
+	Logger().debug('WCS request [PATCH] to BULK UPDATE ISSUES of an order:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_issue(payload)
+
+	#	example_payload = {'status': 'CONSOLIDATED'}
+
+
+@WCS_Incoming.POST('issues/{ibn}', await_result=PROCESS_REQUESTS_BLOCKING)
+def add_ibn_issue(payload, params, **url_tokens): #order):
+
+	payload['ibn'] = url_tokens['ibn']
+
+	insert_record(WCS_DB, 'pconsol_issues', payload)
+
+	Logger().debug('WCS request [POST] to ADD ISSUE to IBN:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_issue(payload)
+
+	#	example_payload = {
+	#		'ibn': 'A'*6,
+	#		'status': ('A'*12)[:12],
+	#		'order': 'A'*9,
+	#		'orderLine': '123',
+	#		'quantity': 123,
+	#		'holdInspect': True,
+	#	}
+
+
+
+@WCS_Incoming.PUT('issues/{ibn}', await_result=PROCESS_REQUESTS_BLOCKING)
+def upsert_ibn_issue(payload, params, **url_tokens): #order):
+
+	payload['ibn'] = url_tokens['ibn']
+
+	upsert_record(WCS_DB, 'pconsol_issues', payload, ('ibn',))
+
+	Logger().debug('WCS request [PUT] to UPDATE/ADD ISSUE to IBN:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_issue(payload)
+
+	#	example_payload = {
+	#		'ibn': 'A'*6,
+	#		'status': ('A'*12)[:12],
+	#		'order': 'A'*9,
+	#		'orderLine': '123',
+	#		'quantity': 123,
+	#		'holdInspect': True,
+	#	}
+
+
+@WCS_Incoming.PATCH('issues/{ibn}', await_result=PROCESS_REQUESTS_BLOCKING)
+def update_ibn_issue(payload, params, **url_tokens): #order):
+
+	payload['ibn'] = url_tokens['ibn']
+
+	update_record(WCS_DB, 'pconsol_issues', payload, ('ibn',))
+
+	Logger().debug('WCS request [PATCH] to TWEAK ISSUE on IBN:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+
+	react_to_issue(payload)
+
+	#	example_payload = {
+	#		'ibn': 'A'*6,
+	#		'status': ('A'*12)[:12],
+	#		'quantity': 123,
+	#		'holdInspect': True,
+	#	}
+
+
+@WCS_Incoming.DELETE('issues/{ibn}', await_result=PROCESS_REQUESTS_BLOCKING)
+def delete_ibn_issue(payload, params, **url_tokens): #order):
+
+	delete_record(WCS_DB, 'pconsol_issues', {'ibn': url_tokens['ibn']}, ('ibn',))
+
+	Logger().debug('WCS request [DELETE] to ISSUE on IBN:\nPayload: {payload}\nParams: {params}\nURL token(s): {url_tokens}')
+	#	example_payload = {}
+
+
+
+
+
+

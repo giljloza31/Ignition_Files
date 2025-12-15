@@ -1,0 +1,175 @@
+{
+  "custom": {},
+  "params": {
+    "Name": "DST-0001-1-1-A",
+    "Status": 9,
+    "TextSize": 4,
+    "len": 52
+  },
+  "propConfig": {
+    "params.Name": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Status": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.TextSize": {
+      "binding": {
+        "config": {
+          "expression": "if ({view.params.len}\u003e75,8,4)"
+        },
+        "type": "expr"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.len": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 29,
+      "width": 103
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "basis": "5px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "path": "view.params.Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "#000000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 7,
+                      "output": "#FFFFFF"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderColor": "#000000",
+            "borderStyle": "solid",
+            "borderWidth": ".1"
+          },
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "basis": "80px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "view.params.Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "Eurosort/Eurosort_Chutes/Grey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 1,
+                      "output": "Eurosort/Eurosort_Chutes/White"
+                    },
+                    {
+                      "input": 2,
+                      "output": "Eurosort/Eurosort_Chutes/Green"
+                    },
+                    {
+                      "input": 3,
+                      "output": "Eurosort/Eurosort_Chutes/Yellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "Eurosort/Eurosort_Chutes/Red"
+                    },
+                    {
+                      "input": 5,
+                      "output": "Eurosort/Eurosort_Chutes/Cyan"
+                    },
+                    {
+                      "input": 6,
+                      "output": "Eurosort/Eurosort_Chutes/Orange"
+                    },
+                    {
+                      "input": 7,
+                      "output": "Eurosort/Eurosort_Chutes/Blue"
+                    },
+                    {
+                      "input": 8,
+                      "output": "Eurosort/Eurosort_Chutes/Magenta"
+                    },
+                    {
+                      "input": 9,
+                      "output": "Eurosort/Eurosort_Chutes/Mauve"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {},
+          "textStyle": {
+            "fontFamily": "Roboto",
+            "fontSize": 9,
+            "fontWeight": "bold",
+            "textAlign": "center",
+            "textTransform": "uppercase"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.flex"
+  }
+}

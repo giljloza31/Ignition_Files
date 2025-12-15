@@ -1,0 +1,3039 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "ConvName": "CBVA7205"
+        },
+        "meta": {
+          "name": "CBVA_M7205_3",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 61.59,
+          "rotate": {
+            "angle": "303deg"
+          },
+          "width": 31,
+          "x": 908.68,
+          "y": 489
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rails\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[3].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Edge\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": 104.8024,
+                  "name": "Convey_Roller",
+                  "style": {},
+                  "type": "rect",
+                  "width": "7.3303",
+                  "x": "1.7099",
+                  "y": "0.125"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "104.7981",
+                  "name": "Rail2",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "9.0402",
+                  "y": "0.1292"
+                },
+                {
+                  "height": "104.7981",
+                  "name": "Rail1",
+                  "transform": "translate(135.8464 311.008) rotate(180)",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "134.1365",
+                  "y": "206.0806"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-258.1047 186.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "81.7375",
+                  "y": "258.1047"
+                },
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-248.1047 196.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "91.7375",
+                  "y": "258.1047"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x2": "10.75",
+                  "y1": "104.9545",
+                  "y2": "104.9545"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "10.75",
+                  "y1": "0.1292",
+                  "y2": "0.1292"
+                }
+              ],
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".35"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 10.75 105.0795"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7205"
+        },
+        "meta": {
+          "name": "CBVA_M7205_2",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 51.8,
+          "rotate": {
+            "angle": "211deg"
+          },
+          "width": 59.77,
+          "x": 848.26,
+          "y": 454.57
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rail\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M446.8,142.32v9.24a12.41,12.41,0,0,1,10.85,6.11l8-4.54A21.74,21.74,0,0,0,446.8,142.32Z",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                }
+              ],
+              "style": {},
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M446.8,151.57v-1.33s8-.12,12,6.77l-1.15.66h0a12.41,12.41,0,0,0-10.85-6.11",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                },
+                {
+                  "d": "M446.8,142.31v1.33s10.68-.9,17.68,10.15l1.15-.66a21.74,21.74,0,0,0-18.83-10.81",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M457.65,157.67a12.41,12.41,0,0,0-10.85-6.11",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                },
+                {
+                  "d": "M465.63,153.13a21.74,21.74,0,0,0-18.83-10.81",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Borders"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#00000000"
+          },
+          "viewBox": "0 0 19.29 15.93"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7205"
+        },
+        "meta": {
+          "name": "CBVA_M7205_1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 383,
+          "rotate": {
+            "angle": 0
+          },
+          "width": 31,
+          "x": 857.26,
+          "y": 73.49000000000001
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rails\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[3].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Edge\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": 104.8024,
+                  "name": "Convey_Roller",
+                  "style": {},
+                  "type": "rect",
+                  "width": "7.3303",
+                  "x": "1.7099",
+                  "y": "0.125"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "104.7981",
+                  "name": "Rail2",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "9.0402",
+                  "y": "0.1292"
+                },
+                {
+                  "height": "104.7981",
+                  "name": "Rail1",
+                  "transform": "translate(135.8464 311.008) rotate(180)",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "134.1365",
+                  "y": "206.0806"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-258.1047 186.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "81.7375",
+                  "y": "258.1047"
+                },
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-248.1047 196.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "91.7375",
+                  "y": "258.1047"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x2": "10.75",
+                  "y1": "104.9545",
+                  "y2": "104.9545"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "10.75",
+                  "y1": "0.1292",
+                  "y2": "0.1292"
+                }
+              ],
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".35"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 10.75 105.0795"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7203"
+        },
+        "meta": {
+          "name": "CBVA_M7203_3",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 61.59,
+          "rotate": {
+            "angle": "303deg"
+          },
+          "width": 31,
+          "x": 603.68,
+          "y": 490
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rails\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[3].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Edge\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": 104.8024,
+                  "name": "Convey_Roller",
+                  "style": {},
+                  "type": "rect",
+                  "width": "7.3303",
+                  "x": "1.7099",
+                  "y": "0.125"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "104.7981",
+                  "name": "Rail2",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "9.0402",
+                  "y": "0.1292"
+                },
+                {
+                  "height": "104.7981",
+                  "name": "Rail1",
+                  "transform": "translate(135.8464 311.008) rotate(180)",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "134.1365",
+                  "y": "206.0806"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-258.1047 186.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "81.7375",
+                  "y": "258.1047"
+                },
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-248.1047 196.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "91.7375",
+                  "y": "258.1047"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x2": "10.75",
+                  "y1": "104.9545",
+                  "y2": "104.9545"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "10.75",
+                  "y1": "0.1292",
+                  "y2": "0.1292"
+                }
+              ],
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".35"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 10.75 105.0795"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7202"
+        },
+        "meta": {
+          "name": "CBVA_M7202_2",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "width": 924,
+          "x": 305.504,
+          "y": 521.716
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rails\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[3].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_EdgeStroke\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "104.8024",
+                  "name": "Convey_Roller",
+                  "style": {},
+                  "transform": "translate(311.0309 -133.7615) rotate(90)",
+                  "type": "rect",
+                  "width": "7.3303",
+                  "x": "135.4714",
+                  "y": "206.0764"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "104.7981",
+                  "name": "Rail2",
+                  "transform": "translate(315.3613 -129.4268) rotate(90)",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "138.467",
+                  "y": "210.4111"
+                },
+                {
+                  "height": "104.7981",
+                  "name": "Rail1",
+                  "transform": "translate(-201.5938 140.1769) rotate(-90)",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "138.467",
+                  "y": "201.7459"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "0.1521"
+                },
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "0.1521",
+                  "y": "10"
+                }
+              ],
+              "style": {
+                "classes": ""
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "0.125",
+                  "x2": "0.125",
+                  "y2": "10.75"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "104.9502",
+                  "x2": "104.9502",
+                  "y1": "10.75"
+                }
+              ],
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".35"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 105.0795 10.75"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7202"
+        },
+        "meta": {
+          "name": "CBVA_M7202_3",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 66,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 68,
+          "x": 1227.88,
+          "y": 485.781
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rail\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M427.3,262.6c-1.6-20.83-21.18-20.72-21.18-20.72v9.27s11.2-.62,11.94,11.45Z",
+                  "name": "path",
+                  "style": {},
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M427.3,262.6c-1.6-20.83-21.18-20.72-21.18-20.72v1.33s17.69-.06,19.85,19.39Z",
+                  "name": "path",
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                },
+                {
+                  "d": "M406.12,251.15s11.2-.62,11.94,11.44h1.33c-.71-13.36-13.27-12.78-13.27-12.78v1.34",
+                  "name": "path",
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M418.06,262.6c-.74-12.07-11.94-11.45-11.94-11.45",
+                  "name": "path",
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                },
+                {
+                  "d": "M427.3,262.6c-1.6-20.83-21.18-20.72-21.18-20.72",
+                  "name": "path",
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Borders"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#00000000"
+          },
+          "viewBox": "0 0 21.68 21.22"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7202"
+        },
+        "meta": {
+          "name": "CBVA_M7202_1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 66,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 68,
+          "x": 237.676,
+          "y": 486.963
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rail\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M427.3,262.6c-1.6-20.83-21.18-20.72-21.18-20.72v9.27s11.2-.62,11.94,11.45Z",
+                  "name": "path",
+                  "style": {},
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M427.3,262.6c-1.6-20.83-21.18-20.72-21.18-20.72v1.33s17.69-.06,19.85,19.39Z",
+                  "name": "path",
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                },
+                {
+                  "d": "M406.12,251.15s11.2-.62,11.94,11.44h1.33c-.71-13.36-13.27-12.78-13.27-12.78v1.34",
+                  "name": "path",
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M418.06,262.6c-.74-12.07-11.94-11.45-11.94-11.45",
+                  "name": "path",
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                },
+                {
+                  "d": "M427.3,262.6c-1.6-20.83-21.18-20.72-21.18-20.72",
+                  "name": "path",
+                  "transform": "translate(-405.99 -241.5)",
+                  "type": "path"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Borders"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#00000000"
+          },
+          "viewBox": "0 0 21.68 21.22"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7203"
+        },
+        "meta": {
+          "name": "CBVA_M7203_2",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 51.8,
+          "rotate": {
+            "angle": "211deg"
+          },
+          "width": 59.77,
+          "x": 544.259,
+          "y": 454.569
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rail\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M446.8,142.32v9.24a12.41,12.41,0,0,1,10.85,6.11l8-4.54A21.74,21.74,0,0,0,446.8,142.32Z",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                }
+              ],
+              "style": {},
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M446.8,151.57v-1.33s8-.12,12,6.77l-1.15.66h0a12.41,12.41,0,0,0-10.85-6.11",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                },
+                {
+                  "d": "M446.8,142.31v1.33s10.68-.9,17.68,10.15l1.15-.66a21.74,21.74,0,0,0-18.83-10.81",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M457.65,157.67a12.41,12.41,0,0,0-10.85-6.11",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                },
+                {
+                  "d": "M465.63,153.13a21.74,21.74,0,0,0-18.83-10.81",
+                  "name": "path",
+                  "transform": "translate(-446.67 -141.94)",
+                  "type": "path"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Borders"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "style": {
+            "fill": "#00000000"
+          },
+          "viewBox": "0 0 19.29 15.93"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7203"
+        },
+        "meta": {
+          "name": "CBVA_M7203_1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 383,
+          "rotate": {
+            "angle": 0
+          },
+          "width": 31,
+          "x": 553.26,
+          "y": 73.49000000000001
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rails\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[3].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Edge\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": 104.8024,
+                  "name": "Convey_Roller",
+                  "style": {},
+                  "type": "rect",
+                  "width": "7.3303",
+                  "x": "1.7099",
+                  "y": "0.125"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "104.7981",
+                  "name": "Rail2",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "9.0402",
+                  "y": "0.1292"
+                },
+                {
+                  "height": "104.7981",
+                  "name": "Rail1",
+                  "transform": "translate(135.8464 311.008) rotate(180)",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "134.1365",
+                  "y": "206.0806"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-258.1047 186.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "81.7375",
+                  "y": "258.1047"
+                },
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-248.1047 196.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "91.7375",
+                  "y": "258.1047"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x2": "10.75",
+                  "y1": "104.9545",
+                  "y2": "104.9545"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "10.75",
+                  "y1": "0.1292",
+                  "y2": "0.1292"
+                }
+              ],
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".35"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 10.75 105.0795"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7211"
+        },
+        "meta": {
+          "name": "CBVA_M7211_1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 225,
+          "rotate": {
+            "angle": 0
+          },
+          "width": 31,
+          "x": 1262.48,
+          "y": 263.61
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rails\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[3].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Edge\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": 104.8024,
+                  "name": "Convey_Roller",
+                  "style": {},
+                  "type": "rect",
+                  "width": "7.3303",
+                  "x": "1.7099",
+                  "y": "0.125"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "104.7981",
+                  "name": "Rail2",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "9.0402",
+                  "y": "0.1292"
+                },
+                {
+                  "height": "104.7981",
+                  "name": "Rail1",
+                  "transform": "translate(135.8464 311.008) rotate(180)",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "134.1365",
+                  "y": "206.0806"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-258.1047 186.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "81.7375",
+                  "y": "258.1047"
+                },
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-248.1047 196.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "91.7375",
+                  "y": "258.1047"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x2": "10.75",
+                  "y1": "104.9545",
+                  "y2": "104.9545"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "10.75",
+                  "y1": "0.1292",
+                  "y2": "0.1292"
+                }
+              ],
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".35"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 10.75 105.0795"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "CBVA7201"
+        },
+        "meta": {
+          "name": "CBVA_M7201_1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 413,
+          "rotate": {
+            "angle": 0
+          },
+          "width": 31,
+          "x": 237.16,
+          "y": 74.973
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConvStyles/ConvLine/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConvStyles/ConvLine/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConvStyles/ConvLine/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConvStyles/ConvLine/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConvStyles/ConvLine/SolidWhite"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConvStyles/ConvLine/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/ConveyorStatus/IGN_{1}_ConvStatus"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvName"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Main\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Rails\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[2].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Border\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[3].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Edge\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": 104.8024,
+                  "name": "Convey_Roller",
+                  "style": {},
+                  "type": "rect",
+                  "width": "7.3303",
+                  "x": "1.7099",
+                  "y": "0.125"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "104.7981",
+                  "name": "Rail2",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "9.0402",
+                  "y": "0.1292"
+                },
+                {
+                  "height": "104.7981",
+                  "name": "Rail1",
+                  "transform": "translate(135.8464 311.008) rotate(180)",
+                  "type": "rect",
+                  "width": "1.3348",
+                  "x": "134.1365",
+                  "y": "206.0806"
+                }
+              ],
+              "style": {
+                "classes": "ConvStyles/ConvLine/Rails"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-258.1047 186.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "81.7375",
+                  "y": "258.1047"
+                },
+                {
+                  "height": "0.75",
+                  "name": "rect",
+                  "transform": "translate(-248.1047 196.6648) rotate(-90)",
+                  "type": "rect",
+                  "width": "104.7981",
+                  "x": "91.7375",
+                  "y": "258.1047"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x2": "10.75",
+                  "y1": "104.9545",
+                  "y2": "104.9545"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "10.75",
+                  "y1": "0.1292",
+                  "y2": "0.1292"
+                }
+              ],
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".35"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 10.75 105.0795"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CBVA7211_ESPC02"
+        },
+        "meta": {
+          "name": "CBVA7211_ESPC02",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 980.449,
+          "y": 554.027
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.EStopName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/Estop/{1}"
+              },
+              "transforms": [
+                {
+                  "fallback": true,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "EStopName": "CBVA7211_ESPC01"
+        },
+        "meta": {
+          "name": "CBVA7211_ESPC01",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 31,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 1197.45,
+          "y": 494.265
+        },
+        "propConfig": {
+          "custom.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.EStopName}"
+                },
+                "tagPath": "[Mouser]Mouser/CatchBox/CatchboxOutbound/Estop/{1}"
+              },
+              "transforms": [
+                {
+                  "fallback": true,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": false
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "this.custom.Status"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M530.82,421.41s-.17-12,6.93-12,6.73-5.56,6.73-5.56v-51a4.44,4.44,0,0,0-4.45-4.44H499.21a4.44,4.44,0,0,0-4.44,4.44v51s-.38,5.56,6.72,5.56,6.94,12,6.94,12Z",
+                  "name": "path",
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Base",
+              "style": {
+                "classes": "",
+                "fill": "#A12525",
+                "stroke": "#000000",
+                "strokeWidth": ".75"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "14.68 73.54 14.68 64.5 22.43 64.5 22.43 35.7 14.68 30.96 14.68 0.5 36.03 0.5 36.03 73.54 14.68 73.54",
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_Detail",
+              "style": {
+                "classes": "",
+                "fill": "#F5F5F5",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "16.95",
+                  "cy": "39.13",
+                  "name": "circle",
+                  "r": "4.26",
+                  "type": "circle"
+                }
+              ],
+              "name": "eStop_Button",
+              "style": {
+                "classes": "",
+                "fill": "#2E53CC",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M20.75,73.54H30a0,0,0,0,1,0,0V85a2.52,2.52,0,0,1-2.52,2.52H23.27A2.52,2.52,0,0,1,20.75,85V73.54A0,0,0,0,1,20.75,73.54Z",
+                  "name": "path",
+                  "type": "path"
+                },
+                {
+                  "height": "8.14",
+                  "name": "rect",
+                  "type": "rect",
+                  "width": "3.62",
+                  "x": "23.55",
+                  "y": "87.52"
+                },
+                {
+                  "d": "M519.62,452.41c1.44,0,2.58-.77,2.7-5.08s-2.7-3.77-2.7-3.77-2.81-.55-2.7,3.77S518.18,452.41,519.62,452.41Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "",
+                    "fill": "#FFFFFF00",
+                    "stroke": "#000000"
+                  },
+                  "transform": "translate(-494.27 -347.87)",
+                  "type": "path"
+                }
+              ],
+              "name": "eStop_Bottom",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "17.36",
+                  "x2": "33.35",
+                  "y1": "3.28",
+                  "y2": "3.28"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "7.77",
+                  "y2": "7.77"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "18.56",
+                  "x2": "33.35",
+                  "y1": "12.27",
+                  "y2": "12.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.38",
+                  "x2": "33.35",
+                  "y1": "16.76",
+                  "y2": "16.76"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.4",
+                  "x2": "33.35",
+                  "y1": "21.26",
+                  "y2": "21.26"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "20.53",
+                  "x2": "33.35",
+                  "y1": "25.82",
+                  "y2": "25.82"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "22.96",
+                  "x2": "33.35",
+                  "y1": "30.34",
+                  "y2": "30.34"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.95",
+                  "x2": "33.35",
+                  "y1": "34.87",
+                  "y2": "34.87"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.81",
+                  "x2": "33.35",
+                  "y1": "39.4",
+                  "y2": "39.4"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "24.76",
+                  "x2": "33.35",
+                  "y1": "43.91",
+                  "y2": "43.91"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "27.09",
+                  "x2": "33.35",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "25.7",
+                  "x2": "33.35",
+                  "y1": "53.21",
+                  "y2": "53.21"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "26.69",
+                  "x2": "33.35",
+                  "y1": "58",
+                  "y2": "58"
+                }
+              ],
+              "name": "eStop_LineText",
+              "style": {
+                "classes": "",
+                "stroke": "#000000"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "height": "4.15",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#71B96C",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "13.6",
+                  "x": "22.43",
+                  "y": "60.36"
+                },
+                {
+                  "height": "2.63",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#B52222",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "9.98",
+                  "x": "16.35",
+                  "y": "68.65"
+                },
+                {
+                  "height": "14.97",
+                  "name": "rect",
+                  "style": {
+                    "classes": "",
+                    "fill": "#5B422F",
+                    "stroke": "#000000"
+                  },
+                  "type": "rect",
+                  "width": "6.06",
+                  "x": "14.68",
+                  "y": "47.09"
+                },
+                {
+                  "name": "polygon",
+                  "points": "16.42 52.12 15.19 51.41 15.19 52.83 16.42 52.12",
+                  "style": {
+                    "classes": "",
+                    "stroke": "#000000"
+                  },
+                  "type": "polygon"
+                }
+              ],
+              "name": "eStop_ExtraDetail",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.23",
+                  "x2": "19.2",
+                  "y1": "48.41",
+                  "y2": "48.41"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "50.27",
+                  "y2": "50.27"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "52.12",
+                  "y2": "52.12"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.75",
+                  "x2": "18.77",
+                  "y1": "53.98",
+                  "y2": "53.98"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "55.84",
+                  "y2": "55.84"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "57.69",
+                  "y2": "57.69"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "16.71",
+                  "x2": "18.73",
+                  "y1": "59.55",
+                  "y2": "59.55"
+                }
+              ],
+              "name": "eStop_BarLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".5"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 50.71 105.04"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

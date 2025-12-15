@@ -1,0 +1,15 @@
+{
+  "pages": {
+    "/": {
+      "title": "",
+      "viewPath": "Some Folder/Scratchspace"
+    },
+    "/chute-info": {
+      "title": "Debug Chute Info",
+      "viewPath": "Chute-Info"
+    }
+  },
+  "sharedDocks": {
+    "cornerPriority": "top-bottom"
+  }
+}

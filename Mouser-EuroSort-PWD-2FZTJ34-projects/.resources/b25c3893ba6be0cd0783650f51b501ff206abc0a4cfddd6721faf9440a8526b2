@@ -1,0 +1,280 @@
+{
+  "custom": {},
+  "params": {
+    "VFDName": "DDA3500",
+    "folderPath": "[Dev]Development/"
+  },
+  "propConfig": {
+    "params.VFDName": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.folderPath": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 357,
+      "width": 239
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 53,
+          "y": 67
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{view.params.VFDName}",
+                  "2": "{view.params.folderPath}"
+                },
+                "tagPath": "{2}VFD/{1}/Hz_HighSpeed"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "maximum": 6000,
+            "minimum": 0
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 47,
+          "width": 132,
+          "x": 62,
+          "y": 22
+        },
+        "props": {
+          "text": "High Speed",
+          "textStyle": {
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "NumericEntryField_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 53,
+          "y": 150
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{view.params.VFDName}",
+                  "2": "{view.params.folderPath}"
+                },
+                "tagPath": "{2}VFD/{1}/Hz_MediumSpeed"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "maximum": 6000,
+            "minimum": 0
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 47,
+          "width": 158,
+          "x": 36,
+          "y": 105
+        },
+        "props": {
+          "text": "Medium Speed",
+          "textStyle": {
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "NumericEntryField_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 53,
+          "y": 228
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{view.params.VFDName}",
+                  "2": "{view.params.folderPath}"
+                },
+                "tagPath": "{2}VFD/{1}/Hz_LowSpeed"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "maximum": 6000,
+            "minimum": 0
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 47,
+          "width": 158,
+          "x": 36,
+          "y": 183
+        },
+        "props": {
+          "text": "Low Speed",
+          "textStyle": {
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Scan1Settings",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/Scan1/VFD_Hz_Settings",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 21.5,
+          "y": 293
+        },
+        "props": {
+          "text": "OK"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Scan1Settings",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/Scan1/VFD_Hz_Settings",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 80,
+          "x": 140.5,
+          "y": 293
+        },
+        "props": {
+          "primary": false,
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

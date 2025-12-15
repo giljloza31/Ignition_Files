@@ -1,0 +1,2602 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "ConvName": "T2020"
+        },
+        "meta": {
+          "name": "T2020",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 460,
+          "x": 1261.15,
+          "y": 582.531
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "T2015"
+        },
+        "meta": {
+          "name": "T2015",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 156,
+          "width": 28,
+          "x": 1261.17,
+          "y": 441.04
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "T2010"
+        },
+        "meta": {
+          "name": "T2010",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 595,
+          "x": 678.58,
+          "y": 440.78
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "T2005"
+        },
+        "meta": {
+          "name": "T2005",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 118,
+          "width": 28,
+          "x": 682.61,
+          "y": 453.29
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "transform": "translate(-123.9 180.7) rotate(-90)",
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": "-123.4",
+                  "y": "124.4"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "transform": "translate(-99.4 205.4) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-98.7",
+                      "y": "149.1"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "transform": "translate(-148.5 156.1) rotate(-90)",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": "-147.9",
+                      "y": "149"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 56.8 304.6"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "ConvName": "T2000"
+        },
+        "meta": {
+          "name": "T2000",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 28,
+          "width": 460,
+          "x": 232.99,
+          "y": 540.5
+        },
+        "propConfig": {
+          "custom.ConvColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvStatus"
+              },
+              "transforms": [
+                {
+                  "fallback": "ConveyorColors/SolidGrey",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "ConveyorColors/SolidGrey"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ConveyorColors/SolidWhite"
+                    },
+                    {
+                      "input": 2,
+                      "output": "ConveyorColors/SolidLightBlue"
+                    },
+                    {
+                      "input": 3,
+                      "output": "ConveyorColors/FlashYellow"
+                    },
+                    {
+                      "input": 4,
+                      "output": "ConveyorColors/SolidYellow"
+                    },
+                    {
+                      "input": 5,
+                      "output": "ConveyorColors/SolidRed"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.ConvStatus": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.ConvName}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Conveyor_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.ConvColor"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "height": "55.7",
+                  "id": "e",
+                  "name": "e",
+                  "style": {},
+                  "type": "rect",
+                  "width": "303.6",
+                  "x": ".5",
+                  "y": ".6"
+                },
+                {
+                  "elements": [
+                    {
+                      "height": "6.5",
+                      "id": "g",
+                      "name": "g",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".5",
+                      "y": "49.7"
+                    },
+                    {
+                      "height": "6.5",
+                      "id": "h",
+                      "name": "h",
+                      "type": "rect",
+                      "width": "303.4",
+                      "x": ".6",
+                      "y": ".5"
+                    }
+                  ],
+                  "style": {
+                    "classes": "ConveyorColors/Rails"
+                  },
+                  "type": "group"
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 304.6 56.8"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Asset 1"
+        },
+        "position": {
+          "height": 84,
+          "width": 99,
+          "x": 134.9844,
+          "y": 509.516
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M54.83,5.83l-.63-.99h-.01c.58-.45.95-1.09.95-1.79,0-.29-.07-.58-.18-.84v.02h.98v1.17h1.81V1.02h-1.81v.75h-1.23,0c-.56-.75-1.61-1.27-2.81-1.27-1.79,0-3.24,1.14-3.24,2.55,0,.7.36,1.33.93,1.79l-.53.99H.57v1.6h53v43.13H.5v1.67h61.08V5.83h-6.75ZM50.46,5.83v-.49h-.02c.44.16.93.26,1.45.26.89,0,1.7-.28,2.29-.74l-.61.48v.49h-3.11Z",
+                  "fill": {
+                    "paint": "#808285"
+                  },
+                  "name": "path",
+                  "stroke": {
+                    "miterlimit": "10",
+                    "paint": "#231f20"
+                  },
+                  "style": {
+                    "classes": ""
+                  },
+                  "type": "path"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 62.08 52.73"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "T2000_PE1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 36,
+          "rotate": {
+            "angle": 315
+          },
+          "width": 10,
+          "x": 695.82,
+          "y": 539.4449999999999
+        },
+        "propConfig": {
+          "custom.PE_Color": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "Photoeyes/PE_White",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "Photoeyes/PE_Black"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.PE-Name}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Photeye_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE-Name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Eye\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Beam\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "20.61 100.68 0.27 159.13 40.95 159.13 20.61 100.68",
+                  "style": {},
+                  "type": "polygon"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "style": {},
+                  "type": "line",
+                  "x1": "20.61",
+                  "x2": "20.61",
+                  "y1": 110.19
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 41.23 159.32"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "T2000_PE1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 37,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 82,
+          "x": 660.003,
+          "y": 536.534
+        },
+        "propConfig": {
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.PE-Name}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Photeye_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.PE-Name} + \u0027_Jam\u0027"
+              },
+              "type": "expr"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 3,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "198.0538",
+              "y": "71.2563"
+            },
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "86.6788",
+              "y": "71.2563"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M1387.2571,547.64l1.4754-34.0832-44.825,4.7428,33.6613-20.2646-19.1742-8.0195,16.1916-11.3827-32.4683-32.51L1387.88,462.507V426.3757l21.9864,26.6458,20.0263-51.3081,2.0453,51.3081,26.8439-21.4718-12.0159,34.924,45.1659-9.2268-30.6787,28.629,30.6787,5.0877-27.696,17.5914,27.696,30.44L1448.3,518.73l6.2209,20.2645-24.2021-17.5914-6.2209,11.6414-16.1916-14.6595Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "Jams/Jam_Red_Flash"
+                  },
+                  "transform": "translate(-1232.5937 -389.9375)",
+                  "type": "path"
+                },
+                {
+                  "name": "text",
+                  "style": {
+                    "classes": "",
+                    "fontFamily": "Roboto",
+                    "fontSize": 26,
+                    "textAlign": "center"
+                  },
+                  "text": "JAM",
+                  "transform": "matrix(0.9875, 0.3468, -0.3244, 0.9459, 155.8286, 95.762)",
+                  "type": "text"
+                },
+                {
+                  "elements": [
+                    {
+                      "name": "polyline",
+                      "points": "160.531 29.723 175.286 48.799 191.954 1.125",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "195.134 153.256 200.309 142.746 217.978 156.813",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "107.74 136.589 147.287 132.102 146.155 156.907",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "236.047 38.069 227.099 64.908 265.448 56.986",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "96.129 54.938 128.086 88.083 114.344 97.488",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "273.703 103.821 246.22 120.366 277.059 153.188",
+                      "type": "polyline"
+                    }
+                  ],
+                  "name": "Jam_ActionLines",
+                  "type": "group"
+                }
+              ],
+              "name": "Jam",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "355.795 98.058 315.073 90.094 315.073 106.021 355.795 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 79.22 292.666 71.256 292.666 87.184 333.389 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 116.895 292.666 108.931 292.666 124.859 333.389 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "332.4063",
+                  "x2": "372.0625",
+                  "y1": "85.9219",
+                  "y2": "85.9219"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "327.625",
+                  "x2": "362.0781",
+                  "y1": "109.9688",
+                  "y2": "109.9688"
+                },
+                {
+                  "name": "polygon",
+                  "points": "17.392 98.058 58.115 106.021 58.115 90.094 17.392 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 116.895 80.521 124.859 80.521 108.931 39.799 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 79.22 80.521 87.184 80.521 71.256 39.799 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "40.7813",
+                  "x2": "1.125",
+                  "y1": "110.1932",
+                  "y2": "110.1932"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "45.5625",
+                  "x2": "11.1094",
+                  "y1": "86.1463",
+                  "y2": "86.1463"
+                }
+              ],
+              "name": "ActionLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": "2"
+              },
+              "type": "group"
+            },
+            {
+              "name": "polygon",
+              "points": "220.469 18.563 217.242 26.613 211.883 19.793 220.469 18.563",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "136.656 51.488 141.149 46.605 143.132 52.938 136.656 51.488",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "173.5 153.188 170.97 147.832 176.874 148.319 173.5 153.188",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "256.75 90.094 250.567 90.101 253.652 84.743 256.75 90.094",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "125.125 108.931 126.391 108.2 126.391 109.662 125.125 108.931",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "237.906 149.78 233.688 152.215 233.688 147.344 237.906 149.78",
+              "type": "polygon"
+            }
+          ],
+          "viewBox": "0 0 373.1875 162.7392"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "T2005_PE1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 36,
+          "rotate": {
+            "angle": 315
+          },
+          "width": 10,
+          "x": 695.929,
+          "y": 439.19
+        },
+        "propConfig": {
+          "custom.PE_Color": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "Photoeyes/PE_White",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "Photoeyes/PE_Black"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.PE-Name}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Photeye_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE-Name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Eye\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Beam\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "20.61 100.68 0.27 159.13 40.95 159.13 20.61 100.68",
+                  "style": {},
+                  "type": "polygon"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "style": {},
+                  "type": "line",
+                  "x1": "20.61",
+                  "x2": "20.61",
+                  "y1": 110.19
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 41.23 159.32"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "T2005_PE1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 37,
+          "width": 82,
+          "x": 660.109,
+          "y": 436.28
+        },
+        "propConfig": {
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.PE-Name}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Photeye_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.PE-Name} + \u0027_Jam\u0027"
+              },
+              "type": "expr"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 3,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "198.0538",
+              "y": "71.2563"
+            },
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "86.6788",
+              "y": "71.2563"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M1387.2571,547.64l1.4754-34.0832-44.825,4.7428,33.6613-20.2646-19.1742-8.0195,16.1916-11.3827-32.4683-32.51L1387.88,462.507V426.3757l21.9864,26.6458,20.0263-51.3081,2.0453,51.3081,26.8439-21.4718-12.0159,34.924,45.1659-9.2268-30.6787,28.629,30.6787,5.0877-27.696,17.5914,27.696,30.44L1448.3,518.73l6.2209,20.2645-24.2021-17.5914-6.2209,11.6414-16.1916-14.6595Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "Jams/Jam_Red_Flash"
+                  },
+                  "transform": "translate(-1232.5937 -389.9375)",
+                  "type": "path"
+                },
+                {
+                  "name": "text",
+                  "style": {
+                    "classes": "",
+                    "fontFamily": "Roboto",
+                    "fontSize": 26,
+                    "textAlign": "center"
+                  },
+                  "text": "JAM",
+                  "transform": "matrix(0.9875, 0.3468, -0.3244, 0.9459, 155.8286, 95.762)",
+                  "type": "text"
+                },
+                {
+                  "elements": [
+                    {
+                      "name": "polyline",
+                      "points": "160.531 29.723 175.286 48.799 191.954 1.125",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "195.134 153.256 200.309 142.746 217.978 156.813",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "107.74 136.589 147.287 132.102 146.155 156.907",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "236.047 38.069 227.099 64.908 265.448 56.986",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "96.129 54.938 128.086 88.083 114.344 97.488",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "273.703 103.821 246.22 120.366 277.059 153.188",
+                      "type": "polyline"
+                    }
+                  ],
+                  "name": "Jam_ActionLines",
+                  "type": "group"
+                }
+              ],
+              "name": "Jam",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "355.795 98.058 315.073 90.094 315.073 106.021 355.795 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 79.22 292.666 71.256 292.666 87.184 333.389 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 116.895 292.666 108.931 292.666 124.859 333.389 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "332.4063",
+                  "x2": "372.0625",
+                  "y1": "85.9219",
+                  "y2": "85.9219"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "327.625",
+                  "x2": "362.0781",
+                  "y1": "109.9688",
+                  "y2": "109.9688"
+                },
+                {
+                  "name": "polygon",
+                  "points": "17.392 98.058 58.115 106.021 58.115 90.094 17.392 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 116.895 80.521 124.859 80.521 108.931 39.799 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 79.22 80.521 87.184 80.521 71.256 39.799 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "40.7813",
+                  "x2": "1.125",
+                  "y1": "110.1932",
+                  "y2": "110.1932"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "45.5625",
+                  "x2": "11.1094",
+                  "y1": "86.1463",
+                  "y2": "86.1463"
+                }
+              ],
+              "name": "ActionLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": "2"
+              },
+              "type": "group"
+            },
+            {
+              "name": "polygon",
+              "points": "220.469 18.563 217.242 26.613 211.883 19.793 220.469 18.563",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "136.656 51.488 141.149 46.605 143.132 52.938 136.656 51.488",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "173.5 153.188 170.97 147.832 176.874 148.319 173.5 153.188",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "256.75 90.094 250.567 90.101 253.652 84.743 256.75 90.094",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "125.125 108.931 126.391 108.2 126.391 109.662 125.125 108.931",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "237.906 149.78 233.688 152.215 233.688 147.344 237.906 149.78",
+              "type": "polygon"
+            }
+          ],
+          "viewBox": "0 0 373.1875 162.7392"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "T2010_PE1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 37,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 82,
+          "x": 1238.64,
+          "y": 438.702
+        },
+        "propConfig": {
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.PE-Name}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Photeye_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.PE-Name} + \u0027_Jam\u0027"
+              },
+              "type": "expr"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 3,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "198.0538",
+              "y": "71.2563"
+            },
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "86.6788",
+              "y": "71.2563"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M1387.2571,547.64l1.4754-34.0832-44.825,4.7428,33.6613-20.2646-19.1742-8.0195,16.1916-11.3827-32.4683-32.51L1387.88,462.507V426.3757l21.9864,26.6458,20.0263-51.3081,2.0453,51.3081,26.8439-21.4718-12.0159,34.924,45.1659-9.2268-30.6787,28.629,30.6787,5.0877-27.696,17.5914,27.696,30.44L1448.3,518.73l6.2209,20.2645-24.2021-17.5914-6.2209,11.6414-16.1916-14.6595Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "Jams/Jam_Red_Flash"
+                  },
+                  "transform": "translate(-1232.5937 -389.9375)",
+                  "type": "path"
+                },
+                {
+                  "name": "text",
+                  "style": {
+                    "classes": "",
+                    "fontFamily": "Roboto",
+                    "fontSize": 26,
+                    "textAlign": "center"
+                  },
+                  "text": "JAM",
+                  "transform": "matrix(0.9875, 0.3468, -0.3244, 0.9459, 155.8286, 95.762)",
+                  "type": "text"
+                },
+                {
+                  "elements": [
+                    {
+                      "name": "polyline",
+                      "points": "160.531 29.723 175.286 48.799 191.954 1.125",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "195.134 153.256 200.309 142.746 217.978 156.813",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "107.74 136.589 147.287 132.102 146.155 156.907",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "236.047 38.069 227.099 64.908 265.448 56.986",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "96.129 54.938 128.086 88.083 114.344 97.488",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "273.703 103.821 246.22 120.366 277.059 153.188",
+                      "type": "polyline"
+                    }
+                  ],
+                  "name": "Jam_ActionLines",
+                  "type": "group"
+                }
+              ],
+              "name": "Jam",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "355.795 98.058 315.073 90.094 315.073 106.021 355.795 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 79.22 292.666 71.256 292.666 87.184 333.389 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 116.895 292.666 108.931 292.666 124.859 333.389 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "332.4063",
+                  "x2": "372.0625",
+                  "y1": "85.9219",
+                  "y2": "85.9219"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "327.625",
+                  "x2": "362.0781",
+                  "y1": "109.9688",
+                  "y2": "109.9688"
+                },
+                {
+                  "name": "polygon",
+                  "points": "17.392 98.058 58.115 106.021 58.115 90.094 17.392 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 116.895 80.521 124.859 80.521 108.931 39.799 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 79.22 80.521 87.184 80.521 71.256 39.799 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "40.7813",
+                  "x2": "1.125",
+                  "y1": "110.1932",
+                  "y2": "110.1932"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "45.5625",
+                  "x2": "11.1094",
+                  "y1": "86.1463",
+                  "y2": "86.1463"
+                }
+              ],
+              "name": "ActionLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": "2"
+              },
+              "type": "group"
+            },
+            {
+              "name": "polygon",
+              "points": "220.469 18.563 217.242 26.613 211.883 19.793 220.469 18.563",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "136.656 51.488 141.149 46.605 143.132 52.938 136.656 51.488",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "173.5 153.188 170.97 147.832 176.874 148.319 173.5 153.188",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "256.75 90.094 250.567 90.101 253.652 84.743 256.75 90.094",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "125.125 108.931 126.391 108.2 126.391 109.662 125.125 108.931",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "237.906 149.78 233.688 152.215 233.688 147.344 237.906 149.78",
+              "type": "polygon"
+            }
+          ],
+          "viewBox": "0 0 373.1875 162.7392"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "T2010_PE1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 36,
+          "rotate": {
+            "angle": 315
+          },
+          "width": 10,
+          "x": 1274.46,
+          "y": 441.612
+        },
+        "propConfig": {
+          "custom.PE_Color": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "Photoeyes/PE_White",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "Photoeyes/PE_Black"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.PE-Name}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Photeye_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE-Name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Eye\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Beam\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "20.61 100.68 0.27 159.13 40.95 159.13 20.61 100.68",
+                  "style": {},
+                  "type": "polygon"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "style": {},
+                  "type": "line",
+                  "x1": "20.61",
+                  "x2": "20.61",
+                  "y1": 110.19
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 41.23 159.32"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "T2015_PE1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 37,
+          "width": 82,
+          "x": 1238.66,
+          "y": 578.028
+        },
+        "propConfig": {
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.PE-Name}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Photeye_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.PE-Name} + \u0027_Jam\u0027"
+              },
+              "type": "expr"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 3,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "198.0538",
+              "y": "71.2563"
+            },
+            {
+              "height": "53.6024",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#FAD775",
+                "stroke": "#000000",
+                "strokeWidth": "1"
+              },
+              "type": "rect",
+              "width": "88.2762",
+              "x": "86.6788",
+              "y": "71.2563"
+            },
+            {
+              "elements": [
+                {
+                  "d": "M1387.2571,547.64l1.4754-34.0832-44.825,4.7428,33.6613-20.2646-19.1742-8.0195,16.1916-11.3827-32.4683-32.51L1387.88,462.507V426.3757l21.9864,26.6458,20.0263-51.3081,2.0453,51.3081,26.8439-21.4718-12.0159,34.924,45.1659-9.2268-30.6787,28.629,30.6787,5.0877-27.696,17.5914,27.696,30.44L1448.3,518.73l6.2209,20.2645-24.2021-17.5914-6.2209,11.6414-16.1916-14.6595Z",
+                  "name": "path",
+                  "style": {
+                    "classes": "Jams/Jam_Red_Flash"
+                  },
+                  "transform": "translate(-1232.5937 -389.9375)",
+                  "type": "path"
+                },
+                {
+                  "name": "text",
+                  "style": {
+                    "classes": "",
+                    "fontFamily": "Roboto",
+                    "fontSize": 26,
+                    "textAlign": "center"
+                  },
+                  "text": "JAM",
+                  "transform": "matrix(0.9875, 0.3468, -0.3244, 0.9459, 155.8286, 95.762)",
+                  "type": "text"
+                },
+                {
+                  "elements": [
+                    {
+                      "name": "polyline",
+                      "points": "160.531 29.723 175.286 48.799 191.954 1.125",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "195.134 153.256 200.309 142.746 217.978 156.813",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "107.74 136.589 147.287 132.102 146.155 156.907",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "236.047 38.069 227.099 64.908 265.448 56.986",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "96.129 54.938 128.086 88.083 114.344 97.488",
+                      "type": "polyline"
+                    },
+                    {
+                      "name": "polyline",
+                      "points": "273.703 103.821 246.22 120.366 277.059 153.188",
+                      "type": "polyline"
+                    }
+                  ],
+                  "name": "Jam_ActionLines",
+                  "type": "group"
+                }
+              ],
+              "name": "Jam",
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "355.795 98.058 315.073 90.094 315.073 106.021 355.795 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 79.22 292.666 71.256 292.666 87.184 333.389 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "333.389 116.895 292.666 108.931 292.666 124.859 333.389 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "332.4063",
+                  "x2": "372.0625",
+                  "y1": "85.9219",
+                  "y2": "85.9219"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "327.625",
+                  "x2": "362.0781",
+                  "y1": "109.9688",
+                  "y2": "109.9688"
+                },
+                {
+                  "name": "polygon",
+                  "points": "17.392 98.058 58.115 106.021 58.115 90.094 17.392 98.058",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 116.895 80.521 124.859 80.521 108.931 39.799 116.895",
+                  "type": "polygon"
+                },
+                {
+                  "name": "polygon",
+                  "points": "39.799 79.22 80.521 87.184 80.521 71.256 39.799 79.22",
+                  "type": "polygon"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "40.7813",
+                  "x2": "1.125",
+                  "y1": "110.1932",
+                  "y2": "110.1932"
+                },
+                {
+                  "name": "line",
+                  "type": "line",
+                  "x1": "45.5625",
+                  "x2": "11.1094",
+                  "y1": "86.1463",
+                  "y2": "86.1463"
+                }
+              ],
+              "name": "ActionLines",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": "2"
+              },
+              "type": "group"
+            },
+            {
+              "name": "polygon",
+              "points": "220.469 18.563 217.242 26.613 211.883 19.793 220.469 18.563",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "136.656 51.488 141.149 46.605 143.132 52.938 136.656 51.488",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "173.5 153.188 170.97 147.832 176.874 148.319 173.5 153.188",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "256.75 90.094 250.567 90.101 253.652 84.743 256.75 90.094",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "125.125 108.931 126.391 108.2 126.391 109.662 125.125 108.931",
+              "type": "polygon"
+            },
+            {
+              "name": "polygon",
+              "points": "237.906 149.78 233.688 152.215 233.688 147.344 237.906 149.78",
+              "type": "polygon"
+            }
+          ],
+          "viewBox": "0 0 373.1875 162.7392"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "custom": {
+          "PE-Name": "T2015_PE1"
+        },
+        "meta": {
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 36,
+          "rotate": {
+            "angle": 315
+          },
+          "width": 10,
+          "x": 1274.48,
+          "y": 580.938
+        },
+        "propConfig": {
+          "custom.PE_Color": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "Photoeyes/PE_White",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "Photoeyes/PE_Black"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.PE_Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{this.custom.PE-Name}"
+                },
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/Photeye_Status/{1}"
+              },
+              "type": "tag"
+            }
+          },
+          "meta.name": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE-Name"
+              },
+              "type": "property"
+            }
+          },
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Eye\""
+              },
+              "type": "expr"
+            }
+          },
+          "props.elements[1].elements[0].style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.PE_Color"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].name": {
+            "binding": {
+              "config": {
+                "expression": "{this.meta.name} + \"_Beam\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "name": "polygon",
+                  "points": "20.61 100.68 0.27 159.13 40.95 159.13 20.61 100.68",
+                  "style": {},
+                  "type": "polygon"
+                }
+              ],
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "line",
+                  "style": {},
+                  "type": "line",
+                  "x1": "20.61",
+                  "x2": "20.61",
+                  "y1": 110.19
+                }
+              ],
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 41.23 159.32"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "PushButton-Template"
+        },
+        "position": {
+          "height": 459,
+          "width": 189,
+          "x": 0.07799999999997453,
+          "y": -2.2965000000000373
+        },
+        "propConfig": {
+          "props.params.Alarm_Active": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/MCP/Horn_Active"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.HornSilenced": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/MCP/Horn_Silenced"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.SilenceHorn_PB": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/MCP/Silence_Horn_PB"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.Start_PB": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/MCP/Start_PB"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.Status": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/MCP/System_Status"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.VFD_Faulted": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/MCP/VFD_Fault_Active"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.VFD_Reset": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Pick/Trash/MCP/VFD_Reset"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "params": {
+            "AlarmText": "OFF",
+            "Name": "Trash"
+          },
+          "path": "_Templates_V3/PushButton-Template"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "TrashComp",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 170,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 82,
+          "x": 1763.05,
+          "y": 511.3556249999999
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[1].style.fill": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/TrashCompactor/Corrugate_Compactor_OK"
+              },
+              "transforms": [
+                {
+                  "fallback": "#D90000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "#00D900"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "height": "23.91",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#8B8B8B",
+                "stroke": "#000000",
+                "strokeWidth": ".50"
+              },
+              "type": "rect",
+              "width": "23.91",
+              "x": "0.16",
+              "y": "0.16"
+            },
+            {
+              "height": "22.56",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "rect",
+              "width": "22.56",
+              "x": "0.84",
+              "y": "0.84"
+            },
+            {
+              "height": "10.51",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "rect",
+              "width": "22.56",
+              "x": "0.84",
+              "y": "0.84"
+            },
+            {
+              "height": "4.15",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#DBDBDB",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "rect",
+              "width": "23.25",
+              "x": "0.49",
+              "y": "24.07"
+            },
+            {
+              "height": "3.16",
+              "name": "rect",
+              "style": {
+                "classes": "",
+                "fill": "#DBDBDB",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "rect",
+              "width": "13.73",
+              "x": "5.25",
+              "y": "24.07"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 24.23 28.38"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "backgroundColor": "#FFFDFD"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

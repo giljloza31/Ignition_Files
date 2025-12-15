@@ -1,0 +1,81 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 101,
+      "width": 12
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Asset 2"
+        },
+        "position": {
+          "height": 101,
+          "width": 12
+        },
+        "props": {
+          "elements": [
+            {
+              "name": "defs",
+              "type": "defs"
+            },
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "fill": {
+                        "paint": "lime"
+                      },
+                      "height": "101.25",
+                      "name": "rect",
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "rect",
+                      "width": "12",
+                      "x": ".5",
+                      "y": ".5"
+                    },
+                    {
+                      "height": "10.38",
+                      "name": "rect",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#000"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "rect",
+                      "width": "12",
+                      "x": ".5",
+                      "y": "91.75"
+                    }
+                  ],
+                  "id": "Chute",
+                  "name": "Chute",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "1 1 13 102.62"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

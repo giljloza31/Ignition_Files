@@ -1,0 +1,121 @@
+"""
+	Wrap and abstract the functions executed for variables during the step.
+	
+	
+"""
+
+
+
+class WrappedSimulationFunction(object):
+
+	def __init__(self, datasource, function, aliases=None, name_override=None):
+
+		self._datasource = datasource
+		self._function = function
+
+		if aliases is None:
+			self._aliases = {}
+		else:
+			self._aliases = aliases.copy()
+
+		self._resolve()
+
+
+	def _resolve(self, name_override=None):
+		self._resolve_name(name_override)
+		self._resolve_arguments()
+		self._resolve_getters()
+
+
+	# force a recalculation if these values are set
+	@property
+	def function(self):
+		return self._function
+
+	@function.setter
+	def function(self, function):
+		if not function == self._function:
+			self._function = function
+			self._resolve()
+
+
+	@property
+	def datasource(self):
+		return self._datasource
+
+	@datasource.setter
+	def datasource(self, datasource):
+		self._datasource = datasource
+		self._resolve()
+
+
+	@property
+	def aliases(self):
+		return self._aliases
+
+	@aliases.setter
+	def aliases(self, aliases=None):
+		if not aliases == self._aliases:
+			if aliases is None:
+				self._aliases = {}
+			else:
+				self._aliases = aliases.copy()
+			self._resolve()
+
+
+	@property
+	def arguments(self):
+		return self._arguments
+
+	def _resolve_arguments(self):
+		self._arguments = self._datasource._resolve_arguments(self._function)
+
+
+	@property
+	def name(self):
+		return self._name
+
+	def _resolve_name(self, override=None):
+		if override:
+			self._name = override
+		else:
+			try: # function???
+				self._name = self._function.func_name
+			except AttributeError: # ok prolly a class then
+				self._name = function_name = self._function.__class__.__name__
+
+
+	def current_value(self, variable):
+		return self._datasource._variables[variable]
+
+	@property
+	def source_variables(self):
+		return self._datasource._variables.keys()
+
+
+	def _resolve_getters(self):
+		getters = []
+		for argix, argument in enumerate(self.arguments):
+			if argument in self.aliases:
+				argument = self.aliases[argument]
+#             else:
+#                 # by default, skip the self
+#                 if argix == 0 and argument == 'self':
+#                     continue
+#             # currently only the Process interface is expected
+#             assert argument in self.source_variables, 'Source class should expose current variable values.'
+
+			# assume and hope for the best that the arguments left out have defaults
+			if not argument in self.source_variables:
+				continue
+			getters.append(lambda self=self, argument=argument: self.current_value(argument) )
+
+		self._getters = getters
+
+
+	def __call__(self):
+		"""Wraps the function call to ensure it gets the most recent values for the bound variables."""
+		return self.function(*tuple(arg_func() for arg_func in self._getters))
+
+	def __repr__(self):
+		return '<Sim-λ %s>' % self.name

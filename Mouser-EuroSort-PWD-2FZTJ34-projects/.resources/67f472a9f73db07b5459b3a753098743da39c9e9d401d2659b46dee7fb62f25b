@@ -1,0 +1,10 @@
+import os
+
+class gettingFiles():
+	def _get_file():
+		core_dump_dir = 'C:/Workspace/EuroSort/Opex' + '/' + 'coredump'
+	
+		if core_dump_filename is None:
+			core_dump_filenames = [filename for filename in os.listdir(core_dump_dir) if filename.startswith('core_dump.')]
+			core_dump_filename = sorted(core_dump_filenames)[0]
+			system.tag.writeBlocking('[EuroSort]TEST/filename', core_dump_filename)

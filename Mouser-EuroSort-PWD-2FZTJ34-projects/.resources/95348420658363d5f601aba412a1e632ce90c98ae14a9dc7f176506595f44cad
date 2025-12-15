@@ -1,0 +1,97 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 341,
+      "width": 642
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "TextField"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 102,
+          "y": 7
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 38,
+          "x": 64,
+          "y": 6.99
+        },
+        "props": {
+          "text": "LPN:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\t\n\tlpn \u003d self.getSibling(\"TextField\").props.text\n\t\n\tconnector \u003d \u0027MongoWCS\u0027\n\tcollection \u003d \u0027HSL_info\u0027\n\tfilter_search \u003d {\u0027induct_LPN\u0027:lpn}\n\tsort \u003d {\u0027verify_start_time\u0027:-1}\n\tprojection \u003d {}\n\ttext \u003d \u0027\u0027\n\t\n\tresults \u003d system.mongodb.find(connector, collection,filter_search,projection,sort)\n\tif not results:\n\t\ttext+\u003d \u0027No Results found \\n\u0027\n\t\ttext+\u003d \u0027%s has not been Shipped\\n\u0027%lpn\n\t\ttext+\u003d \u0027Place box before Scale.\u0027\n\t\t\n\telif bool(results[0][\u0027manifest_payload_status\u0027]):\n\t\ttext+\u003d \u0027%s has been Shipped\\n\u0027%lpn\n\t\tif results[0][\u0027PrintLabel\u0027]:\n\t\t\ttext+\u003d \u0027Label has been created for %s \\n\u0027%lpn\n\t\n\t\t\ttext+\u003d \u0027Place box after taper.\u0027\n\t\telse:\n\t\t\ttext+\u003d \u0027Label has not been created for %s \\n\u0027%lpn\n\t\n\t\t\ttext+\u003d \u0027Place box Before taper to create label\u0027\n\telse:\n\t\ttext+\u003d \u0027%s has not been Shipped\\n\u0027%lpn\n\t\ttext+\u003d \u0027Place box before Scale.\u0027\n\t\t\n\tself.getSibling(\"TextArea\").props.text \u003d text\n\tself.getSibling(\"TextField\").props.text \u003d \u0027\u0027"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 265,
+          "y": 5.9976
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "color": "#AAAAAA"
+            }
+          },
+          "style": {
+            "backgroundColor": "#AAAAAA"
+          },
+          "text": "Search",
+          "textStyle": {
+            "color": "#000000"
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "TextArea"
+        },
+        "position": {
+          "height": 270,
+          "width": 574,
+          "x": 25,
+          "y": 56
+        },
+        "props": {
+          "text": "No Results found \nH00000000 has not been Shipped\nPlace box before Scale."
+        },
+        "type": "ia.input.text-area"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

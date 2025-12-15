@@ -1,0 +1,4 @@
+SELECT *
+FROM  QPS_Station_Login1 
+WHERE userID = :inVARuserID 
+Order by stationindx asc

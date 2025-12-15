@@ -1,0 +1,2 @@
+DELETE FROM Scan16_Routing 
+WHERE RouteCode =  :inVarRoute 

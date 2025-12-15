@@ -1,0 +1,36 @@
+"""
+	Base light control mechanics
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.base              import EuroSorterBase
+
+from eurosort.tracking.contents import Destination
+
+
+
+class EuroSorterLightControl(
+		EuroSorterBase,
+	):
+
+	def set_light(self, destination, status, color=None):
+		self.logger.trace('Set light at {destination} to {status}')
+		destination = Destination.parse(destination)
+		with self.scan as message:
+			# IMPORTANT: this reorders to deal with addressing mixup
+			message.destination = 'DST-{station}-1-{chute}-{side}'.format(
+				station = destination.station,
+				chute = destination.chute,
+				side = destination.side,
+			)
+			message.light_status = status
+			if color:
+				message.light_color = color
+
+
+
+
+
+
+

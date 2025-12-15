@@ -1,0 +1,20 @@
+"""
+	Core API functionality
+
+	Dispatch requests involving the WCS
+
+	Note that modules need to be imported to register their methods.
+	Ensure that __all__ is defined in those and in a central place 
+	call `from module import *` to ensure that the registration applies.
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from wcs.api.base import route_webdev
+
+
+# import to register all the endpoints
+
+from wcs.api.incoming.orders import *
+
+
+

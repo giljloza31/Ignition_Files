@@ -1,0 +1,62 @@
+"""
+	Mapping messages to tags
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.tag import TagMappingMixin
+
+
+SORTERDATA_UDT_TYPE   = 'SorterData'
+GATE_CONTROL_UDT_TYPE = 'Gate'
+
+
+SORTERDATA_PATH   = '{sorter_root}/{machine_name}/Destinations'
+GATE_CONTROL_PATH = '{sorter_root}/{machine_name}/Control/Gates'
+
+
+
+def generate_sorterdata_instances(machine_name, num_stations, sorter_root=TagMappingMixin.ROOT_SORTER_TAG_PATH):
+
+	parent_root = SORTERDATA_PATH.format(**locals())
+
+	# DST-{station}-{chute}-{dest}-{side}
+	name_pattern = 'DST-{station:04d}-{chute}-{dest}-{side}'
+	
+	udt_instances = []
+	for station in range(1,num_stations+1):
+		for chute in (1,2):
+			for dest in (1,2):
+				for side in ('A', 'B'):
+					conf = {
+						'name': name_pattern.format(**locals()),
+						'tagType': 'UdtInstance',
+						'typeId': 'SorterData',			
+					}
+					udt_instances.append(conf)
+	
+	system.tag.configure(parent_root, udt_instances)
+
+
+
+def generate_gate_control_instances(machine_name, num_stations, sorter_root=TagMappingMixin.ROOT_SORTER_TAG_PATH):
+
+	parent_root = GATE_CONTROL_PATH.format(**locals())
+	
+	# DST-{station}-{chute}-{dest}-{side}
+	name_pattern = 'DST-{station:04d}-{chute}-{dest}-{side}'
+	
+	udt_instances = []
+	for station in range(1,num_stations+1):
+		for chute in (1,2):
+			dest = 'G'
+			for side in ('A', 'B'):
+				conf = {
+					'name': name_pattern.format(**locals()),
+					'tagType': 'UdtInstance',
+					'typeId': 'Gate',			
+				}
+				udt_instances.append(conf)
+	
+	system.tag.configure(parent_root, udt_instances)
+	

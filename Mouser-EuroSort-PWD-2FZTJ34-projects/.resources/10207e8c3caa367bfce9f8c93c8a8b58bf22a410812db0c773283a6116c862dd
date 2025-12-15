@@ -1,0 +1,62 @@
+from shared.pwd.Mouser.Report.smartsheet import Smartsheet
+#import system
+#client = system.net.httpClient()
+ss = Smartsheet()
+
+#existing = ss.get_existing_sheets()
+#for name in ["log_inventory", "pconsol_issues", "log_events"]:
+#	sheet_id = existing.get(name)
+#	if sheet_id:
+#		client.delete(
+#			url="https://api.smartsheet.com/2.0/sheets/{}".format(sheet_id),
+#			headers=ss.headers
+#		)
+ss.ensure_sheets_exist()
+#
+#
+# Script: insert_into_log_inventory
+row = {
+    "tote_tag": "TOTE123",
+    "event_type": "SCAN",
+    "event_time": "2025-06-14",
+    "machine": "M1"
+    # Add other keys as needed based on your schema
+}
+ss.write_row_to_sheet("log_inventory", row)
+#
+#
+## Script: insert_into_pconsol_issues
+#row = {
+#    "order": "ORD456",
+#    "ibn": "IBN789",
+#    "status": "ON_HOLD",
+#    "quantity": 3
+#    # Add other keys as needed
+#}
+#ss.write_row_to_sheet("pconsol_issues", row)
+#
+#
+## Script: insert_into_log_events
+#row = {
+#    "ibn": "IBN999",
+#    "machine": "M3",
+#    "event_type": "INTERRUPT",
+#    "event_time": "2025-06-14"
+#    # Add other keys as needed
+#}
+#ss.write_row_to_sheet("log_events", row)
+#
+#
+## Script: delete_all_sheets (assumes you call delete by ID)
+#def delete_all():
+#    existing = ss.get_existing_sheets()
+#    for name in ["log_inventory", "pconsol_issues", "log_events"]:
+#        sheet_id = existing.get(name)
+#        if sheet_id:
+#            client.delete(
+#                url="https://api.smartsheet.com/2.0/sheets/{}".format(sheet_id),
+#                headers=ss.headers
+#            )
+#            ss.logger.info("Deleted sheet: {}".format(name))
+#
+#delete_all()

@@ -1,0 +1,233 @@
+{
+  "custom": {},
+  "params": {
+    "ControlName": "Motor Control",
+    "ControlTag": "[default]SomeTagPath",
+    "Status": -1
+  },
+  "propConfig": {
+    "params.ControlName": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.ControlTag": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Status": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 500,
+      "width": 300
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Label"
+            },
+            "position": {
+              "basis": "67px"
+            },
+            "props": {
+              "style": {
+                "classes": "Text/PopUpText"
+              },
+              "text": "Are you sure you want to turn the"
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Label_0"
+            },
+            "position": {
+              "basis": "36px"
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "path": "view.params.ControlName"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Text/PopUpText",
+                "color": "#FF4747"
+              }
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Label_1"
+            },
+            "position": {
+              "basis": "39px"
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "expression": "switch(\r\n\t{view.params.Status}\r\n\t, 1     , 0    , 2\r\n\t, \"Off?\", \"On?\", \"Off (cancel)?\"\r\n\t, \"???\"\r\n\t)"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Text/PopUpText",
+                "textTransform": "uppercase"
+              }
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "meta": {
+          "name": "ConfirmationMessage"
+        },
+        "position": {
+          "basis": "150px"
+        },
+        "props": {
+          "alignContent": "flex-start",
+          "direction": "column",
+          "justify": "space-around",
+          "style": {
+            "classes": "Layout/MobilePadding",
+            "overflow": "hidden"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "events": {
+              "component": {
+                "onActionPerformed": {
+                  "config": {
+                    "script": "\t# create a payload to be passed with the message\n\tconfiguration \u003d {\n\t\t\u0027tagPath\u0027: self.view.params.ControlTag, \n\t\t\u0027timeout\u0027: 0.300\n\t}\n#\n#\t# call the routine (to run after the popup closes)\n#\tsystem.perspective.sendMessage(\u0027Press and Release\u0027, configuration, \u0027session\u0027)\n\t\n\tdef press_and_release(payload\u003dconfiguration):\n\t\tfrom time import sleep\n\t\n\t\ttagPath \u003d payload[\u0027tagPath\u0027]\n\t\ttimeout \u003d payload.get(\u0027timeout\u0027, 0.300) # default\n\t\t\t\n\t\t# set the tag high, wait, then go low again\n\t\tsystem.tag.write(tagPath, True)\n\t\tsleep(timeout)\n\t\tsystem.tag.write(tagPath, False)\n\t\n\t# use this instead of the message handler because it... well... works?\n\tsystem.util.invokeAsynchronous(press_and_release)\n\t\n\t# close popup\n\tsystem.perspective.closePopup(\u0027\u0027)\n\t"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "Button"
+            },
+            "position": {
+              "basis": "100px",
+              "grow": 1
+            },
+            "props": {
+              "style": {
+                "backgroundColor": "#FF8C00"
+              },
+              "text": "Yes, Continue",
+              "textStyle": {
+                "classes": "Text/PopUpText"
+              }
+            },
+            "type": "ia.input.button"
+          }
+        ],
+        "meta": {
+          "name": "YesButton"
+        },
+        "position": {
+          "basis": "120px"
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "column",
+          "justify": "center",
+          "style": {
+            "classes": "Layout/MobilePadding"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "events": {
+              "component": {
+                "onActionPerformed": {
+                  "config": {
+                    "script": "\t#close popup\n\tsystem.perspective.closePopup(\u0027\u0027)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "Button_0"
+            },
+            "position": {
+              "basis": "86.9px"
+            },
+            "props": {
+              "style": {
+                "backgroundColor": "value"
+              },
+              "text": "No, Go Back",
+              "textStyle": {
+                "classes": "Text/PopUpText"
+              }
+            },
+            "type": "ia.input.button"
+          },
+          {
+            "meta": {
+              "name": "Icon"
+            },
+            "position": {
+              "basis": "50px"
+            },
+            "props": {
+              "path": "material/arrow_back"
+            },
+            "type": "ia.display.icon"
+          }
+        ],
+        "meta": {
+          "name": "NoButton"
+        },
+        "position": {
+          "basis": "64px"
+        },
+        "props": {
+          "direction": "column",
+          "justify": "center",
+          "style": {
+            "classes": "Layout/MobilePadding"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "justify": "space-around"
+    },
+    "type": "ia.container.flex"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 37,
+          "width": 444,
+          "x": 738,
+          "y": 36.98
+        },
+        "props": {
+          "text": "MKP1 Alarm Journal",
+          "textStyle": {
+            "fontSize": 36,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "AlarmJournalTable"
+        },
+        "position": {
+          "height": 655,
+          "width": 1372,
+          "x": 274,
+          "y": 110
+        },
+        "props": {
+          "columns": {
+            "displayPath": {
+              "enabled": true,
+              "order": 1
+            },
+            "eventId": {
+              "enabled": false
+            },
+            "source": {
+              "enabled": false
+            }
+          },
+          "refreshRate": 1000
+        },
+        "type": "ia.display.alarmjournaltable"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,251 @@
+from datetime import datetime
+from system.net import httpClient
+import socket
+from Database import db_access
+import re
+import system
+
+db_name = 'MongoWCS'
+
+BARCODE_SEPARATOR = ','  # Modify as needed for your environment
+client = httpClient()
+
+MAN_PAYLOAD_PATTERN = re.compile(r"""
+    ^
+    (?P<indexid>\d{3})             # indexID 101-399
+    \|                             # pipe separator
+    (?P<lpn>.*)                    # LPN
+    \|                             # pipe separator
+    (?P<weight>.*)                 # weight
+    \|                             # pipe separator
+    (?P<ibn>.*)                    # IBNs (comma-delimited)
+    $
+""", re.VERBOSE)
+
+MAN_ERROR_LIST = {
+    1: 'Success',
+    2: 'Received incorrect payload',
+    3:  'Received no weight',
+    4:  'Found No LPN',
+    5:  'Found Multiple LPNs',
+    6: 'Found No IBN',
+    7: 'Found No valid IBN',
+    8:  'API Failed - Failed to connect',
+    9: 'API Failed - Failed to connect',
+    10:  'No Label Returned',
+    11: 'Could not decode',
+    14: 'Error',
+    20: 'Unexplained Error',
+}
+
+
+class MarriageProcess(object):
+	
+	def __init__(self):
+		super(MarriageProcess, self).__init__()
+		self.logger = system.util.getLogger('Marriage')
+		
+	def _update_marriage_error_state(self, code):
+		self.data.update({
+			'reason_num': code,
+			'reason': MAN_ERROR_LIST.get(code,'Unexplained'),
+			})
+			
+	def _fail_all_counts(self, reason):
+		self.induct_counts.update({
+		reason: self.induct_counts.get(reason, 0) + 1,
+			'Failed Marriage': self.induct_counts.get('Failed Marriage', 0) + 1,
+			'Failed Manifest': self.induct_counts.get('Failed Manifest', 0) + 1
+			})
+	def _test_fake_api_1(self):
+		return {
+			'statusCode': 0,
+			'status': 'Testing',
+			'desc': 'Testing API results'
+			}
+			
+	def check_induct_payload(self, payload):
+		
+		status = False
+		
+		# Match payload against regex pattern
+		payload_data_match = MAN_PAYLOAD_PATTERN.match(payload)
+		
+		# if not match return improper payload
+		if not payload_data_match:
+			self._update_marriage_error_state(2)
+			self.data.update({
+				'indexid': 100,
+				'weight': 0.0,
+				'ibn': payload,
+				'lpn': payload,
+				'printer_results': 2
+				})
+			self._fail_all_counts('Improper Payload')
+			return status
+		
+		# If matched group and prepare for update
+		payload_data = payload_data_match.groupdict()
+		indexid = payload_data['indexid']
+		lpn = payload_data['lpn']
+		ibn = payload_data['ibn']
+		
+		self.data.update({
+			'indexid': indexid,
+            'lpn': lpn,
+            'ibn': ibn,
+        })
+#		weight = payload_data['weight']
+		# validate lpn
+		lpn_status = self.check_Marriage_lpn(lpn)
+		if not lpn_status:
+			return status
+		
+		# if marriage enabled validate ibn
+		
+		
+		if self.marriage_enabled:
+			
+			# if a vaild ibn is returned should return True and continue
+			# otherwise fail and not move on 
+			ibn_status = self.verify_induct_ibn(ibn)
+			if not ibn_status:
+				return status
+				
+		try:
+			weight = float(payload_data['weight'])
+		except (ValueError, TypeError):
+			self._update_marriage_error_state(3)
+			self.data.update({
+				'weight': 0.0,
+				'printer_results': 2
+				})
+			self._fail_all_counts('Failed Weight')
+			return status
+			
+		self.data.update({
+			'weight': weight,
+			})
+		
+		return True
+		
+	def verify_induct_ibn(self, ibn_string):
+		status = False
+		
+		IBN_list = list(dict.fromkeys(ibn_string.split(BARCODE_SEPARATOR))) if ibn_string else []
+		if 'NOREAD' in IBN_list:
+			self._update_marriage_error_state(6)
+			self.data.update({
+				'ibn': 'NOREAD',
+				'printer_results': 2
+				})
+			self._fail_all_counts('Failed IBN')
+			return status
+			
+		IBN_list = [ibn for ibn in IBN_list if re.match(r'^[A-Z0-9]{6}$', ibn)]
+		if not IBN_list:
+			self._update_marriage_error_state(7)
+			self.data.update({
+				'ibn': 'No Valid',
+				'printer_results': 2
+				})
+			self._fail_all_counts('Failed IBN')
+			return status
+			
+		filter_query = {"_id": {"$in": IBN_list}}
+		project = {'_id': 1}
+		IBNresults = db_access.select_records(db_name, 'outbound_scan_sort_ibn', where_clause=filter_query, projection=project)
+		
+		if not IBNresults:
+			self._update_marriage_error_state(7)
+			self.data.update({
+				'ibn': 'No Valid',
+				'printer_results': 2
+				})
+			self._fail_all_counts('Failed IBN')
+			return status
+			
+		self._update_marriage_error_state(1)
+		self.data['ibn'] = IBNresults[0]['_id']
+		self.induct_counts.update({
+			'Passed IBN': self.induct_counts.get('Passed IBN', 0) + 1
+			})
+			
+		return True
+		
+	def check_Marriage_lpn(self, lpn_string):
+		
+		status = False
+		
+		LPN_list = list(dict.fromkeys(lpn_string.split(BARCODE_SEPARATOR))) if lpn_string else []
+		
+		if 'NOREAD' in LPN_list:
+			self._update_marriage_error_state(4)
+			self.data.update({
+				'lpn': 'NOREAD',
+				'printer_results': 2
+				})
+			self._fail_all_counts('Failed LPN')
+			return status
+			
+		LPN_list = [lpn for lpn in LPN_list if re.match(r'^H0\d{6}$', lpn)]
+		if not LPN_list:
+			self._update_marriage_error_state(4)
+			self.data.update({
+				'lpn': 'Not_Valid',
+				'printer_results': 2
+				})
+			self._fail_all_counts('Failed LPN')
+			return status
+			
+		if len(LPN_list) > 1:
+			self._update_marriage_error_state(5)
+			self.data.update({
+				'lpn': 'Multi',
+				'printer_results': 2
+				})
+			self._fail_all_counts('Failed LPN')
+			return status
+			
+			
+		self._update_marriage_error_state(1)
+		self.data.update({
+			'lpn': LPN_list[0],
+			})
+		self.induct_counts.update({
+			'Passed LPN': self.induct_counts.get('Passed LPN', 0) + 1
+			})
+		return True
+		
+	def send_marriage_request(self):
+		status = False
+		
+		api_payload = {
+			'ibns': [self.data['ibn']],
+			'deviceId': 9
+			}
+			
+		endpoint = "http://wcs01:8085/ws/v1/lpns/{lpn}".format(lpn=self.data['LPN'])
+		
+		if not getattr(self, 'simulated', False):
+			response = client.post(endpoint, data=api_payload)
+			results = response.json
+		else:
+			results = self._test_fake_api_1()
+			
+		if int(results.get('statusCode')) not in [0, 282, 259]:
+			self._update_marriage_error_state(8)
+			self.data.update({
+				'printer_results': 2
+				})
+			self.induct_counts.update({
+				'Failed Marriage': self.induct_counts.get('Failed Marriage', 0) + 1
+				})
+			return status
+			
+		self._update_marriage_error_state(1)
+		
+		self.induct_counts.update({
+			'Passed Marriage': self.induct_counts.get('Passed Marriage', 0) + 1
+			})
+		return True

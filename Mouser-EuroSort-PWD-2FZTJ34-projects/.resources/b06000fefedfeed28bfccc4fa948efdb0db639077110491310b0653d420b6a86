@@ -1,0 +1,2016 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 290
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Tree"
+        },
+        "position": {
+          "height": 873,
+          "width": 286,
+          "x": 2,
+          "y": 2
+        },
+        "propConfig": {
+          "custom.path": {
+            "binding": {
+              "config": {
+                "path": "this.props.selectionData[0]"
+              },
+              "transforms": [
+                {
+                  "code": "\tpath \u003d value.get(\u0027value\u0027,\u0027unknown\u0027)#.get(\u0027itemPath\u0027,\u0027unknown\u0027)\n\ttargetPath \u003d path.get(\u0027TargetPath\u0027,\u0027unknown\u0027)\n\t\n\treturn  targetPath\n\t\n",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            },
+            "onChange": {
+              "enabled": null,
+              "script": "\tif not currentValue.value:\n\t\treturn\n\telif currentValue.value \u003d\u003d \u0027control_panel\u0027:\n\t\tsystem.perspective.openPopup(\u0027Control Panel\u0027, \u0027-Map_Components/Power\u0027,title\u003d\u0027Control Panel\u0027)\n\telse:\n\t\tsystem.perspective.navigate(currentValue.value)"
+            }
+          }
+        },
+        "props": {
+          "appearance": {
+            "defaultNodeIcons": {
+              "collapsed": {
+                "path": "material/folder"
+              },
+              "empty": {
+                "path": "material/stop"
+              },
+              "expanded": {
+                "path": "material/folder_open"
+              }
+            },
+            "expandIcons": {
+              "collapsed": {
+                "path": "material/arrow_right"
+              },
+              "expanded": {
+                "path": "material/arrow_drop_down"
+              }
+            }
+          },
+          "items": [
+            {
+              "data": {
+                "TargetPath": "control_panel"
+              },
+              "expanded": true,
+              "items": [],
+              "label": "Control Panel"
+            },
+            {
+              "data": {
+                "TargetPath": "/alarmjournal"
+              },
+              "expanded": true,
+              "items": [],
+              "label": "Alarm Journal"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": true,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_main"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_corrugate"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_autostore_inbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": ""
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/settings",
+                        "style": {}
+                      },
+                      "items": [
+                        {
+                          "data": {
+                            "TargetPath": "/ne_receiving_calibrate_upper"
+                          },
+                          "expanded": false,
+                          "icon": {
+                            "color": "#869DB1",
+                            "path": "material/arrow_right",
+                            "style": {}
+                          },
+                          "items": [],
+                          "label": "Calibration Upper"
+                        },
+                        {
+                          "data": {
+                            "TargetPath": "/ne_receiving_calibrate_lower"
+                          },
+                          "expanded": false,
+                          "icon": {
+                            "color": "#869DB1",
+                            "path": "material/arrow_right",
+                            "style": {}
+                          },
+                          "items": [],
+                          "label": "Calibration Lower"
+                        },
+                        {
+                          "data": {
+                            "TargetPath": "/ne_receiving_vfd_autostore_inbound"
+                          },
+                          "expanded": false,
+                          "icon": {
+                            "color": "#869DB1",
+                            "path": "material/arrow_right",
+                            "style": {}
+                          },
+                          "items": [],
+                          "label": "VFD Autostore Inbound"
+                        },
+                        {
+                          "data": {
+                            "TargetPath": "/ne_receiving_vfd_sorter"
+                          },
+                          "expanded": false,
+                          "icon": {
+                            "color": "#869DB1",
+                            "path": "material/arrow_right",
+                            "style": {}
+                          },
+                          "items": [],
+                          "label": "VFD NE Receiving"
+                        },
+                        {
+                          "data": {
+                            "TargetPath": "/ne_receiving_induct_table"
+                          },
+                          "expanded": false,
+                          "icon": {
+                            "color": "#869DB1",
+                            "path": "material/arrow_right",
+                            "style": {}
+                          },
+                          "items": [],
+                          "label": "Induct Table"
+                        },
+                        {
+                          "data": {
+                            "TargetPath": "/ne_receiving_route_table"
+                          },
+                          "expanded": false,
+                          "icon": {
+                            "color": "#869DB1",
+                            "path": "material/arrow_right",
+                            "style": {}
+                          },
+                          "items": [],
+                          "label": "Route Table"
+                        }
+                      ],
+                      "label": "Tools"
+                    }
+                  ],
+                  "label": "Receiving Sorter"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": false,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Picking"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": false,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "VLM"
+                }
+              ],
+              "label": "Yellow Area"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": true,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": false,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "Dimensioner"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": false,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "VRS"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": false,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": false,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "Purple Area"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": false,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_trash"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Upper"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "Dimensioner"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "Consolidation"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": false,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_trash"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Upper"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "Dimensioner"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "Autoship outbound"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": false,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_trash"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Upper"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "Dimensioner"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "QPS Sortation"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": false,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_trash"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Upper"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "High Speed Line"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "Autoship Mezzanine"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": false,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_trash"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Upper"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "High Speed Line"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "Shipping Sorter"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": false,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_trash"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Upper"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "High Speed Line"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "Bulk Automated"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": false,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_trash"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Upper"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "High Speed Line"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "MKP"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": false,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_trash"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Upper"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "High Speed Line"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "OPEX"
+            },
+            {
+              "data": {
+                "TargetPath": ""
+              },
+              "expanded": false,
+              "items": [
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_trash"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Trash Compactor"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_upper"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Upper"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/calibration_lower"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Calibration Lower"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_ne_receiving"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD NE Receiving Sorter"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/vfd_autostoreinbound"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "VFD Autostore Inbound"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_inducttable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Induct Table"
+                    },
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_routetable"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Route Table"
+                    }
+                  ],
+                  "label": "High Speed Line"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Inbound Receiving"
+                },
+                {
+                  "data": {
+                    "TargetPath": ""
+                  },
+                  "expanded": true,
+                  "items": [
+                    {
+                      "data": {
+                        "TargetPath": "/ne_receiving_sorter"
+                      },
+                      "expanded": false,
+                      "icon": {
+                        "color": "#869DB1",
+                        "path": "material/arrow_right",
+                        "style": {}
+                      },
+                      "items": [],
+                      "label": "Sorter"
+                    }
+                  ],
+                  "label": "Outbound Receiving"
+                }
+              ],
+              "label": "Bulk Shipping"
+            }
+          ],
+          "selection": [
+            3
+          ],
+          "selectionData": [
+            {
+              "itemPath": "3",
+              "value": {
+                "TargetPath": ""
+              }
+            }
+          ]
+        },
+        "type": "ia.display.tree"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

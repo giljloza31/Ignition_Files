@@ -1,0 +1,334 @@
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+
+from functools import partial
+from time import sleep
+from datetime import datetime
+from pymongo import MongoClient
+
+from java.util import Date
+
+import re
+import socket
+import pymongo
+
+class Routing_Exception:pass
+class INCORRECT_PAYLOAD(Routing_Exception):
+	def _init_(self,data):
+		self.data = data
+
+CACHE_LIFESPAN = 3.0 # seconds
+
+CLEAR_WAIT_TIME  = 0.026
+FAILSAFE_TIMEOUT = 6.0
+
+
+# https://regex101.com/r/OJMs5F/1
+
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+client = MongoClient(uri)
+db=client.ignition
+
+
+trackno = ['^(1Z)[0-9A-Z]{16}$']
+
+
+
+packlist = [
+	'^(11K)[a-zA-Z0-9]{1,10}$',
+	'^(11K) [a-zA-Z0-9]{1,10}$',
+	'^11K[a-zA-Z0-9]{1,10}$',
+	'^11K [a-zA-Z0-9]{1,10}$']
+po_nbr = [
+#	'^(K)[\d]{6}$',
+	'^K021-[0-9A-Z]{5}$',
+	'^K029-[0-9A-Z]{5}$',
+	'^021-[0-9A-Z]{5}$',
+	'^029-[0-9A-Z]{5}$',
+	'^(K) 029-[0-9A-Z]{5}$',
+	'^(K) 021-[0-9A-Z]{5}$',
+	'^(K)029-[0-9A-Z]{5}$',
+	'^(K)021-[0-9A-Z]{5}$'
+	]
+partno = [
+	'^(P)[ -~]{1,30}$',
+	'^(P) [ -~]{1,30}$',
+	'^P[ -~]{1,30}$',
+	'^P [ -~]{1,30}$']
+supplier_partno = [
+	'^(1P)[ -~]{1,40}$',
+	'^(1P) [ -~]{1,40}$',
+	'^1P[ -~]{1,40}$',
+	'^1P [ -~]{1,40}$']
+poline = [
+	'^(4K)[\d]{1,3}$',
+	'^(4K) [\d]{1,3}$',
+	'^4K [\d]{1,3}$',
+	'^4K[\d]{1,3}$'
+	]#left pad 0's
+qty = [
+	'^(Q) [0-9]*$',
+	'^(Q)[0-9]*$',
+	'^Q[0-9]*$',
+	'^Q [0-9]*$'
+	]
+datecode = [
+	'^(9D)[0-9A-Z]{1,12}$',
+	'^9D[0-9A-Z]{1,12}$',
+	'^(10D)[0-9A-Z]{1,12}$',
+	'^10D[0-9A-Z]{1,12}$'
+	]
+lotcode = [
+	'^(1T)[ -~]{1,20}$',
+	'^1T[ -~]{1,20}$',
+	'^(1T) [ -~]{1,20}$',
+]
+coo = [
+	'^(4L)[A-Za-z]{2,3}$',
+	'^(4L) [A-Za-z]{2,3}$',
+	'^4L [A-Za-z]{2,3}$',
+	'^4L[A-Za-z]{2,3}$'
+	]
+msl = ['^[0-9a-zA-Z]{1,2}$']
+
+trackno_List = "(" + ")|(".join(trackno) + ")"
+packlist_List = "(" + ")|(".join(packlist) + ")"
+po_nbr_List = "(" + ")|(".join(po_nbr) + ")"
+partno_List = "(" + ")|(".join(partno) + ")"
+supplier_partno_List = "(" + ")|(".join(supplier_partno) + ")"
+poline_List = "(" + ")|(".join(poline) + ")"
+qty_List = "(" + ")|(".join(qty) + ")"
+datecode_List = "(" + ")|(".join(datecode) + ")"
+lotcode_List = "(" + ")|(".join(lotcode) + ")"
+coo_List = "(" + ")|(".join(coo) + ")"
+msl_List = "(" + ")|(".join(msl) + ")"
+other_List = []
+
+
+
+
+
+def build_payload(data,CNT21,CNT29,CNTNOPO):
+	
+	if data['payload']:
+		
+	
+		for token in data['payload']:
+			if re.match(trackno_List,token):
+				if data['trackno']==None:
+					data.update({
+						'trackno':token
+						})
+				else:
+					other_List.append(token)
+			
+			elif re.match(packlist_List,token):
+				if data['packlist']==None:
+					data.update({
+						'packlist':token[3:]
+						})
+				else:
+					other_List.append(token)
+					
+				
+			elif re.match(po_nbr_List,token):
+				if data['po_nbr']==None:
+					if token.startswith("K"):
+						ponum = token[1:]
+					else:
+						ponum = token
+					data.update({
+						'po_nbr':ponum
+					})
+					if re.findall("029-",token):
+						CNT29 = CNT29 + 1
+					elif re.findall("021-",token):
+						CNT21 = CNT21 + 1
+	
+				else:
+					other_List.append(token)
+					
+			elif re.match(partno_List,token):
+				if data['partno']==None:
+					data.update({
+						'partno':token[1:]
+						})
+				else:
+					other_List.append(token)
+					
+			elif re.match(supplier_partno_List,token):
+				if data['supplier_partno']==None:
+					data.update({
+						'supplier_partno':token[2:]
+						})
+				else:
+					other_List.append(token)
+					
+			elif re.match(poline_List,token):
+				if data['poline']==None:
+					data.update({
+						'poline':token[2:]
+						})
+				else:
+					other_List.append(token)
+					
+			elif re.match(qty_List,token):
+				if data['quantity']==None:
+					data.update({
+						'quantity':int(token[1:])
+						})
+				else:
+					other_List.append(token)
+					
+			elif re.match(datecode_List,token):
+				if data['datecode']==None:
+					if token.startswith('9D'):
+						stringValue = token[2:]
+					else:
+						stringValue = token[3:]
+					
+					data.update({
+						'datecode':stringValue
+						})
+				else:
+					other_List.append(token)
+						
+			elif re.match(lotcode_List,token):
+				if data['lotcode']==None:
+					data.update({
+						'lotcode':token[2:]
+						})
+				else:
+					other_List.append(token)
+					
+			elif re.match(coo_List,token):
+				if data['coo']==None:
+					data.update({
+						'coo':token[2:]
+						})
+				else:
+					other_List.append(token)
+					
+			elif re.match(msl_List,token):
+				if data['msl']==None:
+					data.update({
+						'msl':token
+						})
+				else:
+					other_List.append(token)
+			else:
+				other_List.append(token)
+			
+		if data['po_nbr']==None:
+			CNTNOPO = CNTNOPO + 1
+	
+		data.update({
+			'Other':other_List,
+			'scanned_date_time':datetime.utcnow()
+			
+			})
+			
+		db.inbound_receiving_info.insert(data)
+	
+		tagPaths = [
+		'[default]SickTunnel/Count_021',
+		'[default]SickTunnel/Count_029',
+		'[default]SickTunnel/No_PO',
+		'[default]SickTunnel/Total_Boxes'
+		]
+		totalnum = CNT21+CNT29+CNTNOPO
+		values = [
+		CNT21,
+		CNT29,
+		CNTNOPO,
+		totalnum
+		]
+		
+		system.tag.writeBlocking(tagPaths, values)
+	
+	return data
+
+@async(name="RST-ReceiveData")
+def rst_gather_data(source_path):
+	parent_dest = '/'.join(source_path.split('/')[:-1])
+	
+	
+	data = {
+		'trackno':None,
+		'IBN':None,
+		'packlist':None,
+		'po_nbr':None,
+		'partno':None,
+		'supplier_partno':None,
+		'poline':None,
+		'quantity':None,
+		'datecode':None,
+		'lotcode':None,
+		'coo':None,
+		'msl':None,
+		'msl_drying_time':None,
+		'scanned_date_time':None,
+		'payload':None,
+		'imageID':'',
+		'indexID':0,
+		'seqID':0,
+		'Cloud9_Data':[],
+		'Time_Diff':None,
+		'API_Receieved_Time':None
+		
+		
+	}
+	
+	
+	string_input,CNT21,CNT29,CNTNOPO = [
+
+		qv.value for qv in 
+		system.tag.readBlocking([
+			parent_dest + '/' + 'ScanPayload',
+			parent_dest + '/' + 'Count_021',
+			parent_dest + '/' + 'Count_029',
+			parent_dest + '/' + 'No_PO',
+			])]
+	
+			
+	rawPayload = string_input[1:-1]
+	
+	try:
+		if len(rawPayload)>12:
+			
+			imageID = rawPayload[:12]
+			payload = rawPayload[14:].split('|')
+			if imageID.count('_') == 1:
+				indexID,seqID = imageID.split('_')
+			else:
+				raise INCORRECT_PAYLOAD(data)
+			
+			data.update({
+			'imageID':imageID,
+			'indexID':indexID,
+			'seqID':seqID,
+			'payload':payload,
+			'raw_Data':rawPayload
+			})
+		
+		else:
+			raise INCORRECT_PAYLOAD(data)
+		
+	except INCORRECT_PAYLOAD as wrongPayload:
+		data = wrongPayload[0]
+		data.update({
+			'imageID':'099_00000000',
+			'indexID':99,
+			'seqID':00000000,
+			'raw_Data':rawPayload
+		})
+			
+	except:
+		data.update({
+			'imageID':'099_00000000',
+			'indexID':99,
+			'seqID':00000000,
+			'raw_Data':rawPayload
+		})
+	
+	build_payload(data,CNT21,CNT29,CNTNOPO)

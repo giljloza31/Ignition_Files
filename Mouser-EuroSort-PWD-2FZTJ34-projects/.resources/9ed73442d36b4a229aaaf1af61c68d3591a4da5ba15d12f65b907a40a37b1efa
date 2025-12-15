@@ -1,0 +1,154 @@
+"""
+	Load destination mapping
+	
+	This clutches a few different ways to bring in maps.
+	There's a lot of case handling because there are MANY
+	ways the destination mapping may be stored or available
+	in Ignition. Since at their core it's all (int:string)
+	keypairs, this simplifies loading.
+	
+	Easy >> fast.
+
+
+	Also at the bottom is a sample script to create the udts.
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.base import EuroSorterBase
+
+from com.inductiveautomation.ignition.common import BasicDataset
+import os
+
+
+
+class EuroSorterDestinationMapping(
+		EuroSorterBase
+	):
+
+	DEFAULT_DESTINATION_MAP_LOCATION = 'data/EuroSort.DestinationMap.{name}.csv'
+
+	def __init__(self, name, destination_map=None, **config_overrides):
+		self._destination_mapping = {}
+		super(EuroSorterDestinationMapping, self).__init__(name, **config_overrides)
+
+		self.configure_destination_map(destination_map)
+		self._load_destination_map_csv()
+
+
+	def configure_destination_map(self, destination_map=None):
+		"""Resolve the destination mapping to a file"""
+		path_template_params = {
+			'name': self.name
+		}
+
+		if destination_map is None:
+			destination_map = self.DEFAULT_DESTINATION_MAP_LOCATION
+
+		# check if it's just a filepath (and not a CSV)
+		if isinstance(destination_map, (str, unicode)) and '\n' not in destination_map:
+			resolved_path = destination_map.format(**path_template_params)
+
+			assert os.path.exists(resolved_path), "Destination map does not seem to exist: %r" % (destination_map,)
+			assert resolved_path.endswith('.csv'), "Destination mapping is a CSV file of (DestNum,DeviceID)"
+			destination_map_file_path = resolved_path
+
+		# consume whats given and turn it into a file
+		elif isinstance(destination_map, (BasicDataset, dict, list, tuple, str)):
+			# we know it's an int and a string, so let's not bother to fuss over specifics
+			# and simply check the types - we only do this once, so it's not expensive
+
+			def is_int(x): # helper
+				try:
+					_ = int(x)
+					return True
+				except:
+					return False
+			
+			# Ignition Dataset
+			if isinstance(destination_map, BasicDataset):
+				assert destination_map.getColumnCount() == 2
+				# coerce dataset in case this is some derpy streaming dataset or something
+				list_of_dicts = shared.tools.data.datasetToListDict(destination_map)
+				iterable = [entry.values() for entry in list_of_dicts]
+			# dict
+			elif isinstance(destination_map, dict):
+				iterable = destination_map.items()
+			# list of pairs of data
+			elif isinstance(destination_map, (list, tuple)):
+				iterable = destination_map
+
+			
+			elif isinstance(destination_map, str):
+				iterable = [
+					line.split(',')
+					for line 
+					 in destination_map.splitlines()
+				]
+				# guess if there's a header, and if so skip it
+				first_row = iterable[0]
+				if not any([is_int(first_row[0]), is_int(first_row[1])]):
+					iterable = iterable[1:]
+
+			# coerce mapping into (destination num, device ID) pairs
+			mapping = []
+
+			for row in iterable:
+				a, b = row
+				if is_int(a):
+					assert isinstance(b, str), 'Device IDs are strings and Destinations are ints.'
+					mapping.append((int(a),b))
+				elif is_int(b):
+					assert isinstance(a, str), 'Device IDs are strings and Destinations are ints.'
+					mapping.append((int(b),a))
+				else:
+					raise AssertionError('Destinations are ints and Device IDs are strings.')
+
+			destination_map_file_path = self.DEFAULT_DESTINATION_MAP_LOCATION.format(**path_template_params)
+			assert destination_map_file_path.endswith('.csv')
+			
+			with open(destination_map_file_path, 'w') as f:
+				f.write('DestNum,DeviceID\n')
+				for destination_num, device_id in mapping:
+					f.write('%d,%s\n' % (destination_num, device_id))
+		
+		self.config['destination_map_file_path'] = destination_map_file_path
+
+
+	def _load_destination_map_csv(self):
+		"""Read in the alias mapping"""
+		self._destination_mapping = {}
+		with open(self.config['destination_map_file_path'], 'r') as f:
+			lines = f.readlines()
+			for line in lines[1:]:
+				line = line.strip()
+				destination_number, _, address = line.partition(',')
+				# coerce since the CSV doesn't quote strings
+				destination_number = int(destination_number)
+				self._destination_mapping[address] = destination_number
+
+
+#from shared.tools.pretty import p,pdir,install;install()
+#
+#with open(r'C:\Workspace\EuroSort\Opex\DestMap.csv', 'r') as f:
+#	raw_file = f.read()
+#
+#udt_path = '[EuroSort]_types_/SorterData'
+#
+#root_path = '[EuroSort]EuroSort/Opex/Destinations'
+#
+#rows = raw_file.splitlines()
+#
+#tags_to_create = []
+#for row in rows[1:]:
+#	dest_num, destination = row.split(',')
+#
+#	tags_to_create.append(dict(
+#		name = destination,
+#		#path = root_path + '/' + destination,
+#		tagType = 'UdtInstance',
+#		typeId = 'SorterData',
+#	))
+#
+#system.tag.configure(root_path, tags_to_create)
+

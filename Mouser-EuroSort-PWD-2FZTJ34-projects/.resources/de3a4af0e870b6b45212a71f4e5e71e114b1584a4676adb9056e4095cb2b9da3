@@ -1,0 +1,129 @@
+{
+  "custom": {},
+  "params": {
+    "Reset_PB": false,
+    "Start_PB": false,
+    "Stop_PB": false
+  },
+  "propConfig": {
+    "params.Reset_PB": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Start_PB": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Stop_PB": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 142,
+      "width": 222
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport threading\n\t\n\tdef set_action(view_params, value):\n\t    self.view.params.Start_PB \u003d value\n\t\n\tself.view.params.Start_PB \u003d True\n\tthreading.Timer(1, set_action, [self.view.params, False]).start()"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 183,
+          "x": 19.5,
+          "y": 16
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/play_circle_filled"
+            }
+          },
+          "text": "Start"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport threading\n\t\n\tdef set_action(view_params, value):\n\t    self.view.params.Stop_PB \u003d value\n\t\n\tself.view.params.Stop_PB \u003d True\n\tthreading.Timer(1, set_action, [self.view.params, False]).start()"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 183,
+          "x": 19.5,
+          "y": 54
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/power_settings_new"
+            }
+          },
+          "text": "Shutdown"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport threading\n\t\n\tdef set_action(view_params, value):\n\t    self.view.params.Reset_PB \u003d value\n\t\n\tself.view.params.Reset_PB \u003d True\n\tthreading.Timer(1, set_action, [self.view.params, False]).start()"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_1"
+        },
+        "position": {
+          "height": 34,
+          "width": 183,
+          "x": 19.5,
+          "y": 92
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/loop"
+            }
+          },
+          "text": "Reset"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

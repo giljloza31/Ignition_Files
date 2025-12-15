@@ -1,0 +1,102 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 902,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "System_KPI"
+        },
+        "position": {
+          "height": 278,
+          "width": 590,
+          "x": 11,
+          "y": 8
+        },
+        "propConfig": {
+          "props.params.FaultTime": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "publishInitial": false,
+                "tagPath": "[Mouser]Mouser/HSL/Counters/System_Fault_Timer"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.OffTime": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "publishInitial": false,
+                "tagPath": "[Mouser]Mouser/HSL/Counters/System_Off_Timer"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.OnTime": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "publishInitial": false,
+                "tagPath": "[Mouser]Mouser/HSL/Counters/System_On_Timer"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.RunTime": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "publishInitial": false,
+                "tagPath": "[Mouser]Mouser/HSL/Counters/System_TotalTime_Timer"
+              },
+              "type": "tag"
+            }
+          },
+          "props.params.SystemStarts": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "publishInitial": false,
+                "tagPath": "[Mouser]Mouser/HSL/Counters/New Tag"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "params": {
+            "Alarms": 0,
+            "AreaName": "High Speed Line",
+            "AreaStatus": 1,
+            "Estops": 1,
+            "Full": 0,
+            "Jams": 0,
+            "Location": "HSL",
+            "NoRead": 0,
+            "Recirc": 0,
+            "Scans": 0
+          },
+          "path": "_Templates_V3/Templates_OnScreen/System_KPI"
+        },
+        "type": "ia.display.view"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

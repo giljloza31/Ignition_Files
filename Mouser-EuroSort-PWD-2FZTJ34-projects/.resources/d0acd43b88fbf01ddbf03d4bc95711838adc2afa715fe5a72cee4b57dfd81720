@@ -1,0 +1,4 @@
+SELECT TOP( :inVarRange )*
+FROM QPS_History_Log 
+WHERE UserID = 
+ORDER BY  historyindx DESC

@@ -1,0 +1,9 @@
+SELECT SortAvailUser.UserID,
+  SortAvailUser.UserCount,
+  SortAvailUser.UserRate,
+  SortAvailUser.UserTime
+FROM SortAvailUser
+GROUP BY SortAvailUser.UserID,
+  SortAvailUser.UserCount,
+  SortAvailUser.UserRate,
+  SortAvailUser.UserTime

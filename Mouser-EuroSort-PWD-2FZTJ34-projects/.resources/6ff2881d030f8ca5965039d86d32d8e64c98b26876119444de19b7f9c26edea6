@@ -1,0 +1,361 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "Calibrate_Active": false,
+          "Points": 7
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\t\n\tself.custom.Calibrate_Action \u003d True\n\tself.custom.Calibrate_Active \u003d True\n\t\n\tsleep(1)\n\t\n\tself.custom.Calibrate_Action \u003d False\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Calibrate_PB"
+        },
+        "position": {
+          "height": 59,
+          "width": 175,
+          "x": 18.98,
+          "y": 10
+        },
+        "propConfig": {
+          "custom.Calibrate_Action": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Dev]Development/Calibration/Calibration/Calibration_PB"
+              },
+              "type": "tag"
+            },
+            "onChange": {
+              "enabled": false,
+              "script": "\t"
+            }
+          },
+          "custom.Calibrate_Status": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Dev]Development/Calibration/Calibration/Calibration_Status"
+              },
+              "type": "tag"
+            },
+            "onChange": {
+              "enabled": null,
+              "script": "\tpoints \u003d self.custom.Points\n\tif currentValue.value \u003d\u003d True:\n\t\tfor i in range(points):\n\t\t\tself.getSibling(\"FlexRepeater\").props.instances[i].Push_Button \u003d True\n\t\t\t\n\tif currentValue.value \u003d\u003d False and self.custom.Calibrate_Active \u003d\u003d True:\n\t\tsystem.perspective.openPopup(\"Calibration input\", \u0027Popups/Calibration_Username\u0027)\n\t\tself.custom.Calibrate_Active \u003d False"
+            }
+          },
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.Calibrate_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "ButtonStyles/Calibrate/Calibrate_Off",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "ButtonStyles/Calibrate/Calibrate_On"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.Calibrate_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "Calibrate",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "Calibrating"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {},
+          "textStyle": {
+            "fontSize": 24
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "lastUser"
+        },
+        "position": {
+          "height": 50,
+          "rotate": {
+            "anchor": "25% 50%"
+          },
+          "width": 163.11000000000013,
+          "x": 1439.88,
+          "y": 3.4
+        },
+        "props": {
+          "text": "User:",
+          "textStyle": {
+            "fontSize": 36,
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 50,
+          "rotate": {
+            "anchor": "38% 25%"
+          },
+          "width": 317,
+          "x": 1285.86,
+          "y": 42.7969
+        },
+        "props": {
+          "text": "Last Calibration:",
+          "textStyle": {
+            "fontSize": 36,
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 50,
+          "width": 310,
+          "x": 1609.97,
+          "y": 3.4
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Dev]Development/Calibration/Calibration/User/User"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "color": "#AAAAAA",
+            "fontSize": 24,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 50,
+          "width": 310,
+          "x": 1609.97,
+          "y": 42.7969
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Dev]Development/Calibration/Calibration/User/date"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "color": "#AAAAAA",
+            "fontSize": 24,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "height": 52,
+          "width": 275,
+          "x": 808,
+          "y": 27.38541603088379
+        },
+        "props": {
+          "text": "Calibration",
+          "textStyle": {
+            "fontSize": 40,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "FlexRepeater"
+        },
+        "position": {
+          "height": 780,
+          "width": 1905,
+          "x": 6.96875,
+          "y": 91.5625
+        },
+        "props": {
+          "direction": "column",
+          "instances": [
+            {
+              "CurrentPos": 0,
+              "Div": 10,
+              "DivertNum": 1,
+              "HighestDivertPos": 2020,
+              "LastPost": 0,
+              "Push_Button": false,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "CurrentPos": 0,
+              "Div": 10,
+              "DivertNum": 2,
+              "HighestDivertPos": 2020,
+              "LastPost": 0,
+              "Push_Button": false,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "CurrentPos": 0,
+              "Div": 10,
+              "DivertNum": 3,
+              "HighestDivertPos": 2020,
+              "LastPost": 0,
+              "Push_Button": false,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "CurrentPos": 0,
+              "Div": 10,
+              "DivertNum": 4,
+              "HighestDivertPos": 2020,
+              "LastPost": 0,
+              "Push_Button": false,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "CurrentPos": 0,
+              "Div": 10,
+              "DivertNum": 5,
+              "HighestDivertPos": 2020,
+              "LastPost": 0,
+              "Push_Button": false,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "CurrentPos": 0,
+              "Div": 10,
+              "DivertNum": 6,
+              "HighestDivertPos": 2020,
+              "LastPost": 0,
+              "Push_Button": false,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "CurrentPos": 0,
+              "Div": 10,
+              "DivertNum": 7,
+              "HighestDivertPos": 2020,
+              "LastPost": 0,
+              "Push_Button": false,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            }
+          ],
+          "path": "-Templates/postions"
+        },
+        "type": "ia.display.flex-repeater"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": 106.46875,
+      "y": 10
+    },
+    "type": "ia.container.coord"
+  }
+}

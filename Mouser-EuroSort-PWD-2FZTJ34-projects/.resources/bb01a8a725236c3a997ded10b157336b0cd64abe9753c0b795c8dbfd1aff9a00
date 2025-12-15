@@ -1,0 +1,352 @@
+from shared.tools.thread import async
+from datetime import datetime
+from system.net import httpClient
+from Database import db_access
+
+import re
+
+db_name = 'MongoWCS'
+plcname = 'Mouser_HSL'
+#logger for Marriage
+logger = system.util.getLogger('Marriage')
+
+simulated = True
+sim_results = {
+	'desc':'Success',
+	'statusCode':0,
+	'status':'Success'
+	}
+
+
+# Barcode separator constant (define it properly)
+BARCODE_SEPARATOR = ','  # Modify based on actual usage
+client = httpClient()
+
+
+MAN_PAYLOAD_PATTERN = re.compile(r"""
+	^
+	(?P<indexid>\d{3})						# indexID 101-399
+	\|										# pipe seperator
+	(?P<lpn>.*)								# LPN
+	\|										# pipe seperator
+	(?P<weight>.*)							# weight
+	\|										# pipe seperator
+	(?P<ibn>.*)								# lpns (needs to be comma-delimited)
+	$
+	""", re.VERBOSE)
+	
+
+	
+# Marriage/Manifest Errors
+MAN_ERROR_LIST = {
+	1: 'Success',
+	2: 'Incorrect Payload',
+	3: 'No Weight',
+	4: 'NoRead LPN',
+	5: 'Multi LPN',
+	6: 'NoRead IBN',
+	7: 'NoValid IBN',
+	8: 'Failed Marriage API',
+	9: 'Failed Manifest API',
+	10:'No Label Returned',
+	11:'Decode Error',
+	20:'Unexplained Error',
+	21:'Failed'
+}
+class MarriageProcess:
+	def coerce_weight(self,raw, default=0.0, allow_zero=True):
+	    """Normalize a weight value to float.
+	       Handles None/''/'NODATA'/'NOWEIGHT', numbers, and strings like '12.3 lb' or '1,234.56'."""
+	    if raw is None:
+	        return default
+	
+	    # Numeric types pass through
+	    try:
+	        # Jython-friendly check without relying on numbers.Number
+	        if isinstance(raw, (int, long, float)):
+	            w = float(raw)
+	        else:
+	            s = unicode(raw).strip()
+	            if not s or s.upper() in ('NODATA', 'NOWEIGHT', 'NOREAD', 'NULL', 'NONE', 'NA'):
+	                return default
+	            s = s.replace(',', '')
+	            m = re.search(r'-?\d+(?:\.\d+)?', s)  # grab first numeric token
+	            if not m:
+	                return default
+	            w = float(m.group(0))
+	    except Exception:
+	        return default
+	
+	    if not allow_zero and w == 0.0:
+	        return default
+	    if w < 0:
+	        w = 0.0  # or abs(w) if that fits your process
+	    # Jython-safe rounding to 3 decimals
+	    return round(float(w),2)	
+		
+	# Check payload if correctly formatted 
+	def check_payload(self,payload,data,counts):
+	
+		payload_data_match = MAN_PAYLOAD_PATTERN.match(payload)
+		
+		# If not matched return error
+		if not payload_data_match:
+			
+			data.update({
+				'reason_num':2,
+				'reason':MAN_ERROR_LIST.get(2),
+				'print_results':2
+				})
+			
+			counts.update({
+				'Improper_Payload_cnt':counts.get('Improper_Payload_cnt',0)+1
+				})
+			return data,counts
+		
+		# If match group into correct identifiers
+		payload_data = payload_data_match.groupdict()
+		 
+		data.update({
+			'indexId': payload_data['indexid'],
+			'LPN': payload_data['lpn'],
+			'weight' : payload_data['weight'],
+			'IBN':payload_data['ibn'],
+			'reason_num':1,
+			'reason':MAN_ERROR_LIST.get(1),
+			})
+	
+		counts.update({
+			'Proper_Payload_cnt':counts.get('Proper_Payload_cnt',0)+1
+			})
+		return data,counts
+			
+			
+	def check_ibn(self,data,counts):
+		
+		ibn_string = data.get('IBN','')
+		
+		if ibn_string and ibn_string not in ['NOREAD']:
+			# Use dict.fromkeys() to remove duplicates while preserving order
+			IBN_list = list(dict.fromkeys(ibn_string.split(BARCODE_SEPARATOR)))
+			
+			
+			# Use list comprehension to filter valid LPNs
+			IBN_list = [ibn for ibn in IBN_list if re.match('^[A-Z0-9]{6}$', ibn)]
+				
+			if not IBN_list:
+				data.update({
+					'reason_num':7,
+					'reason':MAN_ERROR_LIST.get(7),
+					'print_results':2,
+					})
+				counts.update({
+				'NoVaild_IBN_cnt': counts.get('NoVaild_IBN_cnt', 0) + 1
+				})	
+				return data,counts
+			
+			filter_query = {"_id": {"$in": IBN_list}}
+			project={'_id': 1}
+			IBNresults = db_access.select_records(db_name,'outbound_scan_sort_ibn',where_clause=filter_query,projection=project)
+			
+			
+			if not IBNresults:
+
+				data.update({
+					'reason_num':7,
+					'reason':MAN_ERROR_LIST.get(7),
+					'print_results':2,
+					})
+				counts.update({
+				'NoVaild_IBN_cnt': counts.get('NoVaild_IBN_cnt', 0) + 1
+				})	
+				
+				
+			else:
+				ibn_list = []
+				for result in IBNresults:
+					if result['_id'] not in ibn_list:
+						ibn_list.append(result['_id'])
+						
+				data.update({
+					'IBN':','.join(ibn_list),
+					'reason_num':1,
+					'reason':MAN_ERROR_LIST.get(1),
+					'IBN_List':ibn_list
+					
+					})
+				counts.update({
+					'Passed_IBN_cnt': counts.get('Passed_IBN_cnt', 0) + 1
+					})	
+			
+			
+		elif ibn_string in ['NOREAD']:
+			data.update({
+				'IBN':'NOREAD',
+				'reason_num':6,
+				'reason':MAN_ERROR_LIST.get(6,'Unexplained Error'),
+				'print_results':2
+					
+					})
+			counts.update({
+				'NoRead_IBN_cnt': counts.get('NoRead_IBN_cnt', 0) + 1
+				})
+				
+		return data,counts
+
+	def check_weight(self,data,counts):
+		
+		weight = self.coerce_weight(data.get('weight'))
+		if weight <= 0:
+			data.update({
+				'weight':0,
+				'reason_num':3,
+				'reason':MAN_ERROR_LIST.get(3),
+				'print_results':2,
+			})
+			counts.update({
+				'Failed_Weight_cnt': counts.get('Failed_Weight_cnt', 0) + 1
+			})
+			return data,counts			
+	
+		data.update({
+			'weight': weight,
+			'reason_num':1,
+			'reason':MAN_ERROR_LIST.get(1),
+			})
+		counts.update({
+			'Passed_Weight_cnt': counts.get('Passed_Weight_cnt', 0) + 1
+		})
+		return data,counts
+		
+	# Check to ensure one unqiue LPN 
+	def check_lpn(self,data,counts):
+		
+		lpn_string = data.get('LPN','')
+		
+		if lpn_string:
+			# Use dict.fromkeys() to remove duplicates while preserving order
+			LPN_list = list(dict.fromkeys(lpn_string.split(BARCODE_SEPARATOR)))
+			# Check if No read is part of the string
+			if 'NOREAD' in LPN_list:
+				
+				data.update({
+					'LPN':'NOREAD',
+					'reason_num':4,
+					'reason':MAN_ERROR_LIST.get(4,'Unexplained Error'),
+					'print_results':2,
+					})
+				
+				counts.update({
+					'NoRead_LPN_cnt': counts.get('NoRead_LPN_cnt', 0) + 1
+				})	
+				return data,counts
+			# Use list comprehension to filter valid LPNs
+			LPN_list = [lpn for lpn in LPN_list if re.match('^H0\d{6}$', lpn)]
+			
+			# If LPN list is empty raise error
+			if not LPN_list:
+				data.update({
+					'reason_num':4,
+					'reason':MAN_ERROR_LIST.get(4),
+					'print_results':2,
+					})
+				counts.update({
+					'NoRead_LPN_cnt': counts.get('NoRead_LPN_cnt', 0) + 1
+				})	
+				return data,counts	
+			
+
+			# If len of LPN is greater than 1 
+			if len(LPN_list)>1:
+				data.update({
+					'reason_num':5,
+					'reason':MAN_ERROR_LIST.get(5),
+					'print_results':2,
+					})
+				counts.update({
+					'Multi_LPN_cnt': counts.get('Multi_LPN_cnt', 0) + 1
+				})	
+				return data,counts
+			
+			# If all good return 1 
+			data.update({
+				'LPN':LPN_list[0],# This should only return itself
+				'reason_num':1,
+				'reason':MAN_ERROR_LIST.get(1),
+			})
+			counts.update({
+				'Passed_LPN_cnt': counts.get('Passed_LPN_cnt.', 0) + 1
+				})
+			
+			
+		else:
+			data.update({
+				'induct_lpn_list':lpn_string,
+				'reason_num':4,
+				'reason':MAN_ERROR_LIST.get(4),
+				'print_results':2,
+				})
+				
+			counts.update({
+				'NoRead_LPN_cnt': counts.get('NoRead_LPN_cnt', 0) + 1
+			})	
+		
+			
+		return data,counts
+			
+	
+	def marry_process(self,data,counts):
+		
+		api_payload = {
+			'ibns':  data['IBN_List'],
+			'deviceId':9
+			}
+		
+		
+		try:
+			# Production Enpoint
+			ENDPOINT = 'http://wcs01:8085/ws/v1/lpns/%s' % data['LPN']
+			
+			if not simulated:
+				response = client.post(ENDPOINT,data=api_payload)
+				results = response.json
+			else:
+				results = sim_results
+
+			if int(results['statusCode']) not in [0,282,259]:
+				
+				
+				data.update({
+					'marriage_desc':results['desc'],
+					'reason':MAN_ERROR_LIST.get(8),
+					'reason_num':8,
+					'print_results':2,
+				})
+
+				return data,counts
+				
+			data.update({
+				'marriage_results':results['status'],
+				'marriage_desc': 'Success',
+				'reason': MAN_ERROR_LIST.get(1),
+				'reason_num': 1,
+				'print_results':1,
+				})
+			counts.update({
+				'Passed_Marriage_cnt': counts.get('Passed_Marriage_cnt', 0) + 1
+			})
+				
+		except:
+			data.update({
+				'reason':MAN_ERROR_LIST.get(8),
+				'reason_num':8,
+				'print_results':2,
+			})
+
+			counts.update({
+				'Failed_Marriage_cnt': counts.get('Failed_Marriage_cnt', 0) + 1
+			})
+	
+
+		return data,counts
+		

@@ -1,0 +1,60 @@
+"""
+	Persist the data to tags
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+
+
+
+
+class TagMappingMixin(SorterDataBase):
+	
+	ROOT_SORTER_TAG_PATH = '[EuroSort]EuroSort'
+	
+	PROPERTY_TO_UDT_MAP = {
+		'destination_status': 'Destination/Status',
+		'destination'       : 'Destination/Raw Destination',
+		'chute'             : 'Destination/Chute',
+		'side'              : 'Destination/Side',
+		'station'           : 'Destination/Station',
+		'dest'              : 'Destination/Destination',
+		
+		'dimensions'        : 'Dimensions/Dimensions',
+		'height'            : 'Dimensions/Height',
+		'width'             : 'Dimensions/Width',
+		'length'            : 'Dimensions/Length',
+		'weight'            : 'Dimensions/Weight',
+		
+		'light_status'      : 'Light/Status',
+		'light_color'       : 'Light/Color',
+	
+		'message_code'      : 'Message Code',
+		
+		'button_id'         : 'Button ID',
+		
+		'barcode'           : 'Barcode',
+		
+		'track_id'          : 'Item/Track ID',
+		'carrier_side'      : 'Item/Carrier Side',
+		'carrier_number'    : 'Item/Carrier Number',
+		'item_id'           : 'Item/Induct Index',
+	}
+
+	def update_machine_tags(self, machine_name):
+		base_tag_path = self.ROOT_SORTER_TAG_PATH + '/' + machine_name + '/' + 'Destinations'
+		
+		tag_paths = []
+		values = []
+		for attribute, tag_path_suffix in self.PROPERTY_TO_UDT_MAP.items():
+			value = self[attribute]
+			
+			# naive, but reasonable: all defaults are falsy
+			if value:
+				tag_paths.append('/'.join([base_tag_path, self.destination, tag_path_suffix]))
+				values.append(value)
+			
+		_ = system.tag.writeAsync(tag_paths, values)
+
+

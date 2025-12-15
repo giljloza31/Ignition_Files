@@ -1,0 +1,383 @@
+{
+  "custom": {},
+  "params": {
+    "Destination": "value",
+    "IndexID": "value",
+    "Payload": "value",
+    "ReadRate": 100,
+    "Route": "value",
+    "TotalCnt": 0,
+    "TotalNoRead": 0
+  },
+  "propConfig": {
+    "params.Destination": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.IndexID": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Payload": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.ReadRate": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Route": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.TotalCnt": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.TotalNoRead": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 72,
+      "width": 159
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "IndexID",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 23,
+          "width": 40,
+          "y": 0.3
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.IndexID"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFE8CC",
+            "borderStyle": "solid",
+            "borderWidth": 0.5,
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Payload",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 23,
+          "width": 117,
+          "x": 40,
+          "y": 0.3
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "../Payload.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.Payload"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#CCCCFF",
+            "borderStyle": "solid",
+            "borderWidth": 0.5,
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Route",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 23,
+          "width": 52,
+          "y": 23.3
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "../Route.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.Route"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#CCFFFF",
+            "borderStyle": "solid",
+            "borderWidth": 0.5,
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Destination",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 23,
+          "width": 105,
+          "x": 52,
+          "y": 23.3
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "../Destination.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.Destination"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFFFCC",
+            "borderStyle": "solid",
+            "borderWidth": 0.5,
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Total_CNT",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 23,
+          "width": 52,
+          "y": 46.59
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "../Route.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.TotalCnt"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid",
+            "borderWidth": 0.5,
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "ReadRate",
+          "tooltip": {
+            "enabled": true,
+            "text": "ReadRate"
+          }
+        },
+        "position": {
+          "height": 23,
+          "width": 54,
+          "x": 52,
+          "y": 46.59
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "path": "view.params.ReadRate"
+              },
+              "transforms": [
+                {
+                  "fallback": "#00D900",
+                  "inputType": "range",
+                  "mappings": [
+                    {
+                      "input": {
+                        "max": 50,
+                        "min": 0
+                      },
+                      "output": "#FF0000"
+                    },
+                    {
+                      "input": {
+                        "max": 75,
+                        "min": 51
+                      },
+                      "output": "#FFFF00"
+                    },
+                    {
+                      "input": {
+                        "max": 100,
+                        "min": 75
+                      },
+                      "output": "#00D900"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.ReadRate"
+              },
+              "transforms": [
+                {
+                  "expression": "round({value},2) + \u0027 %\u0027",
+                  "type": "expression"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 0.5,
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Total_NoRead",
+          "tooltip": {
+            "enabled": true,
+            "text": "Route"
+          }
+        },
+        "position": {
+          "height": 23,
+          "width": 52,
+          "x": 105,
+          "y": 46.59
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.TotalNoRead"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#8AFFFF",
+            "borderStyle": "solid",
+            "borderWidth": 0.5,
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

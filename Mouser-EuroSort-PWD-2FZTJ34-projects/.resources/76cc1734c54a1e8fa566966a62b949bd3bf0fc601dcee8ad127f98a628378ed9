@@ -1,0 +1,319 @@
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from datetime import datetime
+import pytz
+
+import re
+from pymongo import MongoClient
+connector = "MongoWCS"
+tz_name="America/Chicago"
+
+PLCNAME = 'ns=1;s=[L3100ERS2_Autoship_Mezz]'
+PAYLOAD_PATTERN = re.compile(r"""
+	^
+	(?P<indexID>\d{3})					# indexID 101-399
+	\;									# semi-colon seperator
+	(?P<weight>.*)						# weight
+	\;									# semi-colon seperator
+	(?P<dim>.*)							# dimensions
+	\;									# semi-colon seperator
+	(?P<unit>.*)						# unit of measure
+	\;									# semi-colon seperator
+	(?P<dim_status>.*)					# Dimensioner status
+	\;									# semi-colon seperator
+	(?P<dim_results>.*)					# Error Message Blank if good
+	\;									# 2semi-colon seperator
+	(?P<barcodes>.*)					# payload comma deliminated
+	$
+	""", re.VERBOSE)
+barcodesErrorList = [
+	 '^NO_BARCODE$',
+	 '^NOREAD$'
+	]
+
+dimErrorList = [
+    '^NODIM_BOX_SIDE_BY_SIDE$',
+    '^NODIM_BOX_SIDES_TOO_NOISY$',
+    '^NODIM_BOX_POINT_BORDER_DIST$',
+    '^NODIM_BOX_PEAK_VS_BORDER$'
+	]
+
+IBN_PATTERN = [
+        '^[0-9]{1}[0-9A-Z]{5}$'
+        ]
+LPN_PATTERN = [
+        '^M[0-9A-Z]{11}$',
+        '^M[0-9A-Z]{7}$',
+        '^[0-9A-Z]{8}$',
+        '^I4[0-9A-Z]{6}$',
+        '^I5[0-9A-Z]{6}$',
+        '^R[0-9A-Z]{11}$',
+        '^T[0-9A-Z]{11}$',
+        '^P[0-9A-Z]{11}$',
+        '^H0[0-9]{6}$',
+        '^H0[0-9]{6}     $'	# 5 trailing spaces
+        
+	]
+
+barcode_error = "(" + ")|(".join(barcodesErrorList) + ")"
+dim_error = "(" + ")|(".join(dimErrorList) + ")"
+ibn_list = "(" + ")|(".join(IBN_PATTERN) + ")"
+lpn_list = "(" + ")|(".join(LPN_PATTERN) + ")"
+
+REASON_CODES = {
+0 : 'Default',
+1 : 'Successful Divert to BAL',
+2 : 'Successful Divert to CatchBox',
+3 : 'Successful Divert to BulkShipping',
+4 : 'Improper format received sent to Bulkshipping',
+5 : 'Received Error message from Dimensioner',
+
+}
+
+class BulkAutomatedManager:
+		
+	
+	def _check_payload(self,payload,data):
+		
+		payload_data_match = PAYLOAD_PATTERN.match(payload)
+		if not payload_data_match:
+			data.update({
+				'reason':4,
+				'weight':0,'length':0,
+				'width':0,'height':0,
+				'IGN_Barcode_Returned':'NO_BARCODE',
+				'IGN_Destination_Returned':2,
+				'IGN_Route_Returned':'Bulk Shipping',
+				'IGN_Marriage_Result_Returned':0
+				})
+			return False
+			
+			
+		
+		
+		payload_data = payload_data_match.groupdict()
+		
+		if re.match(dim_error,payload_data['dim_results']):
+			data.update({
+				'reason':5,
+				'weight':0,'length':0,
+				'width':0,'height':0,
+				'IGN_Barcode_Returned':payload_data['barcodes'],
+				'IGN_Destination_Returned':2,
+				'IGN_Route_Returned':'Bulk Shipping',
+				'IGN_Marriage_Result_Returned':0
+				})
+			return False
+			
+		length,width,height = map(float,payload_data['dim'].split(','))
+		data.update({
+			'IGN_IndexID_Returned':payload_data['indexID'],
+			'weight':int(float(payload_data['weight'])*1000),
+			'length':int(length*1000),
+			'width':int(width*1000),
+			'height':int(height*1000),
+			'barcode_list':payload_data['barcodes'].split(',')
+			})
+		return True
+	
+
+	def _check_mongo(self,IBN_barcodes,LPN_barcodes,data):
+		bulk_results = False
+		catch_results = False
+		va_results = False
+		marriage_required = 0
+		collection = 'ipack_docs_info'
+		
+		if IBN_barcodes:
+			filter_query={
+				"_id":{'$in':IBN_barcodes}
+				}
+				
+			IBN_results = list(system.mongodb.find(connector = 'MongoWCS', collection = 'outbound_scan_sort_ibn',filter=filter_query
+				))
+		
+			system.util.getLogger('bal').info('%s'%IBN_results[0]['va_flag'])
+				
+			if IBN_results:
+				bulk_results = bool(IBN_results[0]['bulk_single_flag'])
+				catch_results = bool(IBN_results[0]['catchbox_flag'])
+				va_results = bool(IBN_results[0]['va_flag'])
+				
+				if catch_results or va_results:
+					destination = 4
+					ca_flag = True
+					code_returned = IBN_results[0]['_id']
+					destination_string = 'CatchBox'
+					BAL_LPN = IBN_results[0]['_id']
+					
+				elif bulk_results:
+					if data['length'] >= data['max_dim'] or data['width'] >= data['max_dim']:
+						destination = 2
+						code_returned = IBN_results[0]['_id']
+						BAL_LPN = IBN_results[0]['_id']
+						marriage_required = 0
+						destination_string = 'Bulk Shipping'
+					else:
+						if data['BAL_avail']:
+							destination = 1
+						else:
+							destination = 2
+						BAL_LPN = data['BAL_LPN']
+						ba_flag = True
+						code_returned = IBN_results[0]['_id']
+						destination_string = 'Bulk Automated'
+						marriage_required = 1
+						
+						ExtraGlobal.stash(code_returned,label=BAL_LPN,scope='Marry-IBN-LPN',lifespan=20.0)
+				else:
+					code_returned = IBN_results[0]['_id']
+					BAL_LPN = IBN_results[0]['_id']
+					destination = 2
+					destination_string = 'Bulk Shipping'
+		
+		
+		if LPN_barcodes:
+			aggregate=[{
+				'$match':{
+					'$and':[{
+						'lpn':{
+							'$in':LPN_barcodes}},
+							{'placement':'outside'}]}},
+							{'$group':{'_id':"$lpn"}},
+							{'$count':"unique_lpn_count"}]
+							
+			LPN_check = list(system.mongodb.aggregate(connector, collection, aggregate))
+			if LPN_check:
+				if LPN_check[0]['unique_lpn_count'] == 1:
+					aggregate=[{
+					'$match':{
+						'$and':[{
+							'lpn':{
+								'$in':LPN_barcodes}},
+								{'placement':'outside'}]}},
+								{'$count':"pagecount"}]
+					LPN_pagecount = list(system.mongodb.aggregate(connector, collection, aggregate))
+					pagecount = LPN_pagecount[0]['pagecount']
+					
+					if data['BAL_avail']:
+						destination = 1
+					else:
+						destination = 2
+					filter = {'lpn':{'$in':LPN_barcodes}}
+					query_check = list(system.mongodb.find(connector, collection, filter))
+					BAL_LPN = 	query_check[0]['_id']
+					ba_flag = True
+					code_returned = query_check[0]['_id']
+#					reason = 
+					destination_string = 'Bulk Automated'
+					marriage_required = 0
+					
+		if not LPN_check and not IBN_results:
+			code_returned = 'NOIBN'
+			BAL_LPN = 'NOLPN'
+			destination = 2
+			destination_string = 'Bulk Shipping'
+			
+		data.update({
+			'IGN_Marriage_Result_Returned': marriage_required,		
+			'IGN_Destination_Returned':destination,	
+			'IGN_Route_Returned':destination_string,
+			'IGN_Barcode_Returned':code_returned,
+			'IGN_LPN_Returned':BAL_LPN
+			})
+		
+	
+	def _define_payload(self,barcode_list,data):
+		barcode_errors = []
+		IBN_barcodes = []
+		LPN_barcodes = []
+		
+		
+		for barcode in barcode_list:
+			barcode = barcode.strip()
+			if re.match(barcode_error,barcode):
+				barcode_errors.append(barcode)
+			elif re.match(ibn_list,barcode):
+				IBN_barcodes.append(barcode)
+			elif re.match(lpn_list,barcode):
+				LPN_barcodes.append(barcode)
+			
+		if not barcode_errors:
+			self._check_mongo(IBN_barcodes,LPN_barcodes,data)
+		else:
+			data.update({
+				'IGN_Marriage_Result_Returned': 0,		
+				'IGN_Destination_Returned':2,	
+				'IGN_Route_Returned':"Bulk Shipping",
+				'IGN_Barcode_Returned':"NOREAD",
+				'IGN_LPN_Returned':"NOREAD"
+				})
+		
+		
+	def _push_updates(self,data):
+		
+		system.opc.writeValues('Ignition OPC-UA Server',*zip(*[
+			(PLCNAME + 'IGN_Barcode_Returned',data['IGN_Barcode_Returned']),
+			(PLCNAME + 'IGN_Returned_Destination',data['IGN_Destination_Returned']),
+			(PLCNAME + 'IGN_IndexID_Returned',data['IGN_IndexID_Returned']),
+			(PLCNAME + 'IGN_Marriage_Result_Returned',data['IGN_Marriage_Result_Returned']),
+			
+			]))
+		system.tag.writeAsync(*zip(*[
+			
+			(source_path + '/' + 'IGN_Route_Returned',  data['IGN_Route_Returned']),
+			(source_path + '/' + 'StopTime',  data['Got_Time']),
+			(source_path + '/' + 'timediff',  data['time_diff']),
+			
+			]))	
+	
+	def _create_and_update_db(self,data):
+		
+
+	@async(name="BAL-Routing-GatherData")
+	def Bulk_Automated_gather_data(self,source_path):
+
+		time_start = system.date.now()
+		
+		get_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+		got_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+		
+		tags = system.tag.readBlocking([
+			get_parent_dest + '/IGN_IndexID_Sent',			
+			get_parent_dest + '/BAL1000_SCAN_TUNNEL',
+			get_parent_dest + '/Sent_To_Printer',
+			get_parent_dest + '/Bulk_Automated_Avail',
+			get_parent_dest + '/Max_Dim',
+			get_parent_dest + '/Min_Dim',
+		])
+		indexID, raw_payload, lpn, avail, max_dim, min_dim = [qv.value for qv in tags]
+		
+		#Automatically start time		
+		system.tag.writeAsync(*zip(*[			
+			(got_parent_dest + '/StartTime', time_start),
+		]))
+		
+		data = {
+			'timestart':time_start,'IGN_IndexID_Returned':indexID,'raw_payload':raw_payload,
+			'BAL_LPN':lpn,'BAL_avail':bool(avail),'max_dim':(int(max_dim)*1000),
+			'mix_dim':(int(min_dim)*1000),
+			}
+		
+		check_payload = self._check_payload(data['raw_payload'],data)
+		
+		if check_payload:
+			self._define_payload(data['barcode_list'],data)
+		
+		
+		time_stop = system.date.now()
+		
+		time_diff_ms = system.date.millisBetween(time_start, time_stop)
+		
+		data.update({
+			'Got_Time' : time_stop,
+			'time_diff': time_diff_ms
+			})
+		
+		self._push_updates(got_parent_dest,data)
+		self._create_and_update_db(data):
+		

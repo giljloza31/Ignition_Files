@@ -1,0 +1,328 @@
+import math, re
+from types import FunctionType
+
+from transitions import State, Machine
+
+
+try:
+	_ = property.setter
+except AttributeError:
+	from shared.tools.compat import property
+
+try:
+	from yaml import load as yaml_loader, FullLoader
+except ImportError:
+	from shared.data.yaml.core import load as yaml_loader, FullLoader
+
+
+from shared.data.simulators.process.escapement import Escapement
+from shared.data.simulators.process.mixins.support import MixinFunctionSupport, MetaFunctionMixin
+from shared.data.simulators.process.mixins.access  import AccessMixin,          MetaGlobalAccessMixin
+from shared.data.simulators.process.wrapped import WrappedSimulationFunction
+
+
+# make sure to mix the required mixing metaclasses
+#... we're not going to make this automagic - only built-in special 
+#    mixins get metaclasses for this project :|
+class MetaProcess(
+		MetaGlobalAccessMixin,
+		MetaFunctionMixin,
+	):
+	pass
+
+
+
+
+class Process(AccessMixin, Escapement, MixinFunctionSupport, Machine):
+	"""
+	The core of the simulation design.
+
+	Provide variables and their functions. Set the initial conditions.
+
+	"""
+	__metaclass__ = MetaProcess
+	
+	_DEFAULT_START_VALUE = 0
+	
+	_TRANSITION_CHECK = 'check_state'
+	
+	_METADATA_NUM_STATES = '_n_states'
+	_METADATA_NUM_STEPS_IN_STATE  = '_n_steps'
+	# we don't need the full count of steps because, well, it's not useful? watch would be better
+
+
+	def __init__(self,
+				 # Raw configuration
+				 raw_definition=None,
+				 # Simulation configuration
+				 variables=None, start=None, alias=None, escapement=None, name=None,
+				 # State machine configuration
+				 states=None, transitions=None,
+				 # Remaining state machine configuration pass through
+				 **keyword_arguments):
+
+		# For self reference and reloading
+		self._raw_definition = raw_definition
+
+		# For configuration
+		self._name = name
+		
+		self._aliases = alias or {}
+		self._start_values = start or {}
+		self._definitions = dict((variable, lambda: self._DEFAULT_START_VALUE)
+								 for variable in variables)
+
+		# To be initialized
+		self._variables = {}
+		self._functions = {}
+
+		self._escapement_definition = escapement
+		self._initialize_escapement()
+
+		self._initialize()
+
+		# Machine setup/prep
+		self._state_variable_definitions = states
+		states = [state for state in states]
+
+		self._initialize_transitions(transitions)
+
+		keyword_arguments['states'] = states
+		keyword_arguments['transitions'] = self._transition_definitions
+		keyword_arguments['after_state_change'] = self._reconfigure_after_state_change
+		keyword_arguments['auto_transitions'] = False
+		super(Process, self).__init__(**keyword_arguments)
+
+		# Initial state (first doesn't trigger after state change)
+		self._reconfigure_after_state_change()
+
+
+	def _initialize(self):
+		"""
+		Initialize the variables to their starting values, if any.
+		"""
+		for variable in self._definitions:
+			if not variable in self._start_values:
+				self._start_values[variable] = self._DEFAULT_START_VALUE
+
+		# prime varaible listing for reference during resolution
+		self._variables = self._start_values.copy()
+	
+		self._initialize_variables()
+		
+		self.num_states = 1
+		self.num_steps_in_state = 0
+
+
+	@property
+	def num_states(self):
+		return self._variables[self._METADATA_NUM_STATES]
+	
+	@num_states.setter
+	def num_states(self, new_count):
+		self._variables[self._METADATA_NUM_STATES] = new_count
+
+	@property
+	def num_steps_in_state(self):
+		return self._variables[self._METADATA_NUM_STEPS_IN_STATE]
+	
+	@num_steps_in_state.setter
+	def num_steps_in_state(self, new_count):
+		self._variables[self._METADATA_NUM_STEPS_IN_STATE] = new_count
+
+
+	def _initialize_variables(self):
+		# maintain the status quo if no reconfiguration
+		if not self._definitions:
+			return
+
+		for variable, definition in self._definitions.items():
+			# Do not mutate the variable that controls the stepping, if provided
+			if variable == self._escapement_variable:
+				continue
+
+			definition = self._resolve_variable_definition(definition)
+
+			if not definition or not isinstance(definition, dict):
+				continue
+
+			# specific variable definitions override more general ones
+			if 'default' in definition:
+				self._variables[variable] = self._start_values[variable] = definition['default']
+
+			# update definition for variable's aliases for resolution process
+			alias = self._aliases.copy()
+			alias.update(definition.get('alias', {}))
+			definition['alias'] = alias
+
+			self._functions[variable] = self._resolve_function(variable, definition)
+
+
+	def _resolve_variable_definition(self, variable_definition):
+		"""
+		Generate a more complete variable definition. Exists mostly to be overridden.
+		(For example, a variable may be string, but should be an Expression instead;
+		 but why hassle with all the configuration keys when a string will do?)
+		"""
+		if isinstance(variable_definition, dict) and 'kind' in variable_definition:
+			return variable_definition
+		elif isinstance(variable_definition, FunctionType):
+			return dict(kind='', config=dict(function=variable_definition))
+		elif variable_definition is None:
+			return dict(kind='', config=dict(hold=None))
+		else:
+			return dict(kind='', config=dict(value=variable_definition))
+
+
+	def _resolve_arguments(self, some_callable):
+		"""
+		Allow mixins to define how their arguments are resolved for the function closures.
+		Returns a list or tuple of argument names that the callable expects.
+		"""
+		try: # function???
+			return some_callable.func_code.co_varnames[:some_callable.func_code.co_argcount]
+		except AttributeError: # maybe it's a callable class thing...
+			try:
+				return some_callable.__call__.func_code.co_varnames[:some_callable.__call__.func_code.co_argcount]
+			except AttributeError:
+				return tuple() # if the buck gets passed up the chain all the way to here, well, /shrug
+		#return super(FunctionMixin, self)._resolve_arguments(some_callable)
+
+
+	def _resolve_function(self, variable, definition):
+		"""
+		Given a definition, generate a function for a variable to follow.
+		"""
+		assert isinstance(definition, dict), 'Variable function definition for "%s" should be a dictionary.' % variable
+		assert set(('kind','config',)).intersection(set(definition.keys())), 'Variable definitions must at least describe what "kind" it is and the "config" for that kind.'
+
+		kind = definition['kind']
+		config = getattr(self, '_configure_default_%s' % kind)(variable)
+		config.update(definition.get('config', {}))
+
+		function = getattr(self, '_configure_function_%s' % kind)(**config)
+
+		return self._close_function(function, definition.get('alias', {}))
+
+
+	def _close_function(self, function, aliases=None):
+		"""
+		Create closures for each variable's function.
+		This will ensure each step is resolved correctly.
+		"""
+		return WrappedSimulationFunction(self, function, aliases)
+
+
+	def _initialize_transitions(self, transition_definitions):
+		transitions = []
+
+		for source, destinations in transition_definitions.items():
+			transition = {
+				'source': source,
+				'trigger': self._TRANSITION_CHECK,
+			}
+
+			if isinstance(destinations, (str,unicode)):
+				transition['dest'] = destinations
+			else:
+				for dest, conditionals in destinations.items():
+					transition['dest'] = dest
+
+					for check, conditional in conditionals.items():
+						if isinstance(conditional, (list,tuple,set)):
+							transition[check] = [
+								self._initialize_conditional(condition)
+								for condition
+								in conditional]
+						else:
+							transition[check] = self._initialize_conditional(conditional)
+
+			transitions.append(transition)
+
+		self._end_states = [state for state
+							in self._state_variable_definitions
+							if not state in transition_definitions]
+
+		if self._end_states:
+			transitions.append({
+				'source': self._end_states,
+				'dest': '=',
+				'trigger': 'check_state'
+			})
+
+		self._transition_definitions = transitions
+
+
+	def _initialize_conditional(self, conditional):
+		"""Conditions trigger on match"""
+		if isinstance(conditional, dict):
+			def check_values(self=self, values=conditional.copy()):
+				return all(
+						self._variables[variable] == value
+						for variable, value
+						in values.items()
+					)
+			return check_values
+
+		raise NotImplementedError("No conditional resolver found for '%r'" % conditional)
+
+
+	def _reconfigure_after_state_change(self, *args, **kwargs):
+		self.num_states += 1
+		self.num_steps_in_state = 0
+		
+		if self._escapement:
+			self.escapement_state = self.escapement_watch
+		self._definitions = self._state_variable_definitions[self.state]
+		self._initialize_variables()
+
+
+	def step(self):
+		"""
+		Incrememnt the simulation variables by one iteration.
+		Note: this always acts on the last step's values.
+		"""
+		self.num_steps_in_state += 1
+
+		if self._escapement:
+			self._escapement()
+
+		new_values = {}
+
+		for variable, function in self._functions.items():
+			new_values[variable] = function()
+
+		self._variables.update(new_values)
+
+		self.check_state()
+
+
+	def __repr__(self):
+		max_state_len = max(len(s) for s in self.states.keys())
+		format_string = '<%%s: [%%%ds] {%%s}>' % max_state_len
+		return format_string % (self._name or 'Simulation',
+								self.state, 
+								', '.join(['%s: %s' % (k,v) for k,v
+										   in sorted(self._variables.items())
+										   if not k.startswith('_')
+										      or k.startswith(self._escapement_variable + '_')
+										  ]))
+
+
+
+def load_simulator(definition, mixins_package='shared.data.simulators.process.mixins'):
+
+	configuration = yaml_loader(definition, FullLoader)
+	configuration['raw_definition'] = definition
+
+	mixins = []
+	mixins += [
+			getattr(__import__('%s.%s' % (mixins_package, mixin.lower()),
+							   fromlist=['%sMixin' % mixin]),
+					'%sMixin' % mixin)
+			for mixin in configuration.pop('mixins')
+		]
+
+	mixins += [Process]
+
+	return type('Simulator', tuple(mixins), {})(**configuration)

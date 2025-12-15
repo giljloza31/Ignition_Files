@@ -1,0 +1,15 @@
+"""
+	Disptach outgoing requests TO the WCS
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+
+raise NotImplementedError("Dispatch in case we want to make the outgoing calls more abstract")
+
+
+
+
+
+

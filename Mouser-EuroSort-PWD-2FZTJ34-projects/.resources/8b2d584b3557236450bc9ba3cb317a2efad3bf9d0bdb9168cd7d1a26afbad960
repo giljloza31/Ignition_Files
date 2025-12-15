@@ -1,0 +1,174 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "length": 500,
+          "width": 24
+        },
+        "meta": {
+          "name": "Conveyor_w_box"
+        },
+        "position": {
+          "x": 48,
+          "y": 164
+        },
+        "propConfig": {
+          "position.height": {
+            "binding": {
+              "config": {
+                "path": "this.custom.width"
+              },
+              "type": "property"
+            }
+          },
+          "position.width": {
+            "binding": {
+              "config": {
+                "path": "this.custom.length"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].elements[0].width": {
+            "binding": {
+              "config": {
+                "path": "this.custom.length"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].elements[1].elements[0].width": {
+            "binding": {
+              "config": {
+                "path": "this.custom.length"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].elements[1].elements[1].width": {
+            "binding": {
+              "config": {
+                "path": "this.custom.length"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "elements": [
+                        {
+                          "fill": {
+                            "paint": "#fff"
+                          },
+                          "height": "23.97",
+                          "id": "Main",
+                          "name": "Main",
+                          "stroke": {
+                            "miterlimit": "10",
+                            "paint": "#231f20"
+                          },
+                          "style": {
+                            "classes": ""
+                          },
+                          "type": "rect",
+                          "x": ".5",
+                          "y": ".53"
+                        },
+                        {
+                          "elements": [
+                            {
+                              "fill": {
+                                "paint": "#fff"
+                              },
+                              "height": "2.82",
+                              "id": "Rail",
+                              "name": "Rail",
+                              "stroke": {
+                                "miterlimit": "10",
+                                "paint": "#231f20"
+                              },
+                              "style": {
+                                "classes": ""
+                              },
+                              "type": "rect",
+                              "x": ".5",
+                              "y": "21.68"
+                            },
+                            {
+                              "fill": {
+                                "paint": "#fff"
+                              },
+                              "height": "2.82",
+                              "id": "Rail-2",
+                              "name": "Rail-2",
+                              "stroke": {
+                                "miterlimit": "10",
+                                "paint": "#231f20"
+                              },
+                              "style": {
+                                "classes": ""
+                              },
+                              "type": "rect",
+                              "x": ".5",
+                              "y": ".5"
+                            }
+                          ],
+                          "id": "Rails",
+                          "name": "Rails",
+                          "type": "group"
+                        }
+                      ],
+                      "id": "Straight_Horz",
+                      "name": "Straight_Horz",
+                      "type": "group"
+                    },
+                    {
+                      "fill": {
+                        "paint": "#FFCA8A"
+                      },
+                      "height": 18,
+                      "name": "box",
+                      "stroke": {
+                        "miterlimit": "10",
+                        "paint": "#231f20"
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "type": "rect",
+                      "width": 1,
+                      "x": 1111,
+                      "y": "3.2"
+                    }
+                  ],
+                  "name": "group",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "1 1 2 25"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

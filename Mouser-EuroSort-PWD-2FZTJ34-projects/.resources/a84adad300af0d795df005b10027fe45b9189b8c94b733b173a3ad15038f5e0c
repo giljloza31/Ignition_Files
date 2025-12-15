@@ -1,0 +1,709 @@
+#----------------------------------------------------------------------------------------------------------------------------
+#Added notes section to keep track of field changes 02/01/2023- Gil Loza
+#
+#
+#
+#
+#
+#
+#
+#
+#----------------------------------------------------------------------------------------------------------------------------
+
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from shared.tools.meta import is_redundant_active
+from functools import partial
+	
+from time import sleep
+from random import random
+from datetime import datetime
+from time import sleep
+from random import random
+from datetime import datetime
+
+from java.util import Date
+import re
+
+from pymongo import MongoClient
+from pymongo import *
+	
+#MongoDB Connection URI
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+
+#MongoDB Database connection format
+client = MongoClient(uri,connectTimeoutMS=5000, socketTimeoutMS=5000)
+db=client.ignition
+
+
+#API endpoint for marriage of LPN to IBN
+BAL_ENDPOINT = 'http://wcs01:8085/ws/v1/lpns/%s'
+
+CACHE_LIFESPAN = 3.0 # seconds
+LABEL_PRINT_TIMEOUT = 3.0 # seconds
+
+# https://regex101.com/r/OJMs5F/1
+CODE_SEP_PATTERN = ','
+STR_SEP_PATTERN = ';'
+
+barcodesErrorList = [
+	 '^(NO_BARCODE)$',
+	 '^(NOREAD)$'
+	]
+
+dimErrorList = [
+    '(NODIM_BOX_SIDE_BY_SIDE)$',
+    '(NODIM_BOX_SIDES_TOO_NOISY)$',
+    '(NODIM_BOX_POINT_BORDER_DIST)$',
+    '(NODIM_BOX_PEAK_VS_BORDER)$'
+	]
+
+IBN_PATTERN = [
+        '^[0-9]{1}[0-9A-Z]{5}$'
+        ]
+LPN_PATTERN = [
+        '^(M)[0-9A-Z]{11}$',
+        '^(M)[0-9A-Z]{7}$',
+        '^[0-9A-Z]{8}$',
+        '^(I4)[0-9A-Z]{6}$',
+        '^(I5)[0-9A-Z]{6}$',
+        '^(R)[0-9A-Z]{11}$',
+        '^(T)[0-9A-Z]{11}$',
+        '^(P)[0-9A-Z]{11}$',
+        '^(H0)[0-9]{6}$',
+        '^(H0)[0-9]{6}     $'	# 5 trailing spaces
+        
+	]
+
+barcodeError = "(" + ")|(".join(barcodesErrorList) + ")"
+dimError = "(" + ")|(".join(dimErrorList) + ")"
+ibnList = "(" + ")|(".join(IBN_PATTERN) + ")"
+lpnList = "(" + ")|(".join(LPN_PATTERN) + ")"
+
+
+
+def createDataset(oldPayload,payload):
+	headers = payload.keys()
+	data = payload.values()
+	newDataset = system.dataset.addRow(oldPayload,data)
+	return newDataset
+
+def cursorToList(cursor):
+	listcursor = []
+	for i in range(cursor.count()):
+		listcursor.append(cursor.next())
+		
+	return listcursor
+	
+
+
+@async(name="BAL-Routing-GatherData")
+def BAL_gather_data(source_path):
+	comma = ','
+	#Default Values
+	codeReturned = ''
+	scanData = []
+	ibn_Barcodes = []
+	lbn_Barcodes = []
+	marriageReq = 0
+	dest = 2
+	baflag = False
+	caflag = False
+	pagecount = 0
+	destination = 'Bulk Shipping'
+	IBNcount = 0
+	LPNcount = 0
+	IBNresults = []
+	LPNresults = []
+	LPN_List = []
+	LPN_ListCount = 0
+	barcodeList = []
+	
+	#Set start time for IGN tags and Internal Time
+	timeStart = datetime.now().isoformat()
+	exeTimeIn = system.date.now()
+	
+	
+		
+	GET_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	GOT_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	
+	sequence_id, raw_barcode, lpn, avail, Set_Dim,inductTable = [
+
+		qv.value for qv in 
+		system.tag.readBlocking([
+			GET_parent_dest + '/' + 'IGN_IndexID_Sent',
+			GET_parent_dest + '/' + 'BAL1000_SCAN_TUNNEL',
+			GET_parent_dest + '/' + 'Sent_To_Printer',
+			GET_parent_dest + '/' + 'Bulk_Automated_Avail',
+			GET_parent_dest + '/' + 'Set_Dim',
+			GOT_parent_dest + '/' + 'Induct_Table',	
+			])]
+	#Automatically start time		
+	system.tag.writeAsync(*zip(*[
+			
+		(GOT_parent_dest + '/' + 'Get_Time', timeStart),
+	
+		]))
+	#Read in next label to printed
+	BAL_LPN = lpn
+		
+	max_dim = int(Set_Dim) * 1000
+	#Check for proper str format
+	
+	if STR_SEP_PATTERN in raw_barcode:
+		scanData = raw_barcode.split(STR_SEP_PATTERN)
+	
+	#Proper Lenght is always 7		
+	if len(scanData) == 7:
+		if re.match(dimError, scanData[5]) == None:
+			#351;     7.23; 18.4,11.8,09.7;in;READY;; 50008904,16-878846,071492382,M50115242271,1199AG
+			#Reset Values
+			dimsIn = []
+
+			#Set Values
+			weight = (int(float(scanData[1])*100))
+
+			dimsIn = scanData[2].split(',')
+			length = (int(float(dimsIn[0])*1000))
+			width = (int(float(dimsIn[1])*1000))
+			height = (int(float(dimsIn[2])*1000))
+			if CODE_SEP_PATTERN in scanData[6]:
+				barcodeList = scanData[6].split(CODE_SEP_PATTERN)
+			else:
+				barcodeList.append(scanData[6])
+
+		else:
+			weight = 0
+			length = 0
+			width = 0
+			height = 0
+			
+			if comma in scanData[6]:
+				barcodeList = scanData[6].split(comma)
+			else:
+				barcodeList.append(scanData[6])
+		
+
+	else:
+		weight = 0
+		length = 0
+		width = 0
+		height = 0
+		barcodeList = ['NO_BARCODE']
+		
+	
+
+		
+		
+	
+
+
+	system.util.getLogger('BAL_Routing').trace(
+			'[%05d] ID %r at %r with %r' % (
+			Date().getTime() % 100000, sequence_id, timeStart, raw_barcode))
+
+	
+	for i in range(len(barcodeList)):
+
+		checkBarcode = barcodeList[i].strip()
+
+		if re.match(barcodeError,checkBarcode):
+			codeReturned = 'NOREAD'
+			break
+		elif re.match(ibnList,checkBarcode):
+			# 6 charaters only
+			if checkBarcode not in ibn_Barcodes:
+				ibn_Barcodes.append(checkBarcode)
+		elif re.match(lpnList,checkBarcode):
+			#8 or 12 charaters only
+			
+			if checkBarcode.rstrip() not in lbn_Barcodes:
+				lbn_Barcodes.append(checkBarcode)
+	
+	if len(ibn_Barcodes) > 0:
+		#IBN Search For Valid
+				
+		filter={
+		   "_id":{'$in':ibn_Barcodes}
+		}
+		project={
+		    '_id': 1, 
+		   'bulk_single_flag': 1, 
+		   'catchbox_flag': 1,
+		   'va_flag': 1
+		}
+		maxTimeMS=200
+		
+		IBNQuery = db.outbound_scan_sort_ibn.find(
+				filter=filter,
+				projection=project,
+				max_time_ms=maxTimeMS
+				)
+			
+		
+	
+		IBNresults = cursorToList(IBNQuery)
+			
+	
+		IBNcount = len(IBNresults)
+		IBNQuery.close()
+		if IBNcount == 0:
+			#Results are True or False	
+			bulkResults = False
+			catchResults = False
+			vaResults = False
+		else:
+			#Results are True or False	
+			bulkResults = IBNresults[0]['bulk_single_flag']
+			catchResults = IBNresults[0]['catchbox_flag']
+			vaResults = IBNresults[0]['va_flag']
+	
+	if len(lbn_Barcodes) > 0:	
+		#Check for Vaild LPN's
+	
+		LPNresults = []
+		LPN_List = []
+		filter={
+		   '$and':[{'lpn':{'$in':lbn_Barcodes}},{'placement':'outside'}]
+		}
+		project={
+		   'lpn': 1, 
+		   'page_count': 1
+		}
+		
+		LPNQuery = db.ipack_docs_info.find(
+				filter=filter,
+				projection=project
+				)
+			
+		
+	
+		LPNresults = cursorToList(LPNQuery)
+		
+		LPNcount = len(LPNresults)
+		
+		LPNQuery.close()
+		for i in range(LPNcount):
+			if LPNresults[i]['lpn'] not in LPN_List:
+				LPN_List.append(LPNresults[i]['lpn'])
+		
+		LPN_ListCount = len(LPN_List)
+		
+		if LPN_ListCount == 1:
+			for i in range(LPNcount):
+				 pagecount += LPNresults[i]['page_count']
+
+
+	
+	
+	if IBNcount > 1 and LPN_ListCount > 1:
+
+		codeReturned = 'Multi'
+		BAL_LPN = 'Multi'
+
+
+	elif IBNcount == 1:
+				
+			
+		if catchResults or vaResults:
+			dest = 4 	
+			caflag = True
+			codeReturned = IBNresults[0]["_id"]
+			destination = 'CatchBox'
+			BAL_LPN = IBNresults[0]["_id"]
+				
+		
+		
+		elif bulkResults:
+			if length >= max_dim or width >= max_dim:
+				codeReturned = IBNresults[0]['_id']	
+				BAL_LPN = IBNresults[0]["_id"]
+			else:
+			
+				if avail:
+					dest = 1
+				else:
+					dest = 2 	
+							
+				baflag = True
+				codeReturned = IBNresults[0]["_id"]
+				destination = 'Bulk Automated'
+				marriageReq = 1
+				
+				ExtraGlobal.stash(codeReturned, # ibns
+					label=BAL_LPN, 
+					scope='Marry-IBN-LPN',
+					lifespan=20.0,
+					)
+			
+		else:
+			
+			codeReturned = IBNresults[0]['_id']	
+			BAL_LPN = IBNresults[0]["_id"]		
+			
+	elif LPN_ListCount == 1:
+
+		if avail:
+			dest = 1
+		else:
+			dest = 2 	
+			
+
+
+		baflag = True
+		codeReturned = LPNresults[0]['lpn']
+		destination = 'Bulk Automated'
+		pagecount = pagecount
+		BAL_LPN = LPNresults[0]['lpn']
+	
+	elif IBNcount == 0 and LPNcount == 0:
+		codeReturned = 'NOCODE'
+		BAL_LPN = 'NOCODE'
+
+	else:
+
+		codeReturned = "NOIBN"
+		BAL_LPN = 'NOIBN'			
+					
+	
+	timestop = datetime.now().isoformat()
+	timeout = system.date.now()
+	timediff = system.date.millisBetween(exeTimeIn,timeout)
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	parent_dest += '/'	
+
+	data = {
+		'IGN_IndexID_Returned':sequence_id,	
+		'IGN_Marriage_Result_Returned': marriageReq,		
+		'IGN_Destination_Returned':dest,	
+		'IGN_Route_Returned':destination,
+		'IGN_Barcode_Returned':codeReturned,
+		'Got_Time' : timestop,
+
+	}
+
+	#system.util.getLogger('BAL_update').trace('seq number: %r' % (sequence_id))
+	push_sequence(source_path, sequence_id, data)
+	
+	system.tag.writeAsync(*zip(*[
+		#		[default]BAL/BAL1000/Got_Data/timediff.Index_ID
+				(parent_dest + 'timediff' , timediff),
+				(parent_dest + 'timediff.Index_ID',sequence_id),
+				]))	
+					
+	system.db.runPrepUpdate('Update BAL_history_logs SET barcode = ? where indexid = ?', [codeReturned,int(sequence_id)], 'SQLServer')
+	STEpayload = {
+				
+				'IndexId' : sequence_id,
+				'Barcode': BAL_LPN,
+				'timestamp': system.date.now()
+		
+				}		
+	
+
+	Mongopayload = {
+
+		'_id': BAL_LPN,
+		"weight":  weight,
+		"length": length,
+		"width":  width,
+		"height": height,
+		'destination':destination,
+		'page_count':pagecount,
+		'shipped':False,
+		'shipped_date_time': datetime.utcnow(),
+		'date_time': datetime.utcnow(),
+		'wcs_error':'',	
+		'wcs_error_date_time':datetime.utcnow(),
+		'barcode':codeReturned,
+		'marriage_status': 0,
+		'marrige_complete':False,
+		'marriage_required':marriageReq,
+		'reason':0,
+		'reason_msg':''
+
+		}
+	
+	
+	error = ['NOIBN','','NOCODE','Multi']
+	
+		
+	if BAL_LPN not in error:
+	
+		filter={
+			  "_id":Mongopayload['_id']
+			}
+		
+		sort=list({
+			    'date_time': -1,"_id": -1
+			}.items())
+		limit=1
+		maxTimeMS=200
+		
+		MongoQuery = db.bulk_automation_packages.find(
+			filter=filter,
+			#projection=project,
+			max_time_ms=maxTimeMS
+			)
+							
+						
+					
+		Mongoresult = cursorToList(MongoQuery)		
+			
+	
+		Mongocount = len(Mongoresult)
+		
+		
+	
+		if Mongocount == 0:
+			db.bulk_automation_packages.insert(Mongopayload)
+			#setTable = createDataset(inductTable,Mongopayload)
+			
+			#system.tag.writeAsync('[default]BAL/BAL1000/Got_Data/Induct_Table', setTable)
+		
+		if dest == 1:
+			BAL_Transfer(STEpayload)
+			
+			
+def BAL_Transfer(payload):
+	
+		query = """	
+			INSERT INTO Valid_BAL_Transfers (
+			IndexId,
+			Barcode,
+			Married,
+			MarriedString,
+			timestamp
+			) 
+			VALUES (?,?,?,?,?)
+			"""
+		
+		system.db.runPrepUpdate(query, [
+				payload['IndexId'],
+				payload['Barcode'],
+				0,
+				'',
+				payload['timestamp'],	
+			], 'SQLServer')	
+
+
+def marry_ibn_lpn(BAL_LPN, ibns=None):
+	"""An IBN was routed - wait a bit, and then this will see if an LPN has been scanned. 
+	If so, marry them!
+	
+	If no matching entry is cached, then we assume it failed and throw an error to the Ignition wrapper
+	console. Likewise, if a cache entry times out, then we throw an error for that on timeout.
+	"""
+	system.tag.writeAsync('[default]BAL/Conveyor_Stats/Query_Combined', 0)
+	pagecount = 0
+	
+	if ibns is None:
+		# assume it's already been stashed, or fail
+		try:
+			ibns = ExtraGlobal.pop(label=BAL_LPN, scope='Marry-IBN-LPN')
+		except KeyError:
+			system.util.getLogger('BAL_Labels').error('No matching cached ibns found for LPN %r' % (BAL_LPN,))
+			return
+
+	# combine the LPN with the IBN
+	endpoint = BAL_ENDPOINT % BAL_LPN
+
+	api_payload = {"ibns": [ibns]}
+	api_payload_json_string = system.util.jsonEncode(api_payload) # STRING
+
+	system.util.getLogger('BAL_Labels').trace('REST call to %r payload: %r' % (endpoint, api_payload_json_string))
+
+	response = system.net.httpPost(
+		url=endpoint, 
+		contentType='application/json',
+		postData=api_payload_json_string,
+		throwOnError = False,
+		)
+	
+
+	result = system.util.jsonDecode(response)	
+	
+	#if result['statusCode'] == 0:
+	marrige_complete = True
+
+	LPN_List = []
+	LPNresults = []
+	dbCol = ''
+	filter={
+		'$and':[{'lpn':BAL_LPN},{'placement':'outside'}]
+	}
+	project={
+		'lpn': 1, 
+		'page_count': 1
+	}
+	
+	
+	
+	LPNQuery = db.ipack_docs_info.find(
+		filter=filter,
+		projection=project
+		
+		)
+						
+							
+						
+	LPNresults = cursorToList(LPNQuery)		
+				
+	LPNcount = len(LPNresults)
+	LPNQuery.close()
+
+	for i in range(LPNcount):
+		if LPNresults[i]['lpn'] not in LPN_List:
+			LPN_List.append(LPNresults[i]['lpn'])
+		
+	LPN_ListCount = len(LPN_List)
+
+	if LPN_ListCount == 1:
+		pagecount = 0
+			
+		for i in range(LPNcount):
+			 pagecount += LPNresults[i]['page_count']
+
+	db.bulk_automation_packages.update({'_id':BAL_LPN},{'$set':{'page_count':pagecount,'marriage_status': result['statusCode'],'marrige_complete':marrige_complete}})
+	query = """	
+				UPDATE Valid_BAL_Transfers 
+				SET Married = ?,
+				MarriedString = ?
+				WHERE Barcode = ?
+				"""
+			
+	system.db.runPrepUpdate(query, [
+					1,
+					ibns,
+					BAL_LPN	
+				], 'SQLServer')	
+
+
+#	data = system.tag.readBlocking(["[default]BAL/BAL1000/Got_Data/Induct_Table"])
+#	sorting = data[0].value
+		
+
+#	for index in range(sorting.getRowCount()):
+#		if sorting.getValueAt(index,12) == BAL_LPN:
+#			tagValue = sorting.getValueAt(index,12)
+#			tagValue = pagecount
+#			tagSet = {'page_count':tagValue,'marrige_complete':marrige_complete}
+#			newData = system.dataset.updateRow(sorting, index , tagSet)
+#				
+#			system.tag.writeAsync("[default]BAL/BAL1000/Got_Data/Induct_Table", newData)
+#			break
+	
+
+	system.util.getLogger('BAL_Labels').debug('Matched: LPN %r and IBNs %r' % (BAL_LPN, ibns))
+	
+
+	
+
+
+def dump_data(source_path, data):
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	parent_dest += '/'
+	mode = data.pop('mode', 2)
+
+	
+	tag_paths = []
+	values = []
+	for key,value in data.items():
+		tag_paths.append(parent_dest + '/' + key)
+		values.append(value)
+
+	opc_fqv_paths = [tag_path + '.OpcItemPath' for tag_path in tag_paths]
+	
+	def write_block(qualified_values, tag_paths=tag_paths, values=values, data=data):
+		opc_paths = []
+		opc_values = []
+		for qv, tag_path, value in zip(qualified_values, tag_paths, values):
+#
+#			if tag_path.endswith('/' + ack_tag):
+#				ack_path = qv.value
+#				ack_value = value
+			if qv.value: # good opc path found
+				opc_paths.append(qv.value)
+				opc_values.append(value)
+				
+		results = system.opc.writeValues('Ignition OPC-UA Server', opc_paths, opc_values)
+		
+		system.util.getLogger('Handshake20').trace('[%05d]  OPC: %r >>> %r (>>> QUAL: %r)' % (
+			Date().getTime() % 100000, opc_paths, opc_values, [x for x in results]))
+		
+
+	system.tag.readAsync(opc_fqv_paths, write_block)
+
+	system.tag.writeAsync(*zip(*[
+		#		
+			(parent_dest + 'Got_Time',  data['Got_Time']),
+					#(parent_dest + 'Print_Label',''),
+			]))	
+	
+def push_sequence(source_path, sequence_id, data):
+	#Uncomment this to prevent overwrites and throw an error on repeated sequence IDs
+	#assert (sequence_id, source_path) not in ExtraGlobal, "Cache is backed up! Sequence ID already in cache: [%s:%s]" % (sequence_id, source_path)
+	assert isinstance(data, dict), "Data object should be a dictionary here."
+
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	
+	# check if the sequence already exists and is (somehow) straggling
+	if ExtraGlobal.get(sequence_id, source_path):
+		system.util.getLogger('Handshake20').warn('Push sequence: Sequence [%d] already cached for %s: clearing to make room for next!' % (sequence_id, source_path) )
+		try:
+			del ExtraGlobal[sequence_id, source_path]
+		except KeyError:
+			pass # failsafe
+	
+	ExtraGlobal.stash(data, 
+					  label=sequence_id, scope=source_path, 
+					  lifespan=CACHE_LIFESPAN, 
+					  callback=partial(flush_next_sequence, source_path, data)) 
+					  
+	system.util.getLogger('Handshake20').trace('>PUSH< [%d] %r' % (sequence_id, data))
+#		'>PUSH< (#%d) for [%03d] %r >>> %r' % (len(ExtraGlobal.keys(scope=source_path)), sequence_id,
+#						          list(ExtraGlobal.keys(scope=source_path)), data) )
+					  
+	flush_next_sequence(source_path)
+		
+	
+def flush_next_sequence(source_path, data=None):
+	# semaphore to prevent multithreaded interaction
+	# but also return data to make sure the cache stays viable
+	# (scoped to the 'handshake flushing' so that it can be checked independently)
+	if ExtraGlobal.setdefault(source_path, 'Handshake20', False):
+		return data
+		
+	# If no more sequences to flush, then signal to stop
+	if not ExtraGlobal.keys(source_path):
+		ExtraGlobal[source_path, 'Handshake20'] = False
+		return
+
+	# turn on semaphore to the current sequence getting worked on
+	sequence_id = ExtraGlobal.keys(source_path)[0]
+
+	ExtraGlobal[source_path, 'Handshake20'] = sequence_id
+	
+	try:
+#		data = ExtraGlobal.pop(sequence_id, source_path)
+		data = ExtraGlobal[sequence_id, source_path]
+		del ExtraGlobal[sequence_id, source_path]
+			
+		# write results back
+		dump_data(source_path, data)
+	
+		system.util.getLogger('Handshake20').trace('<POPD> [%d] %r' % (sequence_id, data))
+	#		'<POPD> (#%d) for [%03d] %r >>> %r' % (len(ExtraGlobal.keys(scope=source_path)), sequence_id,
+	#						          list(ExtraGlobal.keys(scope=source_path)), data) )
+	except Exception, error:
+		system.util.getLogger('Handshake20').warn('Flush: Error in completing handshake [%d] for %s: %r' % (sequence_id, source_path, error))
+	
+	# clear the semaphore and try again; when exhausted it'll just end
+	ExtraGlobal[source_path, 'Handshake20'] = False
+	
+	# continue flushing if needed
+	if ExtraGlobal.keys(source_path):
+		flush_next_sequence(source_path, data)
+		# don't return anything, since this is just continuing the flush process
+		#return None	

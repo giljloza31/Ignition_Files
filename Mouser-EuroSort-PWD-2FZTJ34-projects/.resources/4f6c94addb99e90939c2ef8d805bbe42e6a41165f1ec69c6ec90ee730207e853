@@ -1,0 +1,1515 @@
+{
+  "custom": {},
+  "params": {
+    "Section": 4,
+    "Side": "A",
+    "instances": [
+      {
+        "ChuteName": "DST-0074-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0075-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0076-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0077-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0078-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0079-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0080-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0081-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0082-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0083-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0084-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0085-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0086-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0087-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0088-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0089-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0090-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0091-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0092-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0093-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0094-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0095-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0096-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      },
+      {
+        "ChuteName": "DST-0097-1-1-A",
+        "ChuteStatus": 0,
+        "Path": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+        "collection": "eurosort_chutes_db",
+        "connector": "MongoWCS",
+        "indFilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered",
+        "instancePosition": {},
+        "instanceStyle": {
+          "classes": ""
+        },
+        "volume": 1488.6936000000005
+      }
+    ]
+  },
+  "propConfig": {
+    "params.Section": {
+      "onChange": {
+        "enabled": null,
+        "script": "\tside \u003d self.params.Side\n\tsection \u003d self.params.Section\n\t\n\tinstances \u003d []\n\tsection_list \u003d [\n\t    {\n\t        \u0027side\u0027: \u0027A\u0027,\n\t        \u0027sections\u0027: [\n\t            {\u0027Section\u0027: 1, \u0027Chutes_Start\u0027: 1, \u0027Chutes_Stop\u0027: 23},\n\t            {\u0027Section\u0027: 2, \u0027Chutes_Start\u0027: 24, \u0027Chutes_Stop\u0027: 48},\n\t            {\u0027Section\u0027: 3, \u0027Chutes_Start\u0027: 49, \u0027Chutes_Stop\u0027: 73},\n\t            {\u0027Section\u0027: 4, \u0027Chutes_Start\u0027: 74, \u0027Chutes_Stop\u0027: 98},\n\t            {\u0027Section\u0027: 5, \u0027Chutes_Start\u0027: 99, \u0027Chutes_Stop\u0027: 106},\n\t            {\u0027Section\u0027: 6, \u0027Chutes_Start\u0027: 107, \u0027Chutes_Stop\u0027: 132},\n\t            {\u0027Section\u0027: 7, \u0027Chutes_Start\u0027: 133, \u0027Chutes_Stop\u0027: 157},\n\t            {\u0027Section\u0027: 8, \u0027Chutes_Start\u0027: 158, \u0027Chutes_Stop\u0027: 182},\n\t            {\u0027Section\u0027: 9, \u0027Chutes_Start\u0027: 183, \u0027Chutes_Stop\u0027: 207},\n\t            {\u0027Section\u0027: 10, \u0027Chutes_Start\u0027: 208, \u0027Chutes_Stop\u0027: 230}\n\t        ]\n\t    },\n\t    {\n\t        \u0027side\u0027: \u0027B\u0027,\n\t        \u0027sections\u0027: [\n\t            {\u0027Section\u0027: 1, \u0027Chutes_Start\u0027: 1, \u0027Chutes_Stop\u0027: 22},\n\t            {\u0027Section\u0027: 2, \u0027Chutes_Start\u0027: 24, \u0027Chutes_Stop\u0027: 47},\n\t            {\u0027Section\u0027: 3, \u0027Chutes_Start\u0027: 49, \u0027Chutes_Stop\u0027: 72},\n\t            {\u0027Section\u0027: 4, \u0027Chutes_Start\u0027: 74, \u0027Chutes_Stop\u0027: 97},\n\t            {\u0027Section\u0027: 5, \u0027Chutes_Start\u0027: 99, \u0027Chutes_Stop\u0027: 105},\n\t            {\u0027Section\u0027: 6, \u0027Chutes_Start\u0027: 107, \u0027Chutes_Stop\u0027: 131},\n\t            {\u0027Section\u0027: 7, \u0027Chutes_Start\u0027: 133, \u0027Chutes_Stop\u0027: 156},\n\t            {\u0027Section\u0027: 8, \u0027Chutes_Start\u0027: 158, \u0027Chutes_Stop\u0027: 181},\n\t            {\u0027Section\u0027: 9, \u0027Chutes_Start\u0027: 183, \u0027Chutes_Stop\u0027: 206},\n\t            {\u0027Section\u0027: 10, \u0027Chutes_Start\u0027: 208, \u0027Chutes_Stop\u0027: 229}\n\t        ]\n\t    }\n\t]\n\t\n\t\n\tfor entry in section_list:\n\t    if entry[\u0027side\u0027] \u003d\u003d side:\n\t        for sec in entry[\u0027sections\u0027]:\n\t            if sec[\u0027Section\u0027] \u003d\u003d section:\n\t                chute_start \u003d sec[\u0027Chutes_Start\u0027]\n\t                chute_stop \u003d sec[\u0027Chutes_Stop\u0027]\n\t                \n\t\n\t\n\tfor i in range(chute_start, chute_stop):\n\t\tnum \u003d str(i).zfill(4)\n\t\tchuteName \u003d \u0027DST-%s-1-1-%s\u0027%(num,side)\n\t\telement \u003d {\n\t        \"instancePosition\": {},\n    \t\t\"instanceStyle\": {\"classes\": \"\"},\n    \t\t\"ChuteName\": chuteName,\n    \t\t\"ChuteStatus\": 0,\n    \t\t\"sortedCount\": 0,\n    \t\t\"volume\": 1488.6936000000005,\n    \t\t\"Path\": \"[Mouser]Mouser2/Receiving/Eurosort/Chutes\",\n    \t\t\"collection\": \"eurosort_chutes_db\",\n    \t\t\"connector\": \"MongoWCS\",\n    \t\t\"indFilteredPath\": \"[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered\"\n    \t}\n\t\t\n\t\tinstances.append(element)\n\t\n\t\t\n\tself.params.instances \u003d instances"
+      },
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Side": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.instances": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 967,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "FlexRepeater"
+        },
+        "position": {
+          "height": 640,
+          "width": 1917,
+          "x": 0.5,
+          "y": 2
+        },
+        "propConfig": {
+          "props.instances": {
+            "binding": {
+              "config": {
+                "path": "view.params.instances"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "path": "_Templates_V5/Eurosort/Eurosort_station",
+          "wrap": "wrap"
+        },
+        "type": "ia.display.flex-repeater"
+      },
+      {
+        "meta": {
+          "name": "Table"
+        },
+        "position": {
+          "height": 238,
+          "width": 1908,
+          "x": 6,
+          "y": 709
+        },
+        "propConfig": {
+          "props.data": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Ind_Filtered"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "columns": [
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "_id",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": "Chute"
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "IBN_List",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "left",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "zone",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": 50
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "group_id",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": 50
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "ChuteCount",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": 100
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Volume",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": "Tote Vol Left"
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": 100
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "VolumeFull",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": "Tote Vol Full %"
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": 100
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "ToteFull",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "ChuteFull",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "auto",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Occupied",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "auto",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "enabled",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "auto",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY HH:mm:ss.SSS",
+              "editable": false,
+              "field": "LastUpdated",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": true,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "auto",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            }
+          ]
+        },
+        "type": "ia.display.table"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": -210.80767822265625,
+      "y": -28
+    },
+    "type": "ia.container.coord"
+  }
+}

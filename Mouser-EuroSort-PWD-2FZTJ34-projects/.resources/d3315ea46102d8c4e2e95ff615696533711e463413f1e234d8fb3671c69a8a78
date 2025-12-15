@@ -1,0 +1,62 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 338,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Table"
+        },
+        "position": {
+          "height": 332,
+          "width": 1896,
+          "x": 12
+        },
+        "propConfig": {
+          "props.data": {
+            "binding": {
+              "config": {
+                "collection": "HSL_event_log",
+                "connector": "MongoWCS",
+                "enableValueCache": true,
+                "polling": {
+                  "enabled": true,
+                  "rate": "1"
+                },
+                "struct": {
+                  "collation": {},
+                  "filter": {},
+                  "limit": 9999,
+                  "projection": {},
+                  "skip": 0,
+                  "sort": {}
+                },
+                "type": "Find"
+              },
+              "type": "connectorMongoDb.query"
+            }
+          }
+        },
+        "props": {
+          "filter": {
+            "enabled": true
+          },
+          "pager": {
+            "activePage": 2
+          }
+        },
+        "type": "ia.display.table"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

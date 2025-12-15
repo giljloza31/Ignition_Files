@@ -1,0 +1,246 @@
+from pymongo import MongoClient
+from datetime import datetime
+from system.net import httpClient
+import socket
+
+import re
+
+# Barcode separator constant (define it properly)
+BARCODE_SEPARATOR = ','  # Modify based on actual usage
+client = httpClient()
+
+# Connect to MongoDB
+# Production uri
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+
+# Development PC
+#uri = 'mongodb://PWD:PWDllc123!@localhost:27017/'
+
+OPCSERVER = 'Ignition OPC-UA Server'
+MongoDB = MongoClient(uri)
+db = MongoDB.ignition
+
+logger = system.util.getLogger('print_fail')
+
+PAYLOAD_PATTERN = re.compile(r"""
+	^
+	(?P<indexid>\d{3})   # indexID 101-399
+	\|                   # pipe separator
+	(?P<lpn>.*)          # LPN
+	$
+    """, re.VERBOSE)
+# Marriage/Manifest Errors
+PRINT_ERROR_LIST = {
+	1: {'Error': 'No Error', 'Message': 'Success'},
+	2: {'Error': 'Incorrect Payload', 'Message': 'Received incorrect payload'},
+	3: {'Error': 'No Read LPN', 'Message': 'Found No LPN'},
+	4: {'Error': 'No return LPN', 'Message': 'Found No LPN'},
+	5: {'Error': 'Print Comms Lost', 'Message': 'Unable to send to printer'},
+	6: {'Error': 'Multiple LPN', 'Message': 'Found Multiple LPNs'},
+	7: {'Error': 'IBN No Read', 'Message': 'Found No IBN'},
+	8: {'Error': 'Failed Marriage API', 'Message': 'Failed marriage API'},
+	9: {'Error': 'Failed Manifest API', 'Message': 'Failed manifest API'},
+	10: {'Error': 'No Label Returned', 'Message': 'No Label Returned'},
+	11: {'Error': 'Decode', 'Message': 'Could not decode'},
+}
+# Printer Mapping
+printers = {
+	1:'10.0.195.162',
+	2:'10.0.195.163',
+	3:'10.0.195.164'
+	}
+
+	
+class PrintProcess:
+	
+	def get_next_index(self,name):
+		printnext = PrintProcess()
+		pipeline = [
+		    {'$match': {'area': name}},
+		    {'$group': {'_id': "$area", 'max_seq': {'$max': "$seq"}}},
+		    {'$project': {'_id': 0, 'seq': {'$add': ["$max_seq", 1]}}}
+		]
+		
+		result = list(db.counter.aggregate(pipeline))
+		if result:
+			new_seq = result[0]['seq']
+		else:
+			new_seq = 1
+		
+		# Update the document with the new sequence
+		db.counter.update({'area': name}, {'$set': {'seq': new_seq}}, upsert=True)
+		
+		return new_seq
+		
+	def cursorToList(self,cursor):
+		listcursor = []
+		for i in range(cursor.count()):
+			listcursor.append(cursor.next())
+		return listcursor
+		
+
+		
+	def check_payload(self,payload,data):
+		
+		status = False
+		try:
+			
+			payload_data_match = PAYLOAD_PATTERN.match(payload)
+			
+			# Check pattern match
+			if not payload_data_match:
+				
+				data.update({
+					'print_LPN': 'No LPN',
+					'reason_num':2,
+					'PrintLabel':'',
+					'reason':PRINT_ERROR_LIST[2]['Error'],
+					'message':PRINT_ERROR_LIST[2]['Message'],
+					'print_payload_check_time_ms':(datetime.now()-data['print_start_time']).total_seconds() * 1000,
+					'printer_results':2,
+					'print_check_payload_status':status
+					})
+				return data,status
+			
+			# group in key values	
+			payload_data = payload_data_match.groupdict()
+			
+			# If Noread or NoData received error out 
+			if payload_data['lpn'] in ['NOREAD', 'NODATA']:
+				data.update({
+					'print_LPN': payload_data['lpn'],
+					'reason_num':3,
+					'reason':PRINT_ERROR_LIST[3]['Error'],
+					'message':PRINT_ERROR_LIST[3]['Message'],
+					'print_payload_check_time_ms':(datetime.now()-data['print_start_time']).total_seconds() * 1000,
+					'printer_results':2,
+					'PrintLabel':'',
+					'print_check_payload_status':status,
+					'has_label':False
+					})
+				return data,status
+			
+			status = True
+			data.update({
+				'print_indexId': payload_data['indexid'],
+				'print_LPN': payload_data['lpn'],
+				'reason_num':1,
+				'reason':PRINT_ERROR_LIST[1]['Error'],
+				'message':PRINT_ERROR_LIST[1]['Message'],
+				'print_check_payload_status':status,
+				'has_label':True,
+				'printer_results':1
+				
+				})
+				
+			
+		# Catch all Unexplain error	
+		except:
+			data.update({
+				'print_LPN': 'No LPN',
+				'reason_num':14,
+				'reason':PRINT_ERROR_LIST[14]['Error'],
+				'reason':PRINT_ERROR_LIST[14]['Error'],
+				'printer_results':2,
+				'PrintLabel':'',
+				'print_check_payload_status':status,
+				'has_label':False
+				})
+				
+		
+		data.update({
+			'print_payload_check_time_ms':(datetime.now()-data['print_start_time']).total_seconds() * 1000
+			})
+		
+		return data,status
+		
+	def mongo_lookup(self,data):
+		status = False
+		# Database Query
+#		logger.info('data: %s'%data)
+		filter_query = {'induct_LPN': data['print_LPN']}
+		
+		
+		sort=list({
+    		'induct_start_time': -1
+			}.items())
+		query_results = list(db.HSL_info.find(filter_query).sort(sort))
+		printprocess = PrintProcess()
+		
+		
+	
+		
+		if not query_results:
+			data.update({
+				'reason_num':4,
+				'reason':PRINT_ERROR_LIST[4]['Error'],
+				'message':PRINT_ERROR_LIST[4]['Message'],
+				'PrintLabel':'',
+				'printer_results':2,
+				'print_payload_check_time_ms':(datetime.now()-data['print_start_time']).total_seconds() * 1000,
+				'print_mongo_lookup_status':status,
+				'has_label':False
+				})
+			return data,status
+		first_result = query_results[0]
+		first_result.update(data)
+		data = first_result
+		status = True
+		data.update({
+			'print_payload_check_time_ms':(datetime.now()-data['print_start_time']).total_seconds() * 1000,
+			'print_mongo_lookup_status':status
+			})
+		return data,status
+		
+	
+		
+		
+	
+	def send_to_printer(self,data,printerId,indexId):
+		status = False
+		printers = {
+			1:'10.0.195.162',
+			2:'10.0.195.163',
+			3:'10.0.195.164'
+		}		
+	
+		printer_IP = printers.get(printerId)
+		
+		host = printer_IP
+		port = 9100
+		
+		printer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		printer.connect((host,port))
+		
+		data.update({
+			'print_requested_time':datetime.now()
+			})
+		# Send to Printer
+		print_string = data['PrintLabel']
+		itemPaths = [
+			'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLPrintIndexID',
+			'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLPrintResult[%s]'%indexId
+		]
+		opcValues = [indexId, 1]
+		system.opc.writeValues(OPCSERVER, itemPaths, opcValues)	
+		printer.sendall(print_string.encode('utf-8'))
+		
+		printer.close()
+		# OPC Write Operations
+
+		status = True
+		data.update({
+			'printer_results': 1,
+			'reason_num':1,
+			'reason':PRINT_ERROR_LIST[1]['Error'],
+			'message':PRINT_ERROR_LIST[1]['Message'],
+			'print_sent_time_ms':(datetime.now()-data['print_requested_time']).total_seconds() * 1000,
+			'total_print_time_ms':(datetime.now()-data['print_start_time']).total_seconds() * 1000,
+			'print_response_timestamp':datetime.now(),
+			'print_sent_status':status,
+			'has_label':True
+		})
+		
+		printprocess = PrintProcess()
+
+		return data,status

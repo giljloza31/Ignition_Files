@@ -1,0 +1,65 @@
+{
+  "pages": {
+    "/": {
+      "docks": {
+        "bottom": [
+          {
+            "anchor": "fixed",
+            "autoBreakpoint": 480,
+            "content": "push",
+            "handle": "show",
+            "iconUrl": "",
+            "id": "",
+            "modal": false,
+            "resizable": false,
+            "show": "onDemand",
+            "size": 365,
+            "viewParams": {},
+            "viewPath": "Mouser_2/Main/Eurosort/Lvl3/Filter_window"
+          }
+        ],
+        "right": [
+          {
+            "anchor": "fixed",
+            "autoBreakpoint": 480,
+            "content": "push",
+            "handle": "show",
+            "iconUrl": "",
+            "id": "",
+            "modal": false,
+            "resizable": true,
+            "show": "onDemand",
+            "size": 290,
+            "viewParams": {},
+            "viewPath": "Mouser_2/Nav/Euro_Sidemenu"
+          }
+        ]
+      },
+      "title": "",
+      "viewPath": "Mouser_2/Main/Eurosort/Lvl3/Eurosort"
+    },
+    "/new-page": {
+      "title": "",
+      "viewPath": "test/View_1"
+    }
+  },
+  "sharedDocks": {
+    "cornerPriority": "top-bottom",
+    "left": [
+      {
+        "anchor": "fixed",
+        "autoBreakpoint": 480,
+        "content": "push",
+        "handle": "hide",
+        "iconUrl": "",
+        "id": "",
+        "modal": false,
+        "resizable": false,
+        "show": "visible",
+        "size": 150,
+        "viewParams": {},
+        "viewPath": "Mouser_2/-Map_Components/Navigation"
+      }
+    ]
+  }
+}

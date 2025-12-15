@@ -1,0 +1,39 @@
+from shared.es_platform.commands.auth import verify_credentials
+
+
+def run_as_verified(cmd, fn_name, fn_kwargs, verify_username, verify_password, primary_source=None, fallback_source=None, session_user=None):
+	ar = verify_credentials(
+		verify_username,
+		verify_password,
+		primary_source=primary_source,
+		fallback_source=fallback_source
+	)
+
+	if not ar.ok:
+		return {"ok": False, "authorized": False, "reason": ar.reason}
+
+	ctx = {
+		"roles": ar.roles,
+		"authUser": ar.username,
+		"authSource": ar.source,
+	}
+
+	fn = getattr(cmd, fn_name, None)
+	if fn is None:
+		return {"ok": False, "authorized": True, "reason": "unknown_command:%s" % fn_name}
+
+	kwargs = dict(fn_kwargs or {})
+	kwargs.setdefault("userId", session_user)	# Joe (session user)
+	kwargs.setdefault("context", ctx)			# Admin/Supervisor credentials
+
+	res = fn(**kwargs)
+
+	return {
+		"ok": True,
+		"authorized": True,
+		"session_user": session_user,
+		"auth_user": ar.username,
+		"auth_source": ar.source,
+		"auth_roles": ar.roles,
+		"result": res
+	}

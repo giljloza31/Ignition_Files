@@ -1,0 +1,4 @@
+SELECT top(1)*
+FROM QPS_UserLog1
+WHERE userID = :inVARuserID
+order by sessionindx desc

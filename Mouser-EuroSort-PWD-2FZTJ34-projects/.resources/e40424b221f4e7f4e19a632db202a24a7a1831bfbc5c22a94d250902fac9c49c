@@ -1,0 +1,443 @@
+from shared.tools.thread import async
+from shared.tools.global import ExtraGlobal
+from functools import partial
+from datetime import datetime
+from database.records.mongodb import *
+from shared.pwd.logging import log_event
+from shared.pwd.Mouser.Consolidation.QPS_Stations.Content_Tracking import SortZoneData
+import re, system
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Config / constants
+# ──────────────────────────────────────────────────────────────────────────────
+USERSOURCE      = 'default'    # or 'ActiveDirectory'
+MONGODB         = 'MongoWCS'
+TIME_FMT        = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+LIFESPAN        = 60*60*24
+CACHED_SCOPE    = 'consol-data'
+SELF_NAME       = 'Consol'     # shared owner for ExtraGlobal across programs
+TIMEOUT_MIN     = 10           # minutes of inactivity to force sign-out
+MARRIAGE_STATION = 51
+MARRIAGE_SCANNER = 51
+
+# IBN: 1 char numeric + 5 alphanumeric uppercase
+IBN_RE = re.compile(r'^[0-9A-Z]{6}$')
+IMMUTABLE_KEYS = set(("_id",))
+# Payloads
+#   scan:       indexId|ibn,ibn,ibn
+#   marriage:   indexId|tote|ibn,ibn,ibn
+SCAN_PAYLOAD_RE     = re.compile(r'^(?P<indexid>\d{3})\|(?P<ibns>[^|]+)$')
+MARRIAGE_PAYLOAD_RE = re.compile(r'^(?P<indexid>\d{3})\|(?P<tote>[^|]+)\|(?P<ibns>[^|]+)$')
+
+
+class QPS_Sortation():
+	
+	def __init__(self):
+		super(QPS_Sortation,self).__init__()
+	
+	def _get_time(self):
+		timestamp = system.date.now()
+		return timestamp
+		
+		
+	def _get_midnight(self):
+		midnight = system.date.midnight(system.date.now())
+		return midnight
+	
+	def _get_delta_time(self,a,b):
+		ms = system.date.millisBetween(a,b)
+		return self._get_run_time(ms)
+	
+	def _get_run_time(self,ms):
+		"""Convert ms → " HH:mm:ss.sss"""
+		hours = ms // 3600000
+		ms %= 3600000
+		minutes = ms // 60000
+		ms %= 60000
+		seconds = ms // 1000
+		ms %= 1000
+		return "{:02d}:{:02d}:{:02d}.{:03d}".format(int(hours), int(minutes), int(seconds), int(ms))
+	
+	def _parse_run_time(self,rt):
+		"""Convert HH:mm:ss.sss → ms"""
+		if not rt or not isinstance(rt, basestring):
+			return 0
+		m = re.match(r"(\d+):(\d+):(\d+)\.(\d+)", rt)
+		if not m:
+			return 0
+		h, mi, s, ms = map(int, m.groups())
+		return ((h*3600 + mi*60 + s)*1000) + ms
+		
+	def _ensure_list(self,value):
+		if value is None:
+			return []
+		return value if isinstance(value, list) else [value]
+		
+	def update_and_add(d1, d2, reason, immutable_keys=IMMUTABLE_KEYS):
+		for k, v in d2.items():
+			if k in immutable_keys:
+				continue
+			if k not in d1 and k not in ("last_time_in","last_time_out","logged_in_times","logged_out_times","sign_out_reasons","rate_of_scan"):
+				continue
+				
+			if k == "run_time":
+				total_ms = self._parse_run_time(d1.get(k)) + self._parse_run_time(v)
+				d1[k] = self._parse_run_time(total_ms)
+				continue
+			
+			if k == "last_time_in":
+				d1["last_time_in"] = _ensure_list(d1.get("last_time_in"))
+				d1["last_time_in"].append(v)
+				continue
+			
+			if k == "last_time_out":
+				d1["last_time_out"] = _ensure_list(d1.get("last_time_out"))
+				d1["last_time_out"].append(v)
+				continue
+			
+			if k == "logged_in_time":
+				d1["logged_in_times"] = _ensure_list(d1.get("logged_in_times"))
+				d1["logged_in_times"].append(v)
+				continue
+				
+			if k == "logged_out_time":
+				d1["logged_out_times"] = _ensure_list(d1.get("logged_out_times"))
+				d1["logged_out_times"].append(v)
+				continue
+			
+			if k == "rate_of_scan":
+				d1["rate_of_scan"] = _ensure_list(d1.get("rate_of_scan"))
+				d1["rate_of_scan"].append(v)
+				continue
+				
+			if isinstance(d1.get(k), (int, float)) and isinstance(v, (int, float)):
+				d1[k] = d1[k] + v
+				continue
+				
+			d1[k] = v  # default replace
+			
+		# Always append sign-out reason
+		d1["sign_out_reasons"] = _ensure_list(d1.get("sign_out_reasons"))
+		if reason:
+			d1["sign_out_reasons"].append(reason)
+			
+		return d1
+	
+	
+	def _set_scanner_defaults(self,station,scannerId,username = ''):
+		
+		''' For clearing out station to prep for next user do not input username when assigning a user input username to ensure station 
+			data is wiped before starting'''
+		scanner_data = {
+				"station": station,
+				"scannerId": scannerId,
+				"username": username,
+				"scan_count": 0,
+				"total_count": 0,
+				"totes_turned_in": 0,
+				"rate_of_scan": 0,
+				"logged_in_time": None,
+				"run_time": "00:00:00.000",
+			}
+		
+		key_filter = {
+				"station": station,
+				"scannerId": scannerId,
+			}
+		update_record(MongoDB, 'qps_stations', scanner_data,key_filter)
+		
+	def _station_doc(self, station, scannerId):
+		return select_record(MONGODB, 'qps_stations', {"station": station, "scannerId": scannerId})
+		
+	def _set_scanner_defaults(self, station, scannerId, username=''):
+		"""Reset/assign scanner row for a user."""
+		doc = {
+			"station": station,
+			"scannerId": scannerId,
+			"username": username,
+			"scan_count": 0,
+			"total_count": 0,
+			"last_scanned_time": None,
+			"totes_turned_in": 0,
+			"rate_of_scan": 0,
+			"logged_in_time": self._get_time() if username else None,
+			"run_time": "00:00:00.000",
+			"scanner_online": True,     # keep true unless you have other logic
+			"station_enabled": True     # keep true unless you have other logic
+			}
+			
+		key_filter = {"station": station, "scannerId": scannerId}
+		update_record(MONGODB, 'qps_stations', doc, key_filter)
+		
+	# --------------------------------------------------------------------------
+	# User account flows
+	# --------------------------------------------------------------------------
+	
+	def sign_in_request(self, username, password):
+		"""Assign next available station/scanner to the user."""
+		evt = {'username': username, 'reason': 'signin'}
+		
+		# Validate creds
+		if not username or not password:
+			evt.update(reason='Missing username')
+			return {"station": 0, "scannerId": 0, "reason": evt['reason']}
+		
+		if not password:
+			evt.update(reason='Missing password')
+			return {"station": 0, "scannerId": 0, "reason": evt['reason']}		
+		
+		user = system.user.getUser(USERSOURCE, username)
+		if not user:
+			evt.update(reason='User does not exist')
+			return {"station": 0, "scannerId": 0, "reason": evt['reason']}
+			
+		if not system.security.validateUser(username, password, USERSOURCE):
+			evt.update(reason='Invalid credentials', ok=False)
+			return {"station": 0, "scannerId": 0, "reason": evt['reason']}
+			
+		# Find next free station/scanner
+		agg = [
+			{"$match": {"scanner_online": True, "station_enabled": True,
+				"$or": [{"username": None}, {"username": ""}]}},
+				{"$sort": {"station": 1, "scannerId": 1}},
+			{"$limit": 1},
+			]
+		nexts = aggregate(MONGODB, 'qps_stations', agg)
+		if not nexts:
+			evt.update(reason='No available stations/scanners')
+			return {"station": 0, "scannerId": 0,"reason": evt['reason']}
+			
+		st = nexts[0]['station']
+		sc = nexts[0]['scannerId']
+		
+		# Assign
+		self._set_scanner_defaults(st, sc, username)
+		evt.update(station=st, scannerId=sc, reason='Assigned to Station: %s ; Scanner: %s'%(st,sc))
+		
+		return {"station": st, "scannerId": sc,"username": username, "last_time_in": self._get_time(),
+			"reason": "User assigned to station %s scanner %s" % (st, sc)}
+			
+	def sign_out_request(self, username, password, reason):
+		"""Sign out the user from their station/scanner; update user history."""
+		evt = {'username': username, 'reason': reason}
+		
+		if not username:
+			evt.update(reason='Missing username')
+			return {"station": 0, "scannerId": 0, "reason": 'Missing username'}
+
+		if not password:
+			evt.update(reason='Missing password')
+			return {"station": 0, "scannerId": 0, "reason": 'Missing password'}		
+		
+		if not reason:
+			evt.update(reason='Missing signout reason')
+			return {"station": 0, "scannerId": 0, "reason": 'Missing signout reason'}
+			
+		user = system.user.getUser(USERSOURCE, username)
+		if not user:
+			evt.update(reason='user not found')
+			return {"station": 0, "scannerId": 0, "reason": 'user not found'}
+			
+		if not system.security.validateUser(username, password, USERSOURCE):
+			evt.update(ok=False, detail='Invalid credentials or user not found')
+			return {"station": 0, "scannerId": 0, "reason": 'Invalid credentials'}
+			
+		# Find where user is logged in
+		st_doc = select_record(MONGODB, 'qps_stations', {"username": username})
+		if not st_doc:
+			evt.update(ok=False, detail='User not logged into a station')
+			return {"station": 0, "scannerId": 0, "reason": 'User not logged in'}
+		
+		station   = st_doc['station']
+		scannerId = st_doc['scannerId']
+		total_cnt = st_doc.get('total_count', 0)
+		run_time  = st_doc.get('run_time', "00:00:00.000")
+		
+		# Update today's user info document (insert if missing)
+		# Keeping simple: most recent doc for today
+		q = {"username": username}
+		user_info = select_record(MONGODB, 'qps_userinfo', q)
+		if not user_info:
+			user_info = {
+				"username": username, "run_time": "00:00:00.000",
+				"total_count": 0, "rate_of_scan": 0, "scan_count": 0,
+				"last_time_in": self._get_time(), "last_time_out": None,
+				"totes_turned_in": 0
+				}
+			insert_record(MONGODB, 'qps_userinfo', user_info)
+			user_info = select_record(MONGODB, 'qps_userinfo', q)
+		# Merge a couple of station fields and append reason
+		# (kept minimal; extend to your full update-and-add rules as needed)
+		user_info['last_time_out']  = self._get_time()
+		user_info['total_count']    = int(user_info.get('total_count', 0)) + int(total_cnt)
+		user_info['sign_out_reasons'] = _ensure_list(user_info.get('sign_out_reasons'))
+		user_info['sign_out_reasons'].append(reason)
+		
+		update_record(MONGODB, 'qps_userinfo', user_info, {"_id": user_info['_id']})
+		
+		# Clear the station/scanner row
+		self._set_scanner_defaults(station, scannerId, username='')
+		
+		evt.update(station=station, scannerId=scannerId)
+		
+		return {"station": station, "scannerId": scannerId,
+				"reason": "%s logged out of station %s (run_time=%s total_count=%s)" %(username, station, run_time, total_cnt)}
+
+# --------------------------------------------------------------------------
+# Timeout (force signout)
+# --------------------------------------------------------------------------
+
+#    def timeout_check(self):
+#        """
+#        Find active station/scanner rows (username not blank) and sign them out if
+#        last_scanned_time older than TIMEOUT_MIN minutes.
+#        """
+#        now = _now()
+#        ten_min_ms = TIMEOUT_MIN * 60 * 1000
+#
+#        rows = select_records(MONGODB, 'qps_stations', {"username": {"$nin": [None, ""]}})
+#        if not rows:
+#            return {"ok": True, "forced": []}
+#
+#        forced = []
+#        for row in rows:
+#            last = row.get('last_scanned_time')
+#            if not last:
+#                continue
+#            delta = _millis_between(last, now)
+#            if delta >= ten_min_ms:
+#                username  = row['username']
+#                station   = row['station']
+#                scannerId = row['scannerId']
+#                # NOTE: You can pass a service password here or bypass credential validation for timeout
+#                res = self.sign_out_request(username, password='', reason='timeout')
+#                forced.append({"username": username, "station": station, "scannerId": scannerId, "result": res})
+#                self._log_sub(1.1, {"detail": "timeout-signout", "username": username,
+#                                    "station": station, "scannerId": scannerId, "delta_ms": delta})
+#        return {"ok": True, "forced": forced}
+#
+#    # ──────────────────────────────────────────────────────────────────────────
+#    # Scan (indexId|ibn,ibn,ibn) → update zones & station info
+#    # ──────────────────────────────────────────────────────────────────────────
+#    def scan_request(self, username, payload, station, scannerId):
+#        evt = {'ts': _pp(_now()), 'username': username, 'action': 'scan', 'station': station, 'scannerId': scannerId}
+#
+#        m = SCAN_PAYLOAD_RE.match(payload or '')
+#        if not m:
+#            evt.update(ok=False, reason='Invalid payload')
+#            self._log_main(1.0, evt)
+#            return {"ok": False, "reason": "Invalid payload format"}
+#
+#        indexId = m.group('indexid')
+#        ibns    = _ibn_list_from_csv(m.group('ibns'))
+#
+#        if not ibns:
+#            evt.update(ok=False, reason='No valid IBNs')
+#            self._log_main(1.0, evt)
+#            return {"ok": False, "reason": "No valid IBNs in payload"}
+#
+#        # fetch issue info documents (flatten fields except insert_time)
+#        docs = select_records(MONGODB, 'outbound_scan_sort_ibn',
+#                              {"_id": {"$in": ibns}},
+#                              projection={"insert_time": 0})
+#        if not docs:
+#            evt.update(ok=False, reason='No matching IBN docs')
+#            self._log_main(1.0, evt)
+#            return {"ok": False, "reason": "No matching IBN docs"}
+#
+#        # ensure station/scanner row
+#        st_doc = self._station_doc(station, scannerId)
+#        if not st_doc:
+#            self._set_scanner_defaults(station, scannerId, username=username)
+#
+#        # Add each IBN’s issue_info to CURRENT ACTIVE ZONE for the station
+#        added = []
+#        for doc in docs:
+#            # If your add method name differs, replace the next line accordingly:
+#            res = self.add_issue_to_current_zone(station, {"_id": doc['_id'], "zone": doc.get('zone')})
+#            added.append(res)
+#
+#        # Update station counters/time
+#        now = _now()
+#        st_doc = self._station_doc(station, scannerId) or {}
+#        new_scan_count  = int(st_doc.get('scan_count', 0)) + len(ibns)
+#        new_total_count = int(st_doc.get('total_count', 0)) + len(ibns)
+#
+#        update_record(MONGODB, 'qps_stations', {
+#            "station": station,
+#            "scannerId": scannerId,
+#            "username": username,
+#            "scan_count": new_scan_count,
+#            "total_count": new_total_count,
+#            "last_scanned_time": now
+#        }, {"station": station, "scannerId": scannerId})
+#
+#        evt.update(ok=True, indexId=indexId, count=len(ibns), added=added)
+#        self._log_main(1.0, evt)
+#        self._log_sub(1.1, {"detail": "scan-updated-station",
+#                            "station": station, "scannerId": scannerId,
+#                            "scan_count": new_scan_count, "total_count": new_total_count})
+#        return {"ok": True, "indexId": indexId, "count": len(ibns), "added": added}
+#
+#    # ──────────────────────────────────────────────────────────────────────────
+#    # Marriage (indexId|tote|ibn,ibn,ibn) at TOU station 51 / scanner 51
+#    # ──────────────────────────────────────────────────────────────────────────
+#    def marriage_request(self, username, payload):
+#        evt = {'ts': _pp(_now()), 'username': username, 'action': 'marriage',
+#               'station': MARRIAGE_STATION, 'scannerId': MARRIAGE_SCANNER}
+#
+#        m = MARRIAGE_PAYLOAD_RE.match(payload or '')
+#        if not m:
+#            evt.update(ok=False, reason='Invalid marriage payload')
+#            self._log_main(1.0, evt)
+#            return {"ok": False, "reason": "Invalid marriage payload format"}
+#
+#        indexId = m.group('indexid')
+#        tote    = m.group('tote').strip().upper()
+#        ibns    = _ibn_list_from_csv(m.group('ibns'))
+#
+#        if not tote:
+#            evt.update(ok=False, reason='Missing tote')
+#            self._log_main(1.0, evt)
+#            return {"ok": False, "reason": "Missing tote in payload"}
+#
+#        # ensure station/scanner row for marriage station
+#        st_doc = self._station_doc(MARRIAGE_STATION, MARRIAGE_SCANNER)
+#        if not st_doc:
+#            self._set_scanner_defaults(MARRIAGE_STATION, MARRIAGE_SCANNER, username=username)
+#
+#        # Upsert/attach the items to the tote-zone at station 51
+#        rec = self.upsert(MARRIAGE_STATION, tote)  # tote is the zone code
+#        items_field = rec.get('items')
+#        if items_field is None:
+#            rec['items'] = list(ibns)
+#        else:
+#            # maintain unique items
+#            uniq = set(items_field if isinstance(items_field, list) else [items_field])
+#            uniq.update(ibns)
+#            rec['items'] = list(uniq)
+#        rec['marriage_index'] = indexId
+#        rec['last_seen'] = _now()
+#        rec['tote'] = tote
+#
+#        # station counters/time
+#        now = _now()
+#        st_doc = self._station_doc(MARRIAGE_STATION, MARRIAGE_SCANNER) or {}
+#        new_scan_count  = int(st_doc.get('scan_count', 0)) + len(ibns)
+#        new_total_count = int(st_doc.get('total_count', 0)) + len(ibns)
+#
+#        update_record(MONGODB, 'qps_stations', {
+#            "station": MARRIAGE_STATION,
+#            "scannerId": MARRIAGE_SCANNER,
+#            "username": username,
+#            "scan_count": new_scan_count,
+#            "total_count": new_total_count,
+#            "last_scanned_time": now
+#        }, {"station": MARRIAGE_STATION, "scannerId": MARRIAGE_SCANNER})
+#
+#        evt.update(ok=True, indexId=indexId, tote=tote, ibns=ibns, station=MARRIAGE_STATION, scannerId=MARRIAGE_SCANNER)
+#        self._log_main(1.0, evt)
+#        self._log_sub(1.1, {"detail": "marriage-updated-station",
+#                            "station": MARRIAGE_STATION, "scannerId": MARRIAGE_SCANNER,
+#                            "scan_count": new_scan_count, "total_count": new_total_count})
+#        return {"ok": True, "indexId": indexId, "tote": tote, "count": len(ibns)}

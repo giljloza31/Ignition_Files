@@ -1,0 +1,697 @@
+from shared.tools.thread import async
+from shared.tools.global import ExtraGlobal
+from system.net import httpClient
+from functools import partial
+from time import sleep
+from random import random
+from datetime import datetime
+from pymongo import MongoClient
+from pymongo import *
+from java.util import Date
+import re
+import base64
+import socket
+import uuid
+
+DATEFORMAT = 'MM-dd-yyyy HH:mm:ss'
+DATEFORMAT2 = '%d:%02d:%02s'
+pattern_9digit = '^[0-9]{9}$'
+PAYLOAD_SEP = '|'
+BARCODE_SEP = ','
+ERROR = ''
+client = httpClient()
+COMMAND = 'Print_Command'
+OPCSERVER = 'Ignition OPC-UA Server'
+PLCNAME = 'ns=1;s=[L3100ERS2_Autoship_Mezz]'
+GS = '$1D'
+
+
+class RoutingException(Exception):pass
+
+class NOPAYLOAD(RoutingException):pass
+
+class NORETURN(RoutingException):pass
+
+class NOREAD(RoutingException):pass
+
+class NODEST(RoutingException):pass
+
+class MULTI(RoutingException):pass
+
+class APIERROR(RoutingException):pass
+
+class NOLABELFOUND(RoutingException):pass
+
+
+
+def create_guid():
+	idNum = uuid.uuid4()
+	return idNum
+	
+def decode_label(label):
+	label_data = base64.b64decode(label)
+	return label_data.decode('utf-8')
+	
+def update_ZPL_File(ZPL_File):
+	replacements = {
+		'^LH0,0\r\n^PR4,4,2^FS\r^PON\r^LS25\n': '^LH0,0\r\n^PR14,8,2^FS\r^PON\r^LS5^LT-35\n',
+		'^MD30^PW800^PON': '^MD0^PW800^POI',
+		'^PW812\r\n^CI13\r\n^LH0,0\r\n^PR4,4,2^FS\r^POI\r^LS25\n': '^PW812\r\n^CI13\r\n^LH0,0\r\n^PR14,8,2^FS\r^POI\r^LS0^LT-35',
+		'^LH20,20\n^FO468,4': '^LH0,20\n^FO468,4',
+		'^LH0,100\n^PR6,4,2\n^FS\n^POI\n^LS25': '^LH25,50\n^PR14,8,2\n^FS\n^POI\n^LS0',
+		'^PR12^MD30^PW800^PON^CI13^LH0,20\n': '^PR14^MD0^PW800^POI^CI13^LH0,20\n',
+		'^LH0,0\n^PR6,4,2\n^FS\n^POI\n^LS25\n': '^LH0,0\n^PR14,8,2\n^FS\n^POI\n^LS0\n',
+		'^XA\n^LL1218\n^PW812\n^PON\n^LH0,0\n^CI27\n': '^XA\n^LL1218\n^PW812\n^POI^PR14,8,2\n^LH0,0^LS0^LT15\n^CI27\n'
+	}
+	
+	for find, replace in replacements.items():
+		if find in ZPL_File:
+			ZPL_File = ZPL_File.replace(find,replace)
+			break
+	
+	ZPL_File = ZPL_File.replace('\n','').replace('\r','')
+	
+	return ZPL_File
+
+
+def identify_and_extract(trackingList):
+	errorLookup = False
+	error_tracking_numbers = {'1Z000000000000000', '1Z0000000000000001', '1Z0000000000000002', '1Z000000000000003', '1Z0000000000000004', '1Z0000000000000005'}
+	errorMessages = {'NOREAD','NoLOT','UnexpectedLOT','OpenBox','NoLabelExp'}
+	trackingResults = []
+	invoiceResults = []
+	errorResults = []
+	
+	for trackingNum in trackingList:
+		if trackingNum in error_tracking_numbers:
+			trackingResults.append(trackingNum)
+			
+		if re.match(pattern_9digit,trackingNum):
+			invoiceResults.append(trackingNum)
+		
+		if trackingNum in errorMessages:
+			errorResults.append(trackingNum)
+		
+	
+	if trackingResults:
+		errorLookup = True
+	
+	return trackingResults,invoiceResults,errorLookup,errorResults
+
+def identify_tracking_number(trackingList):
+	for trackingNum in trackingList:
+		gs_index = trackingNum.find(GS)
+		if gs_index != -1:
+			trackingNum = trackingNum[gs_index +len(GS):]
+		
+		if re.findall('<GS>',trackingNum):
+			trackingNum = re.sub('<GS>','',trackingNum)
+			trackingNum = trackingNum[8:]
+							
+			
+		
+		if len(trackingNum) == 34:
+			return trackingNum[-12:]
+		elif len(trackingNum) == 9:
+			return trackingNum
+		elif trackingNum.startswith('9') and len(trackingNum) in {22, 26}:
+			return trackingNum
+		elif trackingNum.startswith('1Z') and len(trackingNum) == 18:
+			return trackingNum
+		elif len(trackingNum) == 10 or trackingNum.startswith('EP') and len(trackingNum) == 13:
+			return trackingNum
+		elif trackingNum == "NOREAD":
+			return trackingNum
+		
+	return None
+
+def lookup(data):
+	api_payload = {}
+	prod = 'wcs01:8085'
+	#prod = 'wcsdev:8099'
+	endpoint = 'http://%s/ws/v1/orders/'%(prod)
+	endpoint += data['IGN_LPN']
+	api_payload['type']= 'ship'
+	api_payload['weight'] = str(data['IGN_Weight'])
+	api_payload['deviceid'] = 1
+	system.util.getLogger('API_HSL').trace("Writeback payload: type:%s weight:%s" % (api_payload['type'],api_payload['weight']))
+	apisentTime = system.date.now()	
+	api_payload_json_string = system.util.jsonEncode(api_payload) # STRING
+	COMMAND = 'Print_Command'
+	
+	requestQuery = '''
+	INSERT INTO HSL_Request_Table
+	(timestamp,json_data)
+	VALUES (?,?)
+	'''
+	data.update({
+		'API_Endpoint':endpoint,
+		'API_Payload':api_payload_json_string,
+		'API_SentTime':apisentTime
+	})
+
+	
+	requestedData = system.util.jsonEncode(data)
+	requestArgs = [system.date.now(),requestedData]
+	system.db.runPrepUpdate(requestQuery, requestArgs, 'SQLServer')
+	response = client.put(endpoint,data=api_payload)
+	result = response.json
+	apiResponseTime = system.date.now()
+			
+	if result['statusCode'] !=258:
+		
+		try:
+			ZPL_File = decode_label(result['label'])
+			
+			ZPL_File = update_ZPL_File(ZPL_File)
+			
+			verificationBarcode = result['verificationBarcode']
+			orderNbr = result['orderNbr']
+				
+			data.update({
+				'PrintLabel':ZPL_File,
+				'verificationBarcode':verificationBarcode,
+				'orderNbr':orderNbr,
+				'API_Endpoint':endpoint,
+				'API_Payload':api_payload_json_string,
+				'result':result,
+				'API_Results':'Success'
+			})
+			system.util.getLogger('API_HSL').trace('RESULTS:%s'%(data))
+			system.util.getLogger('API_HSL').trace('ordernumber:%s'%(orderNbr))
+			if ZPL_File:
+				ExtraGlobal.stash(data, label = data['IGN_LPN'], scope=COMMAND, lifespan=7200)
+			
+			else:
+				data.update({
+					'API_Endpoint':endpoint,
+					'API_Payload':api_payload_json_string,
+					'API_Results':'Failed',
+					'verificationBarcode':'No Label',
+					'result':result
+				})
+		except:
+			data.update({
+				'API_Endpoint':endpoint,
+				'API_Payload':api_payload_json_string,
+				'API_Results':'Failed',
+				'verificationBarcode':'No Label',
+				'result':result
+			})
+
+	else:
+		data.update({
+			'API_Endpoint':endpoint,
+			'API_Payload':api_payload_json_string,
+			'API_Results':'Failed',
+			'verificationBarcode':'Failed',
+			'result':result
+		})
+	
+	data.update({
+		'API_ResponseTime':apiResponseTime
+	})
+	responseQuery = '''
+	INSERT INTO HSL_Response_Table
+	(timestamp,json_data)
+	VALUES (?,?)
+	'''
+
+	responseData = system.util.jsonEncode(data)
+	responseArgs = [system.date.now(),responseData]
+	system.db.runPrepUpdate(responseQuery, responseArgs, 'SQLServer')
+	
+	return data
+		
+
+def lookup_and_decode(data):
+	rawList = []
+	barcodeList = []
+	payload = data['IGN_LPN']
+	
+	if BARCODE_SEP in payload:
+		rawList = payload.split(BARCODE_SEP)
+	else:
+		rawList.append(payload)
+		
+	if 'NOREAD' in rawList:
+		raise NOREAD
+	else:
+		for code in rawList:
+			if code.startswith('H') and code != 'NOREAD':
+				if code not in barcodeList:
+					barcodeList.append(code)
+	
+	if len(barcodeList)==0:
+		raise NOREAD
+	elif len(barcodeList) > 1:
+		raise MULTI
+	
+	
+	data.update({
+		'IGN_LPN': barcodeList[0]
+	})
+	
+	data.update(lookup(data))
+	return data
+
+
+@async(name='HSL_Print_Apply_GatherData')
+def HSL_gather_data(source_path):
+	data = {}
+	guid = create_guid()
+	data.update({
+		'PWD_id':str(guid)
+	})
+	receiveTime = system.date.now()
+	Get_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	Got_parent_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	#[Mouser]Mouser/HSL/HSL_Manifest/Get_Data/HSLMANIndexID
+	rawPayload,indexID= [
+	qv.value for qv in system.tag.readBlocking([
+		Get_parent_dest + '/' + 'IGNHSLManifestPayload_Send',
+		Get_parent_dest + '/' + 'HSLMANIndexID'
+	])]
+	
+	try:
+		if rawPayload.count(PAYLOAD_SEP) != 2:
+			raise NOPAYLOAD
+		
+		indexID,LPN,weight = rawPayload.split(PAYLOAD_SEP)
+		
+		
+		if not indexID or not LPN:
+			raise NOPAYLOAD
+			
+			
+		if weight == 'NOWEIGHT' or not weight:
+			weight = 0.0
+			
+		data = {
+			'IGN_IndexID_Returned' : indexID,
+			'IGN_LPN' : LPN,
+			'IGN_Weight' : float(weight)
+		}
+		
+		data.update(lookup_and_decode(data))	
+#	try:
+#		if PAYLOAD_SEP in rawPayload[0]:
+#			indexID,LPN,weight = rawPayload[0].split(PAYLOAD_SEP)
+#			
+#			if weight == 'NOWEIGHT':
+#				weight = 0.0
+#			
+#			data.update({
+#				'IGN_IndexID_Returned' : indexID,
+#				'IGN_LPN' : LPN,
+#				'IGN_Weight' : float(weight)
+#			})
+#		else:
+#			raise NOPAYLOAD
+#			
+#		data.update(lookup_and_decode(data))
+#		
+	except NOPAYLOAD:
+		data.update({
+			'IGN_IndexID_Returned' : indexID,
+			'IGN_LPN' : rawPayload,
+			'IGN_Weight' : 0.0,
+			'Route_Reason' : 'Wrong Payload Received',
+			'Route_Reason_Num' : 2,
+			'verificationBarcode' : rawPayload,
+			'orderNbr' : rawPayload
+		})
+	except NOREAD:
+		data.update({
+			'IGN_Weight' : 0.0,
+			'Route_Reason' : 'NO LPN Found',
+			'Route_Reason_Num' : 2,
+			'verificationBarcode' : rawPayload,
+			'orderNbr' : rawPayload
+		})
+	except NORETURN:
+		data.update({
+			'Route_Reason' : 'API Return No Results',
+			'Route_Reason_Num' : 2,
+			'verificationBarcode' : rawPayload,
+			'orderNbr' : rawPayload
+		})
+	except MULTI:
+		data.update({
+			'Route_Reason' : 'Multiple LPNs Found',
+			'Route_Reason_Num' : 2,
+			'verificationBarcode' : rawPayload,
+			'orderNbr' : rawPayload
+		})
+	except APIERROR:
+		data.update({
+			'Route_Reason' : 'API Connection Failed',
+			'Route_Reason_Num' : 2,
+			'verificationBarcode' : 'API Connection Failed',
+			'orderNbr' : rawPayload
+		})
+		responseQuery = '''
+		INSERT INTO HSL_Response_Table
+		(timestamp,json_data)
+		VALUES (?,?)
+		'''
+		data['API_Results'] = 'Failed'
+		data['result']={'statusCode':258}
+		responseData = system.util.jsonEncode(data)
+		responseArgs = [system.date.now(),responseData]
+		system.db.runPrepUpdate(responseQuery, responseArgs, 'SQLServer')
+	except:
+		data.update({
+			'IGN_IndexID_Returned' : indexID,
+			'IGN_Weight' : 0.0,
+			'Route_Reason' : 'Error',
+			'Route_Reason_Num' : 2,
+			'verificationBarcode' : rawPayload,
+			'orderNbr' : rawPayload
+		})
+		
+	data.update({
+		'Received_Data_Time' : receiveTime,
+		'Sent_Data_Time' : system.date.now()
+	})
+	
+	itemPath = 'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLManIndexID'
+	
+	system.opc.writeValue(OPCSERVER, itemPath, int(data['IGN_IndexID_Returned']))
+	
+	
+	Got_parent_dest += '/'
+	
+	system.tag.writeBlocking(*zip(*[
+		(Got_parent_dest + 'IGNReturnedHSLManIndexID', data['IGN_IndexID_Returned']),
+		(Got_parent_dest + 'VerificationBarcodeReturned', data['verificationBarcode']),
+	
+	]))
+	
+	historyQuery = '''
+	INSERT INTO HSL_History_Table
+	(timestamp,json_data)
+	VALUES (?,?)
+	'''
+
+	
+	historyData = system.util.jsonEncode(data)
+	historyArgs = [system.date.now(),historyData]
+	system.db.runPrepUpdate(historyQuery, historyArgs, 'SQLServer')		
+	
+
+@async(name='HSL_get_print')
+def get_print(source_path,payload printer_ID,indexID):
+	data = {}
+	startTime = system.date.now()
+	startTime_fmt = system.date.format(startTime,DATEFORMAT)
+	Get_parent_dest = '/'.join(source_path.split('/')[:-1])
+	printers = {
+		1:'10.0.195.162',
+		2:'10.0.195.163',
+		3:'10.0.195.164'
+	}
+	
+	printer_IP = printers.get(printer_ID)
+	
+	host = printer_IP
+	port = 9100
+	
+	printer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	printer.connect((host,port))
+	deststring = 'IGNHSLSendLabel_Prn%s'%(printer_ID)
+	Get_parent_dest += '/'
+	
+	printPayload = system.tag.readBlocking(source_path)
+	
+	payload = printPayload[0].value
+	
+	if payload.count(PAYLOAD_SEP) != 1:
+		LPN = 'NOREAD'
+		
+	
+			
+	indexID,LPN = payload.split(PAYLOAD_SEP)
+	data.update({
+		'IGN_IndexID_Returned':indexID
+	})		
+			
+	if not indexID or not LPN:
+		LPN = 'NOREAD'
+		
+	
+	
+	if LPN not in ['NOREAD','NODATA']:
+		try:
+			COMMAND = 'Print_Command'
+			data = ExtraGlobal.pop(label=LPN, scope=COMMAND)
+			printResults = 1
+			#printer.send(data['PrintLabel'])
+			printString = data['PrintLabel'].encode('utf-8') 
+			printer.send(printString)
+	
+		except:
+			system.util.getLogger('API_HSL').info("No key for: %s" % (LPN))
+			printResults = 2
+
+	else:
+		printResults = 2
+	
+	itemPaths = [
+		'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLPrintIndexID',
+		'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLPrintResult[%s]'%(indexID)
+		]
+	opcValues = [
+		int(indexID),
+		printResults
+		]
+	system.opc.writeValues(OPCSERVER, itemPaths, opcValues)	
+	
+
+	
+	system.tag.writeBlocking(*zip(*[
+		(Get_parent_dest + 'IGNReturnedHSLPrintIndexID', int(indexID)),
+		(Get_parent_dest + deststring, '')
+		
+	]))
+	
+	dbtime = 'ns=1;s=[L3100ERS2_Autoship_Mezz]ManifestResponseTime[%s]'%(data['IGN_IndexID_Returned'])
+	plcData = system.opc.readValue('Ignition OPC-UA Server', dbtime)
+	data.update({
+		'IGN_IndexID_PrintReturned':int(indexID),
+		'IGN_HSL_VerifyResult':printResults,
+		'ManifestResponseTime':plcData.value
+	})
+	
+	
+	printer.close()
+	ExtraGlobal.stash(data, label = LPN, scope='Print_Request', lifespan=7200)
+
+@async(name='HSL_Verify_Scan')
+def HSL_Verify_Scan(source_path):
+	
+	RESULTSSTRING = {
+		0:'default ',
+		1:'Success ',
+		2:'LPN Mismatch',
+		3:'Tracking or OrderNum Mismatched',
+		4:'No Read on Tracking or OrderNum',
+		5:'No Read LPN',
+		6:'No Record in Cache',
+		7:'Error',
+		8:'No Label on Tamp',
+		9:'Unexpected Label on Tamp',
+		10:'Open Box',
+		11:'No Label Expected',
+		12:'No data received'
+		
+	}
+	
+	trackingList = []
+	receiveTime = system.date.now()
+	Get_parent_dest = '/'.join(source_path.split('/')[:-2]+['Get_Data'])
+	Got_parent_dest = '/'.join(source_path.split('/')[:-2]+['Got_Data'])
+	
+	rawPayload,indexID = [
+	qv.value for qv in system.tag.readBlocking([
+		Get_parent_dest + '/' + 'IGNSendHSLVerifyPayload',
+		Get_parent_dest + '/' + 'HSL_VerifyIndexID'
+	])]
+	
+	#'625|H0200133|1174403414191763321100404318210390'
+	
+	if rawPayload.count(PAYLOAD_SEP) != 2:
+		data = {
+			'IGN_IndexID_Returned': indexID,
+			'IGN_LPN': "NODATA",
+			'IGN_Tracking':"NODATA"
+		}
+		
+			
+	indexID, lpn, tracking = rawPayload.split(PAYLOAD_SEP)		
+	
+		
+	if not indexID or not lpn or not tracking:
+		data = {
+			'IGN_IndexID_Returned': indexID,
+			'IGN_LPN': "NODATA",
+			'IGN_Tracking':"NODATA"
+		}		
+			
+	else:
+		trackingList = tracking.split(BARCODE_SEP)
+		
+		
+		data = {
+			'IGN_IndexID_Returned': indexID,
+			'IGN_LPN': lpn,
+			'IGN_Tracking':trackingList
+		}
+	
+	if data['IGN_LPN'] == 'NOREAD':
+		results = 5
+		data.update({
+			'IGN_IndexID_PrintReturned':indexID
+		})
+	elif data['IGN_LPN'] == 'NODATA':
+		results = 12
+		data.update({
+			'IGN_IndexID_PrintReturned':indexID
+		})
+	elif data['IGN_LPN'] not in ['NOREAD','NODATA']:
+		
+		trackingResults,invoiceResults,errorLookup,errorResults = identify_and_extract(data['IGN_Tracking'])
+		
+		if len(errorResults) > 0:
+			if errorResults[0] == 'NOREAD':
+				results = 4
+			elif errorResults[0] == 'NoLOT':
+				results = 8
+			elif errorResults[0] == 'UnexpectedLOT':
+				results = 9
+			elif errorResults[0] == 'OpenBox':
+				results = 10
+			elif errorResults[0] == 'NoLabelExp':
+				results = 11	
+		else:
+			try:
+				verifyData = ExtraGlobal.get(label=data['IGN_LPN'], scope='Print_Request')
+				
+
+				if int(indexID) == verifyData['IGN_IndexID_PrintReturned'] and lpn == verifyData['IGN_LPN']:
+					
+					
+					
+					
+					if not errorLookup:
+						trackingNum = identify_tracking_number(data['IGN_Tracking'])
+						if not trackingNum:
+							results = 3
+						else:
+							verifyTrackingNum = verifyData['verificationBarcode']
+
+							
+							if trackingNum == verifyTrackingNum:
+								results = 1
+							else:
+								results = 3
+					elif errorLookup:
+						if invoiceResults[0] == verifyData['orderNbr']:
+							results = 1
+						else:
+							results = 3
+						
+						#ExtraGlobal.pop(label=data['IGN_LPN'], scope='Print_Request')
+					
+					
+					else:
+						results = 7
+				else:
+					results = 2
+			except:
+				results = 6
+				data.update({
+					'IGN_IndexID_PrintReturned':indexID
+				})
+
+	else:
+		results = 7
+		data.update({
+			'IGN_IndexID_PrintReturned':indexID
+		})		
+	Got_parent_dest += '/'
+	
+	itemPaths = [
+	'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNHSLVerifyResult[%s]' %(indexID),
+	'ns=1;s=[L3100ERS2_Autoship_Mezz]IGNReturnedHSLVerifyIndexID'
+	]
+	system.opc.writeValues(OPCSERVER, itemPaths, [results,int(indexID)])
+	
+	
+
+	
+	
+	system.tag.writeBlocking(*zip(*[
+		(Got_parent_dest + 'IGNReturnedHSLVerifyIndexID', int(indexID)),
+		(Got_parent_dest + 'IGNHSLVerifyResult', results)
+		
+		
+	]))
+	
+	
+	dbtime = [
+	'ns=1;s=[L3100ERS2_Autoship_Mezz]Program:HSL_Print_Program.VerifyResponseTime[%s]'%(int(indexID)),
+	'ns=1;s=[L3100ERS2_Autoship_Mezz]Program:HSL_Print_Program.LOTAR_History[%s]'%(int(indexID)),
+	'ns=1;s=[L3100ERS2_Autoship_Mezz]Program:HSL_Print_Program.PrintResponseTime[%s]'%(int(indexID))
+	]
+	
+	plcData = system.opc.readValues('Ignition OPC-UA Server', dbtime)
+	data.update({
+		'results':results,
+		'results_String':RESULTSSTRING[results],
+		'VerifyResponseTime':plcData[0].value,
+		'LOTAR_History':plcData[1].value,
+		'PrintResponseTime':plcData[2].value
+	})
+
+	verifyQuery = '''
+	INSERT INTO HSL_Verify_History
+	(timestamp,json_data)
+	VALUES (?,?)
+	'''
+	
+	verifyData = system.util.jsonEncode(data)
+	verifyArgs = [system.date.now(),verifyData]
+	system.db.runPrepUpdate(verifyQuery, verifyArgs, 'SQLServer')		
+	
+@async(name='HSL_scannner_data')	
+def scanner_data(scannerName,payload):
+	
+	scannerNum = int(scannerName[-1:])
+	
+	area = {
+	1:'Manifest',
+	2:'Manifest',
+	3:'Print Request',
+	4:'Print Request',
+	5:'Verify',
+	6:'Verify',
+	7:'Verify'
+	}
+	
+	scannerQuery = '''
+	INSERT INTO HSL_Scanner_Data
+	(timestamp,json_data)
+	VALUES (?,?)
+	'''
+	data = {
+	'ScannerName':scannerName,
+	'ScannerNum':scannerNum,
+	'ScannerArea':area.get(scannerNum),
+	'ScannerPayload':payload
+	}
+	
+	ScannerData = system.util.jsonEncode(data)
+	scannerArgs = [system.date.now(),ScannerData]
+	
+	system.db.runPrepUpdate(scannerQuery, scannerArgs, 'SQLServer')

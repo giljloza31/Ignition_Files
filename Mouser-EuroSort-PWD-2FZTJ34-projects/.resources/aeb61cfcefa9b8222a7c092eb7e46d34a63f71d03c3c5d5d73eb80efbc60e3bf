@@ -1,0 +1,1068 @@
+{
+  "custom": {},
+  "params": {
+    "VFDIP": "192.168.202.120"
+  },
+  "propConfig": {
+    "params.VFDIP": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 1000,
+      "width": 1000
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "VFDNameLabel"
+                    },
+                    "position": {
+                      "basis": "50px"
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "VFDLabels"
+                      },
+                      "text": "VFD Name:"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "VFDName"
+                    },
+                    "position": {
+                      "basis": "50px"
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]NE_Receiving/VFD/VFD 1/Parameters.VFD Name"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "VFDLabels"
+                      }
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "VFDNameFlex"
+                },
+                "position": {
+                  "basis": "118px"
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "VFDAddressLabel"
+                    },
+                    "position": {
+                      "basis": "50px"
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "VFDLabels"
+                      },
+                      "text": "VFD Address:"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "VFDAddress"
+                    },
+                    "position": {
+                      "basis": "50px"
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "path": "view.params.VFDIP"
+                          },
+                          "type": "property"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "VFDDetails"
+                      }
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "VFDAddressFlex"
+                },
+                "position": {
+                  "basis": "200px"
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "meta": {
+              "name": "InformationBlock"
+            },
+            "position": {
+              "basis": "300px"
+            },
+            "props": {
+              "style": {
+                "classes": "VFDInfoBlock"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Slider"
+                },
+                "position": {
+                  "basis": "300px"
+                },
+                "propConfig": {
+                  "props.value": {
+                    "binding": {
+                      "config": {
+                        "bidirectional": true,
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 2/Motor Control/Freq Write"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "type": "ia.input.slider"
+              },
+              {
+                "meta": {
+                  "name": "SliderLabel"
+                },
+                "position": {
+                  "basis": "85px"
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Speed Setting (Hz)"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "SpeedLabel"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Speed (Hz)"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "SpeedIndicator"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{[default]NE_Receiving/VFD/VFD 2/Motor Control/Freq Write} / 100"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "DynamicLabels"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "SpeedInput"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "propConfig": {
+                  "props.value": {
+                    "binding": {
+                      "config": {
+                        "bidirectional": true,
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 2/Motor Control/Freq Write"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "options": [
+                    {
+                      "label": 0,
+                      "value": 0
+                    },
+                    {
+                      "label": 10,
+                      "value": 10
+                    },
+                    {
+                      "label": 20,
+                      "value": 20
+                    },
+                    {
+                      "label": 30,
+                      "value": 30
+                    },
+                    {
+                      "label": 40,
+                      "value": 40
+                    },
+                    {
+                      "label": 50,
+                      "value": 50
+                    },
+                    {
+                      "label": 60,
+                      "value": 60
+                    },
+                    {
+                      "label": 70,
+                      "value": 70
+                    },
+                    {
+                      "label": 80,
+                      "value": 80
+                    },
+                    {
+                      "label": 90,
+                      "value": 90
+                    },
+                    {
+                      "label": 100,
+                      "value": 100
+                    }
+                  ]
+                },
+                "type": "ia.input.dropdown"
+              },
+              {
+                "meta": {
+                  "name": "DropdownLabel"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "props": {
+                  "text": "Speed (Hz)"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "SliderBlock"
+            },
+            "position": {
+              "basis": "700px"
+            },
+            "props": {
+              "style": {
+                "classes": "SpeedBackground"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "VFD-Overview"
+        },
+        "position": {
+          "basis": "200px"
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "url": "https://literature.rockwellautomation.com/idc/groups/literature/documents/um/520-um001_-en-e.pdf"
+                      },
+                      "scope": "C",
+                      "type": "nav"
+                    }
+                  }
+                },
+                "meta": {
+                  "name": "DocumentationLink"
+                },
+                "position": {
+                  "basis": "88px"
+                },
+                "props": {
+                  "text": "Open VFD Drive Documentation (PDF)",
+                  "textStyle": {
+                    "classes": "ButtonLabels"
+                  }
+                },
+                "type": "ia.input.button"
+              },
+              {
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\t\n\tfrom time import sleep\n\tsystem.tag.write(\"[default]NE_Receiving/VFD/VFD 1/Motor Control/Test Mode\", True)\n\tsystem.tag.write(\"[default]NE_Receiving/VFD/VFD 1/Codes/VFD_EIP_Fault\", True)\n\tsystem.tag.write(\"[default]NE_Receiving/VFD/VFD 1/Codes/VFD Run Fault\", True)\n\tsystem.tag.write(\"[default]NE_Receiving/VFD/VFD 1/Motor Control/VFD Running\", True)\n\tsleep(0.5)\n\tsystem.tag.write(\"[default]NE_Receiving/VFD/VFD 1/Motor Control/Test Mode\", False)\n\tsystem.tag.write(\"[default]NE_Receiving/VFD/VFD 1/Motor Control/Test VFD PB\", True)"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "meta": {
+                  "name": "VFDTestMode"
+                },
+                "position": {
+                  "basis": "88px"
+                },
+                "propConfig": {
+                  "custom.TestModeKey": {
+                    "binding": {
+                      "config": {
+                        "bidirectional": true,
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Motor Control/Test Mode"
+                      },
+                      "type": "tag"
+                    }
+                  },
+                  "custom.TestModeSwitch": {
+                    "binding": {
+                      "config": {
+                        "bidirectional": true,
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Motor Control/Test VFD PB"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "text": "VFD Test Mode",
+                  "textStyle": {
+                    "classes": "ButtonLabels"
+                  }
+                },
+                "type": "ia.input.button"
+              }
+            ],
+            "meta": {
+              "name": "ButtonContainer"
+            },
+            "position": {
+              "basis": "250px"
+            },
+            "props": {
+              "style": {
+                "classes": "VFDInfoBlock"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Checkbox"
+                },
+                "position": {
+                  "basis": "56px"
+                },
+                "propConfig": {
+                  "props.selected": {
+                    "binding": {
+                      "config": {
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Codes/VFD_EIP_Fault"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Net Status Test"
+                },
+                "type": "ia.input.checkbox"
+              },
+              {
+                "meta": {
+                  "name": "Checkbox_0"
+                },
+                "position": {
+                  "basis": "56px"
+                },
+                "propConfig": {
+                  "props.selected": {
+                    "binding": {
+                      "config": {
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Codes/VFD Run Fault"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Run Fault Test"
+                },
+                "type": "ia.input.checkbox"
+              },
+              {
+                "meta": {
+                  "name": "Checkbox_1"
+                },
+                "position": {
+                  "basis": "56px"
+                },
+                "propConfig": {
+                  "props.selected": {
+                    "binding": {
+                      "config": {
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Motor Control/VFD Running"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Running"
+                },
+                "type": "ia.input.checkbox"
+              }
+            ],
+            "meta": {
+              "name": "TestCheckBoxes"
+            },
+            "position": {
+              "basis": "250px"
+            },
+            "props": {
+              "style": {
+                "classes": "VFDDetails VFDInfoBlock"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Accelerator"
+                },
+                "position": {
+                  "basis": "256px"
+                },
+                "propConfig": {
+                  "props.value": {
+                    "binding": {
+                      "config": {
+                        "bidirectional": true,
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Motor Control/Accel Write"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "options": [
+                    {
+                      "label": 0,
+                      "value": 0
+                    },
+                    {
+                      "label": 10,
+                      "value": 100
+                    },
+                    {
+                      "label": 500,
+                      "value": 500
+                    },
+                    {
+                      "label": 1000,
+                      "value": 1000
+                    },
+                    {
+                      "label": 1500,
+                      "value": 1500
+                    },
+                    {
+                      "label": 2000,
+                      "value": 2000
+                    },
+                    {
+                      "label": 2500,
+                      "value": 2500
+                    },
+                    {
+                      "label": 3000,
+                      "value": 3000
+                    },
+                    {
+                      "label": 80,
+                      "value": 80
+                    },
+                    {
+                      "label": 90,
+                      "value": 90
+                    },
+                    {
+                      "label": 100,
+                      "value": 100
+                    }
+                  ]
+                },
+                "type": "ia.input.dropdown"
+              },
+              {
+                "meta": {
+                  "name": "AccelLabel"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Accelerator"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Decelerator"
+                },
+                "position": {
+                  "basis": "200px"
+                },
+                "propConfig": {
+                  "props.value": {
+                    "binding": {
+                      "config": {
+                        "bidirectional": true,
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Motor Control/Decel Write"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "options": [
+                    {
+                      "label": 0,
+                      "value": 0
+                    },
+                    {
+                      "label": 100,
+                      "value": 100
+                    },
+                    {
+                      "label": 500,
+                      "value": 500
+                    },
+                    {
+                      "label": 1000,
+                      "value": 1000
+                    },
+                    {
+                      "label": 1500,
+                      "value": 1500
+                    },
+                    {
+                      "label": 2000,
+                      "value": 2000
+                    },
+                    {
+                      "label": 2500,
+                      "value": 2500
+                    },
+                    {
+                      "label": 3000,
+                      "value": 3000
+                    }
+                  ]
+                },
+                "type": "ia.input.dropdown"
+              },
+              {
+                "meta": {
+                  "name": "DecelLabel"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Decelerator"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "SliderControls"
+            },
+            "position": {
+              "basis": "500px"
+            },
+            "props": {
+              "style": {
+                "classes": "SpeedBackground"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "VFD-Detail"
+        },
+        "position": {
+          "basis": "200px"
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "ErrorLabel"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Error Code:"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "ErrorNumber"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Codes/Error"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "DynamicLabels"
+                  }
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Label_1"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "props": {
+                  "text": "Label"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "ErrorCode"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "AmpsLabel"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Output Amps:"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "AmpsNumber"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Motor Control/Output Amps"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "DynamicLabels"
+                  }
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Amps"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "RunTimeLabel"
+                },
+                "position": {
+                  "basis": "118px"
+                },
+                "props": {
+                  "style": {
+                    "classes": "VFDDetails"
+                  },
+                  "text": "Runtime x 10 Hours:"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "RunTimeNumber"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Motor Control/VFD RunTime"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "DynamicLabels"
+                  }
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "RunTime"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "TempLabel"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "props": {
+                  "text": "Drive Temp (Celcius):"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "DriveTemp"
+                },
+                "position": {
+                  "basis": "50px"
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "fallbackDelay": 2.5,
+                        "mode": "direct",
+                        "tagPath": "[default]NE_Receiving/VFD/VFD 1/Motor Control/VFD DriveTemp"
+                      },
+                      "type": "tag"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "DynamicLabels"
+                  }
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "DriveTemp"
+            },
+            "position": {
+              "basis": "200px"
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "VFD-Status"
+        },
+        "position": {
+          "basis": "200px"
+        },
+        "props": {
+          "style": {
+            "classes": "VFDDetails VFDInfoBlock"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "TimeSeriesChart"
+            },
+            "position": {
+              "basis": "789px"
+            },
+            "propConfig": {
+              "props.series[0].data": {
+                "binding": {
+                  "config": {
+                    "aggregate": "MinMax",
+                    "avoidScanClassValidation": true,
+                    "dateRange": {
+                      "mostRecent": "1",
+                      "mostRecentUnits": "HOUR"
+                    },
+                    "ignoreBadQuality": false,
+                    "polling": {
+                      "enabled": false,
+                      "rate": "30"
+                    },
+                    "preventInterpolation": false,
+                    "returnFormat": "Wide",
+                    "returnSize": {
+                      "numRows": "100",
+                      "type": "FIXED"
+                    },
+                    "tags": [
+                      {
+                        "path": "[default]NE_Receiving/VFD/VFD 1/Motor Control/Output Amps"
+                      }
+                    ],
+                    "valueFormat": "DATASET"
+                  },
+                  "type": "tag-history"
+                }
+              },
+              "props.series[0].name": {
+                "binding": {
+                  "config": {
+                    "fallbackDelay": 2.5,
+                    "mode": "direct",
+                    "tagPath": "[default]NE_Receiving/VFD/VFD 1/Parameters.VFD Name"
+                  },
+                  "type": "tag"
+                }
+              },
+              "props.series[1].data": {
+                "binding": {
+                  "config": {
+                    "aggregate": "MinMax",
+                    "avoidScanClassValidation": true,
+                    "dateRange": {
+                      "mostRecent": "1",
+                      "mostRecentUnits": "HOUR"
+                    },
+                    "ignoreBadQuality": false,
+                    "polling": {
+                      "enabled": false,
+                      "rate": "30"
+                    },
+                    "preventInterpolation": false,
+                    "returnFormat": "Wide",
+                    "returnSize": {
+                      "numRows": "100",
+                      "type": "FIXED"
+                    },
+                    "tags": [
+                      {
+                        "path": "[default]NE_Receiving/VFD/VFD 2/Motor Control/VFD DriveTemp"
+                      }
+                    ],
+                    "valueFormat": "DATASET"
+                  },
+                  "type": "tag-history"
+                }
+              }
+            },
+            "props": {
+              "legend": {
+                "visible": true
+              },
+              "plots": [
+                {
+                  "axes": [],
+                  "key": "value",
+                  "markers": [],
+                  "trends": []
+                },
+                {
+                  "axes": [],
+                  "markers": [],
+                  "trends": []
+                }
+              ],
+              "series": [
+                {},
+                {
+                  "name": "2nd series"
+                }
+              ],
+              "title": {
+                "style": {
+                  "classes": "VFDLabels"
+                },
+                "text": "VFD Status",
+                "visible": true
+              }
+            },
+            "type": "ia.chart.timeseries"
+          }
+        ],
+        "meta": {
+          "name": "VFD-Chart"
+        },
+        "position": {
+          "basis": "400px"
+        },
+        "props": {
+          "alignItems": "center"
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "custom": {
+      "ErrorCodes": ""
+    },
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

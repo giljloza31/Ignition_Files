@@ -1,0 +1,547 @@
+{
+  "custom": {},
+  "params": {
+    "IBN": "value",
+    "LPN": "value",
+    "Total_Manifest": 0,
+    "Total_Manifest_Failed": 0,
+    "Total_Marriage": 0,
+    "Total_Marriage_Failed": 0,
+    "Weight": "value"
+  },
+  "propConfig": {
+    "params.IBN": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.LPN": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Total_Manifest": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Total_Manifest_Failed": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Total_Marriage": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Total_Marriage_Failed": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Weight": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 95,
+      "width": 340
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "x": 224,
+          "y": -0.4
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Weight"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "IBN"
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "y": -0.37749999999999995
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.IBN"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "LPN"
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "x": 112,
+          "y": -0.4
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.LPN"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Marraige_Passed",
+          "tooltip": {
+            "enabled": true,
+            "text": "Marraige_Passed_Rate"
+          }
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "x": 224,
+          "y": 22.6
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "if({../Total_Marriage.props.text}\u003d0,1, 1-(({../Total_Marriage_Failed.props.text}/{../Total_Marriage.props.text})))"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "percent",
+                  "type": "format"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Total_Marriage",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "y": 22.62
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Total_Marriage"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Total_Marriage_Failed",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "x": 112,
+          "y": 22.6
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Total_Marriage_Failed"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Manifest_Passed",
+          "tooltip": {
+            "enabled": true,
+            "text": "Manifest_Passed_Rate"
+          }
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "x": 224,
+          "y": 44.6
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "if({../Total_Manifest.props.text}\u003d0,1,1-(({../Total_Manifest_Failed.props.text}/{../Total_Manifest.props.text})))"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "percent",
+                  "type": "format"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Total_Manifest",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "y": 44.620000000000005
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Total_Manifest"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Total_Manifest_Failed",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "x": 112,
+          "y": 44.6
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Total_Manifest_Failed"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Manifest_Passed_0",
+          "tooltip": {
+            "enabled": true,
+            "text": "Manifest_Passed_Rate"
+          }
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "x": 224,
+          "y": 67.6
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "if({../Total_Manifest.props.text}\u003d0,1,1-(({../Total_Manifest_Failed.props.text}/{../Total_Manifest.props.text})))"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "percent",
+                  "type": "format"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Total_Manifest_0",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "y": 67.62
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Total_Manifest"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Total_Manifest_Failed_0",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 25,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 112,
+          "x": 112,
+          "y": 67.6
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Total_Manifest_Failed"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "borderStyle": "solid",
+            "borderWidth": 1,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

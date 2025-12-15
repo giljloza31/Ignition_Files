@@ -1,0 +1,82 @@
+# shared/es_platform/commands/permissions.py
+# Permission guard (pluggable) for command execution
+
+class PermissionDenied(Exception):
+	pass
+
+
+class CommandAuthorizer(object):
+	"""
+	Default authorizer:
+	- Allows everything unless rules are provided.
+	- If rules exist, requires user roles to match.
+	"""
+
+	def __init__(self, rules=None, default_allow=True):
+		# rules: { "CMD_SYSTEM_OFF": {"roles": ["Admin","Supervisor"]}, ... }
+		self.rules = rules or {}
+		self.default_allow = bool(default_allow)
+
+	def is_allowed(self, eventType, userId=None, context=None):
+		rule = self.rules.get(str(eventType))
+		if not rule:
+			return self.default_allow
+
+		required_roles = rule.get("roles") or []
+		if not required_roles:
+			return self.default_allow
+
+		user_roles = get_user_roles(userId=userId, context=context)
+		for r in required_roles:
+			if r in user_roles:
+				return True
+		return False
+
+	def require(self, eventType, userId=None, context=None):
+		if not self.is_allowed(eventType, userId=userId, context=context):
+			raise PermissionDenied("Permission denied for %s (user=%s)" % (eventType, userId))
+
+
+def get_user_roles(userId=None, context=None):
+	"""
+	Best-effort role lookup across Ignition scopes.
+
+	- Gateway Script Console: usually no active user, returns []
+	- Perspective: context can pass roles if you have them
+	- If you wire a custom authorizer, you can ignore this.
+	"""
+	# If caller passed roles explicitly in context, trust it
+	if isinstance(context, dict):
+		roles = context.get("roles")
+		if isinstance(roles, (list, tuple)):
+			return list(roles)
+
+	try:
+		import system
+		# Perspective sessions commonly have security context not directly accessible here;
+		# system.security.getRoles works in client/designer scope with a user.
+		if userId is not None:
+			try:
+				return list(system.security.getRoles(str(userId)))
+			except:
+				pass
+	except:
+		pass
+
+	return []
+
+
+def default_rules():
+	# Strong defaults: only privileged roles can stop/disable system or open doors.
+	return {
+		"CMD_SYSTEM_OFF": {"roles": ["Admin", "Supervisor"]},
+		"CMD_SET_MODE": {"roles": ["Admin", "Supervisor"]},
+		"CMD_SYSTEM_ON": {"roles": ["Admin", "Supervisor", "OperatorLead"]},
+
+		"CMD_CHUTE_OPEN": {"roles": ["Admin", "Supervisor", "OperatorLead"]},
+		"CMD_CHUTE_CLOSE": {"roles": ["Admin", "Supervisor", "OperatorLead"]},
+
+		"CMD_CARRIER_FORCE_RELEASE": {"roles": ["Admin", "Supervisor", "OperatorLead"]},
+		# Lights are usually safe:
+		"CMD_CHUTE_LIGHT": {"roles": ["Admin", "Supervisor", "OperatorLead", "Operator"]},
+	}

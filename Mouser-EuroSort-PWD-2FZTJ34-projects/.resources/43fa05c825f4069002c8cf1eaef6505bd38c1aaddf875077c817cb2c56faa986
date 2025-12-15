@@ -1,0 +1,351 @@
+# shared/es_platform/domain/transitions.py
+# Carrier + Chute transition helpers (StateStore calls these or you can call directly)
+
+from shared.foundation.time import clock
+
+
+# ----------------------------
+# Carrier transitions
+# ----------------------------
+
+class CarrierTransitions(object):
+	def __init__(self, store):
+		self.store = store
+
+	def assign(self, carrierId, assignedDest, ibn=None, order=None, inductionDevice=None, userId=None, eventId=None, details=None):
+		"""
+		EMPTY/UNKNOWN -> ASSIGNED
+		"""
+		cid = int(carrierId)
+		dst = str(assignedDest) if assignedDest is not None else None
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+		if ibn is not None:
+			d["ibn"] = str(ibn)
+		if order is not None:
+			d["order"] = str(order)
+		if inductionDevice is not None:
+			d["inductionDevice"] = str(inductionDevice)
+
+		fields = {
+			"currentPhase": "ASSIGNED",
+			"assignedDest": dst,
+			"lastLocation": d.get("location") or dst,
+			"lastSeenAtEpoch": ts.get("tsEpoch"),
+			"lastEventType": "CARRIER_ASSIGNED",
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastEventDetails": d,
+		}
+
+		if inductionDevice is not None:
+			fields["inductionDevice"] = str(inductionDevice)
+
+		self.store.upsert_carrier(cid, fields=fields, inc=None, on_insert={
+			"createdAt": ts,
+			"entityClass": "SORTER_CARRIER"
+		})
+
+		# Chute breadcrumb
+		if dst:
+			self.store.chute_mark_event(dst, "CARRIER_ASSIGNED_TO_CHUTE", details={
+				"carrierId": cid,
+				"assignedDest": dst,
+				"ibn": d.get("ibn"),
+				"order": d.get("order"),
+			}, userId=userId, eventId=eventId)
+
+		return {"ok": True, "carrierId": cid, "assignedDest": dst, "phase": "ASSIGNED", "ts": ts}
+
+	def discharge_attempted(self, carrierId, location=None, userId=None, eventId=None, details=None):
+		"""
+		ASSIGNED/AT_DEST -> DISCHARGE_ATTEMPTED
+		This does NOT mean delivered; just that the sorter attempted the drop.
+		"""
+		cid = int(carrierId)
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+		if location is not None:
+			d["location"] = str(location)
+
+		fields = {
+			"currentPhase": "DISCHARGE_ATTEMPTED",
+			"lastLocation": d.get("location"),
+			"lastSeenAtEpoch": ts.get("tsEpoch"),
+			"lastEventType": "DISCHARGE_ATTEMPTED",
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastEventDetails": d,
+		}
+
+		inc = {"attemptedDeliveryCount": 1}
+
+		self.store.upsert_carrier(cid, fields=fields, inc=inc)
+
+		return {"ok": True, "carrierId": cid, "phase": "DISCHARGE_ATTEMPTED", "ts": ts}
+
+	def at_dest(self, carrierId, location=None, userId=None, eventId=None, details=None):
+		"""
+		ASSIGNED -> AT_DEST (if/when you can determine it)
+		"""
+		cid = int(carrierId)
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+		if location is not None:
+			d["location"] = str(location)
+
+		fields = {
+			"currentPhase": "AT_DEST",
+			"lastLocation": d.get("location"),
+			"lastSeenAtEpoch": ts.get("tsEpoch"),
+			"lastEventType": "AT_DEST",
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastEventDetails": d,
+		}
+
+		self.store.upsert_carrier(cid, fields=fields, inc=None)
+
+		return {"ok": True, "carrierId": cid, "phase": "AT_DEST", "ts": ts}
+
+	def discharged_at_destination(self, carrierId, confirmedLocation=None, userId=None, eventId=None, details=None, clear_induction=True):
+		"""
+		DISCHARGE_ATTEMPTED -> DISCHARGED_AT_DESTINATION
+		This is the strong delivered signal you said may occur later downstream.
+		"""
+		cid = int(carrierId)
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+		if confirmedLocation is not None:
+			d["confirmedLocation"] = str(confirmedLocation)
+
+		fields = {
+			"currentPhase": "DISCHARGED_AT_DESTINATION",
+			"lastLocation": d.get("confirmedLocation"),
+			"lastSeenAtEpoch": ts.get("tsEpoch"),
+			"lastEventType": "DISCHARGED_AT_DESTINATION",
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastEventDetails": d,
+		}
+
+		if clear_induction:
+			fields["inductionDevice"] = None
+
+		self.store.upsert_carrier(cid, fields=fields, inc=None)
+
+		return {"ok": True, "carrierId": cid, "phase": "DISCHARGED_AT_DESTINATION", "ts": ts}
+
+	def recirculated(self, carrierId, inductionDevice=None, userId=None, eventId=None, details=None):
+		"""
+		Increment recirculation count if same induction device is seen again.
+		Caller can pass inductionDevice from scan station.
+		"""
+		cid = int(carrierId)
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+		if inductionDevice is not None:
+			d["inductionDevice"] = str(inductionDevice)
+
+		fields = {
+			"currentPhase": "REASSIGNED",
+			"lastSeenAtEpoch": ts.get("tsEpoch"),
+			"lastEventType": "RECIRCULATED",
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastEventDetails": d,
+		}
+
+		inc = {"recircCount": 1}
+
+		if inductionDevice is not None:
+			fields["inductionDevice"] = str(inductionDevice)
+
+		self.store.upsert_carrier(cid, fields=fields, inc=inc)
+
+		return {"ok": True, "carrierId": cid, "phase": "REASSIGNED", "ts": ts}
+
+	def abort(self, carrierId, reason, location=None, userId=None, eventId=None, details=None):
+		"""
+		Any -> ABORTED_<REASON>
+		"""
+		cid = int(carrierId)
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		r = str(reason or "UNKNOWN").strip().upper().replace(" ", "_")
+		phase = "ABORTED_%s" % r
+
+		d = dict(details or {})
+		d["reason"] = r
+		if location is not None:
+			d["location"] = str(location)
+
+		fields = {
+			"currentPhase": phase,
+			"lastLocation": d.get("location"),
+			"lastSeenAtEpoch": ts.get("tsEpoch"),
+			"lastEventType": "ABORTED",
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastEventDetails": d,
+		}
+
+		self.store.upsert_carrier(cid, fields=fields, inc=None)
+
+		return {"ok": True, "carrierId": cid, "phase": phase, "ts": ts}
+
+	def reassign(self, carrierId, newDest, userId=None, eventId=None, details=None):
+		"""
+		ASSIGNED/DISCHARGE_ATTEMPTED/etc -> REASSIGNED (assignedDest updated)
+		"""
+		cid = int(carrierId)
+		dst = str(newDest) if newDest is not None else None
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+		d["newDest"] = dst
+
+		fields = {
+			"currentPhase": "REASSIGNED",
+			"assignedDest": dst,
+			"lastLocation": dst,
+			"lastSeenAtEpoch": ts.get("tsEpoch"),
+			"lastEventType": "REASSIGNED",
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastEventDetails": d,
+		}
+
+		self.store.upsert_carrier(cid, fields=fields, inc=None)
+
+		if dst:
+			self.store.chute_mark_event(dst, "CARRIER_REASSIGNED_TO_CHUTE", details={
+				"carrierId": cid,
+				"newDest": dst
+			}, userId=userId, eventId=eventId)
+
+		return {"ok": True, "carrierId": cid, "assignedDest": dst, "phase": "REASSIGNED", "ts": ts}
+
+
+# ----------------------------
+# Chute transitions
+# ----------------------------
+
+class ChuteTransitions(object):
+	def __init__(self, store):
+		self.store = store
+
+	def enable(self, chuteId, userId=None, eventId=None, details=None):
+		return self._set_flags(chuteId, enabled=True, userId=userId, eventId=eventId, eventType="CHUTE_ENABLED", details=details)
+
+	def disable(self, chuteId, userId=None, eventId=None, details=None):
+		return self._set_flags(chuteId, enabled=False, userId=userId, eventId=eventId, eventType="CHUTE_DISABLED", details=details)
+
+	def fault(self, chuteId, faulted=True, userId=None, eventId=None, details=None):
+		return self._set_flags(chuteId, faulted=bool(faulted), userId=userId, eventId=eventId, eventType="CHUTE_FAULT", details=details)
+
+	def occupy(self, chuteId, carrierId=None, ibn=None, order=None, userId=None, eventId=None, details=None):
+		"""
+		Mark chute occupied and bump occupancy counter.
+		"""
+		if self.store.enable_cache:
+			self.store.ensure_period_cache(hydrate=True)
+
+		chuteId = str(chuteId)
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+		if carrierId is not None:
+			d["carrierId"] = int(carrierId)
+		if ibn is not None:
+			d["ibn"] = str(ibn)
+		if order is not None:
+			d["order"] = str(order)
+
+		fields = {
+			"occupied": True,
+			"lastCarrierId": d.get("carrierId"),
+			"lastIbn": d.get("ibn"),
+			"lastOrder": d.get("order"),
+			"updatedAtEpoch": ts.get("tsEpoch"),
+		}
+		inc = {"occupancyCount": 1}
+
+		self.store.mongo.update_one(self.store.COL_CHUTES, {"_id": self.store._chute_pk(chuteId)}, {"$set": fields, "$inc": inc}, upsert=True)
+
+		self.store.chute_mark_event(chuteId, "CHUTE_OCCUPIED", details=d, userId=userId, eventId=eventId)
+
+		return {"ok": True, "chuteId": chuteId, "occupied": True, "ts": ts}
+
+	def release(self, chuteId, userId=None, eventId=None, details=None):
+		"""
+		Mark chute not occupied.
+		"""
+		if self.store.enable_cache:
+			self.store.ensure_period_cache(hydrate=True)
+
+		chuteId = str(chuteId)
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+
+		fields = {
+			"occupied": False,
+			"updatedAtEpoch": ts.get("tsEpoch"),
+		}
+
+		self.store.mongo.update_one(self.store.COL_CHUTES, {"_id": self.store._chute_pk(chuteId)}, {"$set": fields}, upsert=True)
+		self.store.chute_mark_event(chuteId, "CHUTE_RELEASED", details=d, userId=userId, eventId=eventId)
+
+		return {"ok": True, "chuteId": chuteId, "occupied": False, "ts": ts}
+
+	def assign_name(self, chuteId, assignedName, assignedMode=None, userId=None, eventId=None, details=None):
+		"""
+		Assign routing label to chute (e.g., PC1, zone, order bucket).
+		"""
+		if self.store.enable_cache:
+			self.store.ensure_period_cache(hydrate=True)
+
+		chuteId = str(chuteId)
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+		d["assignedName"] = str(assignedName) if assignedName is not None else None
+		if assignedMode is not None:
+			d["assignedMode"] = str(assignedMode)
+
+		fields = {
+			"assignedName": d.get("assignedName"),
+			"assignedMode": d.get("assignedMode"),
+			"updatedAtEpoch": ts.get("tsEpoch"),
+		}
+
+		self.store.mongo.update_one(self.store.COL_CHUTES, {"_id": self.store._chute_pk(chuteId)}, {"$set": fields}, upsert=True)
+		self.store.chute_mark_event(chuteId, "CHUTE_ASSIGNED_NAME", details=d, userId=userId, eventId=eventId)
+
+		return {"ok": True, "chuteId": chuteId, "assignedName": d.get("assignedName"), "assignedMode": d.get("assignedMode"), "ts": ts}
+
+	def _set_flags(self, chuteId, enabled=None, faulted=None, userId=None, eventId=None, eventType="CHUTE_FLAG", details=None):
+		if self.store.enable_cache:
+			self.store.ensure_period_cache(hydrate=True)
+
+		chuteId = str(chuteId)
+		ts = clock.pack_timestamps(tz_id=self.store.site_tz_id)
+
+		d = dict(details or {})
+
+		fields = {"updatedAtEpoch": ts.get("tsEpoch")}
+		if enabled is not None:
+			fields["enabled"] = bool(enabled)
+		if faulted is not None:
+			fields["faulted"] = bool(faulted)
+
+		self.store.mongo.update_one(self.store.COL_CHUTES, {"_id": self.store._chute_pk(chuteId)}, {"$set": fields}, upsert=True)
+		self.store.chute_mark_event(chuteId, str(eventType), details=d, userId=userId, eventId=eventId)
+
+		return {"ok": True, "chuteId": chuteId, "fields": fields, "ts": ts}

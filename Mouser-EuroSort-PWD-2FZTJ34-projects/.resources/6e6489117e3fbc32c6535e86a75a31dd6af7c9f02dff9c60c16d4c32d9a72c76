@@ -1,0 +1,10 @@
+{
+  "base": {
+    "style": {
+      "fontFamily": "sans-serif",
+      "fontSize": "20px",
+      "fontWeight": "bold",
+      "textAlign": "center"
+    }
+  }
+}

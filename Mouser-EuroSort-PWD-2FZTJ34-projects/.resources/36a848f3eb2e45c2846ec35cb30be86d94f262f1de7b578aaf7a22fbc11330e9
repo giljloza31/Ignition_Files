@@ -1,0 +1,774 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 860,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Lane5 Slider"
+        },
+        "position": {
+          "height": 32,
+          "width": 944,
+          "x": 604.7450244140625,
+          "y": 730.4900076293945
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "../Lane5_AtPosition-NumericEntryField.props.value"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "labels": {
+            "interval": 200,
+            "show": true
+          },
+          "max": 4000
+        },
+        "type": "ia.input.slider"
+      },
+      {
+        "meta": {
+          "name": "Lane4 Slider"
+        },
+        "position": {
+          "height": 32,
+          "width": 944,
+          "x": 604.7450244140625,
+          "y": 591.2900076293945
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "../Lane4_AtPosition-NumericEntryField.props.value"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "labels": {
+            "interval": 200,
+            "show": true
+          },
+          "max": 4000
+        },
+        "type": "ia.input.slider"
+      },
+      {
+        "meta": {
+          "name": "Lane3 Slider"
+        },
+        "position": {
+          "height": 32,
+          "width": 944,
+          "x": 604.7450244140625,
+          "y": 451.29000762939455
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "../Lane3_AtPosition-NumericEntryField.props.value"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "labels": {
+            "interval": 200,
+            "show": true
+          },
+          "max": 4000
+        },
+        "type": "ia.input.slider"
+      },
+      {
+        "meta": {
+          "name": "Lane2 Slider"
+        },
+        "position": {
+          "height": 32,
+          "width": 944,
+          "x": 604.7450244140625,
+          "y": 311.29000762939455
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "../Lane2_AtPosition-NumericEntryField.props.value"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "labels": {
+            "interval": 200,
+            "show": true
+          },
+          "max": 4000
+        },
+        "type": "ia.input.slider"
+      },
+      {
+        "meta": {
+          "name": "Lane2_AtPosition-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 290.2910076293945
+        },
+        "props": {
+          "value": 400
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane3_AtPosition-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 430.2910076293945
+        },
+        "props": {
+          "value": 808
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane4_AtPosition-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 570.2910076293946
+        },
+        "props": {
+          "value": 1212
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane5_AtPosition-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 709.4910076293945
+        },
+        "props": {
+          "value": 2020
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane5_LastCalibration-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 750.3910076293945
+        },
+        "props": {
+          "enabled": false,
+          "value": 2020
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane4_LastCalibration-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 611.3910076293945
+        },
+        "props": {
+          "enabled": false,
+          "value": 1212
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane3_LastCalibration-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 471.39100762939455
+        },
+        "props": {
+          "enabled": false,
+          "value": 808
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane2_LastCalibration-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 332.39100762939455
+        },
+        "props": {
+          "enabled": false,
+          "value": 404
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane2_LastCalibration-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 330.39100762939455
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "Last Calibration:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane2_AtPosition-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 288.2910076293945
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "At Position:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane3_LastCalibration-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 469.39100762939455
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "Last Calibration:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane3_AtPosition-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 428.2910076293945
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "At Position:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane4_LastCalibration-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 609.3910076293945
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "Last Calibration:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane4_AtPosition-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 568.2910076293946
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "At Position:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane5_LastCalibration-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 748.3910076293945
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "Last Calibration:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane5_AtPosition-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 707.4910076293945
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "At Position:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane2 Label"
+        },
+        "position": {
+          "height": 38,
+          "width": 104,
+          "x": 376.85002441406255,
+          "y": 252.39100762939452
+        },
+        "props": {
+          "text": "Lane 2",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 26,
+            "fontStyle": "italic"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane3 Label"
+        },
+        "position": {
+          "height": 38,
+          "width": 104,
+          "x": 376.85002441406255,
+          "y": 392.39100762939455
+        },
+        "props": {
+          "text": "Lane 3",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 26,
+            "fontStyle": "italic"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane4 Label"
+        },
+        "position": {
+          "height": 38,
+          "width": 104,
+          "x": 376.85002441406255,
+          "y": 532.3910076293945
+        },
+        "props": {
+          "text": "Lane 4",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 26,
+            "fontStyle": "italic"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane5 Label"
+        },
+        "position": {
+          "height": 38,
+          "width": 104,
+          "x": 376.85002441406255,
+          "y": 671.5910076293945
+        },
+        "props": {
+          "text": "Lane 5",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 26,
+            "fontStyle": "italic"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane1 Slider"
+        },
+        "position": {
+          "height": 32,
+          "width": 936.6499999999999,
+          "x": 606.9850244140625,
+          "y": 168.29000762939452
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "../Lane1_AtPosition-NumericEntryField.props.value"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "labels": {
+            "interval": 200,
+            "show": true
+          },
+          "max": 4000
+        },
+        "type": "ia.input.slider"
+      },
+      {
+        "meta": {
+          "name": "Lane1_LastCalibration-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 188.39100762939452
+        },
+        "props": {
+          "enabled": false,
+          "value": 0
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane1_LastCalibration-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 186.39100762939452
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "Last Calibration:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Sorter Calibration"
+        },
+        "position": {
+          "height": 52,
+          "width": 296,
+          "x": 814.7890625,
+          "y": 20.390625
+        },
+        "props": {
+          "text": "Lane Calibration",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver2-Italics",
+            "fontSize": 36,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane1_AtPosition-NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 54,
+          "x": 522.3140244140625,
+          "y": 145.39100762939452
+        },
+        "props": {
+          "value": 0
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Lane1 Label"
+        },
+        "position": {
+          "height": 38,
+          "width": 104,
+          "x": 377.3140244140625,
+          "y": 106.39100762939454
+        },
+        "props": {
+          "text": "Lane 1",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 26,
+            "fontStyle": "italic"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Calibrate-Button"
+        },
+        "position": {
+          "height": 51,
+          "width": 115,
+          "x": 588.7890625,
+          "y": 21.390625
+        },
+        "props": {
+          "text": "Calibrate",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "color": "#fafafa",
+            "fontSize": 20
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "CalibratedBy_Title"
+        },
+        "position": {
+          "height": 44,
+          "width": 139,
+          "x": 1158.1119217529297,
+          "y": 62.397793914794875
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 16
+          },
+          "text": "Calibrated by:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "USER"
+        },
+        "position": {
+          "height": 44,
+          "width": 139,
+          "x": 1291.1119217529297,
+          "y": 63.50879391479498
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 14
+          },
+          "text": "[USER]"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Lane1_AtPosition-Label"
+        },
+        "position": {
+          "height": 36,
+          "width": 139,
+          "x": 378.3140244140625,
+          "y": 143.39100762939452
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontFamily": "Roboto"
+          },
+          "text": "At Position:",
+          "textStyle": {
+            "fontSize": 18,
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "LastCalibration_Title"
+        },
+        "position": {
+          "height": 44,
+          "width": 159,
+          "x": 1160.1119217529297,
+          "y": 20.386793914794907
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 16
+          },
+          "text": "Last Calibration:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "DATE-TIME"
+        },
+        "position": {
+          "height": 44,
+          "width": 139,
+          "x": 1316.1119217529297,
+          "y": 20.386793914794907
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 14
+          },
+          "text": "[DATE and TIME]"
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

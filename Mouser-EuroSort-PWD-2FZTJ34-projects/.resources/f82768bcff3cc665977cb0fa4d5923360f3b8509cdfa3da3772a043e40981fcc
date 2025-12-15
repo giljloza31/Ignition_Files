@@ -1,0 +1,3 @@
+SELECT Top(:inVarRange)*
+FROM Consol_Divert_Table
+ORDER BY timestamp Desc

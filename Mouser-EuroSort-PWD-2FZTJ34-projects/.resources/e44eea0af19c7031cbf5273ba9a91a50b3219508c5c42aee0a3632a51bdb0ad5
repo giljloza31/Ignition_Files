@@ -1,0 +1,155 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "PieChart"
+        },
+        "position": {
+          "height": 395,
+          "width": 606,
+          "x": 30,
+          "y": 12
+        },
+        "propConfig": {
+          "props.data[0].count": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Mouser/Scan1/IGN_Query/Got_Data/Counts/NOREAD"
+              },
+              "type": "tag"
+            }
+          },
+          "props.data[1].count": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Mouser/Scan1/IGN_Query/Got_Data/Counts/NOROUTE"
+              },
+              "type": "tag"
+            }
+          },
+          "props.data[2].count": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Mouser/Scan1/IGN_Query/Got_Data/Counts/NODEST"
+              },
+              "type": "tag"
+            }
+          },
+          "props.data[3].count": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Mouser/Scan1/IGN_Query/Got_Data/Counts/NOPAYLOAD"
+              },
+              "type": "tag"
+            }
+          },
+          "props.data[4].count": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Mouser/Scan1/IGN_Query/Got_Data/Counts/ERROR"
+              },
+              "type": "tag"
+            }
+          },
+          "props.data[5].count": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Mouser/Scan1/IGN_Query/Got_Data/Counts/NORETURN"
+              },
+              "type": "tag"
+            }
+          },
+          "props.data[6].count": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Mouser/Scan1/IGN_Query/Got_Data/Counts/MULTI"
+              },
+              "type": "tag"
+            }
+          },
+          "props.data[7].count": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]Mouser/Scan1/IGN_Query/Got_Data/Counts/SUCCESS"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "colors": [
+            "#3366CC",
+            "#EC4B3D",
+            "#4FC86C",
+            "#00A9C6",
+            "#E69300",
+            "#FFFF00",
+            "#00D9D9",
+            "#D900D9"
+          ],
+          "data": [
+            {
+              "Scans": "NoRead\n"
+            },
+            {
+              "Scans": "NoRoute\n\n"
+            },
+            {
+              "Scans": "NoDest\n\n"
+            },
+            {
+              "Scans": "NoPayload\n"
+            },
+            {
+              "Scans": "Error\n"
+            },
+            {
+              "Scans": "NoReturn"
+            },
+            {
+              "Scans": "Multi"
+            },
+            {
+              "Scans": "Success"
+            }
+          ],
+          "selection": {
+            "enabled": true
+          },
+          "showLabels": false,
+          "title": "Scan1 Reads"
+        },
+        "type": "ia.chart.pie"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

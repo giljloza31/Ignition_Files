@@ -1,0 +1,1025 @@
+{
+  "custom": {
+    "chute_info": {},
+    "chute_infos": {},
+    "machine": "Opex",
+    "selected": {}
+  },
+  "params": {},
+  "propConfig": {
+    "custom.chute_info": {
+      "binding": {
+        "config": {
+          "struct": {
+            "machine": "{view.custom.machine}",
+            "tick": "{[System]Gateway/UptimeSeconds}"
+          },
+          "waitOnAll": true
+        },
+        "transforms": [
+          {
+            "code": "\n\tsorter \u003d self.getChild(\"root\").get_sorter()\n\n\tif sorter is None:\n\t\treturn {}\n\n\tfiltered_results \u003d {}\n\tfor destination in sorted(sorter):\n\t\tfiltered_results[destination] \u003d sorter[destination]._asdict()\n\n\treturn filtered_results",
+            "type": "script"
+          }
+        ],
+        "type": "expr-struct"
+      },
+      "persistent": true
+    },
+    "custom.chute_infos": {
+      "persistent": true
+    },
+    "custom.machine": {
+      "binding": {
+        "config": {
+          "path": "/root/Sorter.props.value"
+        },
+        "type": "property"
+      },
+      "persistent": true
+    },
+    "custom.selected": {
+      "persistent": true
+    },
+    "custom.selected.available": {
+      "binding": {
+        "config": {
+          "path": "view.custom.selected.info"
+        },
+        "transforms": [
+          {
+            "code": "\treturn value.get(\u0027available\u0027, {})",
+            "type": "script"
+          }
+        ],
+        "type": "property"
+      }
+    },
+    "custom.selected.consolidating": {
+      "binding": {
+        "config": {
+          "path": "view.custom.selected.info"
+        },
+        "transforms": [
+          {
+            "code": "\treturn value.get(\u0027consolidating\u0027, {})",
+            "type": "script"
+          }
+        ],
+        "type": "property"
+      }
+    },
+    "custom.selected.destination": {
+      "binding": {
+        "config": {
+          "path": "/root/Destination.props.value"
+        },
+        "type": "property"
+      }
+    },
+    "custom.selected.info": {
+      "binding": {
+        "config": {
+          "struct": {
+            "chute_infos": "{view.custom.chute_infos}",
+            "destination": "{view.custom.selected.destination}",
+            "tick": "{[System]Gateway/UptimeSeconds}"
+          },
+          "waitOnAll": true
+        },
+        "transforms": [
+          {
+            "code": "\tif not value[\u0027destination\u0027]:\n\t\treturn {}\n\treturn value[\u0027chute_infos\u0027][value[\u0027destination\u0027]]",
+            "type": "script"
+          }
+        ],
+        "type": "expr-struct"
+      }
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "width": 1200
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Sorter"
+        },
+        "position": {
+          "height": 36,
+          "width": 256,
+          "x": 24,
+          "y": 10
+        },
+        "props": {
+          "options": [
+            {
+              "label": "Opex",
+              "value": "Opex"
+            }
+          ],
+          "placeholder": {
+            "text": "Choose a sorter..."
+          },
+          "value": "Opex"
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "Destination"
+        },
+        "position": {
+          "height": 36,
+          "width": 256,
+          "x": 323,
+          "y": 10
+        },
+        "propConfig": {
+          "props.options": {
+            "binding": {
+              "config": {
+                "struct": {
+                  "chute_filter": "{../ChuteSelection.props.controlValue}",
+                  "chute_infos": "{view.custom.chute_infos}"
+                },
+                "waitOnAll": true
+              },
+              "transforms": [
+                {
+                  "code": "\n\timport re\n\t\n\tchute_infos \u003d value[\u0027chute_infos\u0027]\n\tchute_filter \u003d value[\u0027chute_filter\u0027]\n\t\n\tdestinations \u003d sorted(str(destination) for destination in chute_infos)\n\t\n\tif chute_filter:\n\t\tdestinations \u003d filter(\n\t\t\tlambda d: re.match(r\u0027DST-\\d{4}-%d-\\d-[AB]\u0027 % chute_filter, d), \n\t\t\tdestinations\n\t\t)\n\t\n\treturn [\n\t\t{\n\t\t\t\u0027label\u0027: destination,\n\t\t\t\u0027value\u0027: destination,\n\t\t}\n\t\t\n\t\tfor destination\n\t\t in destinations\n\t]\n\n",
+                  "type": "script"
+                }
+              ],
+              "type": "expr-struct"
+            }
+          },
+          "props.value": {
+            "persistent": false
+          }
+        },
+        "props": {
+          "placeholder": {
+            "text": "Choose a chute..."
+          }
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "ChuteSelection"
+        },
+        "position": {
+          "height": 146,
+          "width": 112,
+          "x": 23.984375,
+          "y": 63.998000000000005
+        },
+        "propConfig": {
+          "props.indicatorValue": {
+            "binding": {
+              "config": {
+                "path": "this.props.controlValue"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "controlValue": 0,
+          "states": [
+            {
+              "selectedStyle": {
+                "backgroundColor": "#7CEA9C",
+                "classes": ""
+              },
+              "text": "Upper",
+              "unselectedStyle": {
+                "classes": ""
+              },
+              "value": 2
+            },
+            {
+              "selectedStyle": {
+                "backgroundColor": "#FFF275",
+                "classes": ""
+              },
+              "text": "(Either)",
+              "unselectedStyle": {
+                "classes": ""
+              },
+              "value": 0
+            },
+            {
+              "selectedStyle": {
+                "backgroundColor": "#7CEA9C",
+                "classes": ""
+              },
+              "text": "Lower",
+              "unselectedStyle": {
+                "classes": ""
+              },
+              "value": 1
+            }
+          ]
+        },
+        "type": "ia.input.multi-state-button"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Consolidating"
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.selected.consolidating"
+                  },
+                  "transforms": [
+                    {
+                      "code": "\tif not value or len(value.keys()) \u003d\u003d 0:\n\t\treturn \u0027\u003cno data\u003e\u0027\n\n\tfrom shared.tools.pretty import p\n\n\tconsolidating \u003d value\n\n#\treturn system.util.jsonEncode(value, 2)\n\n\treturn p(\n\t\tconsolidating,\n\t\tdirectPrint\u003dFalse,\n\t\tellipsisLimit\u003dNone,\n\t\tlistLimit\u003dNone,\n\t\tnestedListLimit\u003dNone,\n\t)\n\t\n",
+                      "type": "script"
+                    }
+                  ],
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "monospace"
+              },
+              "wrap": "off"
+            },
+            "type": "ia.input.text-area"
+          },
+          {
+            "meta": {
+              "name": "Available"
+            },
+            "position": {
+              "tabIndex": 1
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.selected.available"
+                  },
+                  "transforms": [
+                    {
+                      "code": "\tif not value or len(value.keys()) \u003d\u003d 0:\n\t\treturn \u0027\u003cno data\u003e\u0027\n\n\tfrom shared.tools.pretty import p\n\n\tavailable \u003d value\n\n#\treturn system.util.jsonEncode(value, 2)\n\n\treturn p(\n\t\tavailable,\n\t\tdirectPrint\u003dFalse,\n\t\tellipsisLimit\u003dNone,\n\t\tlistLimit\u003dNone,\n\t\tnestedListLimit\u003dNone,\n\t\n\t)\n\t\n",
+                      "type": "script"
+                    }
+                  ],
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "monospace"
+              }
+            },
+            "type": "ia.input.text-area"
+          },
+          {
+            "meta": {
+              "name": "IBNs"
+            },
+            "position": {
+              "tabIndex": 2
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "struct": {
+                      "available": "{view.custom.selected.available}",
+                      "consolidating": "{view.custom.selected.consolidating}"
+                    },
+                    "waitOnAll": true
+                  },
+                  "transforms": [
+                    {
+                      "code": "\n\tif not value:\n\t\treturn \u0027\u003cno data\u003e\u0027\n\tfrom shared.tools.pretty import p\n\t\n\tinfo \u003d {\n\t\t\u0027consolidating\u0027: {},\n\t\t\u0027available\u0027: {},\n\t}\n\n\tfor grouping in (\u0027consolidating\u0027, \u0027available\u0027):\n\t\tif not value[grouping]:\n\t\t\tcontinue\n\t\tif len(value[grouping].keys()) \u003e 0:\n\t\t\tfor order_number in value[grouping]:\n\t\t\t\torder \u003d value[grouping][order_number]\n\t\t\t\tkey \u003d \u0027%s (%s)\u0027 % (order_number, order[\u0027status\u0027])\n\t\t\t\tinfo[grouping][key] \u003d {}\n\t\t\t\tfor ibn in value[grouping][order_number][\u0027issues\u0027]:\n\t\t\t\t\tissue \u003d value[grouping][order_number][\u0027issues\u0027][ibn]\n\t\t\t\t\tinfo[grouping][key][ibn] \u003d issue[\u0027status\u0027]\n\n\treturn p(\n\t\tinfo,\n\t\tdirectPrint\u003dFalse,\n\t\tellipsisLimit\u003dNone,\n\t\tlistLimit\u003dNone,\n\t\tnestedListLimit\u003dNone,\n\t)\n\t\n",
+                      "type": "script"
+                    }
+                  ],
+                  "type": "expr-struct"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "monospace"
+              },
+              "wrap": "off"
+            },
+            "type": "ia.input.text-area"
+          },
+          {
+            "meta": {
+              "name": "Batch"
+            },
+            "position": {
+              "tabIndex": 3
+            },
+            "propConfig": {
+              "meta.visible": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.selected.info"
+                  },
+                  "transforms": [
+                    {
+                      "code": "\treturn bool(value.get(\u0027batch\u0027, False))",
+                      "type": "script"
+                    }
+                  ],
+                  "type": "property"
+                }
+              },
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.selected.info"
+                  },
+                  "transforms": [
+                    {
+                      "code": "\n\tsorter \u003d self.view.getChild(\"root\").get_sorter()\n\n\tbatch \u003d value.get(\u0027batch\u0027)\n\n\tif sorter is None or not batch:\n\t\treturn \u0027\u003cno data\u003e\u0027\n\tfrom shared.tools.pretty import p\n\n\n\tinfo \u003d {\n\t\t\u0027Mature Orders\u0027: sorted(sorter._consol_zone_mature_orders[batch]),\n\t\t\u0027Incomplete\u0027: sorted(sorter._consol_zone_immature_orders[batch]),\n\n\t}\n\n\n\treturn \"\"\"Maturity Metric: %0.2f%%\n\t\n\t\n\t%s\"\"\" % (\n\t\tsorter._batch_maturity[batch] * 100.0\n\t\t, p(\n\t\t\tinfo,\n\t\t\tdirectPrint\u003dFalse,\n\t\t\tellipsisLimit\u003dNone,\n\t\t\tlistLimit\u003dNone,\n\t\t\tnestedListLimit\u003dNone,\n\t\t),\n\t)\n\t",
+                      "type": "script"
+                    }
+                  ],
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "monospace"
+              },
+              "wrap": "off"
+            },
+            "type": "ia.input.text-area"
+          }
+        ],
+        "meta": {
+          "name": "TabContainer"
+        },
+        "position": {
+          "height": 717,
+          "width": 896,
+          "x": 274,
+          "y": 64
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "currentTabIndex": 2,
+          "tabSize": {
+            "width": 120
+          },
+          "tabs": [
+            "Consolidating",
+            "Available",
+            "Order",
+            "Batch"
+          ]
+        },
+        "type": "ia.container.tab"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\t\n\tsorter \u003d self.parent.get_sorter()\n\n\tif sorter is None:\n\t\treturn\n\n\tdestination \u003d self.view.custom.selected.destination\n\n\tsorter.open_gate(destination)\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "GateOpen"
+        },
+        "position": {
+          "height": 47,
+          "width": 138,
+          "x": 13.9898,
+          "y": 314
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/vertical_align_bottom"
+            }
+          },
+          "style": {
+            "backgroundColor": "#A4802A"
+          },
+          "text": "Open Gate"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\n\tsorter \u003d self.parent.get_sorter()\n\n\tif sorter is None:\n\t\treturn\n\n\tdestination \u003d self.view.custom.selected.destination\n\n\tsorter.close_gate(destination)\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "GateClose"
+        },
+        "position": {
+          "height": 47,
+          "width": 138,
+          "x": 14,
+          "y": 418
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/vertical_align_top"
+            }
+          },
+          "style": {
+            "backgroundColor": "#A4802A"
+          },
+          "text": "Close Gate"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\n\tsorter \u003d self.parent.get_sorter()\n\n\tif sorter is None:\n\t\treturn\n\n\tdestination \u003d self.view.custom.selected.destination\n\n\tsorter.set_light(destination, \u0027off\u0027)\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "LightOff"
+        },
+        "position": {
+          "height": 47,
+          "width": 138,
+          "x": 14,
+          "y": 494
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/stop"
+            }
+          },
+          "style": {
+            "backgroundColor": "#3F4FFF"
+          },
+          "text": "Light OFF"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\n\tsorter \u003d self.parent.get_sorter()\n\n\tif sorter is None:\n\t\treturn\n\n\tdestination \u003d self.view.custom.selected.destination\n\n\tsorter.set_light(destination, \u0027solid\u0027)\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "LightSolid"
+        },
+        "position": {
+          "height": 47,
+          "width": 138,
+          "x": 14,
+          "y": 546
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/pause_circle_outline"
+            }
+          },
+          "style": {
+            "backgroundColor": "#3F4FFF"
+          },
+          "text": "Light SOLID"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\n\tsorter \u003d self.parent.get_sorter()\n\n\tif sorter is None:\n\t\treturn\n\n\tdestination \u003d self.view.custom.selected.destination\n\n\tsorter.set_light(destination, \u0027blink1\u0027)\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "LightSlow"
+        },
+        "position": {
+          "height": 47,
+          "width": 138,
+          "x": 14,
+          "y": 598
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/play_circle_outline"
+            }
+          },
+          "style": {
+            "backgroundColor": "#3F4FFF"
+          },
+          "text": "Blink SLOW"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\n\tsorter \u003d self.parent.get_sorter()\n\n\tif sorter is None:\n\t\treturn\n\n\tdestination \u003d self.view.custom.selected.destination\n\n\tsorter.set_light(destination, \u0027blink2\u0027)\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "LightFast"
+        },
+        "position": {
+          "height": 47,
+          "width": 138,
+          "x": 14,
+          "y": 650
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/blur_circular"
+            }
+          },
+          "style": {
+            "backgroundColor": "#3F4FFF"
+          },
+          "text": "Blink FAST"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\n\tsorter \u003d self.parent.get_sorter()\n\n\tif sorter is None:\n\t\treturn\n\n\tdestination \u003d self.view.custom.selected.destination\n\n\tchute_info \u003d sorter[destination]\n\n\tsorter.logger.warn(chute_info)\n\n\tchute_info.consolidating \u003d {}\n\tchute_info.available \u003d {}\n\tchute_info.available_timestamp \u003d None\n\t\n\tsorter._mark_destination_occupied(destination, is_occupied\u003dFalse, dest\u003d\u00271\u0027)\n\tsorter._mark_destination_occupied(destination, is_occupied\u003dFalse, dest\u003d\u00272\u0027)\n\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "CLEAR_DATA"
+        },
+        "position": {
+          "height": 47,
+          "width": 138,
+          "x": 13.9924,
+          "y": 725
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/warning"
+            },
+            "style": {
+              "backgroundColor": "#FF0000"
+            }
+          },
+          "style": {
+            "backgroundColor": "#FF0000"
+          },
+          "text": "CLEAR META"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Icon"
+            },
+            "position": {
+              "basis": "30px"
+            },
+            "propConfig": {
+              "props.path": {
+                "binding": {
+                  "config": {
+                    "path": "parent.custom.rear"
+                  },
+                  "transforms": [
+                    {
+                      "fallback": "material/radio_button_unchecked",
+                      "inputType": "scalar",
+                      "mappings": [
+                        {
+                          "input": false,
+                          "output": "material/radio_button_unchecked"
+                        },
+                        {
+                          "input": true,
+                          "output": "material/radio_button_checked"
+                        }
+                      ],
+                      "outputType": "scalar",
+                      "type": "map"
+                    }
+                  ],
+                  "type": "property"
+                }
+              }
+            },
+            "type": "ia.display.icon"
+          },
+          {
+            "meta": {
+              "name": "Label"
+            },
+            "position": {
+              "basis": "50px"
+            },
+            "props": {
+              "text": "REAR"
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Label_0"
+            },
+            "position": {
+              "basis": "50px",
+              "grow": 1
+            },
+            "props": {
+              "style": {
+                "fontWeight": "bold",
+                "textAlign": "center"
+              },
+              "text": "WCS Occupied"
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Label_1"
+            },
+            "position": {
+              "basis": "65px"
+            },
+            "props": {
+              "style": {
+                "textAlign": "right"
+              },
+              "text": "FRONT"
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Icon_0"
+            },
+            "position": {
+              "basis": "30px"
+            },
+            "propConfig": {
+              "props.path": {
+                "binding": {
+                  "config": {
+                    "path": "parent.custom.front"
+                  },
+                  "transforms": [
+                    {
+                      "fallback": "material/radio_button_unchecked",
+                      "inputType": "scalar",
+                      "mappings": [
+                        {
+                          "input": false,
+                          "output": "material/radio_button_unchecked"
+                        },
+                        {
+                          "input": true,
+                          "output": "material/radio_button_checked"
+                        }
+                      ],
+                      "outputType": "scalar",
+                      "type": "map"
+                    }
+                  ],
+                  "type": "property"
+                }
+              }
+            },
+            "type": "ia.display.icon"
+          }
+        ],
+        "meta": {
+          "name": "Occupied"
+        },
+        "position": {
+          "height": 39,
+          "width": 335,
+          "x": 832,
+          "y": 8.49805
+        },
+        "propConfig": {
+          "custom.front": {
+            "binding": {
+              "config": {
+                "path": "view.custom.selected.destination"
+              },
+              "transforms": [
+                {
+                  "code": "\n\tfrom eurosort.tracking.orders import Destination, Dests\n\tfrom database.core import db_select_record\n\n\tsorter \u003d self.view.getChild(\"root\").get_sorter()\n\n\tif sorter is None:\n\t\treturn {}\n\n\tif not value:\n\t\treturn\n\n\tdestination \u003d value\n\twcs_location \u003d sorter.get_wcs_location_from_destination(\n\t\tDestination.parse(destination),\n\t\tDests.FRONT,\n\t)\n\n\tresults \u003d db_select_record(\n\t\t\u0027eurosort_location_info\u0027, \n\t\t{\u0027wcs_location\u0027: wcs_location},\n\t)\n\n\treturn results[\u0027is_occupied\u0027]",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "custom.rear": {
+            "binding": {
+              "config": {
+                "path": "view.custom.selected.destination"
+              },
+              "transforms": [
+                {
+                  "code": "\n\tfrom eurosort.tracking.orders import Destination, Dests\n\tfrom database.core import db_select_record\n\n\tsorter \u003d self.view.getChild(\"root\").get_sorter()\n\n\tif sorter is None:\n\t\treturn {}\n\n\tif not value:\n\t\treturn\n\n\tdestination \u003d value\n\twcs_location \u003d sorter.get_wcs_location_from_destination(\n\t\tDestination.parse(destination),\n\t\tDests.REAR,\n\t)\n\n\tresults \u003d db_select_record(\n\t\t\u0027eurosort_location_info\u0027, \n\t\t{\u0027wcs_location\u0027: wcs_location},\n\t)\n\n\treturn results[\u0027is_occupied\u0027]",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\n\tsorter \u003d self.parent.get_sorter()\n\n\tif sorter is None:\n\t\treturn\n\n\tdestination \u003d self.view.custom.selected.destination\n\n\tsorter.clear_chute(destination, \n\t\t\tinclude_available\u003dTrue, \n\t\t\tinclude_consolidating\u003dTrue,\n\t\t)\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "EmptyChute"
+        },
+        "position": {
+          "height": 47,
+          "width": 138,
+          "x": 14.01,
+          "y": 239
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/unarchive"
+            }
+          },
+          "style": {
+            "backgroundColor": "#FF7600"
+          },
+          "text": "Chute Empty"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 182,
+          "x": 619,
+          "y": 11
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.custom.selected.destination"
+              },
+              "transforms": [
+                {
+                  "code": "\t\n\tif not value:\n\t\treturn \u0027\u0027\n\t\n\tchute_info \u003d self.view.custom.chute_infos[value]\n\t\n\tif chute_info.get(\u0027bay\u0027):\n\t\treturn \u0027Packout: {bay}\u0027.format(**chute_info)\n\n\tif chute_info.get(\u0027batch\u0027):\n\t\treturn \u0027Batch: {batch}\u0027.format(**chute_info)\n\n\treturn value",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "component": {
+            "onActionPerformed": {
+              "config": {
+                "script": "\n\tsorter \u003d self.parent.get_sorter()\n\n\tif sorter is None:\n\t\treturn\n\n\tdestination \u003d self.view.custom.selected.destination\n\n\tsorter.pulse_gate_open(destination)\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "GateClose_0"
+        },
+        "position": {
+          "height": 47,
+          "width": 138,
+          "x": 14,
+          "y": 366
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.selected.destination} !\u003d \u0027\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "path": "material/open_in_full"
+            }
+          },
+          "style": {
+            "backgroundColor": "#A4802A"
+          },
+          "text": "Pulse Open"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "scripts": {
+      "customMethods": [
+        {
+          "name": "get_sorter",
+          "params": [],
+          "script": "\n\t# implement your method here\n\tsorter_name \u003d self.getChild(\"Sorter\").props.value\n\n\tfrom shared.tools.global import ExtraGlobal\n\n\ttry:\n\t\tsorter \u003d ExtraGlobal[sorter_name: \u0027EuroSort-Service\u0027]\n\texcept KeyError:\n\t\tsorter \u003d None\n\n\treturn sorter"
+        }
+      ],
+      "extensionFunctions": null,
+      "messageHandlers": []
+    },
+    "type": "ia.container.coord"
+  }
+}

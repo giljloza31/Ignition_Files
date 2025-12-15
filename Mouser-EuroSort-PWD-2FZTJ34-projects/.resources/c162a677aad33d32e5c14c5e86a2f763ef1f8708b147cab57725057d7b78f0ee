@@ -1,0 +1,1300 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 271
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "MenuTree"
+        },
+        "position": {
+          "height": 740,
+          "width": 268,
+          "y": 59
+        },
+        "props": {
+          "items": [
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Autoship High"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/autoshiphigh",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Autoship Low"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/autoshiplow",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Bulk Catchbox"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/bulkcatchbox",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Consolidation level 1"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/consollvl1",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Consolidation level 2"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/consollvl2",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Consolidation level 4"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/consollvl4",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "MKP"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/mkp",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Scan 1"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/scan1",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "iPak High"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/ipackhigh",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "iPak Low"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/ipacklow",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [
+                    {
+                      "backActionText": "",
+                      "enabled": true,
+                      "items": [],
+                      "label": {
+                        "icon": {
+                          "path": ""
+                        },
+                        "text": "VFD"
+                      },
+                      "navIcon": {
+                        "path": ""
+                      },
+                      "resetOnClick": false,
+                      "showHeader": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/consovfd",
+                      "visible": true
+                    },
+                    {
+                      "backActionText": "",
+                      "enabled": true,
+                      "items": [],
+                      "label": {
+                        "icon": {
+                          "path": ""
+                        },
+                        "text": "Scan 1 RouteTable"
+                      },
+                      "navIcon": {
+                        "path": ""
+                      },
+                      "resetOnClick": false,
+                      "showHeader": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/scan1route",
+                      "visible": true
+                    },
+                    {
+                      "backActionText": "",
+                      "enabled": true,
+                      "items": [],
+                      "label": {
+                        "icon": {
+                          "path": ""
+                        },
+                        "text": "Scan 16 RouteTable"
+                      },
+                      "navIcon": {
+                        "path": ""
+                      },
+                      "resetOnClick": false,
+                      "showHeader": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/scan16_routetable",
+                      "visible": true
+                    },
+                    {
+                      "backActionText": "",
+                      "enabled": true,
+                      "items": [],
+                      "label": {
+                        "icon": {
+                          "path": ""
+                        },
+                        "text": "Scan 1 InductTable"
+                      },
+                      "navIcon": {
+                        "path": ""
+                      },
+                      "resetOnClick": false,
+                      "showHeader": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/scan1table",
+                      "visible": true
+                    },
+                    {
+                      "backActionText": "",
+                      "enabled": true,
+                      "items": [],
+                      "label": {
+                        "icon": {
+                          "path": ""
+                        },
+                        "text": "Scan 16 InductTable"
+                      },
+                      "navIcon": {
+                        "path": ""
+                      },
+                      "resetOnClick": false,
+                      "showHeader": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/scan16table",
+                      "visible": true
+                    },
+                    {
+                      "backActionText": "",
+                      "enabled": true,
+                      "items": [],
+                      "label": {
+                        "icon": {
+                          "path": ""
+                        },
+                        "text": "QP Route Table"
+                      },
+                      "navIcon": {
+                        "path": ""
+                      },
+                      "resetOnClick": false,
+                      "showHeader": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/qproutetable",
+                      "visible": true
+                    },
+                    {
+                      "backActionText": "",
+                      "enabled": true,
+                      "items": [],
+                      "label": {
+                        "icon": {
+                          "path": ""
+                        },
+                        "text": "QP Induct Table"
+                      },
+                      "navIcon": {
+                        "path": ""
+                      },
+                      "resetOnClick": false,
+                      "showHeader": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/qphistory",
+                      "visible": true
+                    },
+                    {
+                      "backActionText": "",
+                      "enabled": true,
+                      "items": [],
+                      "label": {
+                        "icon": {
+                          "path": ""
+                        },
+                        "text": "Consol Induct Table"
+                      },
+                      "navIcon": {
+                        "path": ""
+                      },
+                      "resetOnClick": false,
+                      "showHeader": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/consolinducttable",
+                      "visible": true
+                    }
+                  ],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Tools"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "Consolidation"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "ASO Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/Mouser_ASO_Overview",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "ASO"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "OGL Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/Mouser_OGL_Overview",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "OGL VFD"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/Mouser_OGL_VFD",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "OGL"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Station Login"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/sortation_login",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Station History"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/sortation_history",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "User Login"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "QPS Sortation"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "HSL Print Apply"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/hsl",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "High Speed Line"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "VRS Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/vrs_main",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "VRS"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "CAtchboxVA Inbound"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/catchboxvainbound",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Catchbox Outbound"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/catchboxvaoutbound",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Catchbox Route Table"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/catchboxroutetable",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "CatchboxVA\n"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Autoship Mezz"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/autshipmezz",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Autoship RouteTable"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/autoship_routetable",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "Autoship"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "Lower Mezz"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/cp11_lowermezz",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "CP11 Lower Mezz"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "CP12 Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/cp12",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "CP12"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "CP13/14 Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/cp13-14",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "CP13/14"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "CP15 Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/cp15",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "CP15"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "ESD Booster Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/esd-booster",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "ESD Booster"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "MKP1 Belt Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/mkp1-belt",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "MKP1 Roller Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/mkp1-roller",
+                  "visible": true
+                },
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "MKP1 Trash Overview"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/mkp1-trash",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "MKP1"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [
+                {
+                  "backActionText": "",
+                  "enabled": true,
+                  "items": [],
+                  "label": {
+                    "icon": {
+                      "path": ""
+                    },
+                    "text": "CP10 VLM Downstairs"
+                  },
+                  "navIcon": {
+                    "path": ""
+                  },
+                  "resetOnClick": false,
+                  "showHeader": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "target": "/cp10_vlm_downstairs",
+                  "visible": true
+                }
+              ],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "VLM DownStairs"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "",
+              "visible": true
+            },
+            {
+              "backActionText": "",
+              "enabled": true,
+              "items": [],
+              "label": {
+                "icon": {
+                  "path": "material/list"
+                },
+                "text": "Alarm Journal"
+              },
+              "navIcon": {
+                "color": "",
+                "path": "material/chevron_right"
+              },
+              "resetOnClick": false,
+              "showHeader": true,
+              "style": {
+                "classes": ""
+              },
+              "target": "/AlarmJournal",
+              "visible": true
+            }
+          ]
+        },
+        "type": "ia.navigation.menutree"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "powerbutton",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "title": "System Start-up",
+                "type": "open",
+                "viewPath": "Popups/System_Powerup",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 154,
+          "x": 51,
+          "y": 8
+        },
+        "props": {
+          "text": "System Startup"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": -3,
+      "y": 63
+    },
+    "type": "ia.container.coord"
+  }
+}

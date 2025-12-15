@@ -1,0 +1,7 @@
+UPDATE Tracking_Table 
+SET	Divert_Path =  :inVarDivPath , 
+	Divert_Path_String =  :inVarDivPathString ,
+	Divert_Reason_String =  :inVarDivReason ,
+	Divert_Reason_Num =  :inVarDivReasonNum ,
+	Divert_TimeStamp = GETDATE()
+WHERE IndexID = :inVarIndexID and Payload =:inVarPayload   

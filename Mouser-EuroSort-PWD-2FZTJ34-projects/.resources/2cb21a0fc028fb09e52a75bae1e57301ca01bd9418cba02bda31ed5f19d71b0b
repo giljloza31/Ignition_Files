@@ -1,0 +1,2 @@
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Tracking_Table]') AND type in (N'U'))
+DROP TABLE [dbo].[Tracking_Table]

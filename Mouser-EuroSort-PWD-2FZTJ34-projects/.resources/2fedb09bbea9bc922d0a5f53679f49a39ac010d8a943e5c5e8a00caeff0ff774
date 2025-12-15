@@ -1,0 +1,8 @@
+{
+  "base": {
+    "style": {
+      "fontFamily": "monospace",
+      "fontSize": "12px"
+    }
+  }
+}

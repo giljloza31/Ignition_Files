@@ -1,0 +1,4 @@
+Insert into Tracking_Table( 
+	IndexID,Payload,Gap,Length,Dest_Binary_Returned,Dest_String_Returned,Route_Returned,Route_Reason,Route_Reason_Num,Divert_Path,Divert_Path_String,Divert_Reason_String,
+	Divert_Reason_Num,Induct_TimeStamp,Divert_TimeStamp,Query_Time_ms,Travel_Time_ms)
+Values ( :inVarIndexID , :inVarPayload , :inVarGap , :inVarLength , :inVarDest , :inVarDestString , :inVarRoute , :inVarRouteReason , :inVarRouteReasonNum ,0,'','',0,GETDATE(),'' ,:inVarQueryms ,0)	

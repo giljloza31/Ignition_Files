@@ -1,0 +1,302 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Table"
+        },
+        "position": {
+          "height": 366,
+          "width": 1883,
+          "x": 14,
+          "y": 50
+        },
+        "propConfig": {
+          "props.data": {
+            "binding": {
+              "config": {
+                "parameters": {
+                  "inVarRange": "{../range.props.value}"
+                },
+                "polling": {
+                  "enabled": true,
+                  "rate": "3"
+                },
+                "queryPath": "QPS_Sortation/Get_History_logs"
+              },
+              "type": "query"
+            }
+          }
+        },
+        "props": {
+          "filter": {
+            "enabled": true
+          },
+          "rows": {
+            "striped": {
+              "color": {
+                "even": "#D5D5D5",
+                "odd": "#FFFFFF"
+              }
+            },
+            "style": {
+              "classes": "FontStyles/TextSyle"
+            }
+          }
+        },
+        "type": "ia.display.table"
+      },
+      {
+        "meta": {
+          "name": "Table_0"
+        },
+        "position": {
+          "height": 366,
+          "width": 1883,
+          "x": 14,
+          "y": 487
+        },
+        "propConfig": {
+          "props.data": {
+            "binding": {
+              "config": {
+                "parameters": {
+                  "inVarRange": "{../range_0.props.value}"
+                },
+                "polling": {
+                  "enabled": true,
+                  "rate": "3"
+                },
+                "queryPath": "QPS_Sortation/Get_Scan_logs"
+              },
+              "type": "query"
+            }
+          }
+        },
+        "props": {
+          "filter": {
+            "enabled": true
+          },
+          "rows": {
+            "striped": {
+              "color": {
+                "even": "#D5D5D5",
+                "odd": "#FFFFFF"
+              }
+            },
+            "style": {
+              "classes": "FontStyles/TextSyle"
+            }
+          }
+        },
+        "type": "ia.display.table"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "self_Loghistory",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "title": "Log history",
+                "type": "open",
+                "viewPath": "Main/QPS_Sortation/Individual_LogHistory",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 113,
+          "x": 1783,
+          "y": 7
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "session.props.auth.user.roles"
+              },
+              "transforms": [
+                {
+                  "code": "\tuserRole \u003d value\n\t\n\t\n\tAdmin \u003d [\u0027Administrator\u0027,\u0027SysAdmin\u0027,\u0027Maint\u0027]\n\t\n\t\n\tif userRole[0] in Admin:\n\t\teditValue \u003d True\n\t\t\n\telse:\n\t\teditValue \u003d False\n\t\t\n\treturn editValue",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "text": "Get Individual"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "self_scanhistory",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "title": "Scan History",
+                "type": "open",
+                "viewPath": "Main/QPS_Sortation/Individual_ScanHistory",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 109,
+          "x": 1788,
+          "y": 447
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "session.props.auth.user.roles"
+              },
+              "transforms": [
+                {
+                  "code": "\tuserRole \u003d value\n\t\n\t\n\tAdmin \u003d [\u0027Administrator\u0027,\u0027SysAdmin\u0027,\u0027Maint\u0027]\n\t\n\t\n\tif userRole[0] in Admin:\n\t\teditValue \u003d True\n\t\t\n\telse:\n\t\teditValue \u003d False\n\t\t\n\treturn editValue",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "text": "Get Individual"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "page": "/sortation_login"
+              },
+              "scope": "C",
+              "type": "nav"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 113,
+          "x": 1652,
+          "y": 9
+        },
+        "props": {
+          "text": "Station Login"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "range"
+        },
+        "position": {
+          "height": 36,
+          "width": 211,
+          "x": 1522,
+          "y": 59
+        },
+        "props": {
+          "options": [
+            {
+              "label": "TOP 10",
+              "value": 10
+            },
+            {
+              "label": "TOP 100",
+              "value": 100
+            },
+            {
+              "label": "TOP 1000",
+              "value": 1000
+            },
+            {
+              "label": "TOP 10000",
+              "value": 10000
+            }
+          ],
+          "value": 100
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "range_0"
+        },
+        "position": {
+          "height": 36,
+          "width": 211,
+          "x": 1509,
+          "y": 495
+        },
+        "props": {
+          "options": [
+            {
+              "label": "TOP 10",
+              "value": 10
+            },
+            {
+              "label": "TOP 100",
+              "value": 100
+            },
+            {
+              "label": "TOP 1000",
+              "value": 1000
+            },
+            {
+              "label": "TOP 10000",
+              "value": 10000
+            }
+          ],
+          "value": 100
+        },
+        "type": "ia.input.dropdown"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,302 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 178,
+      "width": 1920
+    },
+    "loading": {
+      "mode": "blocking"
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "AlarmStatusTable"
+        },
+        "position": {
+          "height": 176,
+          "rotate": {
+            "anchor": "100% 0%"
+          },
+          "width": 959,
+          "x": 959.5,
+          "y": -1
+        },
+        "props": {
+          "columns": {
+            "active": {
+              "displayPath": {
+                "enabled": false
+              },
+              "label": {
+                "enabled": true,
+                "order": 3
+              },
+              "name": {
+                "enabled": false
+              },
+              "source": {
+                "enabled": false
+              },
+              "state": {
+                "order": 4
+              }
+            }
+          },
+          "pager": {
+            "hide": true
+          },
+          "style": {
+            "borderColor": "#8E8E8E",
+            "borderStyle": "outset",
+            "borderWidth": 2
+          },
+          "toolbar": {
+            "enabled": false
+          }
+        },
+        "type": "ia.display.alarmstatustable"
+      },
+      {
+        "meta": {
+          "name": "DATE-TIME"
+        },
+        "position": {
+          "height": 29,
+          "rotate": {
+            "anchor": "250% -123%"
+          },
+          "width": 229,
+          "x": 7.600000000000001,
+          "y": 2.8600000000000003
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "dateFormat(now(), \"MM/dd/yyyy hh:mm:ss a\")"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "fontFamily": "Roboto",
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "PW360-Logo"
+        },
+        "position": {
+          "height": 136,
+          "width": 488,
+          "x": 43.36,
+          "y": 18.86
+        },
+        "props": {
+          "fit": {
+            "mode": "fill"
+          },
+          "source": "/system/images/PW360-Logo.png"
+        },
+        "type": "ia.display.image"
+      },
+      {
+        "meta": {
+          "name": "PWD-WebURL"
+        },
+        "position": {
+          "height": 25.64,
+          "rotate": {
+            "anchor": "50% 37%"
+          },
+          "width": 203.79,
+          "x": 47.77,
+          "y": 105.15
+        },
+        "props": {
+          "style": {
+            "color": "#c02228",
+            "fontFamily": "Roboto",
+            "fontWeight": "bold",
+            "textAlign": "left"
+          },
+          "text": "www.pwdus.com"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Logged In"
+        },
+        "position": {
+          "height": 25,
+          "width": 55.99999999999999,
+          "x": 8.6,
+          "y": 28.4
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 12
+          },
+          "text": "Logged In:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "USER"
+        },
+        "position": {
+          "height": 25,
+          "width": 34,
+          "x": 66.57,
+          "y": 28.4
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "session.props.auth.user.userName"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 12,
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "login"
+            }
+          }
+        },
+        "meta": {
+          "name": "SwitchUser-Icon"
+        },
+        "position": {
+          "height": 21,
+          "width": 18,
+          "x": 133.569,
+          "y": 30.4
+        },
+        "props": {
+          "path": "material/supervised_user_circle"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "login"
+            }
+          }
+        },
+        "meta": {
+          "name": "Switch User"
+        },
+        "position": {
+          "height": 36,
+          "width": 65,
+          "x": 154.13,
+          "y": 22.9
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 12
+          },
+          "text": "Switch User"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "logout"
+            }
+          }
+        },
+        "meta": {
+          "name": "LogOut-Icon"
+        },
+        "position": {
+          "height": 21,
+          "width": 18,
+          "x": 224.569,
+          "y": 30.4
+        },
+        "props": {
+          "path": "material/login"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {},
+              "scope": "C",
+              "type": "logout"
+            }
+          }
+        },
+        "meta": {
+          "name": "Log Out"
+        },
+        "position": {
+          "height": 32,
+          "width": 43,
+          "x": 246.13,
+          "y": 24.9
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 12
+          },
+          "text": "Log Out"
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "backgroundColor": "#D9D9D9",
+        "classes": "FontStyles/BodyText"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

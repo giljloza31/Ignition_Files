@@ -1,0 +1,3 @@
+SELECT *
+From Sorter_RouteTable
+Order by Route_Char

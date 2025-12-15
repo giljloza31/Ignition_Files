@@ -1,0 +1,2 @@
+DELETE FROM Catchbox_Divert_Table 
+WHERE Route_Code =  :inVarRoute 

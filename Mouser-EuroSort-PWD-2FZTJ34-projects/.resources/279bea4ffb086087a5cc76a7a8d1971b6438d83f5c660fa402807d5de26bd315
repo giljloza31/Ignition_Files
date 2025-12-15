@@ -1,0 +1,426 @@
+{
+  "custom": {},
+  "params": {
+    "Chutename": "DST-0001-1-1-A",
+    "Release": false,
+    "auto_unload": true,
+    "chute_count": 1,
+    "chute_door": true,
+    "chute_status": 0,
+    "enabled": true,
+    "group_id": 1,
+    "queued": false,
+    "takeaway_status": 1,
+    "tote_vol": 5000,
+    "useable_vol": 4693.7,
+    "volume": 34,
+    "volume_percent": 10,
+    "zone": "AA"
+  },
+  "propConfig": {
+    "params.Chutename": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Release": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.auto_unload": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.chute_count": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.chute_door": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.chute_status": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.enabled": {
+      "binding": {
+        "config": {
+          "path": "/root/MultiStateButton.props.controlValue"
+        },
+        "transforms": [
+          {
+            "fallback": false,
+            "inputType": "scalar",
+            "mappings": [
+              {
+                "input": 1,
+                "output": true
+              }
+            ],
+            "outputType": "scalar",
+            "type": "map"
+          }
+        ],
+        "type": "property"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.group_id": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.queued": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.takeaway_status": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.tote_vol": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.useable_vol": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.volume": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.volume_percent": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.zone": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 296,
+      "width": 271
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "chutename"
+        },
+        "position": {
+          "basis": "32px"
+        },
+        "propConfig": {
+          "props.style": {
+            "binding": {
+              "config": {
+                "struct": {
+                  "flashToggle": "{[Mouser]Mouser2/Flash_Toggle}",
+                  "status": "{view.params.chute_status}"
+                },
+                "waitOnAll": true
+              },
+              "transforms": [
+                {
+                  "code": "\n\tstatus \u003d value[\u0027status\u0027]\n\tflash \u003d value[\u0027flashToggle\u0027]\n\t\n\tcolor_map \u003d {\n\t    0: \"#AAAAAA\",\t#Disabled\n\t    1: \"#FFFFFF\",\t#Enabled\n\t    2: \"#47FF47\",\t#Occuiped\n\t    3: \"#FFFF00\",\t#Chute Full\n\t\t4: \"#FF0000\",\t#Chute Faulted\n\t    5: \"#00FFFF\",\t#Chute Queued\n\t    6: \"#FF6600\",\t#Chute Filtered\n\t    7: \"#3944BC\",\t#Chute Releasing\n\t    8: \"#FD3DB5\",\t#Tote Full\n\t    9: \"#C28DAE\",\t#Chute Waiting For Processing\n\t}\n\t\n\t# Flash between red and yellow if status is 4\n\tif status in [3,4]:\n\t    return {\n\t        \"backgroundColor\": color_map.get(status, \"#AAAAAA\") if flash else \"#FFFFFF\",\n\t        \"transition\": \"fill 0.3s ease-in-out\"\n\t    }\n\n\t# Static fill + transition\n\treturn {\n\t    \"backgroundColor\": color_map.get(status, \"#AAAAAA\"),\n\t    \"transition\": \"fill 0.3s ease-in-out\"\n\t}",
+                  "type": "script"
+                }
+              ],
+              "type": "expr-struct"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Chutename"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 20,
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "basis": "32px"
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\u0027Zone(s): \u0027 + {view.params.zone}"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "basis": "32px"
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\u0027Group_ID(s): \u0027 + {view.params.group_id}"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "basis": "32px"
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\u0027Chute count: \u0027 + {view.params.chute_count}"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "basis": "32px"
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\u0027Volume Percent Full: \u0027 + {view.params.volume_percent} + \u0027%\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "MovingAnalogIndicator"
+        },
+        "position": {
+          "basis": "50px"
+        },
+        "propConfig": {
+          "props.highAlarm": {
+            "binding": {
+              "config": {
+                "path": "view.params.useable_vol"
+              },
+              "type": "property"
+            }
+          },
+          "props.maxValue": {
+            "binding": {
+              "config": {
+                "path": "view.params.tote_vol"
+              },
+              "type": "property"
+            }
+          },
+          "props.processValue": {
+            "binding": {
+              "config": {
+                "path": "view.params.volume"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "desiredHigh": 65,
+          "desiredLow": 40,
+          "desiredRangeColor": "C0C0C0",
+          "highHighAlarm": null,
+          "highInterlock": null,
+          "inactiveAlarmColor": "#E80D13",
+          "label": {
+            "visible": true
+          },
+          "level1AlarmColor": "C0C0C0",
+          "level2AlarmColor": "C0C0C0",
+          "lowAlarm": 10,
+          "lowInterlock": null,
+          "lowLowAlarm": null,
+          "reverseIndicator": true
+        },
+        "type": "ia.display.moving-analog-indicator"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tavailable \u003d bool(self.view.params.Release)\n\tqueued \u003d bool(self.view.params.queued)\n\ttakeaway_status \u003d int(self.view.params.takeaway_status)\n\tauto_unload \u003d bool(self.view.params.auto_unload)\n\tenabled \u003d bool(self.view.params.enabled)\n\t\n\t# CASE 1: Auto unload enabled and takeaway is running\n\tif enabled and auto_unload and takeaway_status \u003d\u003d 1:\n\t\t# already queued \n\t\tif queued and available:\n\t\t\tself.view.params.Release \u003d False\n\t\t\tself.view.params.queued \u003d False\n\t\t\t\n\t\t\n\t\telif not queued and not available:\n\t\t\tself.view.params.Release \u003d True\n\t\t\tself.view.params.queued \u003d True\t\n\t\t\n\t\telse:\n\t\t\treturn\n\t\n\t# CASE 2: Auto unload enabled but takeaway not running\n\telif enabled and auto_unload and takeaway_status !\u003d 1:\n\t\t return\n\t\n\t# CASE 3: Auto unload disabled and takeaway not running\n\telif enabled and not auto_unload and takeaway_status !\u003d 1 and not queued:\n\t\treturn \n\t\t\n\t# CASE 4: Manual mode, takeaway running\n\telif enabled and not auto_unload and takeaway_status \u003d\u003d 1:\n\t\tif queued and available:\n\t\t\tself.view.params.Release \u003d False\n\t\t\tself.view.params.queued \u003d False\n\t\t\t\n\t\telif not queued and available:\n\t\t\tself.view.params.Release \u003d True\n\t\t\tself.view.params.queued \u003d True\n\t\t\t\n\t\t\t\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "basis": "34px"
+        },
+        "propConfig": {
+          "props.style": {
+            "binding": {
+              "config": {
+                "struct": {
+                  "auto_unload": "{view.params.auto_unload}",
+                  "door": "{view.params.chute_door}",
+                  "queued": "{view.params.queued}",
+                  "releasing": "{view.params.Release}",
+                  "takeaway": "{view.params.takeaway_status}"
+                },
+                "waitOnAll": true
+              },
+              "transforms": [
+                {
+                  "code": "\tavailable \u003d bool(value[\u0027releasing\u0027])   # Interpreted as \"currently holding\"\n\tqueued \u003d bool(value[\u0027queued\u0027])         # Package has been queued\n\ttakeaway_status \u003d int(value[\u0027takeaway\u0027])  # Takeaway conveyor running \u003d 1\n\tauto_unload \u003d bool(value[\u0027auto_unload\u0027])\n\tdoor \u003d bool(value[\u0027door\u0027])             # Door sensor\n\n\tcolor_map \u003d {\n\t\t0: \"#0000FF\",    # Default/Idle\n\t\t5: \"#00FFFF\",    # Releasing (manual)\n\t\t7: \"#3944BC\",    # Releasing (auto)\n\t}\n\t\n\tstatus \u003d 0\n\tself.props.text \u003d \"Release\"  # Default label\n\t\n\t# \u003d\u003d\u003d Auto Unload Mode \u003d\u003d\u003d\n\tif auto_unload:\n\t\tif takeaway_status \u003d\u003d 1:  # Takeaway is running\n\t\t\tif queued and available and door:\n\t\t\t\t# Still holding (queued), door still closed\n\t\t\t\tstatus \u003d 5\n\t\t\t\tself.props.text \u003d \"Queued\"\n\t\n\t\t\telif not available and not door:\n\t\t\t\t# Holding has stopped (available\u003dFalse), and door is open → Releasing\n\t\t\t\tstatus \u003d 7\n\t\t\t\tself.props.text \u003d \"Releasing\"\n\t\n\t\telse:\n\t\t\t# Takeaway not running\n\t\t\tstatus \u003d 0\n\t\t\tself.props.text \u003d \"Release\"\n\t\n\t# \u003d\u003d\u003d Manual Mode \u003d\u003d\u003d\n\telse:\n\t\tif takeaway_status \u003d\u003d 1:\n\t\t\tif queued and available and door:\n\t\t\t\t# Still holding, door closed\n\t\t\t\tstatus \u003d 5\n\t\t\t\tself.props.text \u003d \"Queued\"\n\n\t\t\telif not queued and not available and not door:\n\t\t\t\t# Manual mode releasing\n\t\t\t\tstatus \u003d 7\n\t\t\t\tself.props.text \u003d \"Releasing\"\n\t\telse:\n\t\t\t# Manual mode, not running\n\t\t\tstatus \u003d 0\n\t\t\tself.props.text \u003d \"Release\"\n\t\n\t# \u003d\u003d\u003d Final style return \u003d\u003d\u003d\n\treturn {\n\t\t\"backgroundColor\": color_map.get(status, \"#0000FF\"),\n\t\t\"transition\": \"background-color 0.3s ease-in-out\"\n\t\t}",
+                  "type": "script"
+                }
+              ],
+              "type": "expr-struct"
+            }
+          }
+        },
+        "props": {
+          "text": "Release",
+          "textStyle": {
+            "color": "#000000"
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "MultiStateButton"
+        },
+        "position": {
+          "basis": "50px"
+        },
+        "propConfig": {
+          "props.indicatorValue": {
+            "binding": {
+              "config": {
+                "path": "this.props.controlValue"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "controlValue": 1,
+          "states": [
+            {
+              "selectedStyle": {
+                "backgroundColor": "#FFF275",
+                "classes": ""
+              },
+              "text": "Enabled",
+              "unselectedStyle": {
+                "classes": ""
+              },
+              "value": 1
+            },
+            {
+              "selectedStyle": {
+                "backgroundColor": "#F84553",
+                "classes": ""
+              },
+              "text": "Disabled",
+              "unselectedStyle": {
+                "classes": ""
+              },
+              "value": 0
+            }
+          ]
+        },
+        "type": "ia.input.multi-state-button"
+      }
+    ],
+    "events": {
+      "dom": {
+        "onMouseLeave": {
+          "config": {
+            "draggable": true,
+            "id": "chute_info",
+            "modal": false,
+            "overlayDismiss": false,
+            "resizable": true,
+            "showCloseIcon": true,
+            "type": "close",
+            "viewPath": "Mouser_2/Main/Popups/Eurosort/Section/Chute_Info",
+            "viewportBound": false
+          },
+          "scope": "C",
+          "type": "popup"
+        }
+      }
+    },
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "wrap": "wrap"
+    },
+    "type": "ia.container.flex"
+  }
+}

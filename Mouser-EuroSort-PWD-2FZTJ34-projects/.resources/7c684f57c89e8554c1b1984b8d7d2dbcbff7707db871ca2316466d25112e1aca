@@ -1,0 +1,208 @@
+"""
+	Routing management
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+
+from eurosort.config import EuroSorterConfig
+from eurosort.sorterdata.destination import SorterDataDestination_DefaultPattern
+
+import re
+
+
+
+class EuroSorterRoutingManagement(
+		EuroSorterConfig,
+	):
+
+	def __init__(self, name, **init_config):
+		super(EuroSorterRoutingManagement, self).__init__(name, **init_config)
+		
+		self._route_map = {}
+		#self._route_noread = None
+		#self._route_noread_min_recirc = None
+		#self._route_invalid_barcode = None
+		
+		self._routes_disallowed = set()
+		self._routes_patterns_disallowed = set()
+		
+		self._load_routing_config()
+
+
+	def _load_routing_config(self):
+		self.logger.warn('Reloading routing configuration')
+		
+		( # map the tag results directly into the attributes
+			routing_dataset,
+			#self._route_invalid_barcode,
+			#self._route_noread,
+			#self._route_noread_min_recirc,
+			disallowed_routes,
+		) = [
+			qv.value for qv in 
+			system.tag.readBlocking([
+				self.CONFIG_TAG_PATH + '/' + tag_name
+				for tag_name
+				 in [
+				 	'Destination Mapping', 
+				 	#'Invalid Barcode', 
+				 	#'NoRead', 
+				 	#'No Read recirc attempts',
+				 	'Disallowed Destinations',
+				 ]
+			])]
+		
+		self._route_map = {
+			barcode: destination
+			for barcode, destination
+			 in zip(*routing_dataset.data)
+		}
+		
+		
+		self._routes_disallowed = set()
+		self._routes_patterns_disallowed = set()
+		for (disallowed_destination,) in zip(*disallowed_routes.data):
+			if disallowed_destination.startswith('r/'):
+				_, pattern, flags = disallowed_destination.split('/')
+				self._routes_patterns_disallowed.add(
+					re.compile('^' + pattern + '$', sum(getattr(re,flag.upper()) for flag in flags))
+				)
+			else:
+				self._routes_disallowed.add(disallowed_destination)
+		
+		self.logger.info('Reloaded routing configuration from {tag_root}',
+						 tag_root = self.CONFIG_TAG_PATH)
+
+
+	def _destination_is_disallowed(self, destination):
+		# only configured destinations allowed
+		if destination not in self._destination_mapping:
+			return True
+		if destination in self._routes_disallowed:
+			#self.logger.trace('Disallowed listing: {destination}')
+			return True
+		for pattern in self._routes_patterns_disallowed:
+			if pattern.match(str(destination)):
+				#self.logger.trace('Disallowed pattern: {destination}')
+				return True
+		return False
+
+
+	@property
+	def _route_noread_min_recirc(self):
+		return self._read_config_tag('No Read recirc attempts')
+
+	@property
+	def _route_noread(self):
+		return self._read_config_tag('NoRead')
+
+	@property
+	def _route_invalid_barcode(self):
+		return self._read_config_tag('Invalid Barcode')
+
+
+
+class DefaultRoutingStrategies(
+		EuroSorterRoutingManagement
+	):
+
+	def __init__(self, name, **init_config):
+		super(DefaultRoutingStrategies, self).__init__(name, **init_config)
+
+		self._router_sequence = [
+				self._router_noread,
+				self._router_eponymous,
+				self._router_explicit,
+				#self._router_default,
+			]
+
+	def route_destination(self, sorter_data):
+	
+		try:
+			for router in self._router_sequence:
+				self.logger.trace('attempting {router!r}...')
+				destination = router(sorter_data)
+	#			try:
+	#				destination = router(sorter_data)
+	#			except Exception as error:
+	#				self.logger.warn('Router error: {router} with {error!r}', router=str(router), error=str(error),)
+	#				continue
+				if destination is not None:
+					break
+		
+			if destination is StopIteration:
+				return StopIteration # nothing to do
+			
+			if destination is None:
+				return self._router_default(sorter_data)
+		
+			if self._destination_is_disallowed(destination):
+				self.logger.warn('Route disallowed: {destination}. Failing resolution for {scanned}',
+								 scanned=sorter_data.barcode,)
+				return
+		
+		except StopIteration as stop_looking:
+			return stop_looking
+		
+		return destination
+
+
+	def _router_default(self, sorter_data):
+		# if all checks/loops are exhausted, simply go to the default
+		destination = self._route_invalid_barcode
+		self.logger.debug('Routing {barcode} to default {destination}', barcode=sorter_data.barcode)
+		return destination 
+
+
+	def _router_noread(self, sorter_data):
+	
+		if sorter_data.barcode.lower() not in ('noread', 'noscantx'):
+			return # not applicable
+	
+		self.logger.trace('routing noread/noscantx')
+		
+		if sorter_data.recirculation_count >= self._route_noread_min_recirc:
+			destination = self._route_noread
+			self.logger.debug('Routing no read - recirc done, sending a dest due to {barcode}',
+				barcode=sorter_data.barcode.lower(),)
+			return destination
+		else:
+			# nop - do nothing until it's circulated a few times
+			self.logger.debug('Routing no read - recirculating ({x} of {y}) due to {barcode}',
+				x=sorter_data.recirculation_count, y=self._route_noread_min_recirc,
+				barcode=sorter_data.barcode.lower(),)
+			return StopIteration
+
+
+	def _router_eponymous(self, sorter_data):
+	
+		# first, check if the barcode is simply a destination - use that above all others
+		for barcode in sorter_data.barcodes:
+		
+			if SorterDataDestination_DefaultPattern.DESTINATION_PATTERN.match(barcode):
+				destination = barcode
+				
+				if self._destination_is_disallowed(destination): 
+					continue
+				
+				self.logger.debug('Routing {barcode} to eponymous location')
+				return destination
+
+
+	def _router_explicit(self, sorter_data):
+	
+		# check if the barcode is explicitly routed
+		for barcode in sorter_data.barcodes:
+			try:
+				# route from lookup table			
+				destination = self._route_map[barcode]
+				
+				if self._destination_is_disallowed(destination): 
+					continue
+				
+				self.logger.debug('Routing {barcode} to mapped {destination}')
+				return destination
+			
+			except KeyError:
+				pass

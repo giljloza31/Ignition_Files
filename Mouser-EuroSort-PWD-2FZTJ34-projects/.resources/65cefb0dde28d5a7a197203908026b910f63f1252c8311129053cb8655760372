@@ -1,0 +1,113 @@
+{
+  "custom": {},
+  "params": {
+    "HZ_in_tagPath": "value",
+    "HZ_out_tagPath": "value"
+  },
+  "propConfig": {
+    "params.HZ_in_tagPath": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.HZ_out_tagPath": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 44,
+      "width": 273
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Hz_NumericEntryField-1"
+        },
+        "position": {
+          "height": 36,
+          "width": 66,
+          "x": 118.75,
+          "y": 1.6000000000000227
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "path": "view.params.HZ_in_tagPath"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 22
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Hz"
+        },
+        "position": {
+          "height": 36,
+          "width": 111,
+          "x": 1.75,
+          "y": 1.6000000000000227
+        },
+        "props": {
+          "text": "Hz:",
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Hz_NumericEntryField-2"
+        },
+        "position": {
+          "height": 36,
+          "width": 66,
+          "x": 194.75,
+          "y": 1.6000000000000227
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "path": "view.params.HZ_out_tagPath"
+              },
+              "transforms": [
+                {
+                  "code": "\treturn value/100",
+                  "type": "script"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#CCCCCC",
+            "classes": "FontStyles/BodyText",
+            "fontSize": 22
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

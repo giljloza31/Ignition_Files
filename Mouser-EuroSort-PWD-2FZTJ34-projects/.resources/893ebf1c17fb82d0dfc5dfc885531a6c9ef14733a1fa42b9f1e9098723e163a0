@@ -1,0 +1,280 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 312,
+      "width": 258
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Button",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 193.45000000000005,
+          "width": 154.08999999999997,
+          "x": 44.9640625,
+          "y": 68.564025
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "this.meta.name"
+              },
+              "type": "property"
+            }
+          },
+          "props.elements[3].style.fill": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[default]TemplateTags/Button/Button"
+              },
+              "transforms": [
+                {
+                  "fallback": "#000000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 1,
+                      "output": "#00D900"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#D90000"
+                    },
+                    {
+                      "input": 3,
+                      "output": "#808080"
+                    },
+                    {
+                      "input": 4,
+                      "output": "#FFFF00"
+                    },
+                    {
+                      "input": 0,
+                      "output": "#FCFCFC"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M722.48,308.87l1,14.34-1.13.88s.27,10.93-9.59,10.93-9.6-10.93-9.6-10.93l-1.13-.88,1-14.34Z",
+                  "name": "ButtonMount",
+                  "transform": "translate(-701.93 -308.75)",
+                  "type": "path"
+                }
+              ],
+              "name": "ButtonBackground",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "ButtonMessage-2",
+                  "points": "19.51 12.53 20.45 11.99 19.66 1.28 10.85 1.28 2.04 1.28 1.25 11.99 2.2 12.53 19.51 12.53",
+                  "type": "polygon"
+                }
+              ],
+              "name": "ButtonMessage",
+              "style": {
+                "classes": "",
+                "fill": "#F0F0F0",
+                "stroke": "#000000",
+                "strokeWidth": ".255"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonBorder-2",
+                  "r": "9.73",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonBorder",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonColor",
+                  "r": "8.15",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonLight",
+              "style": {
+                "classes": "",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 21.7 26.84"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 41.069999999999936,
+          "width": 113.42000000000002,
+          "x": 64.2940625,
+          "y": 80.114025
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "fontSize": 26,
+            "textAlign": "center"
+          },
+          "text": "POWER"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "plcPath": "ns\u003d1;s\u003d[TTI_TAS]Divert_PB",
+          "status": true
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\topcServer \u003d \u0027Ignition OPC-UA Server\u0027\n\titemPath \u003d self.custom.plcPath\n\t#writing a 1 directly to PLC tag\n\tsystem.opc.writeValue(opcServer, itemPath, 1)\n\t\n\tsleep(1)\n\t\n\tsystem.opc.writeValue(opcServer, itemPath, 0)\n\t\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "DivertLane_POWER"
+        },
+        "position": {
+          "height": 118.88999999999999,
+          "width": 115.56,
+          "x": 64.2240625,
+          "y": 131.294125
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "path": "this.custom.status"
+              },
+              "transforms": [
+                {
+                  "fallback": "#555555",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": true,
+                      "output": "#FFFFFF"
+                    },
+                    {
+                      "input": null,
+                      "output": "#555555"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "height": 80,
+            "icon": {
+              "path": "material/power_settings_new"
+            },
+            "width": 60
+          },
+          "style": {
+            "borderBottomLeftRadius": 80,
+            "borderBottomRightRadius": 80,
+            "borderStyle": "solid",
+            "borderTopLeftRadius": 80,
+            "borderTopRightRadius": 80,
+            "borderWidth": 2,
+            "classes": "FontStyles/TitleText_Ver1-Bold",
+            "color": "#BABABA",
+            "fontSize": 20
+          },
+          "text": "",
+          "textStyle": {
+            "fontSize": ""
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 41.069999999999936,
+          "width": 140.99999999999997,
+          "x": 50.9340625,
+          "y": 27.114024999999998
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/TitleText_Ver2-Italics",
+            "fontSize": 26,
+            "textAlign": "center"
+          },
+          "text": "AREA"
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

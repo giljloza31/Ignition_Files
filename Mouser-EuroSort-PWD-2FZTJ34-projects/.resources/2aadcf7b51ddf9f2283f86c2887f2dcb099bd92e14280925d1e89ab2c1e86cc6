@@ -1,0 +1,41 @@
+from com.inductiveautomation.ignition.common.xmlserialization import SerializationException
+
+from shared.tools.snapshot.utils import getDesignerContext
+
+
+def get_project_resources_by_type(project=None):
+	if project is None:
+		project = getDesignerContext().getProject()
+	
+	resources = designer_project.getResources()
+	
+	# collate
+	resources_by_type = {}
+	for resource in resources:
+		res_type = str(resource.getResourceType())
+		if not res_type in resources_by_type:
+			resources_by_type[res_type] = {}
+		resources_by_type[res_type][str(resource.getFolderPath())] = resource
+	   
+	return resources_by_type
+
+
+
+def raw_resource_objects(resource):
+	
+	deserializer = getDesignerContext().createDeserializer()
+	
+	resource_objects = {}
+	for key in resource.getDataKeys():
+		raw_data = resource.getData(key)
+		try:
+			data_context = deserializer.deserializeBinary(raw_data)
+			for root_object in data_context.getRootObjects():
+				resource_objects[str(key)] = root_object
+		except SerializationException:
+			try:
+				resource_objects[str(key)] = ''.join(chr(c) for c in raw_data)
+			except:
+				resource_objects[str(key)] = raw_data
+	
+	return resource_objects

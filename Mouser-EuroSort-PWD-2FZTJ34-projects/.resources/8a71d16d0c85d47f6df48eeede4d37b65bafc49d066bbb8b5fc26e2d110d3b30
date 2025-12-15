@@ -1,0 +1,3 @@
+--insert table name as project name_Divert_Table
+Delete From  Catchbox_Divert_Table  
+Where Route_Code =  :inVarRoute 

@@ -1,0 +1,130 @@
+class RouteTable(object):
+    """
+    Consolidation route table.
+
+    - DESTINATION: per-scanner explicit zone map
+        scanner_id -> { zone_code: direction_code }
+
+      direction_code:
+        1 = Divert Left
+        2 = Divert Right
+        3 = Sent Straight
+
+    - ENDOFLINE / MAINLINE:
+        Used to determine defaults when a scanner/zone combo
+        has no explicit mapping in DESTINATION.
+    """
+
+    def __init__(self, destination=None, end_of_line=None, mainline=None, direction_map=None):
+        # ----- core config -----
+        self.ENDOFLINE = list(end_of_line or [7, 10, 13, 15])
+        self.MAINLINE  = list(mainline   or [2, 3, 4])
+
+        # direction code -> description
+        self.DIRECTION = dict(direction_map or {
+            3: 'Sent Straight',
+            1: 'Diverted Left',
+            2: 'Diverted Right'
+        })
+
+
+        # list of all scanners we know about
+        self.ALL_SCANNERS = sorted(self.DESTINATION.keys())
+
+        # zone_code -> {scanner_id: direction_code}
+        self.ROUTE_TABLE = {}
+        self._build_route_table()
+
+    # ---------------- internal builders ----------------
+    def _build_route_table(self):
+        """
+        Build ROUTE_TABLE from DESTINATION:
+            'AA' -> {2:1, 7:1, ...}
+        """
+        self.ROUTE_TABLE = {}
+        for scanner_id, zone_map in self.DESTINATION.items():
+            for zone_code, direction_code in zone_map.items():
+                z = str(zone_code).upper()
+                bucket = self.ROUTE_TABLE.get(z)
+                if bucket is None:
+                    bucket = {}
+                    self.ROUTE_TABLE[z] = bucket
+                bucket[int(scanner_id)] = int(direction_code)
+
+    # ---------------- core helpers ----------------
+    def determine_direction(self, scanner_id):
+        """
+        Default routing direction based only on scanner ID:
+          - ENDOFLINE: divert right (2)
+          - MAINLINE:  straight (3)
+          - other:     straight (3)
+        """
+        sid = int(scanner_id)
+        if sid in self.ENDOFLINE:
+            code = 2  # Diverted Right
+        elif sid in self.MAINLINE:
+            code = 3  # Sent Straight
+        else:
+            code = 3  # Default to straight
+
+        return code, self.DIRECTION.get(code, 'Unknown')
+
+	def get_flat_routes_for_zone(self, zone_code):
+	       """
+        Return flat mapping:
+            scanner_id -> direction_code
+
+        Uses:
+          - explicit DESTINATION mapping first
+          - otherwise determine_direction(scanner_id)
+
+        Always returns a full dict for ALL_SCANNERS.
+        """
+        z = str(zone_code).upper()
+        explicit = self.ROUTE_TABLE.get(z, {})
+
+        result = {}
+
+        for scanner_id in self.ALL_SCANNERS:
+            # Explicit mapping first
+            if scanner_id in explicit:
+                code = explicit[scanner_id]
+            else:
+                # Fallback → based on ENDOFLINE / MAINLINE
+                code, _ = self.determine_direction(scanner_id)
+
+            result[scanner_id] = code
+
+        return result
+
+    def get_direction_for(self, scanner_id, zone_code):
+        """
+        Convenience helper: get a single scanner's decision for a given zone.
+
+        Returns:
+            (code, description)
+        """
+        z = str(zone_code).upper()
+        sid = int(scanner_id)
+
+        # explicit first
+        zone_map = self.ROUTE_TABLE.get(z, {})
+        if sid in zone_map:
+            code = zone_map[sid]
+            return code, self.DIRECTION.get(code, 'Unknown')
+
+        # fall back to default
+        return self.determine_direction(sid)
+
+    # ---------------- debug / logging helpers ----------------
+    def debug_dump_zone(self, zone_code):
+        """
+        Return a printable summary string for a given zone's routing.
+        Helpful for logger.info().
+        """
+        routes = self.get_routes_for_zone(zone_code)
+        parts = []
+        for sid in sorted(routes.keys()):
+            info = routes[sid]
+            parts.append('S%d=%d(%s)' % (sid, info['code'], info['description']))
+        return 'Zone %s: %s' % (str(zone_code).upper(), ', '.join(parts))

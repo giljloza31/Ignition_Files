@@ -1,0 +1,102 @@
+"""
+	Commands to tell WCS we've moved to a transfer location
+	
+	These functions should not have side effects.
+	That is, they should do only what their stated goal is.
+	
+	For example, moving an issue into the perfectpick transit location
+	  does NOT update the transit location in PERFECTPICK_DB. That
+	  is the responsibility of the calling context to get right.
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from shared.data.types.enum import Enum
+from database.core import WCS_DB, PERFECTPICK_DB, select_record, update_record
+from wcs.config import wcs_put, WCSDeviceID, WCSLocation, WCSTransitMovePurposes
+from wcs.api.outgoing.users import sanitize_username
+#from perfectpick.transit import push_to_location
+
+import re
+import datetime
+from java.util import Date
+
+
+
+def wcs_timestamp(timestamp=None):
+	if timestamp is None:
+		timestamp = datetime.datetime.now()
+	return timestamp.strftime('%Y%m%d%H%M%S')
+
+
+def stage_sorter_issue(issue_ibn, username=None):
+
+	user_id   = sanitize_username(username)
+	device_id = WCSDeviceID.OPEX_EUROSORT
+	location  = WCSLocation.EUROSORT_XFER
+
+	timestamp = wcs_timestamp()
+
+	payload = {
+		'userId'  : user_id,
+		'time'    : timestamp,
+		'deviceId': device_id,
+		'ibn'     : issue_ibn,
+		'location': location,
+	}
+
+	response = wcs_put('issues/{issue}/move-notify', payload, issue=issue_ibn)
+
+	Logger().trace('PUT to WCS for moving {issue_ibn} into {location}: {json} ==> {response}', json =system.util.jsonEncode(payload, 2))
+	return response
+
+
+def perfectpick_issue(perfectpick_name, purpose, issue_ibn, username=None):
+	"""Typically move-notify is used for transit locations. 
+	See deliver for 'moving' inventory into the PerfectPick directly.
+	"""
+	purpose = WCSTransitMovePurposes(purpose.upper())
+
+	user_id = sanitize_username(username)
+	device_id = WCSDeviceID(perfectpick_name + '_' + 'FRONT')
+	location  = WCSLocation(perfectpick_name + '_' + purpose)
+
+	# let's not bootstrap this - WCS stuff here is JUST for WCS notification
+	#   don't try to do local bookkeeping too
+	# push_to_location(perfectpick_name, purpose, issue_ibn)
+ 
+	timestamp = wcs_timestamp()
+
+	payload = {
+		'userId'  : user_id,
+		'time'    : timestamp,
+		'deviceId': device_id,
+		'ibn'     : issue_ibn,
+		'location': location,
+	}
+
+	response = wcs_put('issues/{issue}/move-notify', payload, issue=issue_ibn)
+
+	Logger().trace('PUT to WCS for {purpose} {issue_ibn} at {location}: {json} ==> {response}', json =system.util.jsonEncode(payload, 2))
+	return response
+
+
+
+def perfectpick_order(perfectpick_name, order_number, username=None):
+
+	device_id = WCSDeviceID(perfectpick_name + '_' + 'BACK')
+	user_id = sanitize_username(username)
+
+	timestamp = wcs_timestamp()
+
+	payload = {
+		'userId'  : user_id,
+		'time'    : timestamp,
+		'deviceId': device_id,
+		'order'   : order_number,
+	}
+
+	response = wcs_put('orders/{order}/move-notify', payload, order=order_number)
+
+	Logger().trace('PUT to WCS for move-order {order_number} at {device_id!r}: {json} ==> {response}', json =system.util.jsonEncode(payload, 2))
+	return response

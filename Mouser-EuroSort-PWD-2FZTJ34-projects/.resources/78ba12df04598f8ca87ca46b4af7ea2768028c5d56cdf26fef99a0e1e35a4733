@@ -1,0 +1,150 @@
+{
+  "custom": {},
+  "params": {
+    "InductCount": 0,
+    "Peak": 0,
+    "Rate": 0
+  },
+  "propConfig": {
+    "params.InductCount": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Peak": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Rate": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 48,
+      "width": 259
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "InductCount",
+          "tooltip": {
+            "enabled": true,
+            "text": "Induct Count"
+          }
+        },
+        "position": {
+          "height": 36,
+          "width": 80,
+          "x": 3,
+          "y": 3
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.InductCount"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "outlineStyle": "solid",
+            "outlineWidth": "2"
+          },
+          "textStyle": {
+            "fontSize": 20,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Rate_Min",
+          "tooltip": {
+            "enabled": true,
+            "text": "Scan Rate Min"
+          }
+        },
+        "position": {
+          "height": 36,
+          "rotate": {
+            "anchor": "50% 39%"
+          },
+          "width": 80,
+          "x": 86,
+          "y": 3
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Rate"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "outlineStyle": "solid",
+            "outlineWidth": "2"
+          },
+          "textStyle": {
+            "fontSize": 20,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Peak_Rate",
+          "tooltip": {
+            "enabled": true,
+            "text": "Peak Min"
+          }
+        },
+        "position": {
+          "height": 36,
+          "rotate": {
+            "anchor": "50% 39%"
+          },
+          "width": 80,
+          "x": 169,
+          "y": 3
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Peak"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "outlineStyle": "solid",
+            "outlineWidth": "2"
+          },
+          "textStyle": {
+            "fontSize": 20,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

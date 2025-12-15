@@ -1,0 +1,191 @@
+from shared.tools.thread import async
+from shared.tools.global import ExtraGlobal
+from datetime import datetime
+from system.net import httpClient
+from Database import db_access
+import base64
+import re
+
+db_name = 'MongoWCS'
+
+logger = system.util.getLogger('Fail_Manifest')
+# Barcode separator constant (define it properly)
+BARCODE_SEPARATOR = ','  # Modify based on actual usage
+client = httpClient()
+
+plcname = 'Mouser_HSL'
+lifespan_time = 60*60*24 # one day of lifespan
+cached_scope = 'PrintData'
+
+simulated = True
+sim_results = {
+	'verificationBarcode':'1Z0000000000000004',
+	'orderNbr':'123456789',
+	'label':'^XATestLabel^XZ',
+	'statusCode':0
+	}
+
+MAN_PAYLOAD_PATTERN = re.compile(r"""
+	^
+	(?P<indexid>\d{3})						# indexID 101-399
+	\|										# pipe seperator
+	(?P<lpn>.*)								# LPN
+	\|										# pipe seperator
+	(?P<weight>.*)							# weight
+	\|										# pipe seperator
+	(?P<ibn>.*)								# lpns (needs to be comma-delimited)
+	$
+	""", re.VERBOSE)
+# Marriage/Manifest Errors
+MAN_ERROR_LIST = {
+	1: 'Success',
+	2: 'Incorrect Payload',
+	3: 'No Weight',
+	4: 'LPN No Read',
+	5: 'Multiple LPN',
+	6: 'IBN NoRead',
+	7: 'No Valid IBN',
+	8: 'Failed Marriage API',
+	9: 'Failed Manifest API',
+	10:'No Label Returned',
+	11:'Decode',
+	20:'Unxplained Error',
+	21:'Failed'
+}
+
+
+	
+
+	
+class ManifestProcess:
+
+	def update_ZPL_File(self,ZPL_File):
+		replacements = {
+			'^LH0,0\r\n^PR4,4,2^FS\r^PON\r^LS25\n': '^LH0,0\r\n^PR12,8,2^FS\r^PON\r^LS5^LT-35\n',
+			'^MD30^PW800^PON': '^MD0^PW800^POI',
+			'^PW812\r\n^CI13\r\n^LH0,0\r\n^PR4,4,2^FS\r^POI\r^LS25\n': '^PW812\r\n^CI13\r\n^LH0,0\r\n^PR12,8,2^FS\r^POI\r^LS0^LT-35',
+			'^LH20,20\n^FO468,4': '^LH0,20\n^FO468,4',
+			'^LH0,100\n^PR6,4,2\n^FS\n^POI\n^LS25': '^LH25,50\n^PR12,8,2\n^FS\n^POI\n^LS0',
+			'^PR12^MD30^PW800^PON^CI13^LH0,20\n': '^PR12,8,2^MD0^PW800^POI^CI13^LH0,20\n',
+			'^LH0,0\n^PR6,4,2\n^FS\n^POI\n^LS25\n': '^LH0,0\n^PR12,8,2\n^FS\n^POI\n^LS0\n',
+			'^XA\n^LL1218\n^PW812\n^PON\n^LH0,0\n^CI27\n': '^XA\n^LL1218\n^PW812\n^POI^PR12,8,2\n^LH0,0^LS0^LT15\n^CI27\n'
+		}
+		
+		for find, replace in replacements.items():
+			if find in ZPL_File:
+				ZPL_File = ZPL_File.replace(find,replace)
+				break
+		
+		return ZPL_File	
+		
+
+	def decode_label(self,label):
+		label_data = base64.b64decode(label)
+		return label_data.decode('utf-8')
+		
+	def manifest_payload(self,data,counts):
+		
+		ENDPOINT = 'http://wcs01:8085/ws/v1/orders/%s'% data['LPN']
+
+		api_payload = {
+			'type':'ship',
+			'weight' :str(data['weight']),
+			'deviceId':9
+			}
+		
+		try:
+			
+			if not simulated:
+				response = client.put(ENDPOINT,data=api_payload)
+				result = response.json
+			else:
+				result = sim_results
+			
+			if int(result['statusCode']) !=258:
+				
+				if not result['label']:
+					data.update({
+					'verification_barcode':'',
+					'orderNbr':'',
+					'reason':MAN_ERROR_LIST.get(10),
+					'reason_num':10,
+					'print_results':2,
+					})
+					
+					return data,counts
+				
+				if not simulated:
+					ZPL_File = self.decode_label(label = result.get('label'))
+					ZPL_File = self.update_ZPL_File(ZPL_File = ZPL_File)
+				else:
+					ZPL_File = result.get('label')
+
+				data.update({
+					'verification_barcode':result.get('verificationBarcode',''),
+					'orderNbr':result.get('orderNbr',''),
+					'reason':MAN_ERROR_LIST.get(1),
+					'reason_num':1,
+					'print_results':1,
+				})
+				
+				counts.update({
+					'Passed_Manifest_cnt': counts.get('Passed_Manifest_cnt', 0) + 1 ,
+					})
+				
+				printer_results = {
+					'PrintLabel':ZPL_File,
+					'verification_barcode':result.get('verificationBarcode',''),
+					'orderNbr':result.get('orderNbr',''),
+					'print_results':1,
+					'reason_num':data['reason_num'],
+					'LPN':data['LPN']
+					}
+				
+	
+			else:
+				data.update({
+					'verification_barcode':result.get('verificationBarcode',''),
+					'orderNbr':result.get('orderNbr',''),
+					'reason':MAN_ERROR_LIST.get(11),
+					'reason_num':11,	
+					'print_results':2,
+					
+				})
+				printer_results = {
+					'PrintLabel':ZPL_File,
+					'verification_barcode':result.get('verificationBarcode',''),
+					'orderNbr':result.get('orderNbr',''),
+					'print_results':2,
+					'reason_num':data['reason_num'],
+					'LPN':data['LPN']
+					}
+			
+					
+		except:
+			data.update({	
+				'verification_barcode':'',
+				'orderNbr':'',
+				'reason':MAN_ERROR_LIST.get(9),
+				'reason_num':9,
+				'print_results':2,
+				})
+			
+			printer_results = {
+					'PrintLabel':'',
+					'verification_barcode':'',
+					'orderNbr':'',
+					'print_results':1,
+					'LPN':data['LPN']
+					}	
+			
+		
+		ExtraGlobal.stash(
+			printer_results,
+			data['LPN'],
+			cached_scope,
+			lifespan = lifespan_time
+			)
+
+		return data,counts
+		
+		

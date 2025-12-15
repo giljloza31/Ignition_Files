@@ -1,0 +1,1778 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 362,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Table"
+        },
+        "position": {
+          "height": 272,
+          "width": 1907,
+          "x": 6.859999999999999,
+          "y": 82.28999999999996
+        },
+        "propConfig": {
+          "props.data": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Filtered"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "columns": [
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "_id",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "IBN_List",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "zone",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "group_id",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "ChuteCount",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Volume",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Chute",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": false,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "ToteFull",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Occupied",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "enabled",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "ChuteFull",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "LastUpdated",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "center",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "center",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": true,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "ChuteClosedSW",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "auto",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": false,
+              "width": ""
+            },
+            {
+              "align": "center",
+              "boolean": "checkbox",
+              "dateFormat": "MM/DD/YYYY",
+              "editable": false,
+              "field": "Queued",
+              "filter": {
+                "boolean": {
+                  "condition": ""
+                },
+                "date": {
+                  "condition": "",
+                  "value": ""
+                },
+                "enabled": false,
+                "number": {
+                  "condition": "",
+                  "value": ""
+                },
+                "string": {
+                  "condition": "",
+                  "value": ""
+                },
+                "visible": "on-hover"
+              },
+              "footer": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "header": {
+                "align": "center",
+                "justify": "left",
+                "style": {
+                  "classes": ""
+                },
+                "title": ""
+              },
+              "justify": "auto",
+              "nullFormat": {
+                "includeNullStrings": false,
+                "nullFormatValue": "",
+                "strict": false
+              },
+              "number": "value",
+              "numberFormat": "0,0.##",
+              "progressBar": {
+                "bar": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "max": 100,
+                "min": 0,
+                "track": {
+                  "color": "",
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "value": {
+                  "enabled": true,
+                  "format": "0,0.##",
+                  "justify": "center",
+                  "style": {
+                    "classes": ""
+                  }
+                }
+              },
+              "render": "auto",
+              "resizable": true,
+              "sort": "none",
+              "sortable": true,
+              "strictWidth": false,
+              "style": {
+                "classes": ""
+              },
+              "toggleSwitch": {
+                "color": {
+                  "selected": "",
+                  "unselected": ""
+                }
+              },
+              "viewParams": {},
+              "viewPath": "",
+              "visible": false,
+              "width": ""
+            }
+          ]
+        },
+        "type": "ia.display.table"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "FilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Filtered",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport re\n\t\n\n\tzone \u003d self.getSibling(\"Zone\").props.text\n\tgroupID \u003d self.getSibling(\"GroupID\").props.text\n\tchuteNum \u003d self.getSibling(\"ChuteNumber\").props.text\n\tsideNum \u003d self.getSibling(\"Side\").props.value\n\tside \u003d self.getSibling(\"Side\").props.value\n\tibn \u003d self.getSibling(\"IBN_Filter\").props.text\n\tlane \u003d self.getSibling(\"Dropdown\").props.value\n\t\n\tif lane \u003d\u003d 0:\n\t\tlaneQuery \u003d None\n\telse:\n\t\tlaneQuery \u003d {\u0027Lane\u0027:lane}\n\t\n\tif not ibn:\n\t\tibnQuery \u003d None\n\telse:\n\t\tibnQuery \u003d {\u0027IBN_List\u0027:{\u0027$regex\u0027: ibn}}\n\n\t# Zone query\n\tif zone in [\u0027!!\u0027, \u0027??\u0027]:\n\t    zoneQuery \u003d {\u0027zone\u0027: \u0027NODEST\u0027}\n\telif zone:\n\t    zoneQuery \u003d {\u0027zone\u0027: {\u0027$regex\u0027: zone}}\n\telse:\n\t    zoneQuery \u003d None\n\t\n\t# Group query\n\tif not groupID:\n\t\tgroupQuery \u003d None\n\telse:\n\t\t\n\t    if int(groupID) \u003e\u003d -1:\n\t        groupQuery \u003d {\u0027group_id\u0027: {\u0027$regex\u0027: groupID}}\n\t    else:\n\t    \tgroupQuery \u003d None\n\t\n\t\n\t# Chute query\n\tif chuteNum:\n\t    chutefill \u003d chuteNum.zfill(4)\n\t    chuteName \u003d \u0027DST-%s-1-1-%s\u0027 % (chutefill, side)\n\t    chuteQuery \u003d {\u0027_id\u0027: chuteName}\n\telse:\n\t    chuteQuery \u003d None\n\t\n\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\t\n\toccupied \u003d {\"Occupied\": True}\n\tenabled \u003d {\"enabled\": True}\n\tprocessing \u003d {\u0027Processing\u0027:False}\n\t\n\tfilter_dict \u003d {}\n\t\n\t# Add occupied and enabled to the filter\n\tfilter_dict.update(occupied)\n\tfilter_dict.update(enabled)\n\tfilter_dict.update(processing)\n\t\n\t# Loop through each variable and add to filter_dict if not None\n\tfor item in [zoneQuery, groupQuery, chuteQuery,ibnQuery,laneQuery]:\n\t    if item is not None:\n\t        filter_dict.update(item)\n\t\n\tproject \u003d {\n\t    \u0027Chute\u0027: 0\n\t}\n\t\n\t# Fetch results from MongoDB\n\tresults \u003d system.mongodb.find(connector, collection, filter_dict, project)\n\t\n\t# Assuming \u0027results\u0027 is an iterable of dictionaries\n\tdata_list \u003d []\n\tcolumns \u003d []\n\t\n\t# Iterate through results to build data for dataset\n\tfor items in results:\n\t    if not columns:  # Capture the columns once\n\t        columns \u003d list(items.keys())\n\t    row \u003d [items[col] for col in columns]\n\t    data_list.append(row)\n\t\n\t# Convert data into a dataset format Ignition expects\n\tdatatodataset \u003d system.dataset.toDataSet(columns, data_list)\n\t\n\t# Write the final dataset to the tag\n\tsystem.tag.writeBlocking([self.custom.FilteredPath], [datatodataset])\n\t\n\tself.getSibling(\"Zone\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"GroupID\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"ChuteNumber\").props.text \u003d \u0027\u0027\n\t\n\tside \u003d self.getSibling(\"Side\").props.value\n\tself.getSibling(\"IBN_Filter\").props.text \u003d \u0027\u0027\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_16"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "50% 38%"
+          },
+          "width": 80,
+          "x": 973.88,
+          "y": 43.299999999999955
+        },
+        "props": {
+          "text": "Filter"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Side"
+        },
+        "position": {
+          "height": 36,
+          "width": 112,
+          "x": 843.85,
+          "y": 38.299999999999955
+        },
+        "props": {
+          "options": [
+            {
+              "label": "A",
+              "value": "A"
+            },
+            {
+              "label": "B",
+              "value": "B"
+            }
+          ],
+          "placeholder": {
+            "text": "Select Side"
+          },
+          "value": 0
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "FilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Filtered",
+          "MongoServer": "MongoWCS"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport re\n\t\n\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tlane \u003d self.getSibling(\"Dropdown\").props.value\n\t\n\toccupied \u003d {\"Occupied\": False}\n\tenabled \u003d {\"enabled\": True}\n\t\n\tfilter_dict \u003d {}\n\t\n\t# Add occupied and enabled to the filter\n\tfilter_dict.update(occupied)\n\tfilter_dict.update(enabled)\n\t\n\tif lane \u003d\u003d 0:\n\t\tlaneQuery \u003d None\n\telse:\n\t\tlaneQuery \u003d {\u0027Lane\u0027:lane}\n\t\t\n\t\t\n\tfor item in [laneQuery]:\n\t\tif item is not None:\n\t\t\tfilter_dict.update(item)\t\t\n\t        \n\t\n\tproject \u003d {\n\t    \u0027Chute\u0027: 0\n\t}\n\t\n\t# Fetch results from MongoDB\n\tresults \u003d system.mongodb.find(connector, collection, filter_dict, project)\n\n\t\n\t# Assuming \u0027results\u0027 is an iterable of dictionaries\n\tdata_list \u003d []\n\tcolumns \u003d []\n\t\n\t# Iterate through results to build data for dataset\n\n\trow \u003d []\n\tfor items in results:\n\t\tif not columns:  # Capture the columns once\n\t\t\tcolumns \u003d list(items.keys())\n\t\trow \u003d [items[col] for col in columns]\n\t\tdata_list.append(row)\n\t\n\n\t\n\t# Convert data into a dataset format Ignition expects\n\tdatatodataset \u003d system.dataset.toDataSet(columns, data_list)\n\t\n\t# Write the final dataset to the tag\n\tsystem.tag.writeBlocking([self.custom.FilteredPath], [datatodataset])"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_18"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "50% 38%"
+          },
+          "width": 128,
+          "x": 1316.88,
+          "y": 43.289999999999964
+        },
+        "props": {
+          "text": "Filter Empty"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "FilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Filtered",
+          "MongoServer": "MongoWCS"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport re\n\t\n\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tlane \u003d self.getSibling(\"Dropdown\").props.value\n\t\n\tfilter_dict\u003d{\n   \t\t\u0027$and\u0027:[\n   \t\t\t{\u0027$or\u0027:[\n   \t\t\t\t{\u0027ToteFull\u0027:True},\n   \t\t\t\t{\u0027ChuteFull\u0027:True}\n   \t\t\t]},\n   \t\t\t{\"Occupied\": True},\n   \t\t\t{\"enabled\": True}\n \n   \t]\t\n\t}\n\t\n\t\n\tif lane \u003d\u003d 0:\n\t\tlaneQuery \u003d None\n\telse:\n\t\tlaneQuery \u003d {\u0027Lane\u0027:lane}\n\t\t\n\tfor item in [laneQuery]:\n\t    if item is not None:\n\t        filter_dict.update(item)\t\t\n\t        \n\t\n\tproject \u003d {\n\t    \u0027Chute\u0027: 0\n\t}\n\t\n\t# Fetch results from MongoDB\n\tresults \u003d system.mongodb.find(connector, collection, filter_dict, project)\n\t\n\t# Assuming \u0027results\u0027 is an iterable of dictionaries\n\tdata_list \u003d []\n\tcolumns \u003d []\n\t\n\t# Iterate through results to build data for dataset\n\n\trow \u003d []\n\tfor items in results:\n\t\tif not columns:  # Capture the columns once\n\t\t\tcolumns \u003d list(items.keys())\n\t\trow \u003d [items[col] for col in columns]\n\t\tdata_list.append(row)\n\t\n\n\t\n\t# Convert data into a dataset format Ignition expects\n\tdatatodataset \u003d system.dataset.toDataSet(columns, data_list)\n\t\n\t# Write the final dataset to the tag\n\tsystem.tag.writeBlocking([self.custom.FilteredPath], [datatodataset])"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_19"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "50% 38%"
+          },
+          "width": 128,
+          "x": 1181.71,
+          "y": 43.27999999999997
+        },
+        "props": {
+          "text": "Filter Full"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "release",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "title": "Confirmation",
+                "type": "open",
+                "viewParams": {
+                  "chuteNum": "{/root/ChuteNumber.props.text}",
+                  "groupID": "{/root/GroupID.props.text}",
+                  "side": "{/root/Side.props.value}",
+                  "zone": "{/root/Zone.props.text}"
+                },
+                "viewPath": "Mouser_2/Main/Popups/Eurosort/Section/Confirm_Release",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "width": 107,
+          "x": 1061.92,
+          "y": 44.370000000000005
+        },
+        "props": {
+          "text": "Release"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "FilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/Filtered/Filtered",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\n\n\n\t# Assuming \u0027results\u0027 is an iterable of dictionaries\n\tdata_list \u003d []\n\tcolumns \u003d []\n\t\n\t\n\t# Convert data into a dataset format Ignition expects\n\tdatatodataset \u003d system.dataset.toDataSet(columns, data_list)\n\t\n\t# Write the final dataset to the tag\n\tsystem.tag.writeBlocking([self.custom.FilteredPath], [datatodataset])\n\t\n\tself.getSibling(\"Zone\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"GroupID\").props.text \u003d \u0027\u0027\n\tself.getSibling(\"ChuteNumber\").props.text \u003d \u0027\u0027\n\t\n\tside \u003d self.getSibling(\"Side\").props.value\n\tself.getSibling(\"IBN_Filter\").props.text \u003d \u0027\u0027\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_17"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "50% 38%"
+          },
+          "width": 97,
+          "x": 1451.88,
+          "y": 42.58000000000004
+        },
+        "props": {
+          "text": "Clear Filter"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "ChuteNumber"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 683.35,
+          "y": 42.299999999999955
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "Dropdown"
+        },
+        "position": {
+          "height": 36,
+          "width": 187,
+          "x": 485.34,
+          "y": 38.299999999999955
+        },
+        "props": {
+          "options": [
+            {
+              "label": "Lane 1",
+              "value": 1
+            },
+            {
+              "label": "Lane 2",
+              "value": 2
+            },
+            {
+              "label": "Lane 3",
+              "value": 3
+            },
+            {
+              "label": "Lane 4",
+              "value": 4
+            },
+            {
+              "label": "All",
+              "value": 0
+            }
+          ],
+          "placeholder": {
+            "text": "Select Lane"
+          },
+          "value": 0
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\tvalue \u003d [False]\n\tsystem.tag.writeBlocking(\u0027[Mouser]Mouser2/Receiving/Eurosort/Filtered/ReleaseSettings/is_realeasing_ref\u0027, value)\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "25% 50%"
+          },
+          "width": 113,
+          "x": 1059.03,
+          "y": 5.580000000000041
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Filtered/ReleaseSettings/is_realeasing_ref[0]"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Stop"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label_7"
+        },
+        "position": {
+          "height": 32,
+          "width": 149,
+          "x": 323.87,
+          "y": 6.2999999999999545
+        },
+        "props": {
+          "text": "IBN",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "IBN_Filter"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 322.87,
+          "y": 42.299999999999955
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "GroupID"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 164.87,
+          "y": 42.299999999999955
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "Label_4"
+        },
+        "position": {
+          "height": 32,
+          "width": 149,
+          "x": 165.87,
+          "y": 6.2999999999999545
+        },
+        "props": {
+          "text": "Group ID",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_5"
+        },
+        "position": {
+          "height": 32,
+          "width": 149,
+          "x": 686.35,
+          "y": 2.3000000000000114
+        },
+        "props": {
+          "text": "Chute Number",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_6"
+        },
+        "position": {
+          "height": 32,
+          "width": 109,
+          "x": 844.85,
+          "y": 2.3000000000000114
+        },
+        "props": {
+          "text": "Side",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_8"
+        },
+        "position": {
+          "height": 32,
+          "width": 149,
+          "x": 503.87,
+          "y": 2.3000000000000114
+        },
+        "props": {
+          "text": "Lane",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Zone"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 6.869999999999999,
+          "y": 42.299999999999955
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 149,
+          "x": 7.369999999999999,
+          "y": 5.2999999999999545
+        },
+        "props": {
+          "text": "Zone",
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

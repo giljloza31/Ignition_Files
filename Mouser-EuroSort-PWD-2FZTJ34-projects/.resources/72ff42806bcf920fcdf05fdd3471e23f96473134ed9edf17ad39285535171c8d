@@ -1,0 +1,1153 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 359,
+      "width": 1159
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Admin_Controls",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/QPS_Sortation/Admin_Controls",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Cancel"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 275.531,
+          "y": 274
+        },
+        "props": {
+          "primary": false,
+          "text": "Close"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom shared.pwd.QPS_Sortation import adminlogout_user\n\tuserID \u003d self.getSibling(\"userlist\").props.value\n\treasonCode \u003d self.getSibling(\"ReasonCode\").props.value\n\t\n\tif reasonCode !\u003d5:\n\t\treasonLabel \u003d self.getSibling(\"ReasonCode\").props.options[reasonCode].label\n\telse:\n\t\treasonLabel \u003d self.getSibling(\"Other\").props.text\n\t\n\tadminlogout_user(userID,reasonCode,reasonLabel)\n\t\n\t\n\tself.getSibling(\"userlist\").props.value \u003d \u0027\u0027\n\t\n\tself.getSibling(\"ReasonCode\").props.value \u003d \u0027\u0027\n\tself.getSibling(\"Other\").props.text \u003d \u0027\u0027"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "SignOut"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 170.531,
+          "y": 274
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "../adminControl.props.value"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 2,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "text": "Sign Out"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Other"
+        },
+        "position": {
+          "height": 32,
+          "width": 324,
+          "x": 48.5312,
+          "y": 203
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "expression": "if({../ReasonCode.props.value}\u003d5,if({../adminControl.props.value}\u003d2,true,false),false)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "placeholder": "Enter Reason"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "ReasonCode"
+        },
+        "position": {
+          "height": 36,
+          "width": 190,
+          "x": 182.766,
+          "y": 159
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "../adminControl.props.value"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 2,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "options": [
+            {
+              "label": "End of Shift",
+              "value": 0
+            },
+            {
+              "label": "Lunch",
+              "value": 1
+            },
+            {
+              "label": "Break",
+              "value": 2
+            },
+            {
+              "label": "Assigned New Station",
+              "value": 3
+            },
+            {
+              "label": "Assigned New Area",
+              "value": 4
+            },
+            {
+              "label": "Other",
+              "value": 5
+            }
+          ],
+          "placeholder": {
+            "text": "Select SignOut Reason"
+          },
+          "value": 0
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "Password_Label_0"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 140,
+          "x": 39.2656,
+          "y": 165
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "../adminControl.props.value"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 2,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "text": "SignOut Reason:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "User_Label"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 71,
+          "x": 100.0625,
+          "y": 73
+        },
+        "props": {
+          "text": "UserID:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom shared.pwd.QPS_Sortation import admin_login_user\n\tuserID \u003d self.getSibling(\"userlist\").props.value\n\tstation_num \u003d self.getSibling(\"Station\").props.value\n\tstation_name \u003d self.getSibling(\"Station\").props.options[station_num-1].label\n\t\n\tadmin_login_user(userID,station_num,station_name)\n\t\n\t\n\tself.getSibling(\"userlist\").props.value \u003d \u0027\u0027\n\t\n\tself.getSibling(\"Station\").props.value \u003d \u0027\u0027\n\t\n\t\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Add User"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 65.5156,
+          "y": 274
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "../adminControl.props.value"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 1,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "text": "Sign In"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "adminControl"
+        },
+        "position": {
+          "height": 36,
+          "width": 195,
+          "x": 178.55,
+          "y": 26
+        },
+        "props": {
+          "options": [
+            {
+              "label": "SignIn",
+              "value": 1
+            },
+            {
+              "label": "SignOut",
+              "value": 2
+            }
+          ],
+          "placeholder": {
+            "text": "Select Control"
+          },
+          "value": 2
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "User_Label_0"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 138,
+          "x": 33.0781,
+          "y": 29
+        },
+        "props": {
+          "text": "Admin Function:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Password_Label_1"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 140,
+          "x": 38.3125,
+          "y": 120
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "../adminControl.props.value"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 1,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "text": "Station:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Station"
+        },
+        "position": {
+          "height": 36,
+          "width": 141.99999999999997,
+          "x": 184.359,
+          "y": 115
+        },
+        "propConfig": {
+          "meta.visible": {
+            "binding": {
+              "config": {
+                "path": "../adminControl.props.value"
+              },
+              "transforms": [
+                {
+                  "fallback": false,
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 1,
+                      "output": true
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "options": [
+            {
+              "label": "Station 1",
+              "value": 1
+            },
+            {
+              "label": "Station 2",
+              "value": 2
+            },
+            {
+              "label": "Station 3",
+              "value": 3
+            },
+            {
+              "label": "Station 4",
+              "value": 4
+            },
+            {
+              "label": "Station 5",
+              "value": 5
+            },
+            {
+              "label": "Station 6",
+              "value": 6
+            },
+            {
+              "label": "Station 7",
+              "value": 7
+            },
+            {
+              "label": "Station 8",
+              "value": 8
+            },
+            {
+              "label": "Station 9",
+              "value": 9
+            },
+            {
+              "label": "Station 10",
+              "value": 10
+            },
+            {
+              "label": "Station 11",
+              "value": 11
+            },
+            {
+              "label": "Station 12",
+              "value": 12
+            },
+            {
+              "label": "Station 13",
+              "value": 13
+            },
+            {
+              "label": "Station 14",
+              "value": 14
+            },
+            {
+              "label": "Station 15",
+              "value": 15
+            },
+            {
+              "label": "Station 16",
+              "value": 16
+            },
+            {
+              "label": "Station 17",
+              "value": 17
+            },
+            {
+              "label": "Station 18",
+              "value": 18
+            },
+            {
+              "label": "Station 19",
+              "value": 19
+            },
+            {
+              "label": "Station 20",
+              "value": 20
+            }
+          ],
+          "placeholder": {
+            "text": "Select Station"
+          }
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "User_Label_1"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 117.99999999999994,
+          "x": 448.5,
+          "y": 70
+        },
+        "props": {
+          "text": "Return Time:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "User_Label_2"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 138,
+          "x": 428.5,
+          "y": 26
+        },
+        "props": {
+          "text": "Timeout Time:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Password_Label_4"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 122.99999999999994,
+          "x": 449,
+          "y": 110
+        },
+        "props": {
+          "text": "TurnIn Count:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Checkbox"
+        },
+        "position": {
+          "height": 36,
+          "width": 207.99999999999994,
+          "x": 462.5,
+          "y": 186
+        },
+        "propConfig": {
+          "props.selected": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/QPS_Sortation/Admin_Controls/Enable_TurnIn_CNT"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Enable TurnIn Count",
+          "textPosition": "left"
+        },
+        "type": "ia.input.checkbox"
+      },
+      {
+        "meta": {
+          "name": "Checkbox_0"
+        },
+        "position": {
+          "height": 36,
+          "width": 207.99999999999994,
+          "x": 462.6,
+          "y": 222
+        },
+        "propConfig": {
+          "props.selected": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/QPS_Sortation/Admin_Controls/Enable_TurnIn_Time"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Enable TurnIn Time",
+          "textPosition": "left"
+        },
+        "type": "ia.input.checkbox"
+      },
+      {
+        "meta": {
+          "name": "Password_Label_5"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 122.99999999999994,
+          "x": 448.1,
+          "y": 149
+        },
+        "props": {
+          "text": "TurnIn Time:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 580.5,
+          "y": 25
+        },
+        "propConfig": {
+          "props.value": {
+            "onChange": {
+              "enabled": null,
+              "script": "\tmins \u003d currentValue.value\n\t\n\tms \u003d mins * 60000\n\t\n\tsystem.tag.writeBlocking(\u0027[Mouser]Mouser/QPS_Sortation/Admin_Controls/Timeout\u0027, ms)"
+            }
+          }
+        },
+        "props": {
+          "value": 10
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "NumericEntryField_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 580.5,
+          "y": 66
+        },
+        "propConfig": {
+          "props.value": {
+            "onChange": {
+              "enabled": null,
+              "script": "\tmins \u003d currentValue.value\n\t\n\tms \u003d mins * 60000\n\t\n\tsystem.tag.writeBlocking(\u0027[Mouser]Mouser/QPS_Sortation/Admin_Controls/Return\u0027, ms)"
+            }
+          }
+        },
+        "props": {
+          "value": 10
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "NumericEntryField_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 580.5,
+          "y": 106
+        },
+        "propConfig": {
+          "props.value": {
+            "onChange": {
+              "enabled": null,
+              "script": "\tnumber \u003d currentValue.value\n\n\t\n\tsystem.tag.writeBlocking(\u0027[Mouser]Mouser/QPS_Sortation/Admin_Controls/TurnIn_Cnt\u0027, number)"
+            }
+          }
+        },
+        "props": {
+          "value": 10000
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "NumericEntryField_2"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 580.5,
+          "y": 149
+        },
+        "propConfig": {
+          "props.value": {
+            "onChange": {
+              "enabled": null,
+              "script": "\tmins \u003d currentValue.value\n\t\n\tms \u003d mins * 60000\n\t\n\tsystem.tag.writeBlocking(\u0027[Mouser]Mouser/QPS_Sortation/Admin_Controls/TurnIn_Time\u0027, ms)"
+            }
+          }
+        },
+        "props": {
+          "value": 30
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "NumericEntryField_3"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 994,
+          "y": 64
+        },
+        "propConfig": {
+          "props.value": {
+            "onChange": {
+              "enabled": null,
+              "script": "\tms \u003d currentValue.value\n\t\n\n\t\n\tsystem.tag.writeBlocking(\u0027[Mouser]Mouser/QPS_Sortation/Admin_Controls/Return\u0027, ms)"
+            }
+          }
+        },
+        "props": {
+          "value": 1000
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "User_Label_3"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 117.99999999999994,
+          "x": 862.047,
+          "y": 68
+        },
+        "props": {
+          "text": "TurnIn Flash:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "User_Label_4"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 176,
+          "x": 804.05,
+          "y": 24
+        },
+        "props": {
+          "text": "Scanner Offline Flash:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "NumericEntryField_4"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 994,
+          "y": 23
+        },
+        "propConfig": {
+          "props.value": {
+            "onChange": {
+              "enabled": null,
+              "script": "\tms \u003d currentValue.value\n\t\n\t\n\tsystem.tag.writeBlocking(\u0027[Mouser]Mouser/QPS_Sortation/Admin_Controls/Offline_Flash_TON\u0027, ms)"
+            }
+          }
+        },
+        "props": {
+          "value": 500
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Station_0"
+        },
+        "position": {
+          "height": 36,
+          "width": 141.99999999999997,
+          "x": 891,
+          "y": 124
+        },
+        "props": {
+          "options": [
+            {
+              "label": "Station 1",
+              "value": 1
+            },
+            {
+              "label": "Station 2",
+              "value": 2
+            },
+            {
+              "label": "Station 3",
+              "value": 3
+            },
+            {
+              "label": "Station 4",
+              "value": 4
+            },
+            {
+              "label": "Station 5",
+              "value": 5
+            },
+            {
+              "label": "Station 6",
+              "value": 6
+            },
+            {
+              "label": "Station 7",
+              "value": 7
+            },
+            {
+              "label": "Station 8",
+              "value": 8
+            },
+            {
+              "label": "Station 9",
+              "value": 9
+            },
+            {
+              "label": "Station 10",
+              "value": 10
+            },
+            {
+              "label": "Station 11",
+              "value": 11
+            },
+            {
+              "label": "Station 12",
+              "value": 12
+            },
+            {
+              "label": "Station 13",
+              "value": 13
+            },
+            {
+              "label": "Station 14",
+              "value": 14
+            },
+            {
+              "label": "Station 15",
+              "value": 15
+            },
+            {
+              "label": "Station 16",
+              "value": 16
+            },
+            {
+              "label": "Station 17",
+              "value": 17
+            },
+            {
+              "label": "Station 18",
+              "value": 18
+            },
+            {
+              "label": "Station 19",
+              "value": 19
+            },
+            {
+              "label": "Station 20",
+              "value": 20
+            }
+          ],
+          "placeholder": {
+            "text": "Select Station"
+          },
+          "value": 3
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "Password_Label_2"
+        },
+        "position": {
+          "height": 30,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 140,
+          "x": 744.953,
+          "y": 129
+        },
+        "props": {
+          "text": "Station:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\tstationindx \u003d self.getSibling(\"Station_0\").props.value\n\t\n\topcServer \u003d \u0027Ignition OPC-UA Server\u0027\n\n\tquery \u003d \u0027\u0027\u0027\n\tSELECT UserID\n\tFROM QPS_Sortation_Stations\n\tWhere stationindx \u003d ? \n\t\u0027\u0027\u0027\n\t\t\t\n\tresults \u003d system.db.runPrepQuery(query, [stationindx], \u0027SQLServer\u0027)\n\n\trow \u003d results[0]\n\tuserID \u003d row[\u0027UserID\u0027]\n\t\n\tif userID !\u003d \u0027\u0027:\n\t\t\n\t\tsystem.opc.writeValue(opcServer, \u0027ns\u003d1;s\u003d[QPS_Sortation]HMI_Manual_TurnIn[0].%s\u0027%(stationindx), True)\n\t\tsleep(1)\n\t\tsystem.opc.writeValue(opcServer, \u0027ns\u003d1;s\u003d[QPS_Sortation]HMI_Manual_TurnIn[0].%s\u0027%(stationindx), False)\n\t\n\telse:\n\t\tsystem.perspective.openPopup(\u0027SortationError\u0027, \u0027Popups/QPS_Sortation/Error\u0027,params \u003d {\u0027ErrorMessage\u0027:\u0027No User at Station\u0027})\t\n\t\t\t\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 1052.02,
+          "y": 124
+        },
+        "props": {
+          "text": "Turn-In"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom shared.pwd.QPS_Sortation import turnin_all_Station\n\t\n\tturnin_all_Stations()"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 36,
+          "width": 109,
+          "x": 925.140875,
+          "y": 178
+        },
+        "props": {
+          "text": "Turn-In All"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "userlist"
+        },
+        "position": {
+          "height": 36,
+          "width": 195,
+          "x": 180,
+          "y": 71
+        },
+        "propConfig": {
+          "props.options": {
+            "binding": {
+              "config": {
+                "polling": {
+                  "enabled": true,
+                  "rate": "30"
+                },
+                "queryPath": "QPS_Sortation/Get_UserList"
+              },
+              "type": "query"
+            }
+          }
+        },
+        "props": {
+          "placeholder": {
+            "text": "Select User"
+          }
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": [
+              {
+                "config": {
+                  "page": "/sortation_users"
+                },
+                "scope": "C",
+                "type": "nav"
+              },
+              {
+                "config": {
+                  "draggable": true,
+                  "id": "Admin_Controls",
+                  "modal": false,
+                  "overlayDismiss": false,
+                  "resizable": true,
+                  "showCloseIcon": true,
+                  "title": "Admin Controls",
+                  "type": "close",
+                  "viewPath": "Popups/QPS_Sortation/Admin_Controls",
+                  "viewportBound": false
+                },
+                "scope": "C",
+                "type": "popup"
+              }
+            ]
+          }
+        },
+        "meta": {
+          "name": "Button_1"
+        },
+        "position": {
+          "height": 35,
+          "width": 129.0000000000001,
+          "x": 915.686875,
+          "y": 235
+        },
+        "props": {
+          "text": "Sortation Users"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": [
+              {
+                "config": {
+                  "page": "/sortation_history"
+                },
+                "scope": "C",
+                "type": "nav"
+              },
+              {
+                "config": {
+                  "draggable": true,
+                  "id": "Admin_Controls",
+                  "modal": false,
+                  "overlayDismiss": false,
+                  "resizable": true,
+                  "showCloseIcon": true,
+                  "type": "close",
+                  "viewPath": "Popups/QPS_Sortation/Admin_Controls",
+                  "viewportBound": false
+                },
+                "scope": "C",
+                "type": "popup"
+              }
+            ]
+          }
+        },
+        "meta": {
+          "name": "Button_2"
+        },
+        "position": {
+          "height": 35,
+          "width": 129.0000000000001,
+          "x": 915.233875,
+          "y": 273
+        },
+        "props": {
+          "text": "User History"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

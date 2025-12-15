@@ -1,0 +1,2 @@
+SELECT Route_Code
+From RedReceiving_Divert_Table

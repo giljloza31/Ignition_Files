@@ -1,0 +1,370 @@
+"""
+	Constants!
+	
+	All the constants in one place.
+	
+	Note that the Java enums are unwrapped. 
+	The burden for clutching is placed on classes instead. Normally
+	I would use the Enum class, but it was far easier to keep things
+	consistent by ensuring that the actual EuroSort enums were used.
+	
+	Except for the couple enums which don't have a Java equivalent.
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+
+__all__ = """
+	MessageType ButtonID
+	SorterStatus DestinationStatus
+	LightColor LightStatus
+	
+	MessageCode
+	CarrierSide
+	
+	FAILURE_MESSAGES
+""".split()
+
+
+from sortapi.utils import (
+		MessageType, ButtonID,
+		SorterStatus, DestinationStatus, 
+		LightColor, LightStatus,
+	)
+
+
+
+from shared.data.types.enum import Enum
+
+class MessageCode(Enum):
+
+	# DISCHARGE
+	DISCHARGE_ATTEMPTED                   = 18010 # standard expected code
+
+	DISCHARGE_FAILED                      = 18011
+
+	DISCHARGE_ABORTED_DESTINATION_FULL    = 18005
+	DISCHARGE_ABORTED_DESTINATION_CLOSED  = 18006
+	DISCHARGE_ABORTED_DESTINATION_BUSY    = 18009
+	DISCHARGE_ABORTED_TRAY_SPACING        = 18007
+	DISCHARGE_ABORTED_SORTER_NOT_AT_SPEED = 18008
+	DISCHARGE_ABORTED_GAP_TOO_SMALL       = 18012
+	DISCHARGE_ABORTED_DESTINATION_LOCKOUT = 18075
+
+	# VERIFY RESULT
+	DISCHARGED_AT_DESTINATION             = 18004 # standard expected code
+	EXPECTED_TRAY_NOT_OPENED              = 1002
+
+	SAFETY_FAULT                          = 18044 # assumed safety, but might mean something else
+
+	# Full, raw listing from EuroSort
+	# (may overlap with above, earlier values kept for consistency)
+
+	NOT_A_VALID_CODE                                            = 0
+	PLC_INITIALIZING_VARIABLES_SET                              = 1
+	STATE_CHANGE                                                = 2
+	VARIABLE_CHANGE                                             = 3
+	PLC_IS_ALIVE                                                = 4
+	THE_BOUNDS_UNDERFLOW_COUNT_HAS_CHANGED                      = 5
+	THE_BOUNDS_OVERFLOW_COUNT_HAS_CHANGED                       = 6
+	REQUEST_DESCRIPTION_RECEIVED                                = 7
+	SCAN_DESCRIPTION_RECEIVED                                   = 8
+	INVALID_DATA                                                = 9
+	REQUEST_DESCRIPTION_SENT                                    = 10
+	SCAN_DESCRIPTION_SENT                                       = 11
+	VERIFY_DESCRIPTION_SENT                                     = 12
+	MISC_INFO_TO_LOG_USE_FOR_OP_DATA_LOG                        = 13
+	X_TRAY_DETECTED_NEG1_BY_ESM_WITH_NO_A0_OR_B1_DETECTED       = 14
+	MISSING_ETHERCAT_LINK                                       = 100
+	LOG_DEVICE_ID                                               = 411
+	EXPECTED_TRAY_NOT_OPENED_BLADE_1_CLOSED                     = 1000
+	EXPECTED_TRAY_NOT_OPENED_BLADE_2_CLOSED                     = 1002
+	ILLEGALLY_OPENED_TRAY                                       = 1003
+	ITEM_DETECTED_IN_OPEN_TRAY                                  = 1005
+	ITEM_OVER_HEIGHT                                            = 2002
+	STRAY_ITEM_DETECTED_IN_TRAY                                 = 3002
+	ITEM_DETECTED                                               = 3003
+	CAMERA_NOT_READY                                            = 3007
+	ITEM_RECIRCULATED                                           = 3008
+	DIMENSIONER_COMMUNICATION_FAULT                             = 3010
+	CAMERA_RESULT_MISSED                                        = 3011
+	ITEM_ON_COVER_DETECTED                                      = 4001
+	PRODUCT_ON_PUSHER_BAR                                       = 4002
+	TRAY_NOT_CLOSED_DETECTED                                    = 5002
+	LOOSE_PUSHER_WHEEL                                          = 5003
+	PRODUCT_FOUND_BEHIND_BAR                                    = 5004
+	HANGING_PRODUCT_IN_TRAY_DETECTED                            = 7002
+	TRAY_1_MISSING_DETECTED                                     = 8002
+	TD1_WAS_DETECTED_NOT_ON_TRAY_1                              = 8003
+	TD2_WAS_DETECTED_NOT_ON_TRAY_1                              = 8004
+	GROUP_JAM_DETECTED                                          = 10001
+	DESTINATION_FULL_BY_OVERFILL_DETECTED                       = 12001
+	CHUTE_FULL_BY_OVERFILL_DETECTED                             = 12002
+	DERAIL_SENSOR_ACTIVATED                                     = 13001
+	PRODUCT_OFF_TRAYSENSOR_ACTIVATED                            = 13002
+	TOO_MANY_MISSING_STEPSHIFT_PULSE_DETECTED                   = 16000
+	MISSING_STEPSHIFT_PULSE_DETECTED                            = 16001
+	STEPSHIFT_PULSE_DETECTED_TOO_QUICKLY                        = 16003
+	DESTINATION_DISABLED                                        = 18002
+	DESTINATION_ENABLED                                         = 18003
+	ITEM_DISCHARGED_AT_DESTINATION                              = 18004
+	DISCHARGE_ABORTED_DESTINATION_FULL                          = 18005
+	DISCHARGE_ABORTED_DESTINATION_CLOSED                        = 18006
+	DISCHARGE_ABORTED_TRAY_SPACING                              = 18007
+	DISCHARGE_ABORTED_SORTER_NOT_AT_SPEED                       = 18008
+	DISCHARGE_ABORTED_DESTINATION_BUSY                          = 18009
+	DISCHARGE_ATTEMPTED                                         = 18010
+	DISCHARGE_FAILED                                            = 18011
+	DISCHARGE_ABORTED_GAP_TOO_SMALL                             = 18012
+	DISCHARGE_ABORTED_POSITIONING_ERROR                         = 18013
+	DISCHARGE_ABORTED_CHUTE_NOT_READY                           = 18014
+	DISCHARGE_ABORTED_TOTE_MISSING                              = 18015
+	DISCHARGE_ABORTED_DESTINATION_DISABLED                      = 18016
+	DISCHARGE_ABORTED_DESTINATION_NO_CODE                       = 18017
+	DISCHARGE_ABORTED_DESTINATION_OFS_FAULT                     = 18018
+	DISCHARGE_ABORTED_DUE_TO_ABT                                = 18019
+	SWEEPER_FAULT                                               = 18020
+	DESTINATION_FULL_CONDITION_PE_BLOCKED_FOR_N_SEC             = 18021
+	DESTINATION_FULL_BY_COUNT                                   = 18022
+	DESTINATION_FULL_BY_WEIGHT                                  = 18023
+	DESTINATION_FULL_BY_AGE                                     = 18024
+	DESTINATION_TOTE_MISSING                                    = 18025
+	ITEM_DISCHARGED_AT_WRONG_DESTINATION                        = 18026
+	TOTE_PRESENT_AT_CLOSED_DESTINATION                          = 18027
+	ITEM_DISCHARGED_AT_DUMP_DUE_TO_ABT_FAULT                    = 18030
+	TRAY_DISCHARGED_AT_DUMP_DUE_TO_ABT_FAULT                    = 18031
+	DISCHARGE_ABORTED_DUE_TO_PREVIOUS_PACKAGE_CONFIRMING        = 18040
+	DISCHARGE_FAILED_AT_SCS                                     = 18041
+	CHUTE_SORT_CONFIRM_SENSOR_BLOCKED_TOO_LONG                  = 18042
+	CHUTE_SORT_CONFIRM_SENSOR_TOOK_TOO_LONG_TO_VERIFY           = 18043
+	CHUTE_DIVERT_RSW_NOT_CORRECT                                = 18044
+	CHUTE_DIVERT_NOT_SET_TO_PACKAGE_DESTINATION                 = 18045
+	PACKAGE_TRYING_TO_DISCHARGE_AT_WRONG_STATION                = 18046
+	TRAY_DISCHARGE_ABORTED_DESTINATION_FULL_FROM_ABT_FAULT      = 18055
+	TRAY_DISCHARGE_ABORTED_DESTINATION_CLOSED_FROM_ABT_FAULT    = 18056
+	TRAY_DISCHARGE_ABORTED_SORTER_NOT_AT_SPEEDFROMABTFAULT      = 18058
+	TRAY_DISCHARGE_ABORTED_POSITIONING_ERROR                    = 18063
+	TRAY_DISCHARGE_ABORTED_CHUTE_NOT_READY_FROM_ABT_FAULT       = 18064
+	TRAY_DISCHARGE_ABORTED_TOTE_MISSINGFROM_ABT_FAULT           = 18065
+	TRAY_DISCHARGE_ABORTED_DESTINATION_DISABLED_FROM_ABT_FAULT  = 18066
+	TRAY_DISCHARGE_ABORTED_DESTINATION_NO_CODE_SHOULD_NOT_OCCUR = 18067
+	TRAY_DISCHARGE_ABORTED_DESTINATION_OFS_FAULTFROM_ABT_FAULT  = 18068
+	DISCHARGE_ABORTED_DUE_TO_DISABLED_TRAY                      = 18069
+	CHUTE_FULL_SENSOR_BLOCKED                                   = 18072
+	CROSS_DIVERT_RSW_NOT_CORRECT                                = 18073
+	DISCHARGE_ABORTED_SORTER_SIDE_LOCKOUT                       = 18074
+	DISCHARGE_ABORTED_SORTER_DESTINATION_LOCKOUT                = 18075
+	DUMP_ABORTED_SORTER_SIDE_LOCKOUT                            = 18076
+	DUMP_ABORTED_SORTER_DESTINATION_LOCKOUT                     = 18077
+	DISCHARGE_ABORTED_STATION_NOT_READY                         = 18078
+	DISCHARGE_ABORTED_AT_DUMP_STATION                           = 18079
+	DC_ABORTED_CHUTE_DISABLED                                   = 18080
+	DC_ABORTED_CHUTE_DIVERT_NOT_READY                           = 18081
+	DC_ABORTED_CHUTE_OFS_FAULT                                  = 18082
+	DC_ABORTED_CHUTE_DIVERT_DISABLED                            = 18083
+	DESTINATION_FULL_CONDITION_HAS_BEEN_CLEARED                 = 18084
+	DESTINATION_OVER_FULL_CONDITION_CLEARED                     = 18085
+	CHUTE_OVER_FULL_CONDITION_CLEARED                           = 18086
+	TRAY_INFO_AT_STP_SENSOR                                     = 18100
+	TRAY_INFO_AT_BBS_SENSOR                                     = 18101
+	LOW_AIR_PRESSURE_DETECTED                                   = 19001
+	NO_COMMUNICATION_TO_SCANNER                                 = 20001
+	TOO_MANY_CONSECUTIVE_NO_READS                               = 20002
+	BARCODE_WAS_SCANNED                                         = 20003
+	SCANNER_NOT_READY_FOR_TRIGGER_START                         = 20004
+	SCANNER_NOT_READY_DURING_TRIGGER_WINDOW                     = 20005
+	SCANNER_READ_AN_UNEXPECTED_CODE                             = 20006
+	ACQUISITION_TRIGGER_OVERRUN                                 = 20007
+	ACQUISITION_BUFFER_OVERRUN                                  = 20008
+	RESULTS_BUFFER_OVERRUN                                      = 20009
+	BARCODE_VALIDATED                                           = 20010
+	ITEM_DIMENSIONED                                            = 20011
+	ITEM_WEIGHED                                                = 20012
+	BARCODE_TRIGGER_ON                                          = 20013
+	BARCODE_TRIGGER_OFF                                         = 20014
+	BARCODE_NO_RESULT_IN_ALLOTTED_TIME                          = 20015
+	PANEL_START_PRESSED                                         = 21002
+	PANEL_STOP_PRESSED                                          = 21003
+	PANEL_RESET_PRESSED                                         = 21004
+	LOCAL_RESET_PUSH_BUTTON_PRESSED                             = 21005
+	MODE_SWITCH_SET_TO_MAINT                                    = 21007
+	MODE_SWITCH_SET_TO_RUN                                      = 21008
+	REMOTE_START_BUTTON                                         = 21009
+	REMOTE_STOP_BUTTON                                          = 21010
+	ESX_RESET_PUSH_BUTTON_PRESSED                               = 21013
+	ALL_CORNER_RESET_PUSHED                                     = 21014
+	ESX_START_PUSH_BUTTON_PRESSED                               = 21015
+	ESX_STOP_PUSH_BUTTON_PRESSED                                = 21016
+	SORTER_RUNNING                                              = 21051
+	SORTER_NOT_RUNNING                                          = 21052
+	SAFETY_PLC_NOT_SAFE                                         = 22000
+	ESTOP_ACTIVATED                                             = 22001
+	EXTERNAL_ESTOP                                              = 22002
+	ETHERCAT_NETWORK_FAULT                                      = 22003
+	INDUCTION_STOPPED                                           = 25001
+	INDUCTION_RUNNING                                           = 25002
+	INDUCTION_ENABLED_HOST                                      = 25003
+	INDUCTION_DISABLED_HOST                                     = 25004
+	INDUCTION_STATION_NOT_READY                                 = 25007
+	INDUCTION_STATION_MISSED_RESULTS                            = 25008
+	ITEM_TOO_LONG_FAULT                                         = 26001
+	ITEM_TRANSITIONED_OFF_CONVEYOR                              = 26002
+	ITEM_MISSING_AT_VERIFY_DEVICE                               = 26003
+	UNKNOWN_STATUS_AT_VERIFY                                    = 26004
+	ABORTED_ITEM_DISCHARGED_TO_JACKPOT                          = 26005
+	ITEM_WAS_VERIFIED_TO_JACKPOT                                = 26006
+	MOTOR_OVERLOAD_FAULT                                        = 27001
+	MOTOR_OVER_TEMP_FAULT                                       = 27002
+	GAP_BETWEEN_PACKAGES_TOO_SMALL                              = 27004
+	MOTOR_TORQUE_DIFFERENCE                                     = 27005
+	MOTOR_SPEED_DIFFERENCE                                      = 27006
+	RESET_REQUIRED                                              = 28000
+	MOTOR_FAILED_TO_START                                       = 28003
+	MOTOR_FAULT                                                 = 28004
+	DISCONNECT_SWITCH_OPEN                                      = 28005
+	ITEM_TOO_HEAVY_DETECTED                                     = 29001
+	SCALE_ERROR_X                                               = 29002
+	SCALE_ERROR_UNKNOWN                                         = 29003
+	SCALE_ERROR_PRODUCT_GAP                                     = 29011
+	SCALE_ERROR_PRODUCT_LENGTH                                  = 29012
+	SCALE_ERROR_FOREIGN_ERROR                                   = 29013
+	SCALE_ERROR_MEASUREMENT_INVALID                             = 29014
+	ENCODER_ERROR                                               = 30001
+	TOO_MANY_CLOCK_PULSES_DETECTED                              = 30002
+	TOO_FEW_CLOCK_PULSES_DETECTED                               = 30003
+	BACKWARDS_MOTION_DETECTED                                   = 30004
+	ESM_IDC_TRIGGER_TURNED_ON                                   = 30010
+	ESM_IDC_TRIGGER_SKIPPED_A_TRAY                              = 30011
+	DESTINATION_CLOSED_FROM_LOCAL_PUSHBUTTON                    = 31006
+	CHUTE_CURRENTLY_SUSPENDED                                   = 31010
+	HOST_HEART_BEAT_ERROR_DETECTED                              = 32001
+	DOUBLE_READ_DETECTED                                        = 32004
+	NO_READ_DETECTED                                            = 32005
+	NO_INFO_DETECTED                                            = 32006
+	NO_NEED_DETECTED                                            = 32007
+	MAX_RECIRC_DETECTED                                         = 32008
+	DESTINATION_ASSIGNED                                        = 32009
+	HOST_DATABASE_COMMUNICATION_ERROR_DETECTED                  = 32012
+	ETHERNET_CLIENT_COMMUNICATION_ERROR_DETECTED                = 32013
+	DESTINATION_REASSIGNED                                      = 32017
+	SORTER_STOPPED_DUE_TO_IDLE_TIME_OUT                         = 32021
+	NO_DESTINATION_MAPPED                                       = 32024
+	NO_DESTINATION_AVAILABLE                                    = 32025
+	PLC_DESCRIPTION_BUFFER_FULL                                 = 32036
+	DESCRIPTION_TRANSMIT_TIMEOUT                                = 32037
+	DESTINATION_CLOSED_BY_HAND_SCANNER                          = 32071
+	ACTIVE_ERROR_ACKNOWLEDGEMENT                                = 33009
+	TEST_MODE_SORTER_ENTERED_TEST_MODE                          = 33028
+	TEST_MODE_SORTER_EXITED_TEST_MODE                           = 33029
+	DESTINATION_CLOSED_BY_HOST                                  = 33031
+	INDUCTION_CONTAINER_OPENED                                  = 33040
+	INDUCTION_CONTAINER_CLOSED                                  = 33041
+	DESTINATION_CONTAINER_OPENED                                = 33042
+	DESTINATION_CONTAINER_CLOSED                                = 33043
+	DESTINATION_SCANNER_GATEWAY_OFFLINE                         = 33044
+	DOOR_SWITCH_ACTIVATED                                       = 36001
+	ARTICLE_BETWEEN_TRAYS                                       = 37002
+	ARTICLE_BETWEEN_TRAYS_MESSAGE_FOR_PE_STATUS                 = 37003
+	ABT_PE_BLOCKED_FOR_N_CONSECUTIVE_TRAYS_PE_1                 = 37004
+	ABT_PE_BLOCKED_FOR_N_CONSECUTIVE_TRAYS_PE_2                 = 37005
+	ABT_PE_BLOCKED_FOR_N_CONSECUTIVE_TRAYS_PE_3                 = 37006
+	ABT_PE_BLOCKED_FOR_N_CONSECUTIVE_TRAYS_PE_4                 = 37007
+	ABT_PE_BLOCKED_FOR_N_CONSECUTIVE_TRAYS_PE_5                 = 37008
+	ABT_PE_BLOCKED_FOR_N_CONSECUTIVE_TRAYS_PE_6                 = 37009
+	ABT_PE_BLOCKED_FOR_N_CONSECUTIVE_TRAYS_PE_7                 = 37010
+	ABT_PE_BLOCKED_FOR_N_CONSECUTIVE_TRAYS_PE_8                 = 37011
+	ETHERCAT_DEVICE_COUNT_FAULT                                 = 38002
+	PRODUCT_STUCK_IN_OPEN_TRAY                                  = 39001
+	CIRCUIT_BREAKER_OPENED                                      = 40001
+	CLOSING_BRUSH_RETRACTED                                     = 41001
+	TRAY_LIFT_DETECTED                                          = 41002
+	BENT_DRIVE_PLATE_DETECTED                                   = 43001
+	PE_BLOCKED_TOO_LONG                                         = 43004
+	TAKEAWAY_CONVEYOR_FULL                                      = 43005
+	PRODUCT_ON_DRIVE_PLATE                                      = 43006
+	SORTER_IS_SYNCING                                           = 44000
+	SORTER_IS_IN_TRAY_SYNC                                      = 44001
+	SORTER_IS_IN_SYNC                                           = 44002
+	SORTER_OK_TO_START_NO_FAULTS                                = 44003
+	SORTER_WAS_NOT_SYNCED                                       = 44004
+	SORTER_USING_PRIMARY_ENCODER                                = 44005
+	SORTER_USING_SECONDARY_ENCODER                              = 44006
+	DESTINATION_BUSY_VERIFYING                                  = 50001
+	DESTINATION_CLOSED_BY_ESX                                   = 50002
+	DESTINATION_CLOSED_BY_INTERNAL_FAULT                        = 50003
+	INDUCTION_DISABLED_ESX                                      = 50004
+	INDUCTION_DISABLED_INTERNAL                                 = 50005
+	INDUCTION_ENABLED_ESX                                       = 50006
+	INDUCTION_ENABLED_INTERNAL                                  = 50007
+	DESTINATION_OPENED_BY_INTERNAL_FAULT                        = 50008
+	DESTINATION_OPENED_FROM_LOCAL_PUSHBUTTON                    = 50009
+	DESTINATION_OPENED_BY_ESX                                   = 50010
+	DESTINATION_OPENED_BY_HOST                                  = 50011
+	DESTINATION_OPENED_BY_HAND_SCANNER                          = 50012
+	ES_DISPLAY_TEXT                                             = 50013
+	ES_DISPLAY_LED_COLOR                                        = 50014
+	ES_DISPLAY_BLINK                                            = 50015
+	ES_DISPLAY_BUTTON_PRESSED                                   = 50016
+	CHUTE_DIVERT_DOOR_REED_SWITCH                               = 50017
+	CHUTE_DIVERT_DOOR_EXTEND                                    = 50018
+	CONVEYOR_NOT_TO_SPEED_IN_TIME                               = 60000
+	SWEEPER_TOOK_TOO_LONG_TO_SWEEP                              = 60001
+	SWEEPER_NOT_AT_HOME_POSITION                                = 60002
+	DISCHARGE_ABORTED_STATION_DISABLED                          = 60003
+	ENTER_ESX_MAINTENANCE_MODE                                  = 70000
+	EXIT_ESX_MAINTENANCE_MODE                                   = 70001
+	START_OPEN_ALL_TRAYS_TEST                                   = 70002
+	STOP_OPEN_ALL_TRAYS_TEST                                    = 70003
+	START_EMPTY_TRAY_TEST                                       = 70004
+	STOP_EMPTY_TRAY_TEST                                        = 70005
+	START_CHUTE_DOORS_TEST                                      = 70006
+	STOP_CHUTE_DOORS_TEST                                       = 70007
+	START_SOLENOID_TEST                                         = 70008
+	STOP_SOLENOID_TEST                                          = 70009
+	ESM_OK                                                      = 71000
+	NO_CAMERA                                                   = 71001
+	NULL_FRAMES                                                 = 71002
+	SAME_FRAME                                                  = 71003
+	CPU_TEMPERATURE_ALARM                                       = 71004
+	SEE_ESM_LOG                                                 = 71005
+	ESD_OK                                                      = 72000
+	INTERFACE_PORT_CLOSED                                       = 72001
+	HTTP_PORT_CLOSED                                            = 72002
+	CANNOT_PING                                                 = 72003
+	SEE_ESD_DISPLAY_LOG                                         = 72004
+	TOTAL_TRAY_COUNT                                            = 90000
+	FULL_TRAY_COUNT                                             = 90001
+	SWEEPER_TIMING                                              = 95001
+	PACKAGE_INDUCTED                                            = 95002
+	LOG_CONVEYOR_SPEED_CHANGE                                   = 95003
+	PRESS_THE_LOCAL_ILLUMINATED_RESET_BUTTON                    = 99020
+
+
+
+
+
+
+
+
+FAILURE_MESSAGES = frozenset([
+		MessageCode.DISCHARGE_FAILED,
+		MessageCode.DISCHARGE_ABORTED_DESTINATION_FULL,
+		MessageCode.DISCHARGE_ABORTED_DESTINATION_CLOSED,
+		MessageCode.DISCHARGE_ABORTED_DESTINATION_BUSY,
+		MessageCode.DISCHARGE_ABORTED_TRAY_SPACING,
+		MessageCode.DISCHARGE_ABORTED_SORTER_NOT_AT_SPEED,
+		MessageCode.DISCHARGE_ABORTED_GAP_TOO_SMALL,
+		MessageCode.DISCHARGE_ABORTED_DESTINATION_LOCKOUT,
+	])
+
+
+class CarrierSide(Enum):
+	INSIDE_TRAY = 0
+	OUTSIDE_TRAY = 1
+	BOTH_SIDES = -1
+
+	INSIDE = 0
+	OUTSIDE = 1
+	BOTH = -1
+
+
+

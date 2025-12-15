@@ -1,0 +1,901 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 285
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tpath \u003d self.custom.folderpath\n\tsideBMotor \u003d [23,48,73,98,106,132,157,182,207]\n\ttag_results \u003d system.tag.browse(path)\n\tfor result in tag_results.getResults():\n\t\t\n\t\tchuteNum \u003d int(str(result[\u0027fullPath\u0027])[-10:-6])\n\t\tside \u003d str(result[\u0027fullPath\u0027])[-1:]\n\t\n\t\n\t\tif (chuteNum not in sideBMotor and side \u003d\u003d \u0027B\u0027) or side \u003d\u003d \u0027A\u0027:\n\t   \t\tchute \u003d \u0027/\u0027.join(str(result[\u0027fullPath\u0027]).split(\u0027/\u0027)[-1:])\n\t   \t\n\t\t\tpath \u003d str(result[\u0027fullPath\u0027])\n\t\t\tpath +\u003d \u0027/\u0027\n\t\t\t\n\t\t\tsystem.tag.writeAsync(*zip(*[\n\t\t\t\t(path + \u0027Enabled\u0027, False),\t\t\t\n\t\t\t]))\n\t\n\t\t\tsystem.mongodb.updateOne(connector, collection,{\u0027_id\u0027:chute},  {\u0027$set\u0027: {\u0027enabled\u0027: False}})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 128,
+          "x": 145,
+          "y": 8
+        },
+        "props": {
+          "text": "Disable All"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "A",
+          "start": 1,
+          "stop": 106
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tbase_path \u003d self.custom.folderpath  # renamed to avoid modifying path directly\n\t\n\tsideBMotor \u003d [23, 48, 73, 98, 106, 132, 157, 182, 207]\n\t\n\t# Loop through the range from start to stop\n\tfor i in range(self.custom.start, self.custom.stop + 1):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027 % (num, self.custom.side)\n\t    \n\t    # Check conditions for \u0027B\u0027 side or \u0027A\u0027 side\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or self.custom.side \u003d\u003d \"A\":\n\t        # Construct the path anew inside the loop\n\t        path \u003d base_path + \u0027/\u0027 + chute + \u0027/\u0027\n\t\n\t        # Write tags asynchronously\n\t        system.tag.writeAsync(*zip(*[\n\t            (path + \u0027Enabled\u0027, False)\n\t        ]))\n\t\n\t        # Update the MongoDB document\n\t        system.mongodb.updateOne(connector, collection, {\u0027_id\u0027: chute}, {\u0027$set\u0027: {\u0027enabled\u0027: False}})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_7"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 145,
+          "y": 47
+        },
+        "props": {
+          "text": "Disable Lane 1"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "B",
+          "start": 1,
+          "stop": 105
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tbase_path \u003d self.custom.folderpath  # renamed to avoid modifying path directly\n\t\n\tsideBMotor \u003d [23, 48, 73, 98, 106, 132, 157, 182, 207]\n\t\n\t# Loop through the range from start to stop\n\tfor i in range(self.custom.start, self.custom.stop + 1):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027 % (num, self.custom.side)\n\t    \n\t    # Check conditions for \u0027B\u0027 side or \u0027A\u0027 side\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or self.custom.side \u003d\u003d \"A\":\n\t        # Construct the path anew inside the loop\n\t        path \u003d base_path + \u0027/\u0027 + chute + \u0027/\u0027\n\t\n\t        # Write tags asynchronously\n\t        system.tag.writeAsync(*zip(*[\n\t            (path + \u0027Enabled\u0027, False)\n\t        ]))\n\t\n\t        # Update the MongoDB document\n\t        system.mongodb.updateOne(connector, collection, {\u0027_id\u0027: chute}, {\u0027$set\u0027: {\u0027enabled\u0027: False}})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_8"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 145,
+          "y": 86
+        },
+        "props": {
+          "text": "Disable Lane 2"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "B",
+          "start": 107,
+          "stop": 229
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tbase_path \u003d self.custom.folderpath  # renamed to avoid modifying path directly\n\t\n\tsideBMotor \u003d [23, 48, 73, 98, 106, 132, 157, 182, 207]\n\t\n\t# Loop through the range from start to stop\n\tfor i in range(self.custom.start, self.custom.stop + 1):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027 % (num, self.custom.side)\n\t    \n\t    # Check conditions for \u0027B\u0027 side or \u0027A\u0027 side\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or self.custom.side \u003d\u003d \"A\":\n\t        # Construct the path anew inside the loop\n\t        path \u003d base_path + \u0027/\u0027 + chute + \u0027/\u0027\n\t\n\t        # Write tags asynchronously\n\t        system.tag.writeAsync(*zip(*[\n\t            (path + \u0027Enabled\u0027, False)\n\t        ]))\n\t\n\t        # Update the MongoDB document\n\t        system.mongodb.updateOne(connector, collection, {\u0027_id\u0027: chute}, {\u0027$set\u0027: {\u0027enabled\u0027: False}})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_9"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 145,
+          "y": 125
+        },
+        "props": {
+          "text": "Disable Lane 3"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "A",
+          "start": 107,
+          "stop": 230
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tbase_path \u003d self.custom.folderpath  # renamed to avoid modifying path directly\n\t\n\tsideBMotor \u003d [23, 48, 73, 98, 106, 132, 157, 182, 207]\n\t\n\t# Loop through the range from start to stop\n\tfor i in range(self.custom.start, self.custom.stop + 1):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027 % (num, self.custom.side)\n\t    \n\t    # Check conditions for \u0027B\u0027 side or \u0027A\u0027 side\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or self.custom.side \u003d\u003d \"A\":\n\t        # Construct the path anew inside the loop\n\t        path \u003d base_path + \u0027/\u0027 + chute + \u0027/\u0027\n\t\n\t        # Write tags asynchronously\n\t        system.tag.writeAsync(*zip(*[\n\t            (path + \u0027Enabled\u0027, False)\n\t        ]))\n\t\n\t        # Update the MongoDB document\n\t        system.mongodb.updateOne(connector, collection, {\u0027_id\u0027: chute}, {\u0027$set\u0027: {\u0027enabled\u0027: False}})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_10"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 145,
+          "y": 164
+        },
+        "props": {
+          "text": "Disable Lane 4"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tpath \u003d self.custom.folderpath\n\tsideBMotor \u003d [23,48,73,98,106,132,157,182,207]\n\ttag_results \u003d system.tag.browse(path)\n\tfor result in tag_results.getResults():\n\t\t\n\t\tchuteNum \u003d int(str(result[\u0027fullPath\u0027])[-10:-6])\n\t\tside \u003d str(result[\u0027fullPath\u0027])[-1:]\n\t\n\t\n\t\tif (chuteNum not in sideBMotor and side \u003d\u003d \u0027B\u0027) or side \u003d\u003d \u0027A\u0027:\n\t   \t\tchute \u003d \u0027/\u0027.join(str(result[\u0027fullPath\u0027]).split(\u0027/\u0027)[-1:])\n\t   \t\n\t\t\tpath \u003d str(result[\u0027fullPath\u0027])\n\t\t\tpath +\u003d \u0027/\u0027\n\t\t\t\n\t\t\tsystem.tag.writeAsync(*zip(*[\n\t\t\t\t(path + \u0027Enabled\u0027, True),\t\t\t\n\t\t\t]))\n\t\n\t\t\tsystem.mongodb.updateOne(connector, collection,{\u0027_id\u0027:chute},  {\u0027$set\u0027: {\u0027enabled\u0027: True}})\n"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 8
+        },
+        "props": {
+          "text": "Enable All"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "A",
+          "start": 107,
+          "stop": 230
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tbase_path \u003d self.custom.folderpath  # renamed to avoid modifying path directly\n\t\n\tsideBMotor \u003d [23, 48, 73, 98, 106, 132, 157, 182, 207]\n\t\n\t# Loop through the range from start to stop\n\tfor i in range(self.custom.start, self.custom.stop + 1):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027 % (num, self.custom.side)\n\t    \n\t    # Check conditions for \u0027B\u0027 side or \u0027A\u0027 side\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or self.custom.side \u003d\u003d \"A\":\n\t        # Construct the path anew inside the loop\n\t        path \u003d base_path + \u0027/\u0027 + chute + \u0027/\u0027\n\t\n\t        # Write tags asynchronously\n\t        system.tag.writeAsync(*zip(*[\n\t            (path + \u0027Enabled\u0027, True)\n\t        ]))\n\t\n\t        # Update the MongoDB document\n\t        system.mongodb.updateOne(connector, collection, {\u0027_id\u0027: chute}, {\u0027$set\u0027: {\u0027enabled\u0027: True}})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_3"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 164
+        },
+        "props": {
+          "text": "Enable Lane 4"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "B",
+          "start": 1,
+          "stop": 105
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tbase_path \u003d self.custom.folderpath  # renamed to avoid modifying path directly\n\t\n\tsideBMotor \u003d [23, 48, 73, 98, 106, 132, 157, 182, 207]\n\t\n\t# Loop through the range from start to stop\n\tfor i in range(self.custom.start, self.custom.stop + 1):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027 % (num, self.custom.side)\n\t    \n\t    # Check conditions for \u0027B\u0027 side or \u0027A\u0027 side\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or self.custom.side \u003d\u003d \"A\":\n\t        # Construct the path anew inside the loop\n\t        path \u003d base_path + \u0027/\u0027 + chute + \u0027/\u0027\n\t\n\t        # Write tags asynchronously\n\t        system.tag.writeAsync(*zip(*[\n\t            (path + \u0027Enabled\u0027, True)\n\t        ]))\n\t\n\t        # Update the MongoDB document\n\t        system.mongodb.updateOne(connector, collection, {\u0027_id\u0027: chute}, {\u0027$set\u0027: {\u0027enabled\u0027: True}})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_4"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 86
+        },
+        "props": {
+          "text": "Enable Lane 2"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "A",
+          "start": 1,
+          "stop": 106
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tbase_path \u003d self.custom.folderpath  # renamed to avoid modifying path directly\n\t\n\tsideBMotor \u003d [23, 48, 73, 98, 106, 132, 157, 182, 207]\n\t\n\t# Loop through the range from start to stop\n\tfor i in range(self.custom.start, self.custom.stop + 1):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027 % (num, self.custom.side)\n\t    \n\t    # Check conditions for \u0027B\u0027 side or \u0027A\u0027 side\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or self.custom.side \u003d\u003d \"A\":\n\t        # Construct the path anew inside the loop\n\t        path \u003d base_path + \u0027/\u0027 + chute + \u0027/\u0027\n\t\n\t        # Write tags asynchronously\n\t        system.tag.writeAsync(*zip(*[\n\t            (path + \u0027Enabled\u0027, True)\n\t        ]))\n\t\n\t        # Update the MongoDB document\n\t        system.mongodb.updateOne(connector, collection, {\u0027_id\u0027: chute}, {\u0027$set\u0027: {\u0027enabled\u0027: True}})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_5"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 47
+        },
+        "props": {
+          "text": "Enable Lane 1"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "B",
+          "start": 107,
+          "stop": 229
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tconnector \u003d self.custom.MongoServer\n\tcollection \u003d self.custom.Collection\n\tbase_path \u003d self.custom.folderpath  # renamed to avoid modifying path directly\n\t\n\tsideBMotor \u003d [23, 48, 73, 98, 106, 132, 157, 182, 207]\n\t\n\t# Loop through the range from start to stop\n\tfor i in range(self.custom.start, self.custom.stop + 1):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027 % (num, self.custom.side)\n\t    \n\t    # Check conditions for \u0027B\u0027 side or \u0027A\u0027 side\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or self.custom.side \u003d\u003d \"A\":\n\t        # Construct the path anew inside the loop\n\t        path \u003d base_path + \u0027/\u0027 + chute + \u0027/\u0027\n\t\n\t        # Write tags asynchronously\n\t        system.tag.writeAsync(*zip(*[\n\t            (path + \u0027Enabled\u0027, True)\n\t        ]))\n\t\n\t        # Update the MongoDB document\n\t        system.mongodb.updateOne(connector, collection, {\u0027_id\u0027: chute}, {\u0027$set\u0027: {\u0027enabled\u0027: True}})"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_6"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 125
+        },
+        "props": {
+          "text": "Enable Lane 3"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 1\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_11"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 204
+        },
+        "props": {
+          "text": "Section A1"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 2\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_12"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 245
+        },
+        "props": {
+          "text": "Section A2"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 3\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_13"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 288
+        },
+        "props": {
+          "text": "Section A3"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 4\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_14"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 329
+        },
+        "props": {
+          "text": "Section A4"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 5\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_15"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 371
+        },
+        "props": {
+          "text": "Section A5"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 6\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_16"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 9,
+          "y": 412
+        },
+        "props": {
+          "text": "Section A6"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 7\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_17"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 9,
+          "y": 453
+        },
+        "props": {
+          "text": "Section A7"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 8\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_18"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 9,
+          "y": 496
+        },
+        "props": {
+          "text": "Section A8"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 9\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_19"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 9,
+          "y": 537
+        },
+        "props": {
+          "text": "Section A9"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027A\u0027\n\tsection \u003d 10\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_20"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 9,
+          "y": 579
+        },
+        "props": {
+          "text": "Section A10"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 10\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_21"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 146,
+          "y": 577
+        },
+        "props": {
+          "text": "Section B10"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 9\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_22"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 146,
+          "y": 535
+        },
+        "props": {
+          "text": "Section B9"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 7\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_23"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 146,
+          "y": 451
+        },
+        "props": {
+          "text": "Section B7"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 8\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_24"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 146,
+          "y": 494
+        },
+        "props": {
+          "text": "Section B8"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 6\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_25"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 146,
+          "y": 410
+        },
+        "props": {
+          "text": "Section B6"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 5\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_26"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 144,
+          "y": 369
+        },
+        "props": {
+          "text": "Section B5"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 4\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_27"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 144,
+          "y": 327
+        },
+        "props": {
+          "text": "Section B4"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 3\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_28"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 144,
+          "y": 286
+        },
+        "props": {
+          "text": "Section B3"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 2\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_29"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 144,
+          "y": 243
+        },
+        "props": {
+          "text": "Section B2"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tside \u003d \u0027B\u0027\n\tsection \u003d 1\n\ttitle \u003d \u0027Section %s%s\u0027%(side,section)\n\tsystem.perspective.openPopup(\u0027Section\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/Section_Eurosort\u0027,params \u003d {\u0027Section\u0027:section,\u0027Side\u0027:side},title \u003d title)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_30"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 144,
+          "y": 202
+        },
+        "props": {
+          "text": "Section B1"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\n\tsystem.perspective.openPopup(\u0027Settings\u0027, \u0027Mouser_2/Main/Popups/Eurosort/Section/settings\u0027,title \u003d \u0027Settings\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_31"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 71,
+          "y": 622
+        },
+        "props": {
+          "text": "Settings"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

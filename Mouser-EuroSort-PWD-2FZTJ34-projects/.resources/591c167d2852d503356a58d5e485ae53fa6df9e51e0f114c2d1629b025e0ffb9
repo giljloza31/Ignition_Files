@@ -1,0 +1,247 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 972
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "basis": "39px",
+          "shrink": 0
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "basis": "69px"
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\"Username: \" + {session.props.auth.user.userName}"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "position": {
+                  "basis": "50px",
+                  "grow": 1
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Label"
+                    },
+                    "position": {
+                      "basis": "57px"
+                    },
+                    "props": {
+                      "style": {
+                        "textAlign": "justify"
+                      },
+                      "text": "Enter your current password and press \u0027Enter\u0027 to verify."
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onKeyPress": {
+                          "config": {
+                            "script": "\tsystem.perspective.print(event.key)\n\tif event.key \u003d\u003d \"Enter\" or event.key \u003d\u003d \u0027\\n\u0027:\n\t\tusersource \u003d \u0027default\u0027\n\t\tusername \u003d self.session.props.auth.user.userName\n\t\tpassword \u003d self.props.text\n\t\tcheck \u003d system.security.validateUser(username, password, usersource)\n\t\tsystem.perspective.print(check)\n\t\tif check:\n\t\t\tself.getSibling(\"PasswordField_0\").meta.visible \u003d check\n\t\t\tself.getSibling(\"PasswordField_1\").meta.visible \u003d check\n\t\t\tself.parent.parent.parent.getChild(\"FlexContainer\").meta.visible \u003d True"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "PasswordField"
+                    },
+                    "position": {
+                      "basis": "35px",
+                      "display": "True"
+                    },
+                    "props": {
+                      "placeholder": "Enter Current Password Here",
+                      "style": {
+                        "textAlign": "center"
+                      }
+                    },
+                    "type": "ia.input.password-field"
+                  },
+                  {
+                    "meta": {
+                      "name": "Label_1"
+                    },
+                    "position": {
+                      "basis": "20px"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "PasswordField_0",
+                      "visible": false
+                    },
+                    "position": {
+                      "basis": "35px"
+                    },
+                    "props": {
+                      "placeholder": "Enter New Password",
+                      "style": {
+                        "textAlign": "center"
+                      }
+                    },
+                    "type": "ia.input.password-field"
+                  },
+                  {
+                    "meta": {
+                      "name": "Label_0"
+                    },
+                    "position": {
+                      "basis": "20px"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "PasswordField_1",
+                      "visible": false
+                    },
+                    "position": {
+                      "basis": "35px"
+                    },
+                    "props": {
+                      "placeholder": "Confirm New Password",
+                      "style": {
+                        "textAlign": "center"
+                      }
+                    },
+                    "type": "ia.input.password-field"
+                  }
+                ],
+                "meta": {
+                  "name": "FlexContainer"
+                },
+                "position": {
+                  "basis": "45%",
+                  "shrink": 0
+                },
+                "props": {
+                  "direction": "column"
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Label_0"
+                },
+                "position": {
+                  "basis": "50px",
+                  "grow": 1
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer_0"
+            },
+            "position": {
+              "basis": "324px"
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tfrom com.inductiveautomation.ignition.common.user import User\n\tusersource \u003d \u0027default\u0027\n\tusername \u003d self.session.props.auth.user.userName\n\tpass_1 \u003d self.parent.parent.getChild(\"FlexContainer_0\").getChild(\"FlexContainer\").getChild(\"PasswordField_0\").props.text\n\tpass_2 \u003d self.parent.parent.getChild(\"FlexContainer_0\").getChild(\"FlexContainer\").getChild(\"PasswordField_1\").props.text\n\tif pass_1 !\u003d pass_2:\n\t\tsystem.perspective.openPopup(\u0027errorBox\u0027, \u0027Utilities/ErrorBox\u0027, {\u0027errorText\u0027:\"The new password fields do not match\"},showCloseIcon \u003d False, draggable \u003d False, resizeable \u003d False, modal \u003d True)\n\telse:\n\t\tuser \u003d system.user.getUser(usersource, username)\n\t\tuser.set(User.Password, pass_1)\n\t\tresult \u003d system.user.editUser(usersource, user)\n\t\tsystem.perspective.print(result)\n\t\tself.parent.parent.getChild(\"FlexContainer_0\").getChild(\"FlexContainer\").getChild(\"PasswordField\").props.text \u003d \u0027\u0027\n\t\tself.parent.parent.getChild(\"FlexContainer_0\").getChild(\"FlexContainer\").getChild(\"PasswordField_0\").props.text \u003d \u0027\u0027\n\t\tself.parent.parent.getChild(\"FlexContainer_0\").getChild(\"FlexContainer\").getChild(\"PasswordField_1\").props.text \u003d \u0027\u0027\n\t\tself.parent.parent.getChild(\"FlexContainer_0\").getChild(\"FlexContainer\").getChild(\"PasswordField_0\").meta.visible \u003d False\n\t\tself.parent.parent.getChild(\"FlexContainer_0\").getChild(\"FlexContainer\").getChild(\"PasswordField_1\").meta.visible \u003d False\n\t\tself.meta.visible \u003d False\n\t\tsystem.perspective.openPopup(\u0027success\u0027, \u0027Admin/PasswordSuccessPopup\u0027,{},showCloseIcon \u003d False, draggable \u003d False, resizeable \u003d False, modal \u003d True)\n\t\t\n\t\n"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "meta": {
+                  "name": "Button"
+                },
+                "position": {
+                  "basis": "217px"
+                },
+                "props": {
+                  "text": "Save New Password"
+                },
+                "type": "ia.input.button"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer",
+              "visible": false
+            },
+            "position": {
+              "basis": "54px"
+            },
+            "props": {
+              "justify": "space-evenly",
+              "style": {
+                "paddingRight": "20px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "FlexContainer"
+        },
+        "position": {
+          "basis": "446px"
+        },
+        "props": {
+          "direction": "column"
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

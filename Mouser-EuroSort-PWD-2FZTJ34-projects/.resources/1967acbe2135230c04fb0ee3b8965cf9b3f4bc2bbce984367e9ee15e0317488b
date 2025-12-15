@@ -1,0 +1,191 @@
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+from shared.data.messaging import Request
+import system
+
+DEFAULT_DB = 'MongoWCS'
+
+PROXY_PROJECT = 'Mouser'
+
+# ------- helpers ---------------------------------------------------
+def _build_projection(engine_specific):
+	projection = dict(engine_specific.get('projection', {}) or {})
+	for field in engine_specific.get('limit_fields', []) or []:
+		projection[field] = 1
+	return projection or None
+
+def _build_sort(engine_specific):
+	"""
+	engine_specific['sort'] may be like:
+	    {'ts': -1} or {'ts': 'desc'} or {'ts': True}  # True = desc, False/0=None
+	Returns a dict suitable for Mongo: {'ts': -1} or {'ts': 1}
+	"""
+	sort_spec = engine_specific.get('sort', {}) or {}
+	# Already a list (good)
+	if isinstance(sort_spec, (list, tuple)):
+		# normalize inner pairs to tuples
+		return [tuple(p) for p in sort_spec]
+		
+	# Dict -> list of pairs
+	if isinstance(sort_spec, dict):
+		def _dir(v):
+			if v in (-1, 'desc', 'DESC', True):
+				return -1
+			if v in (1, 'asc', 'ASC', False, 0, None):
+				return 1
+			try:
+				iv = int(v)
+				return -1 if iv < 0 else 1
+			except Exception:
+				return 1
+			return [(k, _dir(v)) for k, v in sort_spec.items()]
+		
+		return None
+		
+	return {field: _dir(direction) for field, direction in sort_spec.items()}
+
+def _coerce_for_filter_inclusion(key_filter):
+	new_filter = {}
+	for key, value in (key_filter or {}).items():
+		if key.startswith('$'):
+			new_filter[key] = value
+		elif isinstance(value, (list, tuple, set, frozenset)):
+			new_filter[key] = {'$in': list(value)}
+		else:
+			new_filter[key] = value
+	return new_filter
+
+# ------- proxy -----------------------------------------------------
+def proxy_call(mongodb_method, connector, collection, record_mapping, *args, **kwargs):
+	try:
+		method = getattr(system.mongodb, mongodb_method)
+	except AttributeError:
+		# Fall back to project request bus
+		with Request(PROXY_PROJECT, 'MongoDB Proxy') as request:
+			request.payload = dict(
+				method         = mongodb_method,
+				connector      = connector or DEFAULT_DB,
+				collection     = collection,
+				record_mapping = record_mapping,
+				args = args,
+				kwargs = kwargs,
+			)
+		return request.results
+
+	return method(connector, collection, record_mapping, *args, **kwargs)
+
+# ------- public API ------------------------------------------------
+def aggregate(table_name, list_of_entry_dicts, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	stages     = list_of_entry_dicts
+	# Pass through extra args if your proxy supports (e.g., allowDiskUse, collation, etc.)
+	return proxy_call('aggregate', connector, collection, stages, **engine_specific)
+
+def select_record(table_name, entry_dict, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	key_filter = entry_dict or {}
+	projection = _build_projection(engine_specific)
+	return proxy_call('findOne', connector, collection, key_filter, projection=projection)
+
+def select_records(table_name, entry_dict, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	key_filter = _coerce_for_filter_inclusion(entry_dict or {})
+	projection = _build_projection(engine_specific)
+	sort       = _build_sort(engine_specific)
+	limit      = engine_specific.get('limit', None)
+	skip       = engine_specific.get('skip', None)
+
+	return proxy_call(
+		'find', connector, collection, key_filter,
+		projection=projection, sort=sort, limit=limit, skip=skip
+	)
+
+# If you really want an "advanced" version, keep it but allow raw operators in the filter:
+def select_adv_records(table_name, entry_dict, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	# DO NOT coerce lists to $in here; let caller pass full operator trees
+	key_filter = entry_dict or {}
+	projection = _build_projection(engine_specific)
+	sort       = _build_sort(engine_specific)
+	limit      = engine_specific.get('limit', None)
+	skip       = engine_specific.get('skip', None)
+
+	return proxy_call(
+		'find', connector, collection, key_filter,
+		projection=projection, sort=sort, limit=limit, skip=skip
+	)
+
+def insert_record(table_name, entry_dict, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	document   = entry_dict or {}
+	return proxy_call('insertOne', connector, collection, document)
+
+def insert_records(table_name, list_of_entry_dicts, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	documents  = list_of_entry_dicts or []
+	return proxy_call('insertMany', connector, collection, documents)
+
+def update_record(table_name, entry_dict, key_columns, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	filter_keys = set(key_columns or ())
+
+	key_filter = {k: entry_dict[k] for k in filter_keys if k in entry_dict}
+	key_filter = _coerce_for_filter_inclusion(key_filter)
+
+	updates = {"$set": {k: v for k, v in (entry_dict or {}).items()}}
+	return proxy_call('updateOne', connector, collection, key_filter, updates, **engine_specific)
+
+def update_records(table_name, entry_dict, key_columns, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	filter_keys = set(key_columns or ())
+
+	key_filter = {k: entry_dict[k] for k in filter_keys if k in entry_dict}
+	key_filter = _coerce_for_filter_inclusion(key_filter)
+
+	updates = {"$set": {k: v for k, v in (entry_dict or {}).items()}}
+	return proxy_call('updateMany', connector, collection, key_filter, updates, **engine_specific)
+
+def upsert_record(table_name, entry_dict, key_columns, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	filter_keys = set(key_columns or ())
+
+	key_filter = {k: entry_dict[k] for k in filter_keys if k in entry_dict}
+	key_filter = _coerce_for_filter_inclusion(key_filter)
+
+	updates = {"$set": {k: v for k, v in (entry_dict or {}).items()}}
+	# IMPORTANT: pass upsert as a KWARG (not a positional dict)
+	engine_specific.setdefault('upsert', True)
+	return proxy_call('updateOne', connector, collection, key_filter, updates, **engine_specific)
+
+def delete_record(table_name, entry_dict, key_columns, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	filter_keys = set(key_columns or ())
+
+	key_filter = {k: entry_dict[k] for k in filter_keys if k in entry_dict}
+	key_filter = _coerce_for_filter_inclusion(key_filter)
+
+	return proxy_call('deleteOne', connector, collection, key_filter, **engine_specific)
+
+def delete_records(table_name, entry_dict, key_columns, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	filter_keys = set(key_columns or ())
+
+	key_filter = {k: entry_dict[k] for k in filter_keys if k in entry_dict}
+	key_filter = _coerce_for_filter_inclusion(key_filter)
+
+	return proxy_call('deleteMany', connector, collection, key_filter, **engine_specific)
+
+def delete_adv_records(table_name, entry_dict, target_database=None, **engine_specific):
+	connector  = target_database or DEFAULT_DB
+	collection = table_name
+	return proxy_call('deleteMany', connector, collection, entry_dict or {}, **engine_specific)

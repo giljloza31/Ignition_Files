@@ -1,0 +1,309 @@
+"""
+	Easier Messages and Requests
+
+	Wrap and simplify calling messages and requests.
+	Use the context manager to prep and set up a message, and
+	then build it up directly. Specify only what you need, 
+	automatically coerce to enumerated values, and simply
+	dedent the block to send!
+	
+	NOTE: Messages don't throw errors on the caller's side!
+	      Requests don't throw errors on the receiver's side!
+
+	Example usage:
+
+with Message['ProjectName': 'Test: Message'] as message:
+	message.payload.x = 'asdf'
+	message.filters =  {'scope': 'gateway'}
+
+
+with Request['ProjectName': 'Test: Request'] as request:
+	request.payload.x = 'asdf'
+	request.payload.some_list = [
+		'qwer', 1234,
+	]
+
+print request.results
+	
+"""
+from shared.data.types.adhoc import AdHocObject
+from shared.data.types.enum import Enum
+
+
+try: # vaguely compatible error =/
+	from com.inductiveautomation.ignition.client.gateway_interface import GatewayException as MessageHandlerException
+except ImportError:
+	from com.inductiveautomation.ignition.common.script.message import MessageHandlerException
+
+
+__all__ = ['Message', 'Request']
+
+
+
+class MessageScopes(Enum):
+	CLIENT  = 'C'
+	GATEWAY = 'G'
+	SESSION = 'S'
+	PERSPECTIVE = 'S'
+	PERSPECTIVE_SESSION = 'S'
+	
+	DEFAULT_FILTERED  = 'CS'
+	DEFAULT_BROADCAST = 'CGS'  # no filter set
+
+
+
+class BaseTargetFilter(object):
+	__slots__ = []
+
+	def asdict(self):
+		return {
+			(slot[1:] if slot.startswith('_') else slot): getattr(self, slot)
+			for slot in self.__slots__
+			if getattr(self, slot)
+		}
+
+
+	def __repr__(self):
+		return repr({
+			key:value 
+			for key,value 
+			 in self.asdict().items() 
+			if value
+		})
+
+
+class MessageTargetFilter(BaseTargetFilter):
+	__slots__ = [
+		'user', 'role', 'session',
+		'host', 'remote_servers',	'_scope', 
+	]
+
+	def __init__(self, **target_filter):
+		self.scope    = target_filter.pop('scope', MessageScopes.DEFAULT_BROADCAST)
+		self.user     = target_filter.pop('user', None)
+		self.role     = target_filter.pop('role', None)
+		self.host     = target_filter.pop('host', None)
+		self.session  = target_filter.pop('session', None)
+		self.remote_servers = list(str(g) for g in target_filter.pop('remote_servers', []))
+		
+		if target_filter:
+			raise NotImplementedError("Target filter for messages does not support the filter(s) %r" % (target_filter.keys(),))
+
+	def __bool__(self):
+		any_nondefault_targets = any([self.user, self.role, self.session, self.host, self.remote_servers])
+		if any_nondefault_targets:
+			return True
+		elif self._scope != MessageScopes.DEFAULT_BROADCAST:
+			return True
+		else: # all values unset or defaults
+			return False
+	__nonzero__ = __bool__
+
+
+	@property
+	def scope(self):
+		return self._scope
+	
+	@scope.setter
+	def scope(self, new_scope):
+		if not new_scope:
+			if any([self.user, self.role, self.session, self.host, self.remote_servers]):
+				new_scope = MessageScopes.DEFAULT_FILTERED
+			else:
+				new_scope = MessageScopes.DEFAULT_BROADCAST
+		self._scope = MessageScopes(new_scope.upper().replace(' ', '_'))
+
+
+class RequestTargetFilter(BaseTargetFilter):
+
+	__slots__ = [
+		'host', 'remote_server', # 'gateways',
+	]
+
+	def __init__(self, **target_filter):
+		self.host          = target_filter.pop('host', None)
+		self.remote_server = target_filter.pop('remote_server', None)
+		
+		if target_filter:
+			raise NotImplementedError("Target filter for requests does not support the filter(s) %r" % (target_filter.keys(),))
+
+
+	def __bool__(self):
+		return any([self.host, self.remote_server])
+	__nonzero__ = __bool__
+
+
+
+class MetaMessage(type):
+
+	def __getitem__(cls, target):
+		filters = None
+		if isinstance(target, slice):
+			project = target.start
+			handler = target.stop
+			filters = target.step
+		elif isinstance(target, tuple):
+			assert 2 <= len(target) < 3, 'Message targetting must provide at least a project and handler name, plus optionally a dictionary of filters'
+			project = target[0]
+			handler = target[1]
+			if len(target) == 3:
+				filters = target[2]
+		else:
+			raise ValueError("Not sure how to target this message handler: %r" % (target,))
+		assert project and handler, "A project and message handler must be provided. Got instead: %r" % (target,)
+		return cls(project, handler, filters)
+
+
+
+class Message(object):
+
+	__metaclass__ = MetaMessage
+
+	__slots__ = [
+			'project', 'handler', '_payload',
+			'_filters',
+		]
+
+	_FILTER_OPTIONS = MessageTargetFilter
+
+	IGNITION_METADATA_KEYS = frozenset([
+		'_id',
+	])
+
+	def __init__(self, project, handler, filters=None, payload=None, **payload_items):
+		
+		self.project = project
+		self.handler = handler
+		self.payload = payload
+		self.payload.update(payload_items)
+		
+		self.filters = filters
+
+	def __call__(self, **payload_items):
+		"""Note that this does NOT call .send()
+		Use this to further update the payload.
+		
+		The following creates a message that's configured with a payload entry
+		whose 'info' is set to 'Success!'
+		>>> Message['ProjectName': 'Message Handler'](info='Success!')
+		"""
+		self.payload.update(payload_items)
+		return self
+
+	@property
+	def payload(self):
+		return self._payload
+	
+	@payload.setter
+	def payload(self, new_payload):
+		self._payload = AdHocObject(new_payload)
+
+
+	@property
+	def filters(self):
+		return self._filters
+	
+	@filters.setter
+	def filters(self, filters):
+		if not filters:
+			self._filters = self._FILTER_OPTIONS()
+		elif isinstance(filters, dict):
+			self._filters = self._FILTER_OPTIONS(**filters)
+		elif isinstance(filters, self._FILTER_OPTIONS):
+			self._filters = self._FILTER_OPTIONS
+		else:
+			raise ValueError("Not sure how to target message filters: %r" % (filters,))
+
+
+	def _cull_ignition_metadata(self):
+		for key in self.IGNITION_METADATA_KEYS:
+			if key in self.payload:
+				del self.payload[key]
+
+	def send(self):
+		assert all([self.project, self.handler]), "Can not send without a target gateway"
+		self._cull_ignition_metadata()
+	
+		prepped_payload = self.payload._asdict()
+	
+		try:
+			system.util.sendMessage(
+				self.project, self.handler, 
+				payload         = prepped_payload,
+				# broadcast scope
+				scope           = self.filters.scope,
+				# filters
+				user            = self.filters.user     or None,
+				hasRole         = self.filters.role     or None,
+				clientSessionId = self.filters.session  or None,
+				hostName        = self.filters.host     or None,
+				remoteServers   = self.filters.remote_servers or None,
+			)
+		except MessageHandlerException as error:
+			raise RuntimeError(error.message + ' - the payload: ' + repr(self.payload._asdict()))
+
+
+	def __enter__(self):
+		return self
+	
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		self.send()
+
+
+	def asdict(self):
+		return dict(
+			project = self.project,
+			handler = self.handler,
+			payload = self.payload._asdict(),
+			filters = AdHocObject(self.filters.asdict())._asdict(),
+		)
+
+	def __repr__(self):
+		return "<%s %s: %s%s>" % (type(self).__name__, 
+			self.project, self.handler,
+			' (*)' if self.filters else '',
+		)
+
+
+class Request(Message):
+
+	__slots__ = Message.__slots__ + [
+		'results',
+	]
+
+	_FILTER_OPTIONS = RequestTargetFilter
+
+
+	def __init__(self, project, handler, filters=None, payload=None, **payload_items):
+		super(Request, self).__init__(project, handler, filters, payload, **payload_items)
+		self.results = None
+
+
+	def send(self):
+		assert all([self.project, self.handler]), "Can not send without a target gateway"
+
+		try:
+			self.results = system.util.sendRequest(
+				self.project, self.handler, 
+				payload = self.payload._asdict(),
+				# filters
+				hostName        = self.filters.host     or None,
+				remoteServer    = self.filters.remote_server or None,
+			)
+			return self.results
+		except MessageHandlerException as error:
+			raise RuntimeError(error.message)
+
+
+def enum_normalizer(enum_value):
+	return enum_value._type(enum_value)
+
+# register normalizers so that they can be nested in payloads as dictionaries
+AdHocObject._add_fallback_normalizer(enum_normalizer)
+AdHocObject._register_normalizer(Message, lambda m: m.asdict())
+AdHocObject._register_normalizer(Request, lambda r: r.asdict())
+
+AdHocObject._register_typepath_normalizer('org.bson.types.ObjectId')
+
+#from org.bson.types import ObjectId
+#AdHocObject._register_normalizer(ObjectId, lambda o: repr(o))

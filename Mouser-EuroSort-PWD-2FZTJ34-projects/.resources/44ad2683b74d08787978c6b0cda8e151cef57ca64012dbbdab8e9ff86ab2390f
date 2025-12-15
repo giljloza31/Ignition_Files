@@ -1,0 +1,227 @@
+
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from shared.tools.meta import is_redundant_active
+from functools import partial
+
+from time import sleep
+from random import random
+from datetime import datetime
+
+import re
+import socket
+
+import traceback
+
+
+def print_tcpip(printstring,printer_ID):
+	
+	if printer_ID == 1:
+		printer_IP = '10.0.194.122'
+	elif print_IP == 3:
+		printer_IP = '10.0.194.126'
+	elif print_IP == 4:
+		printer_IP = '10.0.194.129'
+	elif print_IP == 5:
+		printer_IP = '10.0.194.135'
+	elif print_IP == 7:
+		printer_IP = '10.0.194.140'
+	elif print_IP == 8:
+		printer_IP = '10.0.194.152'
+		
+		
+	host = printer_IP
+	port = 9100
+	
+	
+	#Printer Communications
+	printer = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+	printer.connect((host,port))
+	
+	#ZPL format of label
+
+	#Begins a label definition
+	printer.sendall(printstring)
+	
+	printer.close()
+
+def baseN(num, base, numerals="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"):
+
+    return ((num == 0) and numerals[0]) or \
+            (baseN(num // base, base, numerals).lstrip(numerals[0]) +
+             numerals[num % base])
+
+def ultipak(num):
+	index = int(num)
+	index += 1
+	return index
+
+
+@async(name="Print-labels_LPN")
+def LPN_gather_data(source_path,LPN,seq_num,printer_ID,count):
+	timestart = datetime.now().isoformat()
+		
+	
+	if seq_num == 98:
+		if re.match('(M2)[0-9A-Z]{6}',LPN):
+			lpnValue = LPN[2:]
+			char = int(lpnValue, 36)
+			area = LPN[:2]
+			serialNum = baseN(char + 1, 36)
+			serialNum = str(serialNum).zfill(6)
+			lpnValue = area + serialNum
+			labelpos = "^FO35,25"
+		elif re.match('(I5)[0-9A-Z]{6}',LPN):
+			lpnValue = LPN[2:]
+			char = int(lpnValue, 36)
+			area = LPN[:2]
+			serialNum = baseN(char + 1, 36)
+			serialNum = str(serialNum).zfill(6)
+			lpnValue = area + serialNum
+			labelpos = "^FO35,-5"
+		elif re.match('(I4)[0-9A-Z]{6}',LPN):
+			lpnValue = LPN[2:]
+			char = int(lpnValue, 36)
+			area = LPN[:2]
+			serialNum = baseN(char + 1, 36)
+			serialNum = str(serialNum).zfill(6)
+			lpnValue = area + serialNum
+			labelpos = "^FO35,25"	
+		else:
+			lpnValue = ultipak(LPN)
+			lpnValue = str(lpnValue).zfill(8)
+			labelpos = "^FO50,15"
+			
+			
+		#verified = Check_verify_lpn(lpnValue,printer_ID,source_path)
+		
+		#if verified == 1:
+	
+		ASM_LPN = lpnValue
+	
+	
+	
+
+	
+
+		parent_dest = '/'.join(source_path.split('/')[:-2] + ['LPN'])
+		system.tag.writeAsync([parent_dest + '/' + 'IGN_LastLPN_Sent'], [ASM_LPN])
+		
+	
+		printString = "^XA^MMT^PW355^LL203^LS-10^BY2,3,150^BCN,,Y,N^FT50,50,2"
+		printString += labelpos
+		printString += "^BC^FD"
+		printString += ASM_LPN
+		printString += "^FS^XZ"
+		totalCount = count + 1
+	
+		seq_complete = 97
+
+		
+
+		
+	
+	elif seq_num == 100:
+
+	
+		printString = "~JA"
+		totalCount = count + 1
+		
+		seq_complete = 101
+	else:
+		printString = "~JA"
+		totalCount = count + 1
+		
+		seq_complete = 101	
+		
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['LPN'])	
+	printer_seq = 'Seq_Num_'+ str(printer_ID)		
+	
+	printerDest = 'printString'+ str(printer_ID)
+	
+	
+	system.tag.writeAsync(*zip(*[
+	
+		(parent_dest + '/' + printer_seq, seq_complete),
+
+		(parent_dest + '/' + 'Count', totalCount),
+	]))
+
+
+
+	try:
+		opcServer = 'Ignition OPC-UA Server'
+		itemPath = 'ns=1;s=[PA%s]9100/Writable'%(printer_ID)
+		system.opc.writeValue(opcServer, itemPath, printString)
+#		print_tcpip(printString,printer_ID)
+	except:
+
+		system.tag.writeAsync(*zip(*[
+		
+			(parent_dest + '/' + printer_seq, 101),
+
+			(parent_dest + '/' + 'Count', totalCount),
+		]))
+		
+@async(name="Verify-labels")
+def verify_lpn(lpn,printerId,source_path):
+
+	#check if existing
+	sql_results = system.db.runPrepQuery(
+		"""select * from LPN_Verify_Table where LPN = ?""", 
+		[lpn], 
+		'SQLServer')
+	
+	if not sql_results:
+		values = ['PA%s'%(printerId),lpn,'Verified']
+		verified = 1
+	else:
+		values = ['PA%s'%(printerId),lpn,'Double']
+		verified = 2
+	
+	
+	system.db.runPrepUpdate("""	
+			INSERT INTO LPN_Verify_Table (
+						PrinterID,
+						LPN,
+						Status
+						) 
+						VALUES (?,?,?)
+						""",values, 'SQLServer')
+						
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['LPN_Verify'])
+	system.tag.writeAsync(*zip(*[
+	
+		(parent_dest + '/' + 'LPN_Verified', verified)
+	]))		
+@async(name="Check-labels")
+def Check_verify_lpn(lpn,printerId,source_path):
+
+	#check if existing
+	sql_results = system.db.runPrepQuery(
+		"""select * from LPN_Check_Table where LPN = ?""", 
+		[lpn], 
+		'SQLServer')
+	
+	if not sql_results:
+		values = ['PA%s'%(printerId),lpn,'Verified']
+		verified = 1
+	else:
+		values = ['PA%s'%(printerId),lpn,'Double']
+		verified = 2
+	
+	
+	system.db.runPrepUpdate("""	
+			INSERT INTO LPN_Check_Table (
+						PrinterID,
+						LPN,
+						Status
+						) 
+						VALUES (?,?,?)
+						""",values, 'SQLServer')
+						
+	return verified
+						
+
+	
+

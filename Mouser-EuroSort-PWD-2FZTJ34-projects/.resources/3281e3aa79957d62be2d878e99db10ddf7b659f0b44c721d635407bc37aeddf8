@@ -1,0 +1,88 @@
+{
+  "custom": {},
+  "params": {
+    "ErrorMessage": "Error Message"
+  },
+  "propConfig": {
+    "params.ErrorMessage": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 132,
+      "width": 384
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 66,
+          "width": 227,
+          "x": 78.5,
+          "y": 11
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.ErrorMessage"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "fontSize": 16,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 152,
+          "y": 90
+        },
+        "props": {
+          "text": "ok"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "events": {
+      "dom": {
+        "onClick": {
+          "config": {
+            "draggable": true,
+            "id": "errorpopup",
+            "modal": false,
+            "overlayDismiss": false,
+            "resizable": true,
+            "showCloseIcon": true,
+            "type": "close",
+            "viewPath": "Popups/Error",
+            "viewportBound": false
+          },
+          "scope": "C",
+          "type": "popup"
+        }
+      }
+    },
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

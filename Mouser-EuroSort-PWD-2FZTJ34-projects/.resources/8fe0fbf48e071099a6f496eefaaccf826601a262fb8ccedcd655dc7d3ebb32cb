@@ -1,0 +1,550 @@
+
+"""
+Carrier transition helpers for StateStore.
+
+Adds atomic, query-friendly state transition methods:
+	- carrier_assign
+	- carrier_clear_assignment
+	- carrier_seen_at_induction (recirc tracking)
+	- carrier_location_update
+	- carrier_discharge_attempted
+	- carrier_discharge_confirmed
+	- carrier_abort
+	- carrier_reassign
+"""
+
+from shared.foundation.time import clock
+
+
+COLLECTION_STATE = "es_platform_state"
+
+ENTITY_CARRIER = "CARRIER"
+ENTITY_CHUTE = "CHUTE"
+
+FACE_BACK = "BACK"
+FACE_FRONT = "FRONT"
+FACE_MID = "MID"
+FACE_GATE = "GATE"
+FACE_UNKNOWN = "UNKNOWN"
+
+
+class StateStore(object):
+	# ... keep your existing __init__, hydrate, get, upsert, etc.
+
+	# ----------------------------
+	# Carrier transition helpers
+	# ----------------------------
+
+	def carrier_assign(self,
+			carrierId,
+			assignedDest=None,
+			assignedFace=None,
+			assignedDeviceId=None,
+			trackId=None,
+			orderNumber=None,
+			ibn=None,
+			userId=None,
+			eventId=None,
+			eventType="ASSIGNMENT"):
+		"""
+		Assign a carrier to a destination/device.
+
+		- Sets currentPhase=ASSIGNED
+		- Sets assignment fields
+		- Updates lastEvent*
+		- Stamps lastSeen*
+		"""
+		cid = int(carrierId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		fields = {
+			"currentPhase": "ASSIGNED",
+			"assignedDest": assignedDest,
+			"assignedFace": assignedFace,
+			"assignedDeviceId": assignedDeviceId,
+
+			"trackId": trackId,
+			"orderNumber": orderNumber,
+			"ibn": ibn,
+
+			# Useful for quick "where is it now" queries
+			"currentLocation": assignedDeviceId if assignedDeviceId else None,
+
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+		}
+
+		# Clear abort if re-used
+		fields["abortReason"] = None
+
+		return self.upsert_carrier(cid, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CARRIER"})
+
+	def carrier_clear_assignment(self, carrierId, userId=None, eventId=None, eventType="CLEAR_ASSIGNMENT"):
+		"""
+		Clear assignment fields, but does NOT force phase back to EMPTY automatically.
+		Call this after DISCHARGED/ABORTED/etc if desired.
+		"""
+		cid = int(carrierId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		fields = {
+			"assignedDest": None,
+			"assignedFace": None,
+			"assignedDeviceId": None,
+			"trackId": None,
+			"orderNumber": None,
+			"ibn": None,
+
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+		}
+
+		return self.upsert_carrier(cid, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CARRIER"})
+
+	def carrier_seen_at_induction(self,
+			carrierId,
+			inductionDevice,
+			stationId=None,
+			userId=None,
+			eventId=None,
+			eventType="INDUCTION_SEEN"):
+		"""
+		Record induction scan/telemetry.
+
+		Recirc rule:
+			- If the same inductionDevice as last time and carrier was already ASSIGNED,
+			  increment recircCount.
+			- Otherwise do not increment.
+
+		Also stamps lastSeen* and sets currentLocation="SORTER".
+		"""
+		cid = int(carrierId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+		existing = self.get_carrier(cid, prefer_cache=False) or {}
+
+		prev_ind = existing.get("inductionDevice")
+		phase = (existing.get("currentPhase") or "UNKNOWN").upper()
+
+		inc = {}
+		if prev_ind is not None and str(prev_ind) == str(inductionDevice) and phase in ("ASSIGNED", "AT_DEST"):
+			inc["recircCount"] = 1
+
+		fields = {
+			"inductionDevice": inductionDevice,
+			"stationId": stationId if stationId is not None else existing.get("stationId"),
+			"currentLocation": "SORTER",
+
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+		}
+
+		return self.upsert_carrier(cid, fields=fields, inc=inc, on_insert={"createdAt": now, "entityClass": "SORTER_CARRIER"})
+
+	def carrier_location_update(self, carrierId, location, userId=None, eventId=None, eventType="LOCATION_UPDATE"):
+		"""
+		Update currentLocation without altering assignment.
+		"""
+		cid = int(carrierId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		fields = {
+			"currentLocation": location,
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+		}
+
+		return self.upsert_carrier(cid, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CARRIER"})
+
+	def carrier_discharge_attempted(self,
+			carrierId,
+			location=None,
+			userId=None,
+			eventId=None,
+			eventType="DISCHARGE_ATTEMPTED"):
+		"""
+		Represents: system attempted discharge (NOT confirmed delivered).
+
+		- Increments dischargeAttemptCount
+		- Sets currentPhase=AT_DEST (meaning "at/approaching dest", not confirmed)
+		- Does NOT set dischargeConfirmed True
+		"""
+		cid = int(carrierId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		fields = {
+			"currentPhase": "AT_DEST",
+			"currentLocation": location,
+
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+
+			# explicitly keep semantics correct
+			"dischargeConfirmed": False,
+		}
+
+		inc = {"dischargeAttemptCount": 1}
+
+		return self.upsert_carrier(cid, fields=fields, inc=inc, on_insert={"createdAt": now, "entityClass": "SORTER_CARRIER"})
+
+	def carrier_discharge_confirmed(self,
+			carrierId,
+			location=None,
+			userId=None,
+			eventId=None,
+			eventType="DISCHARGED_CONFIRMED",
+			clear_assignment=True):
+		"""
+		Represents: confirmed discharged at destination (the 'real delivered' signal).
+
+		- Sets currentPhase=DISCHARGED
+		- Sets dischargeConfirmed=True
+		- Optionally clears assignment fields
+		"""
+		cid = int(carrierId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		fields = {
+			"currentPhase": "DISCHARGED",
+			"currentLocation": location,
+
+			"dischargeConfirmed": True,
+
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+		}
+
+		if clear_assignment:
+			fields.update({
+				"assignedDest": None,
+				"assignedFace": None,
+				"assignedDeviceId": None,
+				"trackId": None,
+				"orderNumber": None,
+				"ibn": None,
+			})
+
+		return self.upsert_carrier(cid, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CARRIER"})
+
+	def carrier_abort(self,
+			carrierId,
+			reason,
+			location=None,
+			userId=None,
+			eventId=None,
+			eventType="ABORTED"):
+		"""
+		Abort a carrier (bad read, jam, hospital route, etc).
+
+		Sets:
+			currentPhase = "ABORTED_<REASON>"
+			abortReason = reason
+		"""
+		cid = int(carrierId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		reason_norm = str(reason or "UNKNOWN").strip().upper()
+		phase = "ABORTED_%s" % reason_norm
+
+		fields = {
+			"currentPhase": phase,
+			"abortReason": reason_norm,
+			"currentLocation": location,
+
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+
+			"dischargeConfirmed": False,
+		}
+
+		return self.upsert_carrier(cid, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CARRIER"})
+
+	def carrier_reassign(self,
+			carrierId,
+			newAssignedDest=None,
+			newAssignedFace=None,
+			newAssignedDeviceId=None,
+			trackId=None,
+			userId=None,
+			eventId=None,
+			eventType="REASSIGNED"):
+		"""
+		Reassign is just assign + increments a counter and sets phase REASSIGNED.
+		"""
+		cid = int(carrierId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		fields = {
+			"currentPhase": "REASSIGNED",
+			"assignedDest": newAssignedDest,
+			"assignedFace": newAssignedFace,
+			"assignedDeviceId": newAssignedDeviceId,
+			"trackId": trackId,
+
+			"currentLocation": newAssignedDeviceId if newAssignedDeviceId else None,
+
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+
+			"abortReason": None,
+		}
+
+		inc = {"reassignCount": 1}
+
+		return self.upsert_carrier(cid, fields=fields, inc=inc, on_insert={"createdAt": now, "entityClass": "SORTER_CARRIER"})
+
+
+	# ----------------------------
+	# Chute transition helpers
+	# ----------------------------
+	
+	def chute_enable(self, chuteId, enabled=True, userId=None, eventId=None, eventType="CHUTE_ENABLE"):
+		"""
+		Enable/disable a chute.
+		"""
+		chute_id = str(chuteId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+	
+		fields = {
+			"enabled": bool(enabled),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+		}
+	
+		return self.upsert_chute(chute_id, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CHUTE"})
+	
+	def chute_fault(self, chuteId, faulted=True, faultCode=None, faultMsg=None, userId=None, eventId=None, eventType="CHUTE_FAULT"):
+		"""
+		Set/clear faulted state with optional fault details.
+		"""
+		chute_id = str(chuteId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+	
+		fields = {
+			"faulted": bool(faulted),
+			"faultCode": faultCode,
+			"faultMsg": faultMsg,
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+		}
+	
+		# If clearing fault, clear details too
+		if not faulted:
+			fields["faultCode"] = None
+			fields["faultMsg"] = None
+	
+		return self.upsert_chute(chute_id, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CHUTE"})
+	
+	def chute_set_full(self, chuteId, full=True, userId=None, eventId=None, eventType="CHUTE_FULL"):
+		"""
+		Mark chute full/available.
+		"""
+		chute_id = str(chuteId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+	
+		fields = {
+			"full": bool(full),
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+		}
+	
+		return self.upsert_chute(chute_id, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CHUTE"})
+	
+	def chute_set_occupancy(self, chuteId, occupancy, capacity=None, userId=None, eventId=None, eventType="CHUTE_OCCUPANCY"):
+		"""
+		Set occupancy (and optional capacity). Also auto-sets full if capacity provided.
+		"""
+		chute_id = str(chuteId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+	
+		try:
+			occ = int(occupancy)
+		except:
+			occ = 0
+	
+		fields = {
+			"occupancy": occ,
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+		}
+	
+		if capacity is not None:
+			try:
+				cap = int(capacity)
+			except:
+				cap = None
+			fields["capacity"] = cap
+			if cap is not None and cap >= 0:
+				fields["full"] = (occ >= cap)
+	
+		return self.upsert_chute(chute_id, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CHUTE"})
+	
+	def chute_assign_group(self, chuteId, assignedGroup=None, assignedName=None, userId=None, eventId=None, eventType="CHUTE_ASSIGN_GROUP"):
+		"""
+		Assign chute to a group (zone/order/pp bucket).
+		"""
+		chute_id = str(chuteId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+	
+		fields = {
+			"assignedGroup": assignedGroup,
+			"assignedName": assignedName,
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+		}
+	
+		return self.upsert_chute(chute_id, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CHUTE"})
+	
+	def chute_clear_group(self, chuteId, userId=None, eventId=None, eventType="CHUTE_CLEAR_GROUP"):
+		"""
+		Clear group assignment.
+		"""
+		return self.chute_assign_group(chuteId, assignedGroup=None, assignedName=None, userId=userId, eventId=eventId, eventType=eventType)
+	
+	def chute_transfer_contents(self,
+			fromChuteId,
+			toChuteId,
+			count=1,
+			reason=None,
+			userId=None,
+			eventId=None,
+			eventType="CHUTE_TRANSFER"):
+		"""
+		Logical transfer between chutes (does NOT command PLC).
+		This is for your "helper tools" to fix states without re-running processes.
+	
+		- Decrements fromChute occupancy
+		- Increments toChute occupancy
+		- Adds lastTransfer* metadata to both
+		"""
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+	
+		try:
+			n = int(count)
+		except:
+			n = 1
+		if n <= 0:
+			n = 1
+	
+		from_id = str(fromChuteId)
+		to_id = str(toChuteId)
+	
+		from_doc = self.get_chute(from_id, prefer_cache=False) or {}
+		to_doc = self.get_chute(to_id, prefer_cache=False) or {}
+	
+		try:
+			from_occ = int(from_doc.get("occupancy", 0) or 0)
+		except:
+			from_occ = 0
+		try:
+			to_occ = int(to_doc.get("occupancy", 0) or 0)
+		except:
+			to_occ = 0
+	
+		new_from = from_occ - n
+		if new_from < 0:
+			new_from = 0
+		new_to = to_occ + n
+	
+		# Update FROM
+		self.upsert_chute(from_id, fields={
+			"occupancy": new_from,
+			"lastTransferTo": to_id,
+			"lastTransferCount": n,
+			"lastTransferReason": reason,
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+		}, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CHUTE"})
+	
+		# Update TO
+		self.upsert_chute(to_id, fields={
+			"occupancy": new_to,
+			"lastTransferFrom": from_id,
+			"lastTransferCount": n,
+			"lastTransferReason": reason,
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+		}, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CHUTE"})
+	
+		return {
+			"ok": True,
+			"from": {"chuteId": from_id, "occupancy": from_occ, "newOccupancy": new_from},
+			"to": {"chuteId": to_id, "occupancy": to_occ, "newOccupancy": new_to},
+			"count": n,
+			"reason": reason,
+			"ts": now
+		}
+	
+	def chute_mark_event(self, chuteId, eventType, details=None, userId=None, eventId=None):
+		"""
+		Generic chute event marker (useful for quick tools).
+		Stores a small 'lastEventDetails' payload for troubleshooting.
+		"""
+		chute_id = str(chuteId)
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+	
+		fields = {
+			"lastEventType": eventType,
+			"lastEventId": eventId,
+			"lastUserId": userId,
+			"lastEventDetails": details,
+			"lastSeenAtEpoch": now.get("tsEpoch"),
+			"lastSeenAtLocal": now.get("tsLocal"),
+		}
+	
+		return self.upsert_chute(chute_id, fields=fields, inc=None, on_insert={"createdAt": now, "entityClass": "SORTER_CHUTE"})
+
+# ----------------------------
+# Script Console example
+# ----------------------------
+#
+# store.carrier_assign(7, assignedDest=12, assignedFace="BACK", assignedDeviceId="DST-0012-1-1-A", ibn="476JB6", orderNumber="123456789")
+# store.carrier_seen_at_induction(7, inductionDevice="SCAN51", stationId="0001")
+# store.carrier_discharge_attempted(7, location="DST-0012-1-1-A")
+# store.carrier_discharge_confirmed(7, location="DST-0012-1-1-A", clear_assignment=True)
+# store.carrier_abort(7, reason="NOREAD", location="HOSPITAL")
+# store.carrier_reassign(7, newAssignedDest=55, newAssignedFace="FRONT", newAssignedDeviceId="DST-0055-1-2-B")

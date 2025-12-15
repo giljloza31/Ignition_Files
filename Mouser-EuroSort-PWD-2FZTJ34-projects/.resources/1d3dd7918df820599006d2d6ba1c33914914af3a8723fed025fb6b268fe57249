@@ -1,0 +1,207 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 100,
+      "width": 1930
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Image"
+            },
+            "position": {
+              "basis": "1930px",
+              "grow": 1
+            },
+            "propConfig": {
+              "props.source": {
+                "binding": {
+                  "config": {
+                    "path": "session.custom.hostAddress"
+                  },
+                  "transforms": [
+                    {
+                      "expression": "{value} + \u0027/system/images/1500x500.jpeg\u0027",
+                      "type": "expression"
+                    }
+                  ],
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "fit": {
+                "mode": "cover",
+                "width": 1930
+              }
+            },
+            "type": "ia.display.image"
+          }
+        ],
+        "meta": {
+          "name": "Banner"
+        },
+        "position": {
+          "basis": 50,
+          "grow": 1
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Image"
+                },
+                "position": {
+                  "basis": 180,
+                  "grow": 2
+                },
+                "propConfig": {
+                  "props.source": {
+                    "binding": {
+                      "config": {
+                        "path": "session.custom.hostAddress"
+                      },
+                      "transforms": [
+                        {
+                          "expression": "{value} + \u0027/system/images/mouser-logo-img.jpg\u0027",
+                          "type": "expression"
+                        }
+                      ],
+                      "type": "property"
+                    }
+                  }
+                },
+                "props": {
+                  "fit": {
+                    "height": 80,
+                    "mode": "contain",
+                    "width": 180
+                  },
+                  "style": {
+                    "classes": "Layout/HeaderPadding"
+                  }
+                },
+                "type": "ia.display.image"
+              }
+            ],
+            "meta": {
+              "name": "Logo"
+            },
+            "position": {
+              "basis": 180,
+              "grow": 1
+            },
+            "props": {
+              "alignContent": "flex-start",
+              "alignItems": "flex-start",
+              "direction": "column",
+              "style": {
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "HorizontalMenu"
+                },
+                "position": {
+                  "basis": "50px",
+                  "grow": 1
+                },
+                "props": {
+                  "items": [
+                    {
+                      "enabled": true,
+                      "icon": {
+                        "color": "#6C6C6C",
+                        "path": "material/power_settings_new"
+                      },
+                      "items": [],
+                      "label": "Motor Control",
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/buttonsandbeacons"
+                    },
+                    {
+                      "enabled": true,
+                      "icon": {
+                        "color": "#6C6C6C",
+                        "path": "material/warning"
+                      },
+                      "items": [],
+                      "label": "Alarms",
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": "/alarmsresponsive"
+                    },
+                    {
+                      "enabled": false,
+                      "icon": {
+                        "color": "#6C6C6C",
+                        "path": "material/settings_input_composite"
+                      },
+                      "items": [],
+                      "label": "VFD",
+                      "style": {
+                        "classes": ""
+                      },
+                      "target": ""
+                    }
+                  ],
+                  "style": {
+                    "classes": "Text/LightText"
+                  }
+                },
+                "type": "ia.navigation.horizontalmenu"
+              }
+            ],
+            "meta": {
+              "name": "Tabs"
+            },
+            "position": {
+              "basis": 1700,
+              "grow": 1
+            },
+            "props": {
+              "alignContent": "flex-start",
+              "style": {
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Tabstrip"
+        },
+        "position": {
+          "basis": "50px",
+          "grow": 2
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

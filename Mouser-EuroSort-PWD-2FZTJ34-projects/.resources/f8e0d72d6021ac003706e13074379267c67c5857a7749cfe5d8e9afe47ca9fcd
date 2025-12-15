@@ -1,0 +1,61 @@
+"""
+	Bridge SorterData as messages
+	
+	This simplifies using the SorterData further
+	by making it nearly declarative. It takes advantage of the 
+	context management in the SorterData so that the following works:
+	
+	with sorter:
+		with sorter.scan as message:
+			message.destination = 'DST-CH-0001-1-A'
+			message.destinationStatus = 'not ready'
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.base            import EuroSorterBase
+from eurosort.sorterdata.core import SorterDataWrapper
+
+from time import sleep
+
+
+
+class EuroSorterMessaging(EuroSorterBase):
+	
+	MESSAGE_FIREHOSE_THROTTLE = 0.01 # 10 ms delay between messages
+	
+	def send(self, sorter_data=None, **configuration):
+		# unwrap
+		if isinstance(sorter_data, SorterDataWrapper):
+			self._euroSortInterface.sendData(sorter_data._javaObject)
+		# raw java
+		elif isinstance(sorter_data, SorterData):
+			self._euroSortInterface.sendData(sorter_data)
+		elif isinstance(sorter_data, None) and configuration:
+			wrapped_data = SorterDataWrapper(**configuration)
+			self._euroSortInterface.sendData(wrapped_data._javaObject)
+		else:
+			raise NotImplementedError('Not sure what to do with {sorter_data!r}'.format(**locals()))
+	
+#		sleep(self.MESSAGE_FIREHOSE_THROTTLE)
+
+	@property
+	def request(self):
+		return SorterDataWrapper(message_type='REQUEST', target=self)
+		
+	@property
+	def verify(self):
+		raise NotImplementedError('Client does not VERIFY sorter: sorter is VERIFY origin')
+		return SorterDataWrapper(message_type='VERIFY', target=self)
+
+	@property
+	def scan(self):
+		return SorterDataWrapper(message_type='SCAN', target=self)
+
+	@property
+	def exception(self):
+		raise NotImplementedError('Client does not send EXCEPTIONS to sorter: sorter is originates exceptions.')
+		return SorterDataWrapper(message_type='EXCEPTION', target=self)
+
+
+

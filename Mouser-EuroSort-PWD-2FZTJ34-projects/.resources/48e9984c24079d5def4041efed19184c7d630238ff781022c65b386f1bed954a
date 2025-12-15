@@ -1,0 +1,9 @@
+{
+  "base": {
+    "style": {
+      "stroke": "#000000",
+      "strokeWidth": ".25",
+      "fill": "#FFAC47"
+    }
+  }
+}

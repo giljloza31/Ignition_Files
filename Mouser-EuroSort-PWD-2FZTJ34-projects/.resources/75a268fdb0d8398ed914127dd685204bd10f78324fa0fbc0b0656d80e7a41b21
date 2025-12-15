@@ -1,0 +1,3 @@
+Insert into Catchbox_Divert_Table 
+( RouteCode , RoundRobin ,  Divert_01,Divert_02 ,Divert_03,Divert_04 ,Divert_05,Divert_06 ,Divert_07 ,Divert_08 ,Divert_09 ,Divert_10 ,Divert_11 ,Divert_12 ,Divert_13 ,Divert_14 ,Divert_15 ,Divert_16 ,Divert_17 ,Divert_18 ,Divert_19 ,Divert_20 ,Divert_21 ,Divert_22 ,Divert_23 ,Divert_24 ,Divert_25 ,Divert_26 ,Divert_27 ,Divert_28 ,Divert_29 ,Divert_30 ,Divert_31,Divert_32)
+values ( :inVarRoute ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)

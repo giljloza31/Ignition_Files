@@ -1,0 +1,146 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 875,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Table"
+        },
+        "position": {
+          "height": 783,
+          "width": 1883,
+          "x": 14,
+          "y": 65
+        },
+        "propConfig": {
+          "props.data": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/QPS_Sortation/ScanLogTable"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "filter": {
+            "enabled": true
+          },
+          "rows": {
+            "striped": {
+              "color": {
+                "even": "#D5D5D5",
+                "odd": "#FFFFFF"
+              }
+            },
+            "style": {
+              "classes": "FontStyles/TextSyle"
+            }
+          }
+        },
+        "type": "ia.display.table"
+      },
+      {
+        "meta": {
+          "name": "userid_entry"
+        },
+        "position": {
+          "height": 36,
+          "width": 211,
+          "x": 1344,
+          "y": 21
+        },
+        "propConfig": {
+          "props.options": {
+            "binding": {
+              "config": {
+                "polling": {
+                  "enabled": true,
+                  "rate": "30"
+                },
+                "queryPath": "QPS_Sortation/Get_UserList"
+              },
+              "type": "query"
+            }
+          }
+        },
+        "props": {
+          "value": "GIL"
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "range"
+        },
+        "position": {
+          "height": 36,
+          "width": 211,
+          "x": 1571,
+          "y": 21
+        },
+        "props": {
+          "options": [
+            {
+              "label": "TOP 10",
+              "value": 10
+            },
+            {
+              "label": "TOP 100",
+              "value": 100
+            },
+            {
+              "label": "TOP 1000",
+              "value": 1000
+            },
+            {
+              "label": "TOP 10000",
+              "value": 10000
+            }
+          ],
+          "value": 100
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tuser \u003d self.getSibling(\"userid_entry\").props.value\n\trangevalue \u003d self.getSibling(\"range\").props.value\n\t\n\tquery \u003d \u0027\u0027\u0027\n\tSELECT TOP(%s)*\n\tFROM QPS_Scan_History \n\tWHERE UserID \u003d \u0027%s\u0027\n\tORDER BY  scanindx DESC\u0027\u0027\u0027%(rangevalue,user)\n\t\n\tsystem.tag.writeAsync(\u0027[Mouser]Mouser/QPS_Sortation/ScanLogTable.Query\u0027, [query])\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 1801,
+          "y": 23
+        },
+        "props": {
+          "text": "Filter"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

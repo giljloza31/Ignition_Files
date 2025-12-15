@@ -1,0 +1,145 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 101,
+      "width": 12
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Asset 3"
+        },
+        "position": {
+          "basis": "101 px",
+          "grow": 1
+        },
+        "props": {
+          "elements": [
+            {
+              "name": "defs",
+              "type": "defs"
+            },
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "elements": [
+                        {
+                          "fill": {
+                            "paint": "lime"
+                          },
+                          "height": 175.55,
+                          "name": "rect",
+                          "style": {
+                            "classes": ""
+                          },
+                          "type": "rect",
+                          "width": "32.28",
+                          "x": ".5",
+                          "y": ".5"
+                        },
+                        {
+                          "height": "17.99",
+                          "name": "rect",
+                          "stroke": {
+                            "miterlimit": "10",
+                            "paint": "#000"
+                          },
+                          "style": {
+                            "classes": ""
+                          },
+                          "type": "rect",
+                          "width": "32.28",
+                          "x": ".5",
+                          "y": "158.72"
+                        }
+                      ],
+                      "id": "Chute",
+                      "name": "Chute",
+                      "type": "group"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "name": "tspan",
+                          "text": "DS",
+                          "type": "tspan",
+                          "x": "0",
+                          "y": "0"
+                        },
+                        {
+                          "name": "tspan",
+                          "style": {
+                            "classes": ""
+                          },
+                          "text": "T",
+                          "type": "tspan",
+                          "x": "17.25",
+                          "y": "0"
+                        },
+                        {
+                          "name": "tspan",
+                          "text": "-0001-1-1",
+                          "type": "tspan",
+                          "x": "23.89",
+                          "y": "0"
+                        },
+                        {
+                          "name": "tspan",
+                          "style": {
+                            "classes": ""
+                          },
+                          "text": "-",
+                          "type": "tspan",
+                          "x": "83.42",
+                          "y": "0"
+                        },
+                        {
+                          "name": "tspan",
+                          "text": "A",
+                          "type": "tspan",
+                          "x": "87.93",
+                          "y": "0"
+                        }
+                      ],
+                      "name": "text",
+                      "style": {
+                        "classes": ""
+                      },
+                      "transform": "translate(22.7 140.72) rotate(-90) scale(1.24 1)",
+                      "type": "text"
+                    },
+                    {
+                      "name": "text",
+                      "type": "text"
+                    }
+                  ],
+                  "name": "group",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "1 1 33.28 177.2"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

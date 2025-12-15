@@ -1,0 +1,21 @@
+CREATE TABLE Scan16_Tracking_Table(
+	[inductindx] [int] IDENTITY(1,1) NOT NULL,
+	[IndexID] [int] NULL,
+	[Payload] [varchar](500) NULL,
+--	[weight] [int] NULL,
+	[Gap] [int] NULL,
+	[Length] [int] NULL,
+	[Dest_Binary_Returned] [int] NULL,
+	[Dest_String_Returned] [varchar](500) NULL,
+	[Route_Returned] [varchar](500) NULL,
+	[Route_Reason][varchar](500) NULL,
+	[Route_Reason_Num] [int] NULL,
+	[Divert_Path] [int] NULL,
+	[Divert_Path_String] [varchar](255) NULL,
+	[Divert_Reason_String] [varchar](500) NULL,
+	[Divert_Reason_Num] [int] NULL,
+	[Induct_TimeStamp] [varchar] (500) NULL,
+	[Divert_TimeStamp] [varchar] (500) NULL,
+	[Query_Time_ms] [int] NULL,
+	[Travel_Time_ms] [int] NULL
+)

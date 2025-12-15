@@ -1,0 +1,6 @@
+def doGet(request, session):
+	request["headers"] = {
+	'Content-Type':'application/json'
+	}
+	
+	

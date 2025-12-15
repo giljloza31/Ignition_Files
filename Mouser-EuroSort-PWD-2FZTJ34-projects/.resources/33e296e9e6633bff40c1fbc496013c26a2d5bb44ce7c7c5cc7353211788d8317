@@ -1,0 +1,2278 @@
+{
+  "custom": {
+    "batch": {
+      "consol_subzone": "A",
+      "consol_zone": "ES"
+    },
+    "chute_data": {
+      "DST-0084-1-1-B": {
+        "available": {
+          "081737741": {
+            "_id": "672b43ce8023180905995e65",
+            "catchboxId": "        ",
+            "consolidation_start_timestamp": "2024-11-06 14:24:46.620000",
+            "downloadTime": "20241106011249",
+            "estBinSize": "A",
+            "issues": {
+              "339HOQ": {
+                "_id": "672b4f4a80231809059962c0",
+                "discharged_delivered_timestamp": "2024-11-06 14:26:15.661000",
+                "holdInspect": false,
+                "ibn": "339HOQ",
+                "last_sorter_timestamp": "2024-11-06 14:26:15.681000",
+                "order": "081737741",
+                "orderLine": "002",
+                "quantity": 10,
+                "status": "issued"
+              },
+              "33A0A3": {
+                "_id": "672b8bcc802318090599700c",
+                "discharged_delivered_timestamp": "2024-11-06 14:24:46.604000",
+                "holdInspect": false,
+                "ibn": "33A0A3",
+                "last_sorter_timestamp": "2024-11-06 14:24:46.621000",
+                "order": "081737741",
+                "orderLine": "001",
+                "quantity": 20,
+                "status": "issued"
+              }
+            },
+            "last_sorter_timestamp": "2024-11-06 14:26:15.680000",
+            "oeTime": "20241106001200",
+            "order": "081737741",
+            "priority": "2",
+            "region": "APAC",
+            "status": "issued"
+          },
+          "081739064": {
+            "_id": "672b434f8023180905995e15",
+            "catchboxId": "        ",
+            "consolidation_start_timestamp": "2024-11-06 14:24:46.028000",
+            "downloadTime": "20241106012745",
+            "estBinSize": "A",
+            "issues": {
+              "339GOV": {
+                "_id": "672b4af98023180905996193",
+                "discharged_delivered_timestamp": "2024-11-06 14:26:10.285000",
+                "holdInspect": false,
+                "ibn": "339GOV",
+                "last_sorter_timestamp": "2024-11-06 14:26:10.303000",
+                "order": "081739064",
+                "orderLine": "002",
+                "quantity": 100,
+                "status": "issued"
+              },
+              "33A0CG": {
+                "_id": "672b8c088023180905997010",
+                "discharged_delivered_timestamp": "2024-11-06 14:24:46.011000",
+                "holdInspect": false,
+                "ibn": "33A0CG",
+                "last_sorter_timestamp": "2024-11-06 14:24:46.028000",
+                "order": "081739064",
+                "orderLine": "001",
+                "quantity": 200,
+                "status": "issued"
+              }
+            },
+            "last_sorter_timestamp": "2024-11-06 14:26:10.303000",
+            "oeTime": "20241106012500",
+            "order": "081739064",
+            "priority": "2",
+            "region": "AMER",
+            "status": "issued"
+          },
+          "081739796": {
+            "_id": "672b43d48023180905995e6a",
+            "catchboxId": "        ",
+            "consolidation_start_timestamp": "2024-11-06 14:26:32.214000",
+            "downloadTime": "20241106023239",
+            "estBinSize": "A",
+            "issues": {
+              "339F39": {
+                "_id": "672b43d48023180905995e6e",
+                "discharged_delivered_timestamp": "2024-11-06 14:27:35.292000",
+                "holdInspect": false,
+                "ibn": "339F39",
+                "last_sorter_timestamp": "2024-11-06 14:27:35.308000",
+                "order": "081739796",
+                "orderLine": "001",
+                "quantity": 2500,
+                "status": "issued"
+              }
+            },
+            "last_sorter_timestamp": "2024-11-06 14:27:35.308000",
+            "oeTime": "20241106020900",
+            "order": "081739796",
+            "priority": "2",
+            "region": "APAC",
+            "status": "issued"
+          }
+        },
+        "available_timestamp": "2024-11-06 14:28:08.719000",
+        "batch": "ESB",
+        "bay": null,
+        "chute": "1",
+        "consolidating": {
+          "081737741": {
+            "_id": "672b43ce8023180905995e65",
+            "catchboxId": "        ",
+            "consolidation_start_timestamp": "2024-11-06 14:37:35.390000",
+            "downloadTime": "20241106011249",
+            "estBinSize": "A",
+            "issues": {
+              "339HOQ": {
+                "_id": "672b4f4a80231809059962c0",
+                "discharged_delivered_timestamp": "2024-11-06 14:50:48.563000",
+                "holdInspect": false,
+                "ibn": "339HOQ",
+                "last_sorter_timestamp": "2024-11-06 14:50:48.580000",
+                "order": "081737741",
+                "orderLine": "002",
+                "quantity": 10,
+                "status": "issued"
+              },
+              "33A0A3": {
+                "_id": "672b8bcc802318090599700c",
+                "discharged_delivered_timestamp": "2024-11-06 14:50:50.449000",
+                "holdInspect": false,
+                "ibn": "33A0A3",
+                "last_sorter_timestamp": "2024-11-06 14:50:50.466000",
+                "order": "081737741",
+                "orderLine": "001",
+                "quantity": 20,
+                "status": "issued"
+              }
+            },
+            "last_sorter_timestamp": "2024-11-06 14:50:50.466000",
+            "oeTime": "20241106001200",
+            "order": "081737741",
+            "priority": "2",
+            "region": "APAC",
+            "status": "issued"
+          },
+          "081739064": {
+            "_id": "672b434f8023180905995e15",
+            "catchboxId": "        ",
+            "consolidation_start_timestamp": "2024-11-06 14:38:04.612000",
+            "downloadTime": "20241106012745",
+            "estBinSize": "A",
+            "issues": {
+              "339GOV": {
+                "_id": "672b4af98023180905996193",
+                "discharged_delivered_timestamp": "2024-11-06 14:51:27.147000",
+                "holdInspect": false,
+                "ibn": "339GOV",
+                "last_sorter_timestamp": "2024-11-06 14:51:27.164000",
+                "order": "081739064",
+                "orderLine": "002",
+                "quantity": 100,
+                "status": "issued"
+              },
+              "33A0CG": {
+                "_id": "672b8c088023180905997010",
+                "discharged_delivered_timestamp": "2024-11-06 14:51:17.849000",
+                "holdInspect": false,
+                "ibn": "33A0CG",
+                "last_sorter_timestamp": "2024-11-06 14:51:17.869000",
+                "order": "081739064",
+                "orderLine": "001",
+                "quantity": 200,
+                "status": "issued"
+              }
+            },
+            "last_sorter_timestamp": "2024-11-06 14:51:27.164000",
+            "oeTime": "20241106012500",
+            "order": "081739064",
+            "priority": "2",
+            "region": "AMER",
+            "status": "issued"
+          },
+          "081740199": {
+            "_id": "672b43618023180905995e20",
+            "catchboxId": "        ",
+            "consolidation_start_timestamp": "2024-11-06 14:28:28.069000",
+            "downloadTime": "20241106025339",
+            "estBinSize": "A",
+            "issues": {
+              "339FQJ": {
+                "_id": "672b46c3802318090599600a",
+                "discharged_delivered_timestamp": "2024-11-06 14:28:28.053000",
+                "holdInspect": false,
+                "ibn": "339FQJ",
+                "last_sorter_timestamp": "2024-11-06 14:28:28.071000",
+                "order": "081740199",
+                "orderLine": "001",
+                "quantity": 180,
+                "status": "issued"
+              }
+            },
+            "last_sorter_timestamp": "2024-11-06 14:38:18.230000",
+            "oeTime": "20241105083800",
+            "order": "081740199",
+            "priority": "2",
+            "region": "EMEA",
+            "status": "issued"
+          }
+        },
+        "destination": "DST-0084-1-1-B",
+        "side": "B",
+        "station": "0084"
+      },
+      "key": "value"
+    },
+    "mature_orders": [
+      "081613223",
+      "081634073",
+      "081647897",
+      "081649539",
+      "081653758",
+      "081654070",
+      "081654329",
+      "081655046",
+      "081655504",
+      "081655588",
+      "081655655",
+      "081656292",
+      "081656391",
+      "081657094",
+      "081657663",
+      "081657766",
+      "081657990",
+      "081658271",
+      "081658439",
+      "081659120",
+      "081659386",
+      "081659511",
+      "081659543",
+      "081659812",
+      "081659845",
+      "081686419",
+      "081689463",
+      "081689834",
+      "081689929",
+      "081691028",
+      "081691115",
+      "081691137",
+      "081692284",
+      "081693588",
+      "081693834",
+      "081693928",
+      "081694384",
+      "081694897",
+      "081695019",
+      "081695362",
+      "081695467",
+      "081695537",
+      "081695879",
+      "081696148",
+      "081696739",
+      "081698549",
+      "081698628",
+      "081698753",
+      "081698818",
+      "081734903",
+      "081735292",
+      "081735896",
+      "081736024",
+      "081736628",
+      "081736673",
+      "081737607",
+      "081737614",
+      "081739127",
+      "081739299",
+      "081739830",
+      "081740099",
+      "081740337",
+      "081740372",
+      "081740584",
+      "081740607",
+      "081740707",
+      "081740922",
+      "081741068",
+      "081741178",
+      "081741246",
+      "081741247",
+      "081741326",
+      "081741410"
+    ],
+    "pconsol_lines": [
+      {
+        "_id": "67234a71bf314032cdc65245",
+        "order": "081654070",
+        "orderLine": "001",
+        "partDesc": "Vishay Rectifiers",
+        "partNumber": "844-T40HFL100S05",
+        "quantity": 70,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234a71bf314032cdc65246",
+        "order": "081654070",
+        "orderLine": "002",
+        "partDesc": "Murata EMI Filter Circuits",
+        "partNumber": "81-BNX002-11",
+        "quantity": 500,
+        "status": "picked"
+      },
+      {
+        "_id": "67234a71bf314032cdc65247",
+        "order": "081654070",
+        "orderLine": "004",
+        "partDesc": "onsemi Zener Diodes",
+        "partNumber": "863-1N5358BG",
+        "quantity": 3000,
+        "status": "picked"
+      },
+      {
+        "_id": "67234a88bf314032cdc6524e",
+        "order": "081613223",
+        "orderLine": "001",
+        "partDesc": "TDK-Lambda Desktop AC Adapters",
+        "partNumber": "967-DT150PW120D",
+        "quantity": 20,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234a8cbf314032cdc65251",
+        "order": "081657094",
+        "orderLine": "001",
+        "partDesc": "ROBOTIS AC, DC \u0026 Servo Motors",
+        "partNumber": "184-902-0156-000",
+        "quantity": 3,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234a8cbf314032cdc65252",
+        "order": "081657094",
+        "orderLine": "002",
+        "partDesc": "ROBOTIS ROBOTIS Accessories",
+        "partNumber": "184-903-0239-000",
+        "quantity": 4,
+        "status": "picked"
+      },
+      {
+        "_id": "67234aa9bf314032cdc6525b",
+        "order": "081655588",
+        "orderLine": "001",
+        "partDesc": "Samtec Headers \u0026 Wire Housings",
+        "partNumber": "200-HTSW11324ST",
+        "quantity": 20,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234aa9bf314032cdc6525c",
+        "order": "081655588",
+        "orderLine": "002",
+        "partDesc": "Nexperia ESD Protection Diodes / TVS Diodes",
+        "partNumber": "771-PESD5V0L1BA-T/R",
+        "quantity": 3000,
+        "status": "picked"
+      },
+      {
+        "_id": "67234aa9bf314032cdc6525d",
+        "order": "081655588",
+        "orderLine": "003",
+        "partDesc": "Broadcom High Speed Optocouplers",
+        "partNumber": "630-ACPL-071L-500E",
+        "quantity": 50,
+        "status": "picked"
+      },
+      {
+        "_id": "67234ab2bf314032cdc65261",
+        "order": "081659511",
+        "orderLine": "001",
+        "partDesc": "Microchip EEPROM",
+        "partNumber": "556-AT24CS01-XHM-T",
+        "quantity": 302,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234ab2bf314032cdc65262",
+        "order": "081659511",
+        "orderLine": "002",
+        "partDesc": "Wurth FFC \u0026 FPC Connectors",
+        "partNumber": "710-687128149022",
+        "quantity": 9,
+        "status": "picked"
+      },
+      {
+        "_id": "67234ac0bf314032cdc65269",
+        "order": "081659812",
+        "orderLine": "001",
+        "partDesc": "Monolithic Pwr Sys (MPS) Audio Amplifiers",
+        "partNumber": "946-MP7740DNLFZ",
+        "quantity": 2500,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234ac0bf314032cdc6526a",
+        "order": "081659812",
+        "orderLine": "002",
+        "partDesc": "Analog Devices Inc. Supervisory Circuits",
+        "partNumber": "700-MAX6825VUK+T",
+        "quantity": 448,
+        "status": "picked"
+      },
+      {
+        "_id": "67234ac0bf314032cdc6526b",
+        "order": "081659812",
+        "orderLine": "003",
+        "partDesc": "Littelfuse Industrial \u0026 Electrical Fuses",
+        "partNumber": "576-KLKR004.T",
+        "quantity": 36,
+        "status": "picked"
+      },
+      {
+        "_id": "67234ac6bf314032cdc6526f",
+        "order": "081657663",
+        "orderLine": "001",
+        "partDesc": "Bud Terminal Block Tools \u0026 Accessories",
+        "partNumber": "563-DMB4770",
+        "quantity": 10,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234ac6bf314032cdc65270",
+        "order": "081657663",
+        "orderLine": "002",
+        "partDesc": "Bud Terminal Block Tools \u0026 Accessories",
+        "partNumber": "563-DMB-4771",
+        "quantity": 4,
+        "status": "picked"
+      },
+      {
+        "_id": "67234ac6bf314032cdc65271",
+        "order": "081657663",
+        "orderLine": "003",
+        "partDesc": "Bud Terminal Block Tools \u0026 Accessories",
+        "partNumber": "563-DMB-4769",
+        "quantity": 5,
+        "status": "picked"
+      },
+      {
+        "_id": "67234afcbf314032cdc6527f",
+        "order": "081647897",
+        "orderLine": "001",
+        "partDesc": "Murata Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "81-GRT0335C1H101FA2D",
+        "quantity": 300,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234afcbf314032cdc65280",
+        "order": "081647897",
+        "orderLine": "002",
+        "partDesc": "YAGEO Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "603-CC0201KR6BB102",
+        "quantity": 300,
+        "status": "picked"
+      },
+      {
+        "_id": "67234afcbf314032cdc65281",
+        "order": "081647897",
+        "orderLine": "003",
+        "partDesc": "Vishay Thick Film Resistors - SMD",
+        "partNumber": "71-RCS04020000Z0ED",
+        "quantity": 0,
+        "status": "cancelled"
+      },
+      {
+        "_id": "67234b27bf314032cdc6528c",
+        "order": "081657766",
+        "orderLine": "007",
+        "partDesc": "Murata Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "81-GRM21AR72E102KW01",
+        "quantity": 250,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234b27bf314032cdc6528d",
+        "order": "081657766",
+        "orderLine": "008",
+        "partDesc": "Murata Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "81-GHM1525X103K250",
+        "quantity": 300,
+        "status": "picked"
+      },
+      {
+        "_id": "67234b3dbf314032cdc65298",
+        "order": "081655046",
+        "orderLine": "001",
+        "partDesc": "Amphenol Crimpers / Crimping Tools",
+        "partNumber": "654-AUTK-20",
+        "quantity": 1,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234b3dbf314032cdc65299",
+        "order": "081655046",
+        "orderLine": "002",
+        "partDesc": "Amphenol Crimpers / Crimping Tools",
+        "partNumber": "654-AUTK-12",
+        "quantity": 1,
+        "status": "picked"
+      },
+      {
+        "_id": "67234b53bf314032cdc652a3",
+        "order": "081658271",
+        "orderLine": "001",
+        "partDesc": "Molex Automotive Connectors",
+        "partNumber": "538-33000-0004-CT",
+        "quantity": 500,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234b53bf314032cdc652a4",
+        "order": "081658271",
+        "orderLine": "002",
+        "partDesc": "HARTING Heavy Duty Power Connectors",
+        "partNumber": "617-09152006125",
+        "quantity": 3,
+        "status": "picked"
+      },
+      {
+        "_id": "67234b53bf314032cdc652a5",
+        "order": "081658271",
+        "orderLine": "003",
+        "partDesc": "Littelfuse Automotive Fuses",
+        "partNumber": "576-0498023.M",
+        "quantity": 8,
+        "status": "picked"
+      },
+      {
+        "_id": "67234b64bf314032cdc652ad",
+        "order": "081658439",
+        "orderLine": "001",
+        "partDesc": "Hammond Enclosures, Boxes, \u0026 Cases",
+        "partNumber": "546-1457T1601BK",
+        "quantity": 2,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234b64bf314032cdc652ae",
+        "order": "081658439",
+        "orderLine": "002",
+        "partDesc": "Phoenix Contact Circular Metric Connectors",
+        "partNumber": "651-1619631",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "67234b64bf314032cdc652af",
+        "order": "081658439",
+        "orderLine": "003",
+        "partDesc": "TDK Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "810-CGA9P3X7T2E225K",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "67234b85bf314032cdc652b9",
+        "order": "081656292",
+        "orderLine": "001",
+        "partDesc": "Same Sky Circular Metric Connectors",
+        "partNumber": "179-CDM81605B01FST1M",
+        "quantity": 2,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234b85bf314032cdc652ba",
+        "order": "081656292",
+        "orderLine": "002",
+        "partDesc": "Molex USB Connectors",
+        "partNumber": "538-48037-2200",
+        "quantity": 100,
+        "status": "picked"
+      },
+      {
+        "_id": "67234b93bf314032cdc652bf",
+        "order": "081654329",
+        "orderLine": "001",
+        "partDesc": "TI Voltage References",
+        "partNumber": "926-LM4132BMF4.1NOPB",
+        "quantity": 51,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234b93bf314032cdc652c0",
+        "order": "081654329",
+        "orderLine": "002",
+        "partDesc": "TDK Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "810-C2012X5R1C106M-2",
+        "quantity": 130,
+        "status": "picked"
+      },
+      {
+        "_id": "67234bb0bf314032cdc652cd",
+        "order": "081649539",
+        "orderLine": "001",
+        "partDesc": "NXP LED Lighting Drivers",
+        "partNumber": "771-PCA9532PW-T",
+        "quantity": 5,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234bb0bf314032cdc652ce",
+        "order": "081649539",
+        "orderLine": "002",
+        "partDesc": "Hammond Enclosures, Boxes, \u0026 Cases",
+        "partNumber": "546-1590S",
+        "quantity": 4,
+        "status": "picked"
+      },
+      {
+        "_id": "67234bb6bf314032cdc652d2",
+        "order": "081659845",
+        "orderLine": "001",
+        "partDesc": "Molex Headers \u0026 Wire Housings",
+        "partNumber": "538-50079-8001",
+        "quantity": 2500,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234bb6bf314032cdc652d3",
+        "order": "081659845",
+        "orderLine": "002",
+        "partDesc": "TE Connectivity Terminals",
+        "partNumber": "571-160056",
+        "quantity": 20,
+        "status": "picked"
+      },
+      {
+        "_id": "67234bb6bf314032cdc652d4",
+        "order": "081659845",
+        "orderLine": "003",
+        "partDesc": "TE Connectivity Pin \u0026 Socket Connectors",
+        "partNumber": "571-3505377",
+        "quantity": 5000,
+        "status": "picked"
+      },
+      {
+        "_id": "67234bccbf314032cdc652e0",
+        "order": "081657990",
+        "orderLine": "001",
+        "partDesc": "Amphenol RF Connectors / Coaxial Connectors",
+        "partNumber": "523-SF1621-60048",
+        "quantity": 20,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234bccbf314032cdc652e1",
+        "order": "081657990",
+        "orderLine": "002",
+        "partDesc": "Vishay Thick Film Resistors - SMD",
+        "partNumber": "71-CRCW02010000Z0ED",
+        "quantity": 40,
+        "status": "picked"
+      },
+      {
+        "_id": "67234bccbf314032cdc652e2",
+        "order": "081657990",
+        "orderLine": "003",
+        "partDesc": "Vishay Thin Film Resistors - SMD",
+        "partNumber": "71-TNPW020150R0BEED",
+        "quantity": 40,
+        "status": "picked"
+      },
+      {
+        "_id": "67234bd2bf314032cdc652e7",
+        "order": "081659543",
+        "orderLine": "001",
+        "partDesc": "Adafruit USB Cables / IEEE 1394 Cables",
+        "partNumber": "485-4449",
+        "quantity": 10,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234bd2bf314032cdc652e8",
+        "order": "081659543",
+        "orderLine": "002",
+        "partDesc": "Bel USB Cables / IEEE 1394 Cables",
+        "partNumber": "530-67U2BD-003-K",
+        "quantity": 5,
+        "status": "picked"
+      },
+      {
+        "_id": "67234bd2bf314032cdc652eb",
+        "order": "081655504",
+        "orderLine": "001",
+        "partDesc": "Phoenix Contact DIN Rail Terminal Blocks",
+        "partNumber": "651-3210091",
+        "quantity": 10,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234bd2bf314032cdc652ec",
+        "order": "081655504",
+        "orderLine": "002",
+        "partDesc": "Phoenix Contact DIN Rail Terminal Blocks",
+        "partNumber": "651-3210143",
+        "quantity": 4,
+        "status": "picked"
+      },
+      {
+        "_id": "67234bf1bf314032cdc652f5",
+        "order": "081656391",
+        "orderLine": "001",
+        "partDesc": "TE Connectivity Terminals",
+        "partNumber": "571-63971-1",
+        "quantity": 20,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234bf1bf314032cdc652f6",
+        "order": "081656391",
+        "orderLine": "002",
+        "partDesc": "Amphenol XLR Connectors",
+        "partNumber": "523-AC5MDZ",
+        "quantity": 20,
+        "status": "picked"
+      },
+      {
+        "_id": "67234c0fbf314032cdc65302",
+        "order": "081653758",
+        "orderLine": "001",
+        "partDesc": "ROHM Standard LEDs - SMD",
+        "partNumber": "755-SML-P11UTT86R",
+        "quantity": 10,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234c0fbf314032cdc65303",
+        "order": "081653758",
+        "orderLine": "002",
+        "partDesc": "ROHM Standard LEDs - SMD",
+        "partNumber": "755-SML-P11VTT86R",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "67234c57bf314032cdc65312",
+        "order": "081659120",
+        "orderLine": "001",
+        "partDesc": "Adafruit Adafruit Accessories",
+        "partNumber": "485-519",
+        "quantity": 1,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234c57bf314032cdc65313",
+        "order": "081659120",
+        "orderLine": "002",
+        "partDesc": "Adafruit Adafruit Accessories",
+        "partNumber": "485-5464",
+        "quantity": 1,
+        "status": "picked"
+      },
+      {
+        "_id": "67234c67bf314032cdc6531b",
+        "order": "081634073",
+        "orderLine": "014",
+        "partDesc": "Murata Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "81-GRT1885C1E103FA2D",
+        "quantity": 116,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234c67bf314032cdc6531c",
+        "order": "081634073",
+        "orderLine": "040",
+        "partDesc": "Panasonic Thin Film Resistors - SMD",
+        "partNumber": "667-ERA-2AEB563X",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "67234c87bf314032cdc65325",
+        "order": "081655655",
+        "orderLine": "001",
+        "partDesc": "Vishay Small Signal Switching Diodes",
+        "partNumber": "78-1N4148",
+        "quantity": 1200,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234c87bf314032cdc65326",
+        "order": "081655655",
+        "orderLine": "002",
+        "partDesc": "STMicro Linear Voltage Regulators",
+        "partNumber": "511-L7805ABP",
+        "quantity": 500,
+        "status": "picked"
+      },
+      {
+        "_id": "67234c87bf314032cdc65327",
+        "order": "081655655",
+        "orderLine": "003",
+        "partDesc": "Vishay Zener Diodes",
+        "partNumber": "78-TZX8V2A",
+        "quantity": 1000,
+        "status": "picked"
+      },
+      {
+        "_id": "67234ca7bf314032cdc65332",
+        "order": "081659386",
+        "orderLine": "001",
+        "partDesc": "Mini-Circuits RF Amplifier",
+        "partNumber": "139-ZX60-3018G-S",
+        "quantity": 2,
+        "status": "shipped"
+      },
+      {
+        "_id": "67234ca7bf314032cdc65333",
+        "order": "081659386",
+        "orderLine": "002",
+        "partDesc": "Mini-Circuits RF Amplifier",
+        "partNumber": "139-ZX60-183-S",
+        "quantity": 1,
+        "status": "picked"
+      },
+      {
+        "_id": "672896acb8dbcc7f82da6563",
+        "order": "081691115",
+        "orderLine": "001",
+        "partDesc": "TE Connectivity RF Connectors / Coaxial Connectors",
+        "partNumber": "712-CONMHF1-SMD-G-T",
+        "quantity": 10,
+        "status": "shipped"
+      },
+      {
+        "_id": "672896acb8dbcc7f82da6564",
+        "order": "081691115",
+        "orderLine": "002",
+        "partDesc": "TI Transconductance Amplifiers",
+        "partNumber": "595-OPA861ID",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "672896b2b8dbcc7f82da656d",
+        "order": "081694384",
+        "orderLine": "001",
+        "partDesc": "TI Counter ICs",
+        "partNumber": "595-CD4017BM96",
+        "quantity": 10,
+        "status": "shipped"
+      },
+      {
+        "_id": "672896b2b8dbcc7f82da656e",
+        "order": "081694384",
+        "orderLine": "002",
+        "partDesc": "TI Timers \u0026 Support Products",
+        "partNumber": "926-LMC555CMX/NOPB",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "672896bdb8dbcc7f82da6575",
+        "order": "081695467",
+        "orderLine": "001",
+        "partDesc": "Raspberry Pi Single Board Computers",
+        "partNumber": "358-SC01949",
+        "quantity": 1,
+        "status": "shipped"
+      },
+      {
+        "_id": "672896bdb8dbcc7f82da6576",
+        "order": "081695467",
+        "orderLine": "002",
+        "partDesc": "Raspberry Pi Cameras \u0026 Camera Modules",
+        "partNumber": "358-SC0872",
+        "quantity": 1,
+        "status": "picked"
+      },
+      {
+        "_id": "672896bdb8dbcc7f82da6577",
+        "order": "081695467",
+        "orderLine": "003",
+        "partDesc": "Raspberry Pi Wall Mount AC Adapters",
+        "partNumber": "358-SC0445",
+        "quantity": 1,
+        "status": "picked"
+      },
+      {
+        "_id": "672896c6b8dbcc7f82da657d",
+        "order": "081692284",
+        "orderLine": "016",
+        "partDesc": "KYOCERA AVX Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "581-12062C103J",
+        "quantity": 25,
+        "status": "shipped"
+      },
+      {
+        "_id": "672896c6b8dbcc7f82da657e",
+        "order": "081692284",
+        "orderLine": "017",
+        "partDesc": "KYOCERA AVX Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "581-12062C103J",
+        "quantity": 25,
+        "status": "picked"
+      },
+      {
+        "_id": "672896e6b8dbcc7f82da6589",
+        "order": "081695879",
+        "orderLine": "001",
+        "partDesc": "OmniOn Non-Isolated DC/DC Converters",
+        "partNumber": "894-PDT012A0X43-SRZ",
+        "quantity": 12,
+        "status": "shipped"
+      },
+      {
+        "_id": "672896e6b8dbcc7f82da658a",
+        "order": "081695879",
+        "orderLine": "002",
+        "partDesc": "KEMET Multilayer Ceramic Capacitors MLCC - Leaded",
+        "partNumber": "80-C322C223K5R",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "672896ecb8dbcc7f82da658d",
+        "order": "081698628",
+        "orderLine": "001",
+        "partDesc": "ABRACON Standard Clock Oscillators",
+        "partNumber": "815-ASEMPLV148500LRT",
+        "quantity": 5,
+        "status": "shipped"
+      },
+      {
+        "_id": "672896ecb8dbcc7f82da658e",
+        "order": "081698628",
+        "orderLine": "002",
+        "partDesc": "Analog Devices Inc. Linear Voltage Regulators",
+        "partNumber": "700-MAX25300BATA/V+T",
+        "quantity": 30,
+        "status": "picked"
+      },
+      {
+        "_id": "672896ecb8dbcc7f82da658f",
+        "order": "081698628",
+        "orderLine": "003",
+        "partDesc": "KYOCERA AVX Board to Board \u0026 Mezzanine Connectors",
+        "partNumber": "346-245861050004829+",
+        "quantity": 27,
+        "status": "picked"
+      },
+      {
+        "_id": "672896eeb8dbcc7f82da6593",
+        "order": "081695019",
+        "orderLine": "001",
+        "partDesc": "HARTING Heavy Duty Power Connectors",
+        "partNumber": "617-09-33-010-2601",
+        "quantity": 2,
+        "status": "shipped"
+      },
+      {
+        "_id": "672896eeb8dbcc7f82da6594",
+        "order": "081695019",
+        "orderLine": "002",
+        "partDesc": "HARTING Heavy Duty Power Connectors",
+        "partNumber": "617-09300100318",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "672896efb8dbcc7f82da6597",
+        "order": "081689929",
+        "orderLine": "001",
+        "partDesc": "EDAC Standard Card Edge Connectors",
+        "partNumber": "587-395-050-524-202",
+        "quantity": 6,
+        "status": "shipped"
+      },
+      {
+        "_id": "672896efb8dbcc7f82da6598",
+        "order": "081689929",
+        "orderLine": "002",
+        "partDesc": "TE Connectivity IC \u0026 Component Sockets",
+        "partNumber": "571-1-2199298-4",
+        "quantity": 20,
+        "status": "picked"
+      },
+      {
+        "_id": "672896f9b8dbcc7f82da65a0",
+        "order": "081691137",
+        "orderLine": "001",
+        "partDesc": "Infineon Board Mount Hall Effect / Magnetic Sensors",
+        "partNumber": "726-TLE49462KHTSA1",
+        "quantity": 20,
+        "status": "shipped"
+      },
+      {
+        "_id": "672896f9b8dbcc7f82da65a1",
+        "order": "081691137",
+        "orderLine": "002",
+        "partDesc": "Adafruit Adafruit Accessories",
+        "partNumber": "485-5849",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "67289701b8dbcc7f82da65a5",
+        "order": "081693928",
+        "orderLine": "001",
+        "partDesc": "TI Inverters",
+        "partNumber": "595-SN74S04N",
+        "quantity": 2,
+        "status": "shipped"
+      },
+      {
+        "_id": "67289701b8dbcc7f82da65a6",
+        "order": "081693928",
+        "orderLine": "002",
+        "partDesc": "TI Flip Flops",
+        "partNumber": "595-SN74LS74ANE4",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "67289706b8dbcc7f82da65aa",
+        "order": "081694897",
+        "orderLine": "001",
+        "partDesc": "Wurth Ferrite Beads",
+        "partNumber": "710-74279221100",
+        "quantity": 4001,
+        "status": "shipped"
+      },
+      {
+        "_id": "67289706b8dbcc7f82da65ab",
+        "order": "081694897",
+        "orderLine": "002",
+        "partDesc": "TDK Varistors",
+        "partNumber": "871-B72520T600K62",
+        "quantity": 2002,
+        "status": "picked"
+      },
+      {
+        "_id": "67289744b8dbcc7f82da65c2",
+        "order": "081689463",
+        "orderLine": "001",
+        "partDesc": "Switchcraft Phone Connectors",
+        "partNumber": "502-14B",
+        "quantity": 2,
+        "status": "shipped"
+      },
+      {
+        "_id": "67289744b8dbcc7f82da65c3",
+        "order": "081689463",
+        "orderLine": "002",
+        "partDesc": "Switchcraft Phone Connectors",
+        "partNumber": "502-12B",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "6728976cb8dbcc7f82da65cc",
+        "order": "081691028",
+        "orderLine": "001",
+        "partDesc": "Bourns Gas Discharge Tubes - GDTs / Gas Plasma Arrestors",
+        "partNumber": "652-GDT25-35-S1-RP",
+        "quantity": 100,
+        "status": "shipped"
+      },
+      {
+        "_id": "6728976cb8dbcc7f82da65cd",
+        "order": "081691028",
+        "orderLine": "002",
+        "partDesc": "TE Connectivity Wirewound Resistors - SMD",
+        "partNumber": "279-SMW76R8JT",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "6728976cb8dbcc7f82da65ce",
+        "order": "081691028",
+        "orderLine": "003",
+        "partDesc": "TE Connectivity Wirewound Resistors - SMD",
+        "partNumber": "279-SMW712RJT",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "6728976db8dbcc7f82da65d2",
+        "order": "081693834",
+        "orderLine": "001",
+        "partDesc": "Molex FFC / FPC Jumper Cables",
+        "partNumber": "538-15167-0241",
+        "quantity": 5,
+        "status": "shipped"
+      },
+      {
+        "_id": "6728976db8dbcc7f82da65d3",
+        "order": "081693834",
+        "orderLine": "002",
+        "partDesc": "Samtec FFC / FPC Jumper Cables",
+        "partNumber": "200-FJ10D30004",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "67289782b8dbcc7f82da65df",
+        "order": "081693588",
+        "orderLine": "001",
+        "partDesc": "Lite-On High Speed Optocouplers",
+        "partNumber": "859-6N136STA1",
+        "quantity": 300,
+        "status": "shipped"
+      },
+      {
+        "_id": "67289782b8dbcc7f82da65e0",
+        "order": "081693588",
+        "orderLine": "002",
+        "partDesc": "Lite-On High Speed Optocouplers",
+        "partNumber": "859-6N137S",
+        "quantity": 500,
+        "status": "picked"
+      },
+      {
+        "_id": "6728978ab8dbcc7f82da65e5",
+        "order": "081695537",
+        "orderLine": "001",
+        "partDesc": "TI Switching Voltage Regulators",
+        "partNumber": "595-LMR51606XDBVR",
+        "quantity": 10,
+        "status": "shipped"
+      },
+      {
+        "_id": "6728978ab8dbcc7f82da65e6",
+        "order": "081695537",
+        "orderLine": "002",
+        "partDesc": "Acconeer Distance Sensor Modules",
+        "partNumber": "925-XM125",
+        "quantity": 4,
+        "status": "picked"
+      },
+      {
+        "_id": "6728978ab8dbcc7f82da65e7",
+        "order": "081695537",
+        "orderLine": "003",
+        "partDesc": "Vishay Thick Film Resistors - SMD",
+        "partNumber": "71-CRCW06033R00FKEAH",
+        "quantity": 20,
+        "status": "picked"
+      },
+      {
+        "_id": "672897c2b8dbcc7f82da65fc",
+        "order": "081698753",
+        "orderLine": "001",
+        "partDesc": "Murata Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "81-GJM1555C1H4R3WB1D",
+        "quantity": 10000,
+        "status": "shipped"
+      },
+      {
+        "_id": "672897c2b8dbcc7f82da65fd",
+        "order": "081698753",
+        "orderLine": "002",
+        "partDesc": "Wurth Antennas",
+        "partNumber": "710-7488910092",
+        "quantity": 500,
+        "status": "picked"
+      },
+      {
+        "_id": "672897c5b8dbcc7f82da6601",
+        "order": "081696739",
+        "orderLine": "001",
+        "partDesc": "Vishay Schottky Diodes \u0026 Rectifiers",
+        "partNumber": "78-V10P12HM3_A/H",
+        "quantity": 150,
+        "status": "shipped"
+      },
+      {
+        "_id": "672897c5b8dbcc7f82da6602",
+        "order": "081696739",
+        "orderLine": "002",
+        "partDesc": "Vishay Schottky Diodes \u0026 Rectifiers",
+        "partNumber": "78-SSB44HE3_A/I",
+        "quantity": 500,
+        "status": "picked"
+      },
+      {
+        "_id": "672897eab8dbcc7f82da6610",
+        "order": "081698818",
+        "orderLine": "001",
+        "partDesc": "TI Power Management IC Development Tools",
+        "partNumber": "595-TPS274C65CPEVM",
+        "quantity": 1,
+        "status": "shipped"
+      },
+      {
+        "_id": "672897eab8dbcc7f82da6611",
+        "order": "081698818",
+        "orderLine": "002",
+        "partDesc": "TI Power Switch ICs - Power Distribution",
+        "partNumber": "595-TPS274C65CPWRHAR",
+        "quantity": 3,
+        "status": "picked"
+      },
+      {
+        "_id": "6728980eb8dbcc7f82da6623",
+        "order": "081698549",
+        "orderLine": "001",
+        "partDesc": "Vishay High Frequency/RF Resistors",
+        "partNumber": "71-FC0603E50R0BTBST1",
+        "quantity": 24,
+        "status": "shipped"
+      },
+      {
+        "_id": "6728980eb8dbcc7f82da6624",
+        "order": "081698549",
+        "orderLine": "002",
+        "partDesc": "KEMET Aluminum Electrolytic Capacitors - SMD",
+        "partNumber": "80-EEV337M025A9MAA",
+        "quantity": 24,
+        "status": "picked"
+      },
+      {
+        "_id": "6728980fb8dbcc7f82da6629",
+        "order": "081686419",
+        "orderLine": "001",
+        "partDesc": "TI Switching Voltage Regulators",
+        "partNumber": "595-TPSM82903SISR",
+        "quantity": 5,
+        "status": "shipped"
+      },
+      {
+        "_id": "6728980fb8dbcc7f82da662a",
+        "order": "081686419",
+        "orderLine": "002",
+        "partDesc": "STMicro ARM Microcontrollers - MCU",
+        "partNumber": "511-STM32G4A1KEU6",
+        "quantity": 5,
+        "status": "picked"
+      },
+      {
+        "_id": "6728980fb8dbcc7f82da662b",
+        "order": "081686419",
+        "orderLine": "003",
+        "partDesc": "TI CAN Interface IC",
+        "partNumber": "595-TCAN3404DRBRQ1",
+        "quantity": 5,
+        "status": "picked"
+      },
+      {
+        "_id": "67289819b8dbcc7f82da662f",
+        "order": "081695362",
+        "orderLine": "001",
+        "partDesc": "Raspberry Pi Development Boards \u0026 Kits - ARM",
+        "partNumber": "358-SC0326",
+        "quantity": 1,
+        "status": "shipped"
+      },
+      {
+        "_id": "67289819b8dbcc7f82da6630",
+        "order": "081695362",
+        "orderLine": "002",
+        "partDesc": "Raspberry Pi System-On-Modules - SOM",
+        "partNumber": "358-SC0692",
+        "quantity": 1,
+        "status": "picked"
+      },
+      {
+        "_id": "6728983cb8dbcc7f82da6640",
+        "order": "081696148",
+        "orderLine": "001",
+        "partDesc": "BPS PCBs \u0026 Breadboards",
+        "partNumber": "854-BB830",
+        "quantity": 2,
+        "status": "shipped"
+      },
+      {
+        "_id": "6728983cb8dbcc7f82da6641",
+        "order": "081696148",
+        "orderLine": "002",
+        "partDesc": "Microchip EEPROM",
+        "partNumber": "556-AT28C256E-15SU-T",
+        "quantity": 3,
+        "status": "picked"
+      },
+      {
+        "_id": "6728984fb8dbcc7f82da6648",
+        "order": "081689834",
+        "orderLine": "001",
+        "partDesc": "CTS Encoders",
+        "partNumber": "774-288T232R161A2",
+        "quantity": 4,
+        "status": "shipped"
+      },
+      {
+        "_id": "6728984fb8dbcc7f82da6649",
+        "order": "081689834",
+        "orderLine": "002",
+        "partDesc": "TI Board Mount Hall Effect / Magnetic Sensors",
+        "partNumber": "595-DRV5053RAQLPGMQ1",
+        "quantity": 1,
+        "status": "picked"
+      },
+      {
+        "_id": "672b409c8023180905995cbb",
+        "order": "081740584",
+        "orderLine": "001",
+        "partDesc": "Diodes Inc. Rectifiers",
+        "partNumber": "621-US1GWF-7",
+        "quantity": 100,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b409c8023180905995cbc",
+        "order": "081740584",
+        "orderLine": "002",
+        "partDesc": "Phoenix Contact Pluggable Terminal Blocks",
+        "partNumber": "651-1803277",
+        "quantity": 50,
+        "status": "picked"
+      },
+      {
+        "_id": "672b409c8023180905995cbd",
+        "order": "081740584",
+        "orderLine": "003",
+        "partDesc": "LEMO Circular Push Pull Connectors",
+        "partNumber": "736-PKGM04SLVG",
+        "quantity": 4,
+        "status": "picked"
+      },
+      {
+        "_id": "672b40b68023180905995cc3",
+        "order": "081741247",
+        "orderLine": "001",
+        "partDesc": "Panasonic Automotive Relays",
+        "partNumber": "769-CB1-M-12V",
+        "quantity": 100,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b40b68023180905995cc4",
+        "order": "081741247",
+        "orderLine": "002",
+        "partDesc": "EAO Pushbutton Switches",
+        "partNumber": "123-82-5153.1123",
+        "quantity": 8,
+        "status": "picked"
+      },
+      {
+        "_id": "672b40ee8023180905995cd7",
+        "order": "081740607",
+        "orderLine": "001",
+        "partDesc": "TE Connectivity Automotive Connectors",
+        "partNumber": "571-1-967628-1",
+        "quantity": 100,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b40ee8023180905995cd8",
+        "order": "081740607",
+        "orderLine": "002",
+        "partDesc": "TE Connectivity Relay Sockets \u0026 Hardware",
+        "partNumber": "571-3334485008",
+        "quantity": 200,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41218023180905995cf2",
+        "order": "081735896",
+        "orderLine": "001",
+        "partDesc": "C\u0026K Rocker Switches",
+        "partNumber": "611-7101J1AV2QE2",
+        "quantity": 1,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b41218023180905995cf3",
+        "order": "081735896",
+        "orderLine": "002",
+        "partDesc": "Menda Desoldering Braid / Solder Removal",
+        "partNumber": "809-OS-D-25",
+        "quantity": 1,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41218023180905995cf4",
+        "order": "081735896",
+        "orderLine": "003",
+        "partDesc": "Jonard Tools Desoldering Braid / Solder Removal",
+        "partNumber": "801-DPT-100",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "672b414a8023180905995d04",
+        "order": "081741178",
+        "orderLine": "001",
+        "partDesc": "Neutrik USB Connectors",
+        "partNumber": "568-NAUSB-W",
+        "quantity": 12,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b414a8023180905995d05",
+        "order": "081741178",
+        "orderLine": "002",
+        "partDesc": "Murata Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "81-GRM188C80G476ME1J",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41648023180905995d0b",
+        "order": "081741068",
+        "orderLine": "001",
+        "partDesc": "TDK Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "810-CGA6N3X7R2A225K",
+        "quantity": 1000,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b41648023180905995d0c",
+        "order": "081741068",
+        "orderLine": "002",
+        "partDesc": "TDK Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "810-C1608X7R1H473K",
+        "quantity": 10000,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41728023180905995d12",
+        "order": "081740372",
+        "orderLine": "001",
+        "partDesc": "TI LDO Voltage Regulators",
+        "partNumber": "595-TPS79633DCQR",
+        "quantity": 320,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b41728023180905995d13",
+        "order": "081740372",
+        "orderLine": "002",
+        "partDesc": "Analog Devices Inc. RS-232 Interface IC",
+        "partNumber": "700-MAX3218EAPT",
+        "quantity": 115,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41888023180905995d1e",
+        "order": "081737614",
+        "orderLine": "001",
+        "partDesc": "KYOCERA AVX Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "581-0603ZD104MAT2A",
+        "quantity": 10,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b41888023180905995d1f",
+        "order": "081737614",
+        "orderLine": "002",
+        "partDesc": "KYOCERA AVX Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "581-0402ZD103KAT2A",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41888023180905995d20",
+        "order": "081737614",
+        "orderLine": "003",
+        "partDesc": "Analog Devices Inc. Switching Voltage Regulators",
+        "partNumber": "584-LTC3536EMSE#PBF",
+        "quantity": 3,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41898023180905995d23",
+        "order": "081734903",
+        "orderLine": "001",
+        "partDesc": "Littelfuse Resettable Fuses - PPTC",
+        "partNumber": "576-2920L400/15MR",
+        "quantity": 13,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b41898023180905995d24",
+        "order": "081734903",
+        "orderLine": "002",
+        "partDesc": "Littelfuse Resettable Fuses - PPTC",
+        "partNumber": "576-2920L500/16MR-A",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41898023180905995d25",
+        "order": "081734903",
+        "orderLine": "003",
+        "partDesc": "Littelfuse Resettable Fuses - PPTC",
+        "partNumber": "576-2920L700/12MR-A",
+        "quantity": 5,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41af8023180905995d37",
+        "order": "081737607",
+        "orderLine": "001",
+        "partDesc": "IXYS Solid State Relays - PCB Mount",
+        "partNumber": "849-LCA127LS",
+        "quantity": 10,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b41af8023180905995d38",
+        "order": "081737607",
+        "orderLine": "002",
+        "partDesc": "Microchip Zener Diodes",
+        "partNumber": "494-1N936A",
+        "quantity": 5,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41af8023180905995d39",
+        "order": "081737607",
+        "orderLine": "003",
+        "partDesc": "Murata Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "81-GCM1555C1H361FA6D",
+        "quantity": 10000,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41b68023180905995d3d",
+        "order": "081736024",
+        "orderLine": "001",
+        "partDesc": "JST Headers \u0026 Wire Housings",
+        "partNumber": "306-J25MF-02V-K",
+        "quantity": 66,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b41b68023180905995d3e",
+        "order": "081736024",
+        "orderLine": "002",
+        "partDesc": "onsemi ESD Protection Diodes / TVS Diodes",
+        "partNumber": "863-ESD9L5.0ST5G",
+        "quantity": 100,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41bb8023180905995d41",
+        "order": "081740922",
+        "orderLine": "001",
+        "partDesc": "Infineon MOSFETs",
+        "partNumber": "726-BSC014N04LSIATMA",
+        "quantity": 25,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b41bb8023180905995d42",
+        "order": "081740922",
+        "orderLine": "002",
+        "partDesc": "Infineon MOSFETs",
+        "partNumber": "726-BSC010N04LSIATMA",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41bb8023180905995d43",
+        "order": "081740922",
+        "orderLine": "003",
+        "partDesc": "Toshiba MOSFETs",
+        "partNumber": "757-TPWR6003PLL1Q",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41fd8023180905995d58",
+        "order": "081739830",
+        "orderLine": "001",
+        "partDesc": "Phoenix Contact Pluggable Terminal Blocks",
+        "partNumber": "651-1766893",
+        "quantity": 2,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b41fd8023180905995d59",
+        "order": "081739830",
+        "orderLine": "002",
+        "partDesc": "Phoenix Contact Pluggable Terminal Blocks",
+        "partNumber": "651-1756272",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "672b41fd8023180905995d5a",
+        "order": "081739830",
+        "orderLine": "003",
+        "partDesc": "TE Connectivity Power to the Board",
+        "partNumber": "571-1-1971772-4",
+        "quantity": 500,
+        "status": "picked"
+      },
+      {
+        "_id": "672b42118023180905995d63",
+        "order": "081741410",
+        "orderLine": "003",
+        "partDesc": "Molex Automotive Connectors",
+        "partNumber": "538-64325-1091",
+        "quantity": 294,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b42118023180905995d64",
+        "order": "081741410",
+        "orderLine": "004",
+        "partDesc": "Molex Automotive Connectors",
+        "partNumber": "538-34345-0001",
+        "quantity": 785,
+        "status": "picked"
+      },
+      {
+        "_id": "672b423e8023180905995d6f",
+        "order": "081740707",
+        "orderLine": "001",
+        "partDesc": "ABRACON Crystals",
+        "partNumber": "559-FOXSDLF/080R-20",
+        "quantity": 25,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b423e8023180905995d70",
+        "order": "081740707",
+        "orderLine": "002",
+        "partDesc": "Murata Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "81-GCM21BL8EF475KE8L",
+        "quantity": 3000,
+        "status": "picked"
+      },
+      {
+        "_id": "672b42458023180905995d73",
+        "order": "081740423",
+        "orderLine": "001",
+        "partDesc": "Infineon SiC MOSFETs",
+        "partNumber": "726-IMYH200R100M1HXK",
+        "quantity": 40,
+        "status": "picked"
+      },
+      {
+        "_id": "672b42458023180905995d74",
+        "order": "081740423",
+        "orderLine": "002",
+        "partDesc": "Wolfspeed SiC Schottky Diodes",
+        "partNumber": "941-C4D05120A",
+        "quantity": 40,
+        "status": "picked"
+      },
+      {
+        "_id": "672b42468023180905995d78",
+        "order": "081741326",
+        "orderLine": "001",
+        "partDesc": "KEMET Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "partNumber": "80-C0805C331K5R",
+        "quantity": 4000,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b42468023180905995d79",
+        "order": "081741326",
+        "orderLine": "002",
+        "partDesc": "Vishay Ferrite Beads",
+        "partNumber": "70-ILBB0805ER121V",
+        "quantity": 4000,
+        "status": "picked"
+      },
+      {
+        "_id": "672b424a8023180905995d7d",
+        "order": "081736673",
+        "orderLine": "001",
+        "partDesc": "TI RS-485 Interface IC",
+        "partNumber": "595-N65LBC176QDRG4Q1",
+        "quantity": 8,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b424a8023180905995d7e",
+        "order": "081736673",
+        "orderLine": "002",
+        "partDesc": "Analog Devices Inc. RS-422/RS-485 Interface IC",
+        "partNumber": "700-MAX22506EASA+",
+        "quantity": 5,
+        "status": "picked"
+      },
+      {
+        "_id": "672b424d8023180905995d81",
+        "order": "081735292",
+        "orderLine": "001",
+        "partDesc": "Mini-Circuits Signal Conditioning",
+        "partNumber": "139-PSC-2-1W+",
+        "quantity": 3,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b424d8023180905995d82",
+        "order": "081735292",
+        "orderLine": "002",
+        "partDesc": "Susumu Attenuators",
+        "partNumber": "754-PAT1220C10DBT5",
+        "quantity": 5,
+        "status": "picked"
+      },
+      {
+        "_id": "672b42578023180905995d86",
+        "order": "081736628",
+        "orderLine": "001",
+        "partDesc": "Hirose Headers \u0026 Wire Housings",
+        "partNumber": "798-DF1310P125DS25",
+        "quantity": 150,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b42578023180905995d87",
+        "order": "081736628",
+        "orderLine": "002",
+        "partDesc": "TI Interface - Signal Buffers, Repeaters",
+        "partNumber": "595-DS80PCI102SQENPB",
+        "quantity": 105,
+        "status": "picked"
+      },
+      {
+        "_id": "672b425a8023180905995d8a",
+        "order": "081740099",
+        "orderLine": "001",
+        "partDesc": "YAGEO Thin Film Resistors - SMD",
+        "partNumber": "603-RT0603BRD07412RL",
+        "quantity": 600,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b425a8023180905995d8b",
+        "order": "081740099",
+        "orderLine": "002",
+        "partDesc": "YAGEO Thin Film Resistors - SMD",
+        "partNumber": "603-RT0603DRE071K4L",
+        "quantity": 600,
+        "status": "picked"
+      },
+      {
+        "_id": "672b425a8023180905995d8c",
+        "order": "081740099",
+        "orderLine": "003",
+        "partDesc": "YAGEO Thin Film Resistors - SMD",
+        "partNumber": "603-RT0603DRE071K96L",
+        "quantity": 600,
+        "status": "picked"
+      },
+      {
+        "_id": "672b42668023180905995d95",
+        "order": "081740337",
+        "orderLine": "001",
+        "partDesc": "Adafruit Adafruit Accessories",
+        "partNumber": "485-4056",
+        "quantity": 2,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b42668023180905995d96",
+        "order": "081740337",
+        "orderLine": "002",
+        "partDesc": "Adafruit Adafruit Accessories",
+        "partNumber": "485-851",
+        "quantity": 4,
+        "status": "picked"
+      },
+      {
+        "_id": "672b42668023180905995d97",
+        "order": "081740337",
+        "orderLine": "003",
+        "partDesc": "MEAN WELL Switching Power Supplies",
+        "partNumber": "709-RS25-5",
+        "quantity": 2,
+        "status": "picked"
+      },
+      {
+        "_id": "672b427c8023180905995da0",
+        "order": "081739299",
+        "orderLine": "001",
+        "partDesc": "Infineon MOSFETs",
+        "partNumber": "726-BSS84PH6327",
+        "quantity": 50,
+        "status": "picked"
+      },
+      {
+        "_id": "672b427c8023180905995da1",
+        "order": "081739299",
+        "orderLine": "002",
+        "partDesc": "Littelfuse ESD Protection Diodes / TVS Diodes",
+        "partNumber": "576-P6SMB20A",
+        "quantity": 50,
+        "status": "picked"
+      },
+      {
+        "_id": "672b427c8023180905995da2",
+        "order": "081739299",
+        "orderLine": "003",
+        "partDesc": "Panasonic Aluminum Electrolytic Capacitors - Radial Leaded",
+        "partNumber": "667-EEU-FR1V471LB",
+        "quantity": 75,
+        "status": "picked"
+      },
+      {
+        "_id": "672b42888023180905995da9",
+        "order": "081739127",
+        "orderLine": "001",
+        "partDesc": "TI Multiplexer Switch ICs",
+        "partNumber": "595-TMUXHS4412IRUAR",
+        "quantity": 60,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b42888023180905995daa",
+        "order": "081739127",
+        "orderLine": "002",
+        "partDesc": "Analog Devices Inc. Supervisory Circuits",
+        "partNumber": "700-MAX6899AAZTT",
+        "quantity": 10,
+        "status": "picked"
+      },
+      {
+        "_id": "672b428f8023180905995dae",
+        "order": "081741246",
+        "orderLine": "001",
+        "partDesc": "TI Flip Flops",
+        "partNumber": "595-SN74AUP2G79DQER",
+        "quantity": 20,
+        "status": "shipped"
+      },
+      {
+        "_id": "672b428f8023180905995daf",
+        "order": "081741246",
+        "orderLine": "002",
+        "partDesc": "Keystone Coin Cell Battery Holders",
+        "partNumber": "534-2991TR",
+        "quantity": 1000,
+        "status": "picked"
+      }
+    ],
+    "trigger": false,
+    "wcs_batch_ibns": [
+      "332F34",
+      "332F3U",
+      "332F3W",
+      "332F4A",
+      "332F4Q",
+      "332F4Z",
+      "332F5F",
+      "332F5M",
+      "332F77",
+      "332F8J",
+      "332F94",
+      "332F9T",
+      "332FAB",
+      "332FB6",
+      "332FBI",
+      "332FCJ",
+      "332FCT",
+      "332FD8",
+      "332FDH",
+      "332FDP",
+      "332FDQ",
+      "332FEP",
+      "332FFO",
+      "332FI3",
+      "332FIK",
+      "332FJE",
+      "332FKG",
+      "332FKJ",
+      "332FR3",
+      "332FWE",
+      "332G2S",
+      "332GCB",
+      "332GOP",
+      "332HA1",
+      "332HAG",
+      "332HHZ",
+      "332HL4",
+      "332IHV",
+      "332J70",
+      "332JB7",
+      "332KNF",
+      "332L9W",
+      "332LBV",
+      "332MAB",
+      "332MEP",
+      "332MUP",
+      "332OKU",
+      "332OY7",
+      "332OYX",
+      "332P1L",
+      "332PFN",
+      "332PXT",
+      "332QY8",
+      "332S02",
+      "332UMU",
+      "332V6M",
+      "332Y2S",
+      "332YDJ",
+      "332YIF",
+      "3330PR",
+      "3330R2",
+      "333CYE",
+      "333RJF",
+      "335H3K",
+      "335H3W",
+      "335H3Z",
+      "335H4G",
+      "335H4T",
+      "335H61",
+      "335H69",
+      "335H6E",
+      "335H6L",
+      "335H6O",
+      "335H75",
+      "335H7E",
+      "335H7K",
+      "335HAD",
+      "335HBH",
+      "335HBL",
+      "335HCH",
+      "335HCU",
+      "335HFD",
+      "335HFI",
+      "335HGX",
+      "335HIC",
+      "335HIF",
+      "335HIQ",
+      "335HK7",
+      "335HKS",
+      "335IM3",
+      "335JWS",
+      "335KNQ",
+      "335KUO",
+      "335L8K",
+      "335LJN",
+      "335LWC",
+      "335MZC",
+      "335NWX",
+      "335OZW",
+      "335PFS",
+      "335PUU",
+      "335RTD",
+      "335T4G",
+      "335TZ5",
+      "335UL7",
+      "335UNN",
+      "335UZY",
+      "335XBT",
+      "335YIJ",
+      "335Z1X",
+      "335ZE6",
+      "33620P",
+      "3362M5",
+      "33632M",
+      "3364ZQ",
+      "3367QD",
+      "336B9F",
+      "336DYR",
+      "339EDM",
+      "339EE5",
+      "339EFX",
+      "339EHL",
+      "339EIX",
+      "339EJJ",
+      "339EJY",
+      "339EKM",
+      "339EKO",
+      "339EM1",
+      "339EM6",
+      "339EMC",
+      "339EO7",
+      "339EOU",
+      "339EPZ",
+      "339EQ4",
+      "339EQ6",
+      "339EQB",
+      "339EQG",
+      "339EQP",
+      "339EQT",
+      "339ER6",
+      "339ERW",
+      "339ESB",
+      "339ESF",
+      "339F5K",
+      "339FXB",
+      "339GID",
+      "339GXF",
+      "339HGT",
+      "339HOT",
+      "339JB2",
+      "339K60",
+      "339KR0",
+      "339KS3",
+      "339L4O",
+      "339LDA",
+      "339M2W",
+      "339MCD",
+      "339MI1",
+      "339MMP",
+      "339N0K",
+      "339NIN",
+      "339NQK",
+      "339NUK",
+      "339OCU",
+      "339PNH",
+      "339Q2F",
+      "339R74",
+      "339RW4",
+      "339SH1",
+      "339T79",
+      "339TAH",
+      "339TB8",
+      "339UQ7",
+      "339V14",
+      "339XC8",
+      "33A0CY",
+      "33A0VG",
+      "33A6C7"
+    ],
+    "wcs_batch_orders": [
+      "081613223",
+      "081634073",
+      "081647897",
+      "081649539",
+      "081653758",
+      "081654070",
+      "081654329",
+      "081655046",
+      "081655504",
+      "081655588",
+      "081655655",
+      "081656292",
+      "081656391",
+      "081657094",
+      "081657663",
+      "081657766",
+      "081657990",
+      "081658271",
+      "081658439",
+      "081659120",
+      "081659386",
+      "081659511",
+      "081659543",
+      "081659812",
+      "081659845",
+      "081686419",
+      "081689463",
+      "081689834",
+      "081689929",
+      "081691028",
+      "081691115",
+      "081691137",
+      "081692284",
+      "081693588",
+      "081693834",
+      "081693928",
+      "081694384",
+      "081694897",
+      "081695019",
+      "081695362",
+      "081695467",
+      "081695537",
+      "081695879",
+      "081696148",
+      "081696739",
+      "081698549",
+      "081698628",
+      "081698753",
+      "081698818",
+      "081734903",
+      "081735292",
+      "081735896",
+      "081736024",
+      "081736628",
+      "081736673",
+      "081737607",
+      "081737614",
+      "081739127",
+      "081739299",
+      "081739830",
+      "081740099",
+      "081740337",
+      "081740372",
+      "081740423",
+      "081740584",
+      "081740607",
+      "081740707",
+      "081740922",
+      "081741068",
+      "081741178",
+      "081741246",
+      "081741247",
+      "081741326",
+      "081741410"
+    ]
+  },
+  "params": {},
+  "propConfig": {
+    "custom.batch": {
+      "persistent": true
+    },
+    "custom.chute_data": {
+      "persistent": true
+    },
+    "custom.mature_orders": {
+      "binding": {
+        "config": {
+          "struct": {
+            "chute_data": "{view.custom.chute_data}",
+            "pconsol_issues": "{view.custom.pconsol_issues}",
+            "pconsol_lines": "{view.custom.pconsol_lines}",
+            "pconsol_orders": "{view.custom.pconsol_orders}"
+          },
+          "waitOnAll": true
+        },
+        "transforms": [
+          {
+            "code": "\n\tfrom collections import defaultdict\n\n\n\tchute_infos \u003d [value[\u0027chute_data\u0027][\u0027DST-0084-1-1-B\u0027]]\n\n\tpconsol_orders \u003d value[\u0027pconsol_orders\u0027]\n\tpconsol_lines  \u003d value[\u0027pconsol_lines\u0027]\n\tpconsol_issues \u003d value[\u0027pconsol_issues\u0027]\n\n\n\tchute_order_issues \u003d defaultdict(set)\n\tfor chute_info in chute_infos:\n\t\tfor order_group in (chute_info[\u0027consolidating\u0027], chute_info[\u0027available\u0027]):\n\t\t\tfor order_number in order_group:\n\t\t\t\tfor issue_ibn in order_group[order_number].get(\u0027issues\u0027, {}):\n\t\t\t\t\tchute_order_issues[order_number].add(issue_ibn)\n\tchute_order_issues \u003d dict(chute_order_issues)\n\n\n\twcs_order_lines \u003d defaultdict(dict)\n\tfor line in pconsol_lines:\n\t\tif line[\u0027status\u0027] in (\u0027cancelled\u0027,):\n\t\t\tcontinue\n\t\torder_number \u003d line[\u0027order\u0027]\n\t\torder_line \u003d line[\u0027orderLine\u0027]\n\t\twcs_order_lines[order_number][order_line] \u003d line\n\twcs_order_lines \u003d dict(wcs_order_lines)\n\n\twcs_consol_zone_ibns \u003d set()\n\n\twcs_order_issues \u003d defaultdict(dict)\n\tfor issue in pconsol_issues:\n\t\torder_number \u003d issue[\u0027order\u0027]\n\t\torder_line \u003d issue[\u0027orderLine\u0027]\n\t\tissue_ibn \u003d issue[\u0027ibn\u0027]\n\t\n\t\tif not wcs_order_lines.get(order_number, {}).get(order_line,None):\n\t\t\tcontinue\n\t\n\t\tif issue[\u0027status\u0027] in ( \u0027cancelled\u0027,):\n\t\t\tcontinue\n\t\n\t\tif issue.get(\u0027is_bulk_consol\u0027):\n\t\t\tcontinue\n\t\n\t\twcs_order_issues[order_number][issue_ibn] \u003d issue\n\t\n\t\twcs_consol_zone_ibns.add(issue_ibn)\n\t\n\twcs_order_issues \u003d dict(wcs_order_issues)\n\n\n\tmature_order_numbers \u003d set()\n\n\tfor order in pconsol_orders:\n\t\n\t\torder_number \u003d order[\u0027order\u0027]\n\t\n\t\tif order[\u0027status\u0027] in (\u0027consolidated\u0027, \u0027cancelled\u0027, \u0027held\u0027, \u0027shipped\u0027):\n\t\t\tmature_order_numbers.add(order_number)\n\t\t\tcontinue\n\t\n\t\tif order[\u0027status\u0027] !\u003d \u0027issued\u0027:\n\t\t\tpass\n\t\t\tcontinue\n\t\n\t\twcs_order_issues_of_interest \u003d set(wcs_order_issues[order_number])\n\t\tissues_in_chutes \u003d set(chute_order_issues.get(order_number, set()))\n\t\n\t\tif wcs_order_issues_of_interest.issubset(issues_in_chutes):\n\t\t\tmature_order_numbers.add(order_number)\n\t\t\tcontinue\n\n\n\ttry:\n\t\tfraction_mature \u003d float(len(mature_order_numbers)) / float(len(wcs_order_issues))\n\texcept ZeroDivisionError:\n\t\treturn []\n\n\n\n\n\n\n\n\n\n\n\treturn list(sorted(mature_order_numbers))",
+            "type": "script"
+          }
+        ],
+        "type": "expr-struct"
+      },
+      "persistent": true
+    },
+    "custom.pconsol_issues": {
+      "binding": {
+        "config": {
+          "collection": "pconsol_issues",
+          "connector": "MongoWCS",
+          "enableValueCache": true,
+          "polling": {
+            "enabled": false,
+            "rate": "30"
+          },
+          "struct": {
+            "collation": {},
+            "filter": {
+              "ibn": {
+                "$in": "{view.custom.wcs_batch_ibns}"
+              }
+            },
+            "limit": 200,
+            "projection": {},
+            "skip": 0,
+            "sort": {}
+          },
+          "type": "Find"
+        },
+        "type": "connectorMongoDb.query"
+      }
+    },
+    "custom.pconsol_lines": {
+      "binding": {
+        "config": {
+          "collection": "pconsol_lines",
+          "connector": "MongoWCS",
+          "enableValueCache": true,
+          "polling": {
+            "enabled": false,
+            "rate": "30"
+          },
+          "struct": {
+            "collation": {},
+            "filter": {
+              "order": {
+                "$in": "{view.custom.wcs_batch_orders}"
+              }
+            },
+            "limit": 200,
+            "projection": {},
+            "skip": 0,
+            "sort": {}
+          },
+          "type": "Find"
+        },
+        "type": "connectorMongoDb.query"
+      },
+      "persistent": true
+    },
+    "custom.pconsol_orders": {
+      "binding": {
+        "config": {
+          "collection": "pconsol_orders",
+          "connector": "MongoWCS",
+          "enableValueCache": true,
+          "polling": {
+            "enabled": false,
+            "rate": "30"
+          },
+          "struct": {
+            "collation": {},
+            "filter": {
+              "order": {
+                "$in": "{view.custom.wcs_batch_orders}"
+              }
+            },
+            "limit": 200,
+            "projection": {},
+            "skip": 0,
+            "sort": {}
+          },
+          "type": "Find"
+        },
+        "type": "connectorMongoDb.query"
+      }
+    },
+    "custom.trigger": {
+      "persistent": true
+    },
+    "custom.wcs_batch_ibns": {
+      "binding": {
+        "config": {
+          "collection": "outbound_scan_sort_ibn",
+          "connector": "MongoWCS",
+          "enableValueCache": true,
+          "polling": {
+            "enabled": false,
+            "rate": "30"
+          },
+          "struct": {
+            "collation": {},
+            "filter": {
+              "consol_subzone": "{view.custom.batch.consol_subzone}",
+              "consol_zone": "{view.custom.batch.consol_zone}"
+            },
+            "limit": 200,
+            "projection": {
+              "_id": 1
+            },
+            "skip": 0,
+            "sort": {}
+          },
+          "type": "Find"
+        },
+        "transforms": [
+          {
+            "code": "\treturn [\n\t\tentry[\u0027_id\u0027]\n\t\tfor entry\n\t\t in value\n\t]",
+            "type": "script"
+          }
+        ],
+        "type": "connectorMongoDb.query"
+      },
+      "persistent": true
+    },
+    "custom.wcs_batch_orders": {
+      "binding": {
+        "config": {
+          "path": "view.custom.pconsol_issues"
+        },
+        "transforms": [
+          {
+            "code": "\treturn sorted(set([\n\t\tentry[\u0027order\u0027]\n\t\tfor entry\n\t\t in value\n\t]))",
+            "type": "script"
+          }
+        ],
+        "type": "property"
+      },
+      "persistent": true
+    }
+  },
+  "props": {},
+  "root": {
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

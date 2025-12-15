@@ -1,0 +1,563 @@
+{
+  "custom": {},
+  "params": {
+    "PrinterID": 1,
+    "PrinterStatus": 11
+  },
+  "propConfig": {
+    "params.PrinterID": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.PrinterStatus": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "1": "{view.params.PrinterID}"
+          },
+          "tagPath": "[Mouser]Mouser/HSL/Controls/Printer_Controls/IGN_HSLPrinterStatus_Prn{1}"
+        },
+        "type": "tag"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 407,
+      "width": 966
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 965
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\u0027Printer \u0027 + {view.params.PrinterID} + \u0027 Status\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#D5D5D5",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 110,
+          "x": 81,
+          "y": 39
+        },
+        "props": {
+          "text": "Status:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "Status": 0
+        },
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 184,
+          "x": 202,
+          "y": 39
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "if({this.custom.Status}\u003d0,\u0027Disabled\u0027,\r\nif({this.custom.Status}\u003d1,\u0027Off\u0027,\r\nif({this.custom.Status}\u003d2,\u0027Tamp Home Fault\u0027,\r\nif({this.custom.Status}\u003d3,\u0027Printer Fault\u0027,\r\nif({this.custom.Status}\u003d4,\u0027Print Engine Error\u0027,\r\nif({this.custom.Status}\u003d5,\u0027Print Engine Power Off\u0027,\r\nif({this.custom.Status}\u003d6,\u0027MisMatch\u0027,\r\nif({this.custom.Status}\u003d7,\u0027Unexpected Label\u0027,\r\nif({this.custom.Status}\u003d8,\u0027No Lable on Tamp\u0027,\r\nif({this.custom.Status}\u003d9,\u0027Media Low\u0027,\r\nif({this.custom.Status}\u003d10,\u0027Ready\u0027,\r\nif({this.custom.Status}\u003d11,\u0027On\u0027,\r\n\u0027Unknown\u0027))))))))))))\r\n\t"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "height": 32,
+          "width": 110,
+          "x": 81,
+          "y": 71
+        },
+        "props": {
+          "text": "Success:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "height": 32,
+          "width": 110,
+          "x": 81,
+          "y": 103
+        },
+        "props": {
+          "text": "Fail:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_4"
+        },
+        "position": {
+          "height": 32,
+          "width": 153,
+          "x": 38,
+          "y": 135
+        },
+        "props": {
+          "text": "Avg Response Time:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_5"
+        },
+        "position": {
+          "height": 32,
+          "width": 170,
+          "x": 21,
+          "y": 167
+        },
+        "props": {
+          "text": "Label On Tamp Time:",
+          "textStyle": {
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_6"
+        },
+        "position": {
+          "height": 32,
+          "width": 110,
+          "x": 239,
+          "y": 71
+        },
+        "props": {
+          "text": 0,
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_7"
+        },
+        "position": {
+          "height": 32,
+          "width": 110,
+          "x": 239,
+          "y": 103
+        },
+        "props": {
+          "text": 0,
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "Number": 0
+        },
+        "meta": {
+          "name": "Label_8"
+        },
+        "position": {
+          "height": 32,
+          "width": 110,
+          "x": 239,
+          "y": 135
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.Number} + \u0027 ms\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "custom": {
+          "number": 0
+        },
+        "meta": {
+          "name": "Label_9"
+        },
+        "position": {
+          "height": 32,
+          "width": 110,
+          "x": 239,
+          "y": 167
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "{this.custom.number} + \u0027 ms\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Table"
+        },
+        "position": {
+          "height": 323,
+          "width": 550,
+          "x": 409,
+          "y": 35
+        },
+        "props": {
+          "data": [
+            {
+              "city": {
+                "align": "center",
+                "editable": true,
+                "justify": "left",
+                "style": {
+                  "backgroundColor": "#F7901D",
+                  "classes": "some-class"
+                },
+                "value": "Folsom"
+              },
+              "country": "United States",
+              "population": 77271
+            },
+            {
+              "city": "Helsinki",
+              "country": "Finland",
+              "population": 635591
+            },
+            {
+              "city": "Jakarta",
+              "country": "Indonesia",
+              "population": 10187595
+            },
+            {
+              "city": "Madrid",
+              "country": "Spain",
+              "population": 3233527
+            },
+            {
+              "city": "Prague",
+              "country": "Czech Republic",
+              "population": 1241664
+            },
+            {
+              "city": "San Diego",
+              "country": "United States",
+              "population": 1406630
+            },
+            {
+              "city": "San Francisco",
+              "country": "United States",
+              "population": 884363
+            },
+            {
+              "city": "Shanghai",
+              "country": "China",
+              "population": 24153000
+            },
+            {
+              "city": "Tokyo",
+              "country": "Japan",
+              "population": 13617000
+            },
+            {
+              "city": "Washington, DC",
+              "country": "United States",
+              "population": 658893
+            },
+            {
+              "city": "Wellington",
+              "country": "New Zealand",
+              "population": 405000
+            },
+            {
+              "city": "Delhi",
+              "country": "India",
+              "population": 11034555
+            },
+            {
+              "city": "Dhaka",
+              "country": "Bangladesh",
+              "population": 14399000
+            },
+            {
+              "city": "Lagos",
+              "country": "Nigeria",
+              "population": 16060303
+            },
+            {
+              "city": "Karachi",
+              "country": "Pakistan",
+              "population": 14910352
+            },
+            {
+              "city": "Istanbul",
+              "country": "Turkey",
+              "population": 14025000
+            },
+            {
+              "city": "Cairo",
+              "country": "Egypt",
+              "population": 10230350
+            },
+            {
+              "city": "Mexico City",
+              "country": "Mexico",
+              "population": 8974724
+            },
+            {
+              "city": "London",
+              "country": "United Kingdom",
+              "population": 8825001
+            },
+            {
+              "city": "New York City",
+              "country": "United States",
+              "population": 8622698
+            },
+            {
+              "city": "Tehran",
+              "country": "Iran",
+              "population": 8154051
+            },
+            {
+              "city": "Bogota",
+              "country": "Colombia",
+              "population": 7878783
+            },
+            {
+              "city": "Rio de Janeiro",
+              "country": "Brazil",
+              "population": 6429923
+            },
+            {
+              "city": "Riyadh",
+              "country": "Saudi Arabia",
+              "population": 5676621
+            },
+            {
+              "city": "Singapore",
+              "country": "Singapore",
+              "population": 5535000
+            },
+            {
+              "city": "Saint Petersburg",
+              "country": "Russia",
+              "population": 5191690
+            },
+            {
+              "city": "Sydney",
+              "country": "Australia",
+              "population": 208374
+            },
+            {
+              "city": "Abidjan",
+              "country": "Ivory Coast",
+              "population": 4765000
+            },
+            {
+              "city": "Dar es Salaam",
+              "country": "Tanzania",
+              "population": 4364541
+            },
+            {
+              "city": "Wellington",
+              "country": "New Zealand",
+              "population": 405000
+            },
+            {
+              "city": "Los Angeles",
+              "country": "United States",
+              "population": 3884307
+            },
+            {
+              "city": "Berlin",
+              "country": "Germany",
+              "population": 3517424
+            },
+            {
+              "city": "Jeddah",
+              "country": "Saudi Arabia",
+              "population": 3456259
+            },
+            {
+              "city": "Kabul",
+              "country": "Afghanistan",
+              "population": 3414100
+            },
+            {
+              "city": "Mashhad",
+              "country": "Iran",
+              "population": 3001184
+            },
+            {
+              "city": "Milan",
+              "country": "Italy",
+              "population": 1359905
+            },
+            {
+              "city": "Kiev",
+              "country": "Ukraine",
+              "population": 2908703
+            },
+            {
+              "city": "Rome",
+              "country": "Italy",
+              "population": 2877215
+            },
+            {
+              "city": "Chicago",
+              "country": "United States",
+              "population": 2695598
+            },
+            {
+              "city": "Osaka",
+              "country": "Japan",
+              "population": 2691742
+            },
+            {
+              "city": "Bandung",
+              "country": "Indonesia",
+              "population": 2575478
+            },
+            {
+              "city": "Managua",
+              "country": "Nicaragua",
+              "population": 2560789
+            },
+            {
+              "city": "Paris",
+              "country": "France",
+              "population": 2229621
+            },
+            {
+              "city": "Shiraz",
+              "country": "Iran",
+              "population": 1869001
+            },
+            {
+              "city": "Manila",
+              "country": "Philippines",
+              "population": 1780148
+            },
+            {
+              "city": "Montreal",
+              "country": "Canada",
+              "population": 1649519
+            },
+            {
+              "city": "Guadalajara",
+              "country": "Mexico",
+              "population": 1495189
+            },
+            {
+              "city": "Dallas",
+              "country": "United States",
+              "population": 1317929
+            },
+            {
+              "city": "Yerevan",
+              "country": "Armenia",
+              "population": 1060138
+            },
+            {
+              "city": "Tunis",
+              "country": "Tunisia",
+              "population": 1056247
+            }
+          ]
+        },
+        "type": "ia.display.table"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

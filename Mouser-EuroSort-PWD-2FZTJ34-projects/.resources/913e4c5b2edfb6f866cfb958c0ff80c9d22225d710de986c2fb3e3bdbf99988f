@@ -1,0 +1,154 @@
+"""
+
+
+"""
+from shared.data.types.dictslots import DictSlotsMixin
+from shared.data.types.mixins import CountInstanceMixin, ImmutableDictMixin, TemporaryContextMixin
+from shared.data.types.deduplicated.hierarchy import follow
+from shared.data.types.deduplicated.persistence.hierarchy import PersistableNamespacedHierarchy
+from shared.data.types.deduplicated.persistence.dictslots import PersistableDictSlots
+
+from shared.tools.monitoring.context.base import StackTrace_FilteringMixin
+
+from collections import defaultdict
+
+from java.lang import NullPointerException
+from org.python.core import ThreadStateMapping
+
+def getThreadFrame(target_thread):
+	"""Grab the thread's Python execution context, if any (without using the profiler)"""
+	try:
+		return ThreadStateMapping._current_frames()[target_thread.getId()]
+	except (KeyError, NullPointerException):
+		return None
+
+
+
+class PythonModulePath(PersistableNamespacedHierarchy):
+	__DELIMITER__ = '.'
+	_NAMESPACE_SUFFIX = ':'
+
+
+
+class FrameEntry(
+		CountInstanceMixin, 
+		ImmutableDictMixin,
+		PersistableDictSlots,
+	):
+	__slots__ = (
+		'name', 'line_start',
+#		'scope', 'namespace', 
+		'location', 'line_number',
+	)
+	
+	@classmethod
+	def generate(cls, frame):
+		name        = frame.f_code.co_name
+		line_start  = frame.f_code.co_firstlineno
+		line_number = frame.f_lineno
+		scope, _, namespace = frame.f_code.co_filename[1:-1].rpartition(':') # remove <>
+		
+		location = PythonModulePath(scope, namespace)
+		
+		# errors here mean that the init missed a calc
+		local_vars = locals()
+		slot_values = tuple(local_vars[attr] for attr in cls.keys())
+		return cls(*slot_values)
+	
+#
+#	@property
+#	def location(self):
+#		if self.scope:
+#			return '%(scope)s at %(namespace)s:%(line_number)d' % self
+#		else:
+#			return '%(namespace)s:%(line_number)d' % self
+
+	def __repr__(self):
+		return '<%(name)s in %(location)s>' % self
+
+
+
+class StackTrace(
+		ImmutableDictMixin,
+		StackTrace_FilteringMixin,
+		TemporaryContextMixin,
+		DictSlotsMixin,
+	):
+	__slots__ = ('entries', 'depth',
+				 'raw_frames',
+				)
+				
+	_ignore_filters = [
+	# [ (attr, pattern)]
+	]
+	
+	
+	# global running metadata statistics
+	_stack_top_instance_counts = defaultdict(int)
+
+	def __init__(self, java_thread, with_raw=False):
+		thread_frame = getThreadFrame(java_thread)
+
+		if thread_frame is None:
+			self.entries = []
+			self.depth = 0
+			self.raw_frames = tuple()
+			return
+			
+		self.entries = [
+			FrameEntry.generate(frame) 
+			for frame
+			in follow(thread_frame, lambda f: f.f_back)
+		]
+		
+		# depth is the unfiltered stack length
+		self.depth = len(self.entries)
+		
+		self._stack_top_instance_counts[self.entries[-1]] += 1
+		
+		# to allow for temporary holding for context, if needed
+		if with_raw:
+			self.raw_frames = tuple(f for f in follow(thread_frame, lambda f: f.f_back))
+		else:
+			self.raw_frames = tuple()
+
+
+	def release(self):
+		self.raw_frames = tuple()
+
+
+	@staticmethod
+	def _access_or_none(list_like, index):
+		try:
+			return list_like[index]
+		except IndexError:
+			return None
+	
+	@property
+	def head(self):
+		return self._access_or_none(self.entries, -1)
+
+	@property
+	def root(self):
+		return self._access_or_none(self.entries, 0)
+
+	@property
+	def head_frame(self):
+		return self._access_or_none(self.raw_frames, -1)
+		
+	@property
+	def root_frame(self):
+		return self._access_or_none(self.raw_frames, 0)
+
+	def __getitem__(self, index):
+		return self.entries[index]
+		
+	def __iter__(self):
+		for entry in self.entries:
+			yield entry
+
+	def __len__(self):
+		return len(self.entries)
+
+	def __repr__(self):
+		return '<Python Stacktrace %d entries>' % len(self)

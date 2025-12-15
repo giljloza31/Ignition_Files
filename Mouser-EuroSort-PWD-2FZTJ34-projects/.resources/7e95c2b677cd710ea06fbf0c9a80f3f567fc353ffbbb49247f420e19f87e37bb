@@ -1,0 +1,3 @@
+SELECT *
+FROM Scan16_Routing
+ORDER BY  RouteCode DESC

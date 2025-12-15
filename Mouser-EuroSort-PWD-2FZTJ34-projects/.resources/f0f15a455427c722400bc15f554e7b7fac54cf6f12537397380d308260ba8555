@@ -1,0 +1,226 @@
+{
+  "custom": {},
+  "params": {
+    "CurrentPos": 0,
+    "Div": 10,
+    "DivertNum": 1,
+    "HighestDivertPos": 2020,
+    "LastPost": 0,
+    "Push_Button": false
+  },
+  "propConfig": {
+    "params.CurrentPos": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Div": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.DivertNum": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.HighestDivertPos": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.LastPost": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Push_Button": {
+      "onChange": {
+        "enabled": null,
+        "script": "\tif currentValue.value \u003d\u003d True:\n\t\tcurrentpos \u003d self.params.CurrentPos\n\t\tself.params.LastPost \u003d currentpos\n\t\t\n\tself.params.Push_Button \u003d False\t"
+      },
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 128,
+      "width": 1881
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Slider"
+        },
+        "position": {
+          "height": 31.999999999999993,
+          "width": 1579,
+          "x": 230.14,
+          "y": 32.97
+        },
+        "propConfig": {
+          "props.labels.interval": {
+            "binding": {
+              "config": {
+                "expression": "round({view.params.HighestDivertPos}/{view.params.Div})"
+              },
+              "type": "expr"
+            }
+          },
+          "props.max": {
+            "binding": {
+              "config": {
+                "path": "view.params.HighestDivertPos"
+              },
+              "type": "property"
+            }
+          },
+          "props.value": {
+            "binding": {
+              "config": {
+                "path": "../NumericEntryField.props.value"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "enabled": false,
+          "labels": {
+            "show": true
+          },
+          "trackColor": "#47FF47"
+        },
+        "type": "ia.input.slider"
+      },
+      {
+        "meta": {
+          "name": "NumericEntryField"
+        },
+        "position": {
+          "height": 32,
+          "width": 51,
+          "x": 170.432,
+          "y": 16.9792
+        },
+        "propConfig": {
+          "props.inputBounds.maximum": {
+            "binding": {
+              "config": {
+                "path": "view.params.HighestDivertPos"
+              },
+              "type": "property"
+            }
+          },
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.CurrentPos"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "minimum": 0
+          },
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 50,
+          "x": 172.464,
+          "y": 55
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "path": "view.params.LastPost"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "color": "#D5D5D5",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 134,
+          "x": 33.4531,
+          "y": 16.9792
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\u0027Divert \u0027+{view.params.DivertNum} + \u0027 Position\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 162,
+          "x": 5.45833,
+          "y": 55
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "\u0027Divert \u0027+{view.params.DivertNum} + \u0027 Last Position\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

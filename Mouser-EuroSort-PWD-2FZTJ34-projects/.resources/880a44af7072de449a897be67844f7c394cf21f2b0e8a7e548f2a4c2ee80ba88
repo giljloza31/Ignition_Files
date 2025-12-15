@@ -1,0 +1,50 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1723
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "FlexRepeater"
+        },
+        "position": {
+          "height": 758,
+          "width": 1663,
+          "x": 27,
+          "y": 19
+        },
+        "props": {
+          "alignContent": "space-between",
+          "alignItems": "flex-start",
+          "instances": [
+            {
+              "Area": "High Speed Line",
+              "Toggle1": {
+                "ActionPB": false,
+                "StatusPB": false
+              },
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              },
+              "popid": "Mouser/Popups/HSL/HSL_Power_Controls"
+            }
+          ],
+          "justify": "space-between",
+          "path": "_Templates_V3/Templates_OnScreen/Power/Power_w_Controls",
+          "wrap": "wrap"
+        },
+        "type": "ia.display.flex-repeater"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

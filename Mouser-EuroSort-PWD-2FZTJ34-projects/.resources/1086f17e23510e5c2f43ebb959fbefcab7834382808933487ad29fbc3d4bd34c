@@ -1,0 +1,165 @@
+import system
+from shared.tools.logging import Logger
+from shared.tools.global import ExtraGlobal
+from shared.helpers.tools import safe_tag_read, safe_tag_write
+from java.lang import Exception as JavaException
+
+_SCOPE = "Sort-Service"
+_KEY   = "routers"
+
+_ROUTER_LOOKUP = {
+#	(To-Do) Add in code for QPS future
+#	'QPS':   ("shared.pwd.Mouser.Consolidation.QPS_Sorter", "QPS_Router"),
+	'Consol': ("shared.pwd.Mouser.Consolidation.Consol_Sorter", "Consol_Router"),
+	'Scan1':  ("shared.pwd.Mouser.Consolidation.Scan1_Sorter",  "Scan1_Router"),
+	'Scan51': ("shared.pwd.Mouser.Consolidation.Scan51_Sorter", "Scan51_Router"),
+}
+
+# Time constants (in seconds)
+YEAR  = 365 * 24 * 60 * 60
+MONTH = 30 * 24 * 60 * 60
+WEEK  = 7 * 24 * 60 * 60
+DAY   = 24 * 60 * 60
+HOUR  = 60 * 60
+MIN   = 60
+SEC   = 1
+
+
+def define_time(period_dict):
+	time_map = {
+		'year':  YEAR,
+		'month': MONTH,
+		'week':  WEEK,
+		'day':   DAY,
+		'hour':  HOUR,
+		'min':   MIN,
+		'sec':   SEC,
+	}
+	total_seconds = 0
+	for value, unit in period_dict.items():
+		# value = numeric amount, unit = string like "hour"
+		total_seconds += value * time_map.get(str(unit).lower(), 0)
+	return total_seconds
+
+
+# Keep routers in EG for a long time (effectively until gateway restart)
+lifespan_duration = define_time({1: "day"})
+LIFESPAN_S = lifespan_duration
+
+log = system.util.getLogger("Sort_Driver")
+
+# ------------ ExtraGlobal helpers (per-label setdefault with lifespan) ------------
+
+def eg_get(label, default=None):
+	"""
+	Get a value from ExtraGlobal for this label in the Sort-Service scope.
+	If not present and default is not None, stash the default and return it.
+	"""
+	val = ExtraGlobal.get(label=label, scope=_SCOPE)
+	if val is None and default is not None:
+		ExtraGlobal.stash(value=default, label=label, scope=_SCOPE, lifespan=lifespan_duration)
+		val = default
+	return val
+
+
+def eg_set(label, value, lifespan=None):
+	"""
+	Set a value in ExtraGlobal for this label in the Sort-Service scope.
+	If lifespan is None, use the provided lifespan or EG default.
+	"""
+	if lifespan is None:
+		return ExtraGlobal.stash(value, label=label, scope=_SCOPE, lifespan=lifespan_duration)
+	return ExtraGlobal.stash(value, label=label, scope=_SCOPE, lifespan=lifespan)
+
+
+def eg_del(label):
+	try:
+		ExtraGlobal.trash(label=label, scope=_SCOPE)
+	except Exception:
+		pass
+
+
+# ------------ Tag helpers ------------
+
+def _connected_tag_path(name):
+	return "[Mouser]Mouser/%s/Config/Connected" % name
+
+
+def _connect_tag_path(name):
+	return "[Mouser]Mouser/%s/Config/Connect" % name
+
+
+def _set_connected(name, value):
+	try:
+		safe_tag_write(_connected_tag_path(name), bool(value))
+	except Exception as e:
+		log.warn("Failed writing Connected for %s -> %s: %s" % (name, value, e))
+
+
+# ------------ Import helper ------------
+
+def _import_router_class(name):
+	if name not in _ROUTER_LOOKUP:
+		raise ValueError("No router mapping for sorter %r" % name)
+	mod_path, cls_name = _ROUTER_LOOKUP[name]
+	mod = __import__(mod_path, fromlist=[cls_name])
+	return getattr(mod, cls_name)
+
+
+# ------------ Public API (per-sorter label = routers.<name>) ------------
+
+def start_sorter(name):
+	"""
+	Start sorter `name`. Uses EG label: routers.<name>.
+	Returns router instance. Idempotent.
+	"""
+	label = "routers.%s" % name
+	router = eg_get(label, default=None)
+	if router is not None:
+		log.debug("start_sorter(%s): already running; skipping" % name)
+		_set_connected(name, True)
+		return router
+
+	try:
+		RouterCls = _import_router_class(name)
+		router = RouterCls(name)
+		router.start()  # spawns its own scheduler threads
+		eg_set(label, router, lifespan=LIFESPAN_S)
+		_set_connected(name, True)
+		log.info("Sorter %s started" % name)
+		return router
+	except Exception as e:
+		_set_connected(name, False)
+		log.error("Failed to start sorter %s: %s" % (name, e))
+		raise
+
+
+def stop_sorter(name):
+	"""
+	Stop sorter `name`. Idempotent. Clears EG label routers.<name>.
+	"""
+	label = "routers.%s" % name
+	router = eg_get(label, default=None)
+	if not router:
+		log.debug("stop_sorter(%s): not running; skipping" % name)
+		_set_connected(name, False)
+		return
+	try:
+		router.stop()
+	except JavaException as je:
+		log.warn("Sorter %s stop raised JavaException: %s" % (name, je))
+	except Exception as e:
+		log.warn("Sorter %s stop raised: %s" % (name, e))
+	finally:
+		eg_del(label)
+		_set_connected(name, False)
+		log.info("Sorter %s stopped" % name)
+
+
+def toggle_from_connect_tag(name):
+	"""Read Connect tag and start/stop accordingly."""
+	want = bool(safe_tag_read(_connect_tag_path(name)))
+	if want:
+		start_sorter(name)
+	else:
+		stop_sorter(name)

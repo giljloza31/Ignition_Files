@@ -1,0 +1,3 @@
+Select TOP( :Topvalue )*
+From  Scan1_Tracking_Table
+Order By  inductindx DESC

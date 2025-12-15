@@ -1,0 +1,45 @@
+"""
+	SorterData - messages for the machine
+	
+	Make Java Pythonic.
+	Basically this clutches and simplifies
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from sortapi import SorterData
+from eurosort.enums import *
+
+
+
+class SorterDataBase(object):
+
+	def __init__(self, sorterData=None, message_type=None, target=None, source=None):
+		self.target = target
+		self.source = source
+		
+		if sorterData:
+			self._javaObject = sorterData
+		else:
+			assert message_type, "SorterData must be instantiated with a message type"
+			self._javaObject = SorterData(self._coerce_enum(MessageType, message_type))
+
+
+	def __repr__(self):
+		return '<SorterData %s%s%s>' % (
+			str(self.message_type),
+			'(for %s)' % (self.target.name,) if self.target else '',
+			'(from %s)' % (self.source.name,) if self.source else '',
+		)
+
+	
+	@staticmethod
+	def _coerce_enum(EnumerationClass, value):
+		if isinstance(value, EnumerationClass):
+			return value
+		elif isinstance(value, (str, unicode)):
+			return EnumerationClass.valueOf(value.replace(' ', '_').upper())
+		elif isinstance(value, int):
+			return EnumerationClass.values[value]
+		else:
+			raise ValueError("Unsure how to coerce %r to a %r Java enum" % (value, EnumerationClass,))

@@ -1,0 +1,167 @@
+from shared.tools.thread import async
+from shared.tools.global import ExtraGlobal
+from datetime import datetime
+from system.net import httpClient
+from Database import db_access
+from java.lang import String
+from jarray import array as jarray
+import socket
+
+import re
+db_name = 'MongoWCS'
+plcname = 'Mouser_HSL'
+lifespan_time = 60*60*24 # one day of lifespan
+cached_scope = 'PrintData'
+
+# Barcode separator constant (define it properly)
+BARCODE_SEPARATOR = ','  # Modify based on actual usage
+client = httpClient()
+
+opcServer = 'Ignition OPC-UA Server'
+
+logger = system.util.getLogger('print_fail')
+
+PAYLOAD_PATTERN = re.compile(r"""
+	^
+	(?P<indexid>\d{3})   # indexID 101-399
+	\|                   # pipe separator
+	(?P<lpn>.*)          # LPN
+	$
+    """, re.VERBOSE)
+# Marriage/Manifest Errors
+PRINT_ERROR_LIST = {
+	1: 'Success',
+	2: 'Incorrect Payload',
+	3: 'NoRead LPN', 
+	4: 'No return LPN',
+	5: 'Print Comms Lost',
+	6: 'Multi LPN',	
+	7: 'NoRead IBN',
+	8: 'Failed Marriage API',
+	9: 'Failed Manifest API',
+	10:'No Label Returned',
+	11:'Decode Error',
+	12: 'Not Stored in Cache',
+	20: 'Unexplained Error'
+}
+
+
+	
+class PrintProcess:
+
+
+	def check_payload(self,payload,data,counts):
+		
+
+		payload_data_match = PAYLOAD_PATTERN.match(payload)
+		
+		# Check pattern match
+		if not payload_data_match:
+			
+			data.update({
+				'reason_num':2,
+				'reason':PRINT_ERROR_LIST.get(2)
+				})
+			counts.update({
+				'Improper_Payload_cnt': counts.get('Improper_Payload_cnt', 0) + 1 
+			})	
+
+			return data,counts
+		
+		# group in key values	
+		payload_data = payload_data_match.groupdict()
+		
+		# If Noread or NoData received error out 
+		if payload_data['lpn'] in ['NOREAD', 'NODATA']:
+			data.update({
+				'indexId': payload_data['indexid'],
+				'LPN': payload_data['lpn'],
+				'reason_num':3,
+				'reason':PRINT_ERROR_LIST.get(3),
+				'print_results':2,
+				})
+			counts.update({
+				'NoReadLPN_cnt': counts.get('NoReadLPN_cnt', 0) + 1 
+			})
+
+			return data,counts
+		
+		data.update({
+			'indexId': payload_data['indexid'],
+			'LPN': payload_data['lpn'],
+			'reason_num':1,
+			'reason':PRINT_ERROR_LIST.get(1),
+			'print_results':1
+			})
+		counts.update({
+				'LPN_cnt': counts.get('LPN_cnt', 0) + 1 
+			})	
+		
+
+		
+		return data,counts
+	
+	
+
+		
+	def cache_lookup(self,data,counts):
+		tagPaths = '[Mouser]Mouser/HSL_New/HSL_PrintRequest/Got_Data/PA{0}'.format(data['printerId'])
+			
+		itemPaths = [
+			'ns=1;s=[{0}]IGNReturnedHSLPrintIndexID'.format(plcname),
+			'ns=1;s=[{0}]IGNReturnedHSLPrintResult[{1}]'.format(plcname,data.get("print_results"))
+		]
+		try:
+			cached_results = ExtraGlobal.get(data['LPN'],cached_scope)
+		except:
+			cached_results = {
+				'LPN':data['LPN'],
+				'PrintLabel':'',
+				'print_results':2
+				}
+			data.update({
+				'print_results':2,
+				'reason_num':12,
+				'reason':PRINT_ERROR_LIST.get(12),
+				})
+				
+			counts.update({
+						'not_in_db_cnt': counts.get('not_in_db_cnt', 0) + 1,
+						'Not_Printed_cnt': counts.get('Not_Printed_cnt', 0) + 1
+				})	
+				
+			opcValues = [data['indexId'], cached_results['print_results']]
+			system.opc.writeValues(opcServer, itemPaths, opcValues)
+			data['print_results']=2
+		
+			
+			
+			return data,counts
+			
+		# ---- STEP 3/4:  Update PlC/ Send print -------------------------------------------------
+		if cached_results['PrintLabel'] and cached_results['print_results']==1:
+			data['steps'].append('Update PLC')
+			opcValues = [data['indexId'], cached_results['print_results']]
+			system.opc.writeValues(opcServer, itemPaths, opcValues)
+			print_string = cached_results['PrintLabel']
+#			print_string += "\r\n"
+			data['steps'].append('Send Print job to PA{0}'.format(data['printerId']))
+			system.tag.writeAsync([tagPaths], [print_string])
+			counts.update({
+				'Printed_cnt': counts.get('Printed_cnt', 0) + 1
+			})
+			data['print_results']=1
+		
+		else:
+			data['steps'].append('Update PLC')
+			opcValues = [data['indexId'], cached_results['printer_results']]
+			system.opc.writeValues(opcServer, itemPaths, opcValues)
+			counts.update({
+				'Not_Printed_cnt': counts.get('Not_Printed_cnt', 0) + 1
+			})
+			data['print_results']=2
+		
+		
+		
+		return data,counts
+		

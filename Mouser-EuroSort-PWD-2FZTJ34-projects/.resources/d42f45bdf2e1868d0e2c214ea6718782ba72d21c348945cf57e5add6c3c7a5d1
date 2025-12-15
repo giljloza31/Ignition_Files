@@ -1,0 +1,200 @@
+# -------------------------
+# Utilities / helpers
+# -------------------------
+OPCSERVER = "Ignition OPC-UA Server"
+def _normalize_values(values, count):
+	if isinstance(values, (list, tuple)):
+		if len(values) != count:
+			raise ValueError("Number of values ({}) must match number of paths ({}).".format(len(values), count))
+		return list(values)
+	return [values] * count
+
+def opc_read_values(item_paths, server=None):
+	server = server or OPCSERVER
+	if isinstance(item_paths, (str, unicode)):
+		qv = system.opc.readValues(server, [item_paths])[0]
+		return qv.value
+	elif isinstance(item_paths, (list, tuple)):
+		results = system.opc.readValues(server, item_paths)
+		return tuple(qv.value for qv in results)
+	elif isinstance(item_paths, dict):
+		out = {}
+		for k, v in item_paths.items():
+			qv = system.opc.readValues(server, [v])[0]
+			out[k] = qv.value
+		return out
+	return None
+
+def opc_write_values(item_paths, values=None, server=None):
+	server = server or OPCSERVER
+	if isinstance(item_paths, dict) and values is None:
+		paths, vals = [], []
+		for p, v in item_paths.items():
+			paths.append(p)
+			vals.append(v)
+		system.opc.writeValues(server, paths, vals)
+	elif isinstance(item_paths, (str, unicode)):
+		if values is None:
+			raise TypeError("Missing 'values' for single item path write.")
+		system.opc.writeValues(server, [item_paths], [values])
+	elif isinstance(item_paths, (list, tuple)):
+		if values is None:
+			raise TypeError("Missing 'values' for list/tuple item paths write.")
+		vals = _normalize_values(values, len(item_paths))
+		system.opc.writeValues(server, item_paths, vals)
+	elif isinstance(item_paths, dict) and isinstance(values, dict):
+		keys  = list(item_paths.keys())
+		paths = [item_paths[k] for k in keys]
+		vals  = [values[k] for k in keys]
+		system.opc.writeValues(server, paths, vals)
+	else:
+		raise TypeError("Unsupported arguments for opc_write_values().")
+
+def safe_tag_read(tag_paths):
+	if isinstance(tag_paths, (str, unicode)):
+		return system.tag.readBlocking([tag_paths])[0].value
+	elif isinstance(tag_paths, (list, tuple)):
+		return tuple(qv.value for qv in system.tag.readBlocking(tag_paths))
+	elif isinstance(tag_paths, dict):
+		out = {}
+		for k, v in tag_paths.items():
+			out[k] = system.tag.readBlocking([v])[0].value
+		return out
+	return None
+
+def safe_tag_readasync(tag_paths, callback=None, return_qv=False):
+	"""
+	Async version of safe_tag_read.
+	- If callback is None: fire async read, no callback.
+	- If callback provided: pass result to it (values by default, or QVs if return_qv=True).
+	"""
+	if isinstance(tag_paths, (str, unicode)):
+		shape, paths, keys = 'single', [tag_paths], None
+	elif isinstance(tag_paths, (list, tuple)):
+		shape, paths, keys = 'seq', list(tag_paths), None
+	elif isinstance(tag_paths, dict):
+		keys  = list(tag_paths.keys())
+		paths = [tag_paths[k] for k in keys]
+		shape = 'dict'
+	else:
+		raise TypeError('Unsupported tag_paths type: {}'.format(type(tag_paths)))
+
+	def _on_complete(qvs):
+		if not callback:
+			return
+		try:
+			if return_qv:
+				if shape == 'single':
+					out = qvs[0]
+				elif shape == 'seq':
+					out = tuple(qvs)
+				else:
+					out = {k: qvs[i] for i, k in enumerate(keys)}
+			else:
+				if shape == 'single':
+					out = qvs[0].value
+				elif shape == 'seq':
+					out = tuple(qv.value for qv in qvs)
+				else:
+					out = {k: qvs[i].value for i, k in enumerate(keys)}
+			callback(out)
+		except Exception as e:
+			callback(e)
+
+	if callback:
+		system.tag.readAsync(paths, _on_complete)
+	else:
+		system.tag.readAsync(paths, None)
+
+def safe_tag_writeasync(tag_paths, values=None, callback=None):
+	"""
+	Async version of safe_tag_write.
+	- If callback is None: fire async write, no callback.
+	- If callback provided: pass WriteResult objects mapped to same shape.
+	"""
+	def _as_paths_and_keys(obj):
+		if isinstance(obj, (str, unicode)):
+			return 'single', [obj], None
+		elif isinstance(obj, (list, tuple)):
+			return 'seq', list(obj), None
+		elif isinstance(obj, dict):
+			keys  = list(obj.keys())
+			paths = [obj[k] for k in keys]
+			return 'dict', paths, keys
+		else:
+			raise TypeError('Unsupported tag_paths type: {}'.format(type(obj)))
+
+	def _rebuild(shape, results, keys=None):
+		if shape == 'single': return results[0]
+		if shape == 'seq':    return tuple(results)
+		if shape == 'dict':   return {k: results[i] for i, k in enumerate(keys)}
+		raise ValueError('Unknown shape: {}'.format(shape))
+
+	# Variant: {path: value}
+	if isinstance(tag_paths, dict) and values is None:
+		paths = list(tag_paths.keys())
+		vals  = [tag_paths[p] for p in paths]
+
+		if callback:
+			def _on_complete(results):
+				try:
+					callback({p: results[i] for i, p in enumerate(paths)})
+				except Exception as e:
+					callback(e)
+			system.tag.writeAsync(paths, vals, _on_complete)
+		else:
+			system.tag.writeAsync(paths, vals, None)
+		return
+
+	# Normal forms
+	shape, paths, keys = _as_paths_and_keys(tag_paths)
+	if shape == 'dict':
+		if not isinstance(values, dict):
+			raise TypeError("For dict tag_paths, 'values' must be a dict keyed by your original keys.")
+		vals = [values[k] for k in keys]
+	else:
+		if values is None:
+			raise TypeError("Missing 'values' for write.")
+		vals = _normalize_values(values, len(paths))
+
+	if callback:
+		def _on_complete(results):
+			try:
+				callback(_rebuild(shape, results, keys))
+			except Exception as e:
+				callback(e)
+		system.tag.writeAsync(paths, vals, _on_complete)
+	else:
+		system.tag.writeAsync(paths, vals, None)
+
+
+def safe_tag_write(tag_paths, values=None):
+	if isinstance(tag_paths, dict) and values is None:
+		paths, vals = [], []
+		for p, v in tag_paths.items():
+			paths.append(p)
+			vals.append(v)
+		system.tag.writeBlocking(paths, vals)
+	elif isinstance(tag_paths, (str, unicode)):
+		if values is None:
+			raise TypeError("Missing 'values' for single tag path write.")
+		system.tag.writeBlocking([tag_paths], [values])
+	elif isinstance(tag_paths, (list, tuple)):
+		if values is None:
+			raise TypeError("Missing 'values' for list/tuple tag paths write.")
+		vals = _normalize_values(values, len(tag_paths))
+		system.tag.writeBlocking(tag_paths, vals)
+	elif isinstance(tag_paths, dict) and isinstance(values, dict):
+		keys  = list(tag_paths.keys())
+		paths = [tag_paths[k] for k in keys]
+		vals  = [values[k] for k in keys]
+		system.tag.writeBlocking(paths, vals)
+	else:
+		raise TypeError("Unsupported arguments for safe_tag_write().")
+		
+
+def ensure_list(v):
+	return v if isinstance(v, (list, tuple)) else ([] if v in (None, '') else [v])
+    
+def now():
+	return system.date.now()

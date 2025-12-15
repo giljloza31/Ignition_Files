@@ -1,0 +1,850 @@
+"""
+	Batch consolidation routing
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.tracking.contents import EuroSorterContentTracking
+from eurosort.service           import EuroSorterPolling, EuroSorterPermissivePolling
+from eurosort.tracking.gates    import EuroSorterGateMechanics, EuroSorterChuteDestRelease
+from eurosort.tracking.lights   import EuroSorterLightControl
+from eurosort.tracking.wcs      import EuroSorterAccessWCS, EuroSorterWCSRoutingExceptions
+from eurosort.tracking.orders   import EuroSorterOrderRouting
+
+from eurosort.tracking.contents import Destination, Dests, Chutes, Sides
+from eurosort.enums             import MessageCode, FAILURE_MESSAGES
+from eurosort.utility           import now, seconds_since
+
+from collections import defaultdict
+from itertools import cycle
+#from shared.data.types.enum import Enum
+
+
+
+class EuroSorterBatchGrouping(
+		EuroSorterContentTracking,
+	):
+
+	DEFAULT_BATCH_CHUTE_ASSIGNMENTS = {
+	  "ES0": ["DST-0077-2-1-B"],
+	  "ES1": ["DST-0076-2-1-B"],
+	  "ES2": ["DST-0075-2-1-B"],
+	  "ES3": ["DST-0074-2-1-B"],
+	  "ES4": ["DST-0073-2-1-B"],
+	  "ES5": ["DST-0072-2-1-B"],
+	  "ES6": ["DST-0069-2-1-B"],
+	  "ES7": ["DST-0068-2-1-B"],
+	  "ES8": ["DST-0067-2-1-B"],
+	  "ES9": ["DST-0066-2-1-B"],
+	  "ESA": ["DST-0085-1-1-B"],
+	  "ESB": ["DST-0084-1-1-B"],
+	  "ESC": ["DST-0083-1-1-B"],
+	  "ESD": ["DST-0082-1-1-B"],
+	  "ESE": ["DST-0081-1-1-B"],
+	  "ESF": ["DST-0080-1-1-B"],
+	  "ESG": ["DST-0079-1-1-B"],
+	  "ESH": ["DST-0078-1-1-B"],
+	  "ESI": ["DST-0077-1-1-B"],
+	  "ESJ": ["DST-0076-1-1-B"],
+	  "ESK": ["DST-0075-1-1-B"],
+	  "ESL": ["DST-0074-1-1-B"],
+	  "ESM": ["DST-0073-1-1-B"],
+	  "ESN": ["DST-0072-1-1-B"],
+	  "ESO": ["DST-0069-1-1-B"],
+	  "ESP": ["DST-0068-1-1-B"],
+	  "ESQ": ["DST-0067-1-1-B"],
+	  "ESR": ["DST-0066-1-1-B"],
+	  "ESS": ["DST-0085-2-1-B"],
+	  "EST": ["DST-0084-2-1-B"],
+	  "ESU": ["DST-0083-2-1-B"],
+	  "ESV": ["DST-0082-2-1-B"],
+	  "ESW": ["DST-0081-2-1-B"],
+	  "ESX": ["DST-0080-2-1-B"],
+	  "ESY": ["DST-0079-2-1-B"],
+	  "ESZ": ["DST-0078-2-1-B"],
+	}
+
+
+	def __init__(self, name, **init_config):
+		self._destination_batches = {}
+		self._batch_destinations = defaultdict(set)
+		self._batch_destination_round_robin = {}
+	
+		super(EuroSorterBatchGrouping, self).__init__(name, **init_config)
+		self._assign_batches()
+
+
+	def _load_routing_config(self):
+		super(EuroSorterBatchGrouping, self)._load_routing_config()
+		self._assign_batches()
+
+
+	def _assign_batches(self):
+		destination_batches = {}
+		batch_destinations = defaultdict(set)
+	
+		for destination in self:
+			self[destination].batch = None
+	
+		for batch, destinations in self.DEFAULT_BATCH_CHUTE_ASSIGNMENTS.items():
+			for destination in destinations:
+				if self._destination_is_disallowed(destination):
+					self.logger.warn('Batch {batch} can not use {destination}: disallowed.')
+					continue # skip disallowed chutes
+				if destination in (self._route_noread, self._route_invalid_barcode):
+					self.logger.warn('Batch {batch} can not overlap jackpot chutes.')
+					continue # skip reserved chutes
+				
+				destination_batches[destination] = batch
+				batch_destinations[batch].add(destination)
+				
+				self[destination].batch = batch
+			
+				# arbitrary sanity check
+				assert not self[destination].bay, 'Batch chute can not also be a PACKOUT bay station: %s ==> %r' % (
+					destination, self[destination],)
+	
+		batch_destinations = dict(batch_destinations)
+	
+		self._destination_batches = destination_batches
+		self._batch_destinations  = batch_destinations
+		self._batch_destination_round_robin = {
+			batch: cycle(list(sorted(destinations)))
+			for batch, destinations
+			 in batch_destinations.items()
+		}
+
+
+	@property
+	def batches(self):
+		return sorted(self._batch_destinations)
+
+
+	def _init_destination(self, station, chute, side):
+		# include in session init
+		chute_info = super(EuroSorterBatchGrouping, self)._init_destination(station, chute, side)
+		chute_info.batch = None
+		return chute_info
+
+
+
+	def __getitem__(self, identifier):
+		"""Make looking up bay info easier
+		
+		Can use:
+		 - 'Bay#' (str): the name of the bay, like 'Bay4'
+		
+		"""
+		batch = None
+	
+		if isinstance(identifier, (str, unicode)):
+			if identifier in self.batches:
+				batch = identifier
+	
+		if not batch:
+			return super(EuroSorterBatchGrouping, self).__getitem__(identifier)
+		else:
+			return self._batch_destinations[batch]
+
+
+
+
+class EuroSorterBatchRouting(
+		EuroSorterOrderRouting,
+	
+		EuroSorterChuteDestRelease,
+	
+		EuroSorterBatchGrouping,
+	
+		EuroSorterWCSRoutingExceptions,
+	
+		EuroSorterGateMechanics,
+		EuroSorterPermissivePolling,
+		EuroSorterPolling,
+		EuroSorterAccessWCS,
+		EuroSorterLightControl,
+	):
+
+	BATCH_MATURITY_COOLDOWN   = 5 * 60   # five minutes
+	BATCH_MATURITY_WAIT_LIMIT = 60 * 60 # one hour
+
+	DEFAULT_BATCH_LIGHT_MATURITY_THRESHOLD_BLINK_SLOW = 0.8 # 80 % mature releases for consolidation
+	DEFAULT_BATCH_LIGHT_MATURITY_THRESHOLD_SOLID = 0.6
+
+	BATCH_CONSOLIDATION_PERMISSIVE_TAG_PATH = '{root}/{sorter}/Control/Batch Routing Active'
+
+
+
+	def __init__(self, name, **init_config):
+	
+		Logger().warn('in init BatchRouting')
+	
+		self._consol_zone_maturity_timestamp = {}
+		self._consol_zone_ibns = {}
+		self._consol_zone_orders = {}
+		self._consol_zone_mature_orders = {}
+		self._consol_zone_immature_orders = {}
+		self._batch_maturity = {}
+	
+#		self._batch_light_maturity_threshold_blink_slow = init_config.get(
+#				'maturity_threshold_blink', self.DEFAULT_BATCH_LIGHT_MATURITY_THRESHOLD_BLINK_SLOW
+#			)
+#		self._batch_light_maturity_threshold_solid = init_config.get(
+#				'maturity_threshold_solid', self.DEFAULT_BATCH_LIGHT_MATURITY_THRESHOLD_SOLID
+#			)
+	
+		super(EuroSorterBatchRouting, self).__init__(name, **init_config)
+	
+		self._consol_zone_polling_cursor = cycle(self.batches)
+
+		self._permissive_tag_path_mapping['batch_routing'] = self.BATCH_CONSOLIDATION_PERMISSIVE_TAG_PATH.format(
+			root    = self.ROOT_SORTER_TAG_PATH,
+			sorter  = self.name,
+		)
+
+		self._polling_methods.append(self.poll_batch_maturity)
+		self._init_polling()
+
+		self._router_sequence = [
+			self._router_noread,
+			self._router_sibling_issues,
+			self._router_batch,
+#			self._router_order, # let the `_router_batch` specificlly call that, else fail it
+			self._router_eponymous,
+			self._router_explicit,
+			#self._router_default,
+		]
+
+	@property
+	def _batch_light_maturity_threshold_blink_slow(self):
+		return self._read_control_tag('Maturity Blink Threshold')
+#		return system.tag.readBlocking([
+#			self.CONTROL_TAG_PATH + '/Maturity Blink Threshold'
+#		])[0].value
+
+	@property
+	def _batch_light_maturity_threshold_solid(self):
+		return self._read_control_tag('Maturity Solid Threshold')
+#		return system.tag.readBlocking([
+#			self.CONTROL_TAG_PATH + '/Maturity Solid Threshold'
+#		])[0].value
+
+
+	@property
+	def _batch_maturity_threshold(self):
+		return min([
+			self._batch_light_maturity_threshold_blink_slow,
+			self._batch_light_maturity_threshold_solid,
+		])
+
+
+
+	def _assign_batches(self):
+		super(EuroSorterBatchRouting, self)._assign_batches()
+	
+		self.logger.warn('Assigning batches')
+	
+		# initialize looping over the batches
+		self._consol_zone_polling_cursor = cycle(self.batches)
+
+#		for batch in self.batches:
+#			# reinitialize so that we can freshly recalc and mark mature
+#			self._consol_zone_maturity[batch] = now(offset_seconds= - self.BATCH_MATURITY_COOLDOWN - 5)
+#			self.poll_batch_maturity(batch, force=True)
+
+
+#		# refresh the status for the batches
+#		for batch in self.batches:
+#			self.poll_batch_maturity(batch, force=True)
+
+
+
+
+	def _load_routing_config(self):
+		super(EuroSorterBatchRouting, self)._load_routing_config()
+		for batch in self.batches:
+			self._consol_zone_maturity_timestamp[batch] = None # now(offset_seconds= - self.BATCH_MATURITY_COOLDOWN - 5) # initialize so that we eventually mark mature
+			self._consol_zone_ibns[batch]     = set()
+			self._consol_zone_orders[batch]   = set()
+			self._consol_zone_mature_orders[batch] = set()
+			self._consol_zone_immature_orders[batch] = set()
+			self._batch_maturity[batch] = 0.0
+
+	def handle_verify(self, sorter_data):
+		chute_info = self[sorter_data]
+		if not chute_info:
+			self.logger.warn('Message does not resolve to a location: {destination}', destination = sorter_data.destination)
+			return # what to do?
+	
+		# ensure it's a batch chute - TODO: Ensure this is mutually exclusive with PACKOUT
+		if not self.is_batch_chute(chute_info.destination):
+			super(EuroSorterBatchRouting, self).handle_verify(sorter_data)
+			return
+	
+		self.logger.trace('VERIFY: BATCH {message_code!r}: {tracking} for {barcode}', 
+			message_code = sorter_data.message_code,
+			tracking=sorter_data.track_id, 
+			barcode=sorter_data.barcode,
+		)
+	
+		if sorter_data.message_code in FAILURE_MESSAGES:
+			self.logger.warn('VERIFY failure: {message_code!r}', message_code = sorter_data.message_code)
+			return
+	
+		if sorter_data.message_code == MessageCode.DISCHARGED_AT_DESTINATION:
+
+			issue = self._find_matching_issue(sorter_data)
+		
+			# update stored info
+		
+			issue['discharged_delivered_timestamp']= now()
+		
+			order = self.wcs_get_order_from_issue(issue)
+		
+			issue_ibn = issue['ibn']
+			order_number = order['order']
+
+			self._update_chute_order_info(chute_info.destination, order, issue)
+		
+			self._mark_destination_occupied(chute_info.destination, is_occupied=True, dest=Dests.REAR)
+		
+			self.notify_wcs_issue_delivered(issue, chute_info.destination)
+			
+			self.logger.debug('Issue {issue_ibn} VERIFY complete', issue_ibn = issue['ibn'])
+
+
+	def is_batch_chute(self, destination):
+		return bool(self[destination].get('batch', False))
+
+
+	def batch_chutes(self, batch):
+		return [
+			destination
+			for destination 
+			in self._batch_destinations[batch]
+		]
+
+	def chute_batch(self, destination):
+		return self._destination_batches.get(destination, None)
+
+
+	def clear_batches(self):
+		self.logger.warn('Clearing all tracking data from BATCH chutes!')
+	
+		for destination in self._destination_batches:
+			self.clear_chute(destination)
+
+
+
+	def _make_available(self, destination, force_release=False):
+		super(EuroSorterBatchRouting, self)._make_available(destination, force_release)
+	
+		if self.is_batch_chute(destination):
+			batch = self[destination].batch
+		
+			my_maturity = self._batch_maturity[batch]
+		
+			mostest_maturity = my_maturity
+			mostest_batch = batch
+			for other_batch, other_maturity in self._batch_maturity.items():
+				if other_maturity > mostest_maturity:
+					mostest_batch = other_batch
+					mostest_maturity = other_maturity
+		
+			if batch == mostest_batch:
+				self.set_light(destination, 'blink2')
+			elif my_maturity >= self.DEFAULT_BATCH_LIGHT_MATURITY_THRESHOLD_BLINK_SLOW:
+				self.set_light(destination, 'blink1')
+			elif my_maturity >= self.DEFAULT_BATCH_LIGHT_MATURITY_THRESHOLD_SOLID:
+				self.set_light(destination, 'solid')
+			elif not my_maturity: # empty machine?
+				self.set_light(destination, 'off')
+			else:
+				self.set_light(destination, 'solid')
+
+
+	def _clear_available(self, destination):
+		super(EuroSorterBatchRouting, self)._clear_available(destination)
+		if self.is_batch_chute(destination):
+			self.set_light(destination, 'off')
+			self._mark_destination_occupied(destination, is_occupied=False, dest=Dests.FRONT)
+
+
+	def _mature_batch(self, batch):
+	
+		self.logger.debug('Maturing batch {batch}!')
+	
+		for destination in self[batch]:
+			self._make_available(destination)
+	
+		self._consol_zone_maturity_timestamp[batch] = now()
+
+
+	def _confirm_reintroduction_of_batch(self, batch):
+		self._consol_zone_maturity_timestamp[batch] = now() # fast forward to now to cooldown the clock
+		for destination in self[batch]:
+			self.set_light(destination, 'off')
+
+
+	def _next_chute_for_batch(self, batch):
+		"""Allows the batch to spread over multiple chutes if desired"""
+		# assumes the request has already ruled out batch
+		return next(self._batch_destination_round_robin[batch])
+
+
+	def _cull_invalid_batch_tracking(self, batch):
+	
+		assert batch in self.batches
+	
+		#self.logger.trace('Checking batch {batch} for cullable entries...')
+	
+		# first gather machine state
+		chute_infos = [
+				self[destination]
+				for destination
+				 in self[batch]
+			]
+	
+		chute_issue_ibns = set()
+		chute_order_numbers = set()
+		for chute_info in chute_infos:
+			for order_group in (chute_info['consolidating'], chute_info['available']):
+				for order_number in order_group:
+					chute_order_numbers.add(order_number)
+					for issue_ibn in order_group[order_number].get('issues', {}):
+						chute_issue_ibns.add(issue_ibn)
+	
+		untracked_issue_ibns = self.wcs_filter_untracked_issue_ibns(chute_issue_ibns)
+		untracked_order_numbers = self.wcs_filter_untracked_order_numbers(chute_order_numbers)
+		
+		for chute_info in chute_infos:
+			for order_group in (chute_info['consolidating'], chute_info['available']):
+				# find and flag for removal
+				pending_order_removal = set()
+			
+				for order_number in order_group:
+					# find and flag for removal
+					pending_issue_removal = set()
+				
+					if order_number in untracked_order_numbers:
+						pending_order_removal.add(order_number)
+					for issue_ibn in order_group[order_number].get('issues', {}):
+						if issue_ibn in untracked_issue_ibns:
+							pending_issue_removal.add(issue_ibn)
+				
+					# ... and cull issues
+					for issue_ibn in pending_issue_removal:
+						del order_group[order_number]['issues'][issue_ibn]
+			
+				# ... and cull orders
+				for order_number in pending_order_removal:
+					del order_group[order_number]
+
+
+	def poll_batch_maturity(self, batch=None, force=False):
+	
+		if not force and not self.get_permissive('batch_routing'):
+			return
+	
+#		for batch in self.batches:
+#			if self._consol_zone_maturity_timestamp[batch] is None:
+#				self._consol_zone_maturity_timestamp[batch] = now(
+#						offset_seconds = - (self.BATCH_MATURITY_COOLDOWN + 5) 
+#					)
+#		
+#			if seconds_since(self._consol_zone_maturity_timestamp[batch]) < self.BATCH_MATURITY_COOLDOWN:
+#				continue
+#		
+#			self._cull_invalid_batch_tracking(batch)
+#			self.check_batch_maturity(batch)
+
+
+		batch = next(self._consol_zone_polling_cursor)
+	
+		# ensure that if we lose track we initialize
+		while self._consol_zone_maturity_timestamp[batch] is None:
+			self._consol_zone_maturity_timestamp[batch] = now(offset_seconds = - (self.BATCH_MATURITY_COOLDOWN + 5) )
+			self.check_batch_maturity(batch)
+			batch = next(self._consol_zone_polling_cursor)
+#	
+#		# fast forward for testing purposes to focus on our work
+#		#while batch not in ('ESK','ESL','ESM','ESN','ESO','ESP',):
+#		#	batch = next(self._consol_zone_polling_cursor)
+#	
+		# don't check for maturity immediately after release
+		if seconds_since(self._consol_zone_maturity_timestamp[batch]) < self.BATCH_MATURITY_COOLDOWN:
+			return
+	
+		self._cull_invalid_batch_tracking(batch)
+		self.check_batch_maturity(batch)
+
+
+
+	def check_batch_maturity(self, batch):
+	
+		assert batch in self.batches
+	
+		#self.logger.debug('Checking batch {batch} for maturity...')
+	
+		# first gather machine state
+		chute_infos = [
+				self[destination]
+				for destination
+				 in self[batch]
+			]
+	
+		chute_orders = {}
+		chute_order_issues = defaultdict(set)
+		for chute_info in chute_infos:
+			for order_group in (chute_info['consolidating'], chute_info['available']):
+				for order_number in order_group:
+					chute_orders[order_number] = order_group[order_number]
+					for issue_ibn in order_group[order_number].get('issues', {}):
+						chute_order_issues[order_number].add(issue_ibn)
+		chute_order_issues = dict(chute_order_issues)
+	
+		if not chute_order_issues:
+			self._batch_maturity[batch] = 0
+			self._consol_zone_immature_orders[batch] = set()
+			self._consol_zone_mature_orders[batch] = set()
+			for destination in self[batch]:
+				self.set_light(destination, 'off')
+			return
+	
+		# next ask WCS for it's batch state
+		pconsol_orders, pconsol_lines, pconsol_issues = self.wcs_get_consol_zone_info(batch)
+	
+		wcs_order_lines = defaultdict(dict)
+		for line in pconsol_lines:
+			# skip lines that won't / shouldn't show up
+			if line['status'] in ('cancelled',):
+				continue
+			order_number = line['order']
+			order_line = line['orderLine']
+			wcs_order_lines[order_number][order_line] = line
+		wcs_order_lines = dict(wcs_order_lines)
+	
+		wcs_consol_zone_ibns = set()
+	
+		wcs_order_issues = defaultdict(dict)
+		wcs_order_issue_lines = defaultdict(dict)
+		for issue in pconsol_issues:
+			order_number = issue['order']
+			order_line = issue['orderLine']
+			issue_ibn = issue['ibn']
+		
+			# skip issues of lines that aren't specifically ignored
+			if not wcs_order_lines.get(order_number, {}).get(order_line,None):
+				continue
+		
+			# skip issues that won't / shouldn't show up
+			if issue['status'] in ( 'cancelled',):
+				continue
+		
+			# don't include issues that won't ever show up
+			if issue.get('at_bulk_consol'):
+				continue
+		
+			wcs_order_issues[order_number][issue_ibn] = issue
+			wcs_order_issue_lines[order_number][order_line] = issue
+			wcs_consol_zone_ibns.add(issue_ibn)
+		
+		wcs_order_issues = dict(wcs_order_issues)
+		wcs_order_issue_lines = dict(wcs_order_issue_lines)
+	
+	
+		# collect the orders that may not be complete despite status (or 'started')
+		wcs_incompletely_issued_orders = set()
+		for line in pconsol_lines:
+			order_number = line['order']
+			order_line = line['orderLine']
+			if not order_line in wcs_order_issue_lines.get(order_number, {}):
+				wcs_incompletely_issued_orders.add(order_number)
+	
+	
+		mature_order_numbers = set()
+		immature_order_numbers = set()
+		wcs_orders_of_interest = set()
+	
+		for order in pconsol_orders:
+		
+			order_number = order['order']
+		
+			# don't penalize for stuff that can't/shouldn't be there
+			if order['status'] in ('consolidated', 'cancelled', 'held', 'shipped'):
+				#mature_order_numbers.add(order_number)
+				continue
+				
+			if order['status'] not in ('issued', 'started', 'scheduled'):
+				pass
+				continue
+		
+			# deprecated - we _do_ want to include stuff that's not ready yet, since they're not ready yet
+#			# don't bother for orders that aren't done picking
+#			if order['status'] != 'issued':
+#				pass # don't mark mature - it's not even done in the WCS!
+#				continue
+		
+			# see earlier filtering for paring down the issues that may be cancelled or replaced
+			wcs_orders_of_interest.add(order_number)
+		
+			# no issues? Immature. go away
+			if order_number not in wcs_order_issues:
+				immature_order_numbers.add(order_number)
+				continue
+		
+			# are lines missing issues
+			if order_number in wcs_incompletely_issued_orders:
+				immature_order_numbers.add(order_number)
+				continue
+		
+			wcs_order_issues_of_interest = set(wcs_order_issues[order_number])
+			issues_in_chutes = set(chute_order_issues.get(order_number, set()))
+		
+			if wcs_order_issues_of_interest.issubset(issues_in_chutes):
+				mature_order_numbers.add(order_number)
+			else:
+				immature_order_numbers.add(order_number)
+	
+	
+		# detour to collect any issues in packout that would necessitate maturity
+		packout_orders = set()
+		for packout_destination in self.packout_chutes:
+			packout_chute = self[packout_destination]
+			packout_orders.update(set(packout_chute.available))
+			packout_orders.update(set(packout_chute.consolidating))
+		# ... and make sure they're included, if any
+		mature_order_numbers.update(
+			packout_orders.intersection(wcs_orders_of_interest)
+		)
+	
+	
+		mature_orders_in_chute = set()
+		for order_number, order in chute_orders.items():
+			# trival cases - these should be *immediately* punted to a packout chute for QP(_ERR?)
+			# see also checked, pl printed, split ship
+			if order['status'] in ('consolidated', 'cancelled', 'held', 'shipped'):
+				mature_order_numbers.add(order_number)
+		
+			if order_number in mature_order_numbers:
+				mature_orders_in_chute.add(order_number)
+	
+		# check if we've passed the threshold
+		try:
+			fraction_mature = float(len(mature_order_numbers)) / float(len(wcs_orders_of_interest))
+		except ZeroDivisionError:
+			# nothing of interest, but there _are_ orders that need to be punted out of the machine
+			if mature_order_numbers and not wcs_orders_of_interest:
+				fraction_mature = 10.0 # one thousand percent ready to go
+			else:
+				self.logger.debug('... Batch {batch} has no orders...')
+				return
+	
+		percent_mature = fraction_mature*100.0
+	
+#		self.logger.debug('... Batch {batch} checked to {percent_mature:0.2f}% ({num_mature} mature vs {num_immature} of {num_total}, missing {num_missing}) (see {batch_destinations})', 
+#			num_mature   = len(mature_order_numbers), 
+#			num_immature = len(immature_order_numbers),
+#			num_total    = len(wcs_orders_of_interest),
+#			num_missing  = len(wcs_orders_of_interest) - (len(mature_order_numbers) + len(immature_order_numbers) ),
+#			batch_destinations = list(sorted(
+#					chute_info.destination
+#					for chute_info
+#					 in chute_infos
+#				)),
+#		)
+	
+		self._batch_maturity[batch] = fraction_mature
+	
+		# tracked for convenience
+		self._consol_zone_immature_orders[batch] = immature_order_numbers
+	
+		# NOTE: the maturity update logic here is a bit forked
+		#       the maturity should be what punts forward, but the timeout for waiting can also do so
+		#       this keeps them separate, though they'll be similar
+	
+		if fraction_mature >= self._batch_maturity_threshold:
+			self._mature_batch(batch)
+
+			# are we in the cooldown period waiting for reinduction?
+			if self._in_maturity_cooldown(batch):
+				self._consol_zone_mature_orders[batch].update(mature_order_numbers)
+			
+			# ... otherwise we're reacting to live state
+			else:
+				self._consol_zone_mature_orders[batch] = mature_order_numbers
+		
+		# not yet mature (or signaled mature) - so just accumulate and ready up
+		else:
+			self._consol_zone_mature_orders[batch].update(mature_order_numbers)
+		
+			# set available/mature anyhow if it's been sitting there for a long time 
+			# AND there's at least one order there, release it anyhow
+			if mature_orders_in_chute:
+				if self._over_maturity_wait_period(batch):
+					self._mature_batch(batch)
+
+
+	def _in_maturity_cooldown(self, batch):
+		return seconds_since(self._consol_zone_maturity_timestamp[batch]) < self.BATCH_MATURITY_COOLDOWN
+
+	def _over_maturity_wait_period(self, batch):
+		return seconds_since(self._consol_zone_maturity_timestamp[batch]) > self.BATCH_MATURITY_WAIT_LIMIT
+
+
+	def clear_chute(self, destination, include_available=True, include_consolidating=False):
+		if not self.is_batch_chute(destination):
+			super(EuroSorterBatchRouting, self).clear_chute(destination, include_available, include_consolidating)
+		# do batch specific book keeping
+		else:
+			chute_info = self[destination]
+			batch = chute_info.batch
+		
+			# do bookkeeping to make sure that the maturity stuff is also cleared, if needed
+			clearing_orders = set()
+			if include_available:
+				clearing_orders.update(set(chute_info.available))
+			if include_consolidating:
+				clearing_orders.update(set(chute_info.consolidating))
+		
+			# check if there are orders covered by other chutes so we can avoid culling them
+			covering_chute_orders = set()
+			for batch_chute in self.batch_chutes(chute_info.batch):
+				if batch_chute == destination:
+					continue
+				if include_available:
+					covering_chute_orders.update(set(batch_chute.available))
+				if include_consolidating:
+					covering_chute_orders.update(set(batch_chute.consolidating))
+			
+			super(EuroSorterBatchRouting, self).clear_chute(destination, include_available, include_consolidating)
+		
+			# perform cleanup - but only orders that aren't covered by other chutes
+			for order_number in (clearing_orders - covering_chute_orders):
+				self._consol_zone_mature_orders  [batch].discard(order_number)
+				self._consol_zone_immature_orders[batch].discard(order_number)
+
+
+	def _router_sibling_issues(self, sorter_data):
+	
+		issue = self._find_matching_issue(sorter_data)
+		if issue is None:
+			return None
+	
+		order_number = issue['order']
+		issue_ibn = issue['ibn']
+	
+		try:
+			destination = self.locate_order(order_number)
+			# return destination # rejoin it's family! # EDIT See below for why not here
+		except ValueError:
+			return None
+	
+		self.logger.debug('Sibling issues already inducted for {issue_ibn} in chute {destination} for order {order_number}')
+		
+		# use packout routing sfor this issue since it's already in packout logic
+		# but we don't want to immediately use it because it may actually fail
+		# (packout has other exception handling not to be repeated here!)
+		destination = self._router_order(sorter_data)
+	
+		# specifically we're going to clear out because batching may have a lot of noise on it
+		# (maybe put this higher up the router listing?)
+		if destination:
+			self._untrack_issue(issue_ibn, keep_target=destination)
+		else:
+			self.logger.debug('... but packout logic did not resolve a destination for {issue_ibn}. Continuing rules...')
+		
+		return destination
+
+
+	@property
+	def _max_recirc_unroutable_batch_issue(self):
+		return self._read_config_tag('Max batch recirc for unroutable issue')
+
+
+	def _router_batch(self, sorter_data):
+	
+		# fall back to default packout routing if batch is off
+		if not self.get_permissive('batch_routing'):
+			return self._router_order(sorter_data)
+	
+		issue = self._find_matching_issue(sorter_data)
+		if issue is None:
+			return None
+	
+		issue_status = issue['status']
+		issue_ibn    = issue['ibn']
+	
+		consol_zone_issue = self.wcs_get_ibn_consol_zone(issue_ibn)
+	
+		# don't route ibns not in a batch
+		if not consol_zone_issue:
+			return None
+	
+		batch = '{consol_zone}{consol_subzone}'.format(**consol_zone_issue)
+	
+		# don't route to unroutable batches/destinations
+		if batch not in self.batches:
+			# reject confusing things
+			self.logger.warn('Batch {batch} is not a valid target (of {issue_ibn}). Sending {issue_ibn} to JACKPOT')
+			return self._route_invalid_barcode
+			#return None # deprecated: don't allow other rules
+	
+		order = self.wcs_get_order_from_issue(issue)
+		assert order, "Issue with no matching order - contact WCS for correction!"
+	
+		order_number = order['order']
+		order_status = order['status']
+	
+		if order.get('qp_error'):
+			self.logger.warn('Order {order_number} is marked as QP Error. Sending {issue_ibn} to JACKPOT')
+			return self._route_invalid_barcode
+	
+		if order_status in ('consolidated', 'cancelled', 'held'):
+			self.logger.warn('Order {order_number} already marked as {order_status}. Sending {issue_ibn} to JACKPOT')
+			return self._route_invalid_barcode
+	
+		if issue_status in ('cancelled',) or issue.get('bulk_consol'):
+			self.logger.warn('Issue {issue_ibn} already marked as {issue_status}. Sending {issue_ibn} to JACKPOT')
+			return self._route_invalid_barcode
+
+		if sorter_data.recirculation_count >= self._max_recirc_unroutable_batch_issue:
+			self._consol_zone_mature_orders[batch].discard(order_number)
+			self._confirm_reintroduction_of_batch(batch)
+			destination = self._next_chute_for_batch(batch)
+			self.logger.debug('Routing MATURE order BACK to batch because issue seems (temporarily) unroutable: {order_number} of {batch} to {destination} ({issue_ibn})')
+			return destination
+
+
+		# try to join its sibling issues
+		if order_number in self._consol_zone_mature_orders[batch]:
+			self.logger.debug('Order {order_number} is mature for batch {batch}. Routing via PACKOUT logic.')
+		
+			destination = self._router_order(sorter_data)
+		
+			if destination:
+				self._confirm_reintroduction_of_batch(batch)
+			
+				self._untrack_issue(issue_ibn, keep_target=destination)
+		
+			return destination
+			
+#			destination = self.locate_order(order_number)
+#			if destination:
+#				self.logger.debug('Order {order_number} found. Routing to {destination}')
+#				return destination
+#			else: # get a fresh chute
+#				destination = self._next_chute_without_order()
+#				self.logger.debug('Routing mature order {order_number} of {batch} to {destination} ({issue_ibn})')
+#				return destination
+	
+		# otherwise send back to batch chute
+		else:
+			destination = self._next_chute_for_batch(batch)
+			self.logger.debug('Routing IMMATURE order {order_number} of {batch} to {destination} ({issue_ibn})')
+			return destination
+
+
+
+
+

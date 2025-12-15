@@ -1,0 +1,471 @@
+# -*- coding: utf-8 -*-
+"""
+es_platform.domain.state_store
+
+StateStore (Mongo-backed) for ES_Platform.
+
+Added:
+	- initialize() to seed carriers + chutes (generic B1-shape always)
+	- supports divider faces (BACK/FRONT/MID) + optional GATE
+	- supports multi_lvl (chute "1"/"2") but C1 simply only has "1"
+"""
+
+from shared.foundation.time import clock
+
+
+COLLECTION_STATE = "es_platform_state"
+
+ENTITY_CARRIER = "CARRIER"
+ENTITY_CHUTE = "CHUTE"
+
+FACE_BACK = "BACK"     # dst dest=1
+FACE_FRONT = "FRONT"   # dst dest=2
+FACE_MID = "MID"       # dst dest=3
+FACE_GATE = "GATE"
+FACE_UNKNOWN = "UNKNOWN"
+
+
+class StateStore(object):
+	def __init__(self, systemCode, mongo, site_tz_id="UTC", enable_cache=True):
+		self.systemCode = systemCode
+		self.mongo = mongo
+		self.site_tz_id = site_tz_id
+		self.enable_cache = bool(enable_cache)
+
+		self._carriers = {}  # carrierId -> doc
+		self._chutes = {}    # entityId (DST or GATE) -> doc
+
+		self._hydrated = False
+		self._last_hydrate = None
+
+	# ----------------------------
+	# Internal helpers
+	# ----------------------------
+
+	def _key(self, entityType, entityId):
+		return {
+			"systemCode": self.systemCode,
+			"entityType": entityType,
+			"entityId": entityId
+		}
+
+	def _pack_update_meta(self):
+		ts = clock.pack_timestamps(tz_id=self.site_tz_id)
+		return {
+			"updatedAtUtc": ts["tsUtc"],
+			"updatedAtLocal": ts["tsLocal"],
+			"updatedAtEpoch": ts["tsEpoch"],
+			"tzId": ts["tzId"],
+		}, ts
+
+	def _cache_put(self, doc):
+		if not self.enable_cache or not doc:
+			return
+
+		etype = doc.get("entityType")
+		eid = doc.get("entityId")
+
+		if etype == ENTITY_CARRIER and eid is not None:
+			self._carriers[eid] = doc
+		elif etype == ENTITY_CHUTE and eid is not None:
+			self._chutes[eid] = doc
+
+	def _cache_get(self, entityType, entityId):
+		if not self.enable_cache:
+			return None
+		if entityType == ENTITY_CARRIER:
+			return self._carriers.get(entityId)
+		if entityType == ENTITY_CHUTE:
+			return self._chutes.get(entityId)
+		return None
+
+	def _cache_del(self, entityType, entityId):
+		if not self.enable_cache:
+			return
+		if entityType == ENTITY_CARRIER:
+			if entityId in self._carriers:
+				del self._carriers[entityId]
+		elif entityType == ENTITY_CHUTE:
+			if entityId in self._chutes:
+				del self._chutes[entityId]
+
+	# ----------------------------
+	# Hydration
+	# ----------------------------
+
+	def hydrate(self, force=False):
+		if self._hydrated and not force:
+			return {
+				"ok": True,
+				"hydrated": True,
+				"forced": False,
+				"counts": self.counts(),
+				"lastHydrate": self._last_hydrate
+			}
+
+		docs = self.mongo.find(COLLECTION_STATE, {"systemCode": self.systemCode}) or []
+
+		if self.enable_cache:
+			self._carriers = {}
+			self._chutes = {}
+
+		for d in docs:
+			self._cache_put(d)
+
+		self._hydrated = True
+		self._last_hydrate = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		return {
+			"ok": True,
+			"hydrated": True,
+			"forced": bool(force),
+			"counts": self.counts(),
+			"lastHydrate": self._last_hydrate
+		}
+
+	def counts(self):
+		return {
+			"carriers": len(self._carriers) if self.enable_cache else None,
+			"chutes": len(self._chutes) if self.enable_cache else None
+		}
+
+	# ----------------------------
+	# Generic state access
+	# ----------------------------
+
+	def get(self, entityType, entityId, prefer_cache=True):
+		if prefer_cache and self.enable_cache:
+			c = self._cache_get(entityType, entityId)
+			if c is not None:
+				return c
+
+		doc = self.mongo.find_one(COLLECTION_STATE, self._key(entityType, entityId))
+		if doc:
+			self._cache_put(doc)
+		return doc
+
+	def upsert(self, entityType, entityId, set_fields=None, inc_fields=None, set_on_insert=None):
+		set_fields = dict(set_fields or {})
+		inc_fields = dict(inc_fields or {})
+		set_on_insert = dict(set_on_insert or {})
+
+		meta, ts = self._pack_update_meta()
+		for k, v in meta.items():
+			set_fields[k] = v
+
+		inc_fields["version"] = int(inc_fields.get("version", 0)) + 1
+
+		key = self._key(entityType, entityId)
+		set_on_insert.setdefault("systemCode", self.systemCode)
+		set_on_insert.setdefault("entityType", entityType)
+		set_on_insert.setdefault("entityId", entityId)
+		set_on_insert.setdefault("version", 0)
+
+		update_doc = {
+			"$set": set_fields,
+			"$inc": inc_fields,
+			"$setOnInsert": set_on_insert
+		}
+
+		self.mongo.update_one(COLLECTION_STATE, key, update_doc, upsert=True)
+
+		doc = self.mongo.find_one(COLLECTION_STATE, key)
+		if doc:
+			self._cache_put(doc)
+
+		return {
+			"ok": True,
+			"entityType": entityType,
+			"entityId": entityId,
+			"updated": True,
+			"ts": ts,
+			"doc": doc
+		}
+
+	def delete(self, entityType, entityId):
+		key = self._key(entityType, entityId)
+		res = self.mongo.delete_one(COLLECTION_STATE, key)
+		self._cache_del(entityType, entityId)
+		return {"ok": True, "deleted": True, "result": res}
+
+	# ----------------------------
+	# Carrier API
+	# ----------------------------
+
+	def get_carrier(self, carrierId, prefer_cache=True):
+		return self.get(ENTITY_CARRIER, carrierId, prefer_cache=prefer_cache)
+
+	def upsert_carrier(self, carrierId, fields=None, inc=None, on_insert=None):
+		return self.upsert(ENTITY_CARRIER, carrierId, set_fields=fields, inc_fields=inc, set_on_insert=on_insert)
+
+	def list_carriers(self, filt=None, prefer_cache=True):
+		filt = filt or {}
+		if prefer_cache and self.enable_cache and self._hydrated:
+			out = []
+			for d in self._carriers.values():
+				if _match_simple(d, filt):
+					out.append(d)
+			return out
+
+		f = {"systemCode": self.systemCode, "entityType": ENTITY_CARRIER}
+		for k, v in filt.items():
+			f[k] = v
+		return self.mongo.find(COLLECTION_STATE, f) or []
+
+	# ----------------------------
+	# Chute API
+	# ----------------------------
+
+	def get_chute(self, chuteId, prefer_cache=True):
+		return self.get(ENTITY_CHUTE, chuteId, prefer_cache=prefer_cache)
+
+	def upsert_chute(self, chuteId, fields=None, inc=None, on_insert=None):
+		return self.upsert(ENTITY_CHUTE, chuteId, set_fields=fields, inc_fields=inc, set_on_insert=on_insert)
+
+	def list_chutes(self, filt=None, prefer_cache=True):
+		filt = filt or {}
+		if prefer_cache and self.enable_cache and self._hydrated:
+			out = []
+			for d in self._chutes.values():
+				if _match_simple(d, filt):
+					out.append(d)
+			return out
+
+		f = {"systemCode": self.systemCode, "entityType": ENTITY_CHUTE}
+		for k, v in filt.items():
+			f[k] = v
+		return self.mongo.find(COLLECTION_STATE, f) or []
+
+	# ----------------------------
+	# Initialization / Seeding
+	# ----------------------------
+
+	def initialize(self, params, dest_map=None, overwrite=False):
+		"""
+		Seed the system based on sorter params + DestMap mapping.
+
+		params example:
+		{
+			"num_of_carriers": 742,
+			"multi_lvl": True,
+			"sides": ["A","B"],
+			"divider": 1,        # 0=BACK only, 1=BACK+FRONT, 2=BACK+MID+FRONT
+			"gate": True,
+			"release_mode": "CONTROLLED"
+		}
+
+		dest_map (generic B1-shape always):
+			dest_map[FACE][CHUTE][SIDE][DEST_NUM] = "DST-...."
+
+		overwrite:
+			- False: only create missing entities
+			- True: will upsert base fields even if exists (does not delete unknowns)
+		"""
+		p = dict(params or {})
+		num_carriers = int(p.get("num_of_carriers", 0))
+		multi_lvl = bool(p.get("multi_lvl", False))
+		sides = list(p.get("sides") or ["A", "B"])
+		divider = int(p.get("divider", 0))
+		gate = bool(p.get("gate", False))
+		release_mode = str(p.get("release_mode") or "MANUAL").upper()
+
+		faces = self._faces_from_divider(divider, gate)
+		chutes = ["1", "2"] if multi_lvl else ["1"]
+
+		created = {
+			"carriers": {"created": 0, "updated": 0},
+			"chutes": {"created": 0, "updated": 0},
+			"gate": {"created": 0, "updated": 0},
+		}
+
+		# Seed carriers
+		if num_carriers > 0:
+			r = self._seed_carriers(num_carriers, overwrite=overwrite)
+			created["carriers"] = r
+
+		# Seed chutes from dest_map
+		if dest_map:
+			r = self._seed_chutes_from_destmap(dest_map, faces=faces, chute_levels=chutes, sides=sides, overwrite=overwrite)
+			created["chutes"] = r
+
+		# Ensure gate entity
+		if gate:
+			r = self._ensure_gate(release_mode=release_mode, overwrite=overwrite)
+			created["gate"] = r
+
+		# Refresh cache view
+		self.hydrate(force=True)
+
+		return {
+			"ok": True,
+			"systemCode": self.systemCode,
+			"faces": faces,
+			"chuteLevels": chutes,
+			"sides": sides,
+			"divider": divider,
+			"release_mode": release_mode,
+			"counts": created
+		}
+
+	def _faces_from_divider(self, divider, gate):
+		faces = [FACE_BACK]
+		if divider >= 1:
+			faces.append(FACE_FRONT)
+		if divider >= 2:
+			# keep order BACK, MID, FRONT
+			if FACE_FRONT in faces:
+				faces.remove(FACE_FRONT)
+			faces.append(FACE_MID)
+			faces.append(FACE_FRONT)
+		if gate:
+			faces.append(FACE_GATE)
+		return faces
+
+	def _seed_carriers(self, num_carriers, overwrite=False):
+		created = 0
+		updated = 0
+
+		for i in range(1, num_carriers + 1):
+			carrier_id = int(i)
+	
+			existing = self.get_carrier(carrier_id, prefer_cache=False)
+			if existing and not overwrite:
+				continue
+
+			fields = {
+				"currentPhase": existing.get("currentPhase") if existing else "EMPTY",
+				"assignedDest": existing.get("assignedDest") if existing else None,
+				"assignedFace": existing.get("assignedFace") if existing else None,
+				"assignedDeviceId": existing.get("assignedDeviceId") if existing else None,
+				"inductionDevice": existing.get("inductionDevice") if existing else None,
+				"recircCount": existing.get("recircCount") if existing else 0,
+				"lastSeenAtEpoch": existing.get("lastSeenAtEpoch") if existing else None,
+			}
+
+			on_insert = {
+				"createdAt": clock.pack_timestamps(tz_id=self.site_tz_id),
+				"entityClass": "SORTER_CARRIER",
+			}
+
+			self.upsert_carrier(carrier_id, fields=fields, inc=None, on_insert=on_insert)
+
+			if existing:
+				updated += 1
+			else:
+				created += 1
+
+		return {"created": created, "updated": updated}
+
+	def _seed_chutes_from_destmap(self, dest_map, faces, chute_levels, sides, overwrite=False):
+		created = 0
+		updated = 0
+
+		for face in faces:
+			face_bucket = (dest_map or {}).get(face) or {}
+
+			for chute in chute_levels:
+				chute_bucket = (face_bucket.get(chute) or {})
+
+				for side in sides:
+					side_bucket = chute_bucket.get(side) or {}
+
+					for dest_num, device_id in side_bucket.items():
+						if not device_id:
+							continue
+
+						existing = self.get_chute(device_id, prefer_cache=False)
+						if existing and not overwrite:
+							continue
+
+						fields = {
+							"deviceId": device_id,
+							"destNum": int(dest_num),
+							"face": face,
+							"chuteLevel": str(chute),
+							"side": str(side),
+
+							# Operational flags (defaults)
+							"enabled": True if not existing else bool(existing.get("enabled", True)),
+							"faulted": False if not existing else bool(existing.get("faulted", False)),
+							"full": False if not existing else bool(existing.get("full", False)),
+							"occupancy": existing.get("occupancy", 0) if existing else 0,
+
+							"assignedGroup": existing.get("assignedGroup") if existing else None,
+							"assignedName": existing.get("assignedName") if existing else None,
+						}
+
+						on_insert = {
+							"createdAt": clock.pack_timestamps(tz_id=self.site_tz_id),
+							"entityClass": "SORTER_CHUTE",
+						}
+
+						self.upsert_chute(device_id, fields=fields, inc=None, on_insert=on_insert)
+
+						if existing:
+							updated += 1
+						else:
+							created += 1
+
+		return {"created": created, "updated": updated}
+
+	def _ensure_gate(self, release_mode="MANUAL", overwrite=False):
+		chute_id = "GATE"
+		existing = self.get_chute(chute_id, prefer_cache=False)
+		if existing and not overwrite:
+			return {"created": 0, "updated": 0}
+
+		fields = {
+			"isGate": True,
+			"face": FACE_GATE,
+			"release_mode": str(release_mode).upper(),
+			"enabled": True if not existing else bool(existing.get("enabled", True)),
+			"faulted": False if not existing else bool(existing.get("faulted", False)),
+		}
+
+		on_insert = {
+			"createdAt": clock.pack_timestamps(tz_id=self.site_tz_id),
+			"entityClass": "SORTER_GATE",
+		}
+
+		self.upsert_chute(chute_id, fields=fields, inc=None, on_insert=on_insert)
+
+		return {"created": 0 if existing else 1, "updated": 1 if existing else 0}
+
+
+# ----------------------------
+# Small helpers
+# ----------------------------
+
+def _match_simple(doc, filt):
+	for k, v in (filt or {}).items():
+		if doc.get(k) != v:
+			return False
+	return True
+
+
+# ----------------------------
+# Script Console quick test
+# ----------------------------
+#
+# from shared.foundation.mongo.proxy import MongoProxy
+# from shared.es_platform.domain.state_store import StateStore
+# from shared.es_platform.layout.dest_map import load_destmap
+#
+# mongo = MongoProxy(connector="MongoWCS", gateway_project="ES_Platform", handler_name="MongoProxy")
+# store = StateStore("MOUSER-ES-B1", mongo, site_tz_id="America/Chicago", enable_cache=True)
+#
+# # Load mapping built as: mapping[FACE][CHUTE][SIDE][DEST_NUM] = DST...
+# mapping = load_destmap("C:/DestMap.csv", "MOUSER-ES-B1")
+#
+# params = {
+# 	"num_of_carriers": 742,
+# 	"multi_lvl": True,
+# 	"sides": ["A","B"],
+# 	"divider": 1,
+# 	"gate": True,
+# 	"release_mode": "CONTROLLED",
+# }
+#
+# print(store.initialize(params, dest_map=mapping, overwrite=False))
+# print(store.hydrate(force=True))
+# print(store.get_chute("GATE"))

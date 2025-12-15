@@ -1,0 +1,142 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 101,
+      "width": 12
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "chute_name": "DST-0001-1-1-A",
+          "chute_status": 0,
+          "path": "value"
+        },
+        "meta": {
+          "name": "Asset 5"
+        },
+        "position": {
+          "basis": "300px",
+          "grow": 1
+        },
+        "propConfig": {
+          "custom.flashToggle": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Flash_Toggle"
+              },
+              "type": "tag"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].elements[0].style": {
+            "binding": {
+              "config": {
+                "struct": {
+                  "flashToggle": "{this.custom.flashToggle}",
+                  "status": "{this.custom.chute_status}"
+                },
+                "waitOnAll": true
+              },
+              "transforms": [
+                {
+                  "code": "\n\tstatus \u003d value[\u0027status\u0027]\n\tflash \u003d value[\u0027flashToggle\u0027]\n\t\n\tcolor_map \u003d {\n\t    0: \"#AAAAAA\",\t#Disabled\n\t    1: \"#FFFFFF\",\t#Enabled\n\t    2: \"#47FF47\",\t#Occuiped\n\t    3: \"#FFFF00\",\t#Chute Full\n\t\t4: \"#FF0000\",\t#Chute Faulted\n\t    5: \"#00FFFF\",\t#Chute Queued\n\t    6: \"#FF6600\",\t#Chute Filtered\n\t    7: \"#3944BC\",\t#Chute Releasing\n\t    8: \"#FD3DB5\",\t#Tote Full\n\t    9: \"#C28DAE\",\t#Chute Waiting For Processing\n\t}\n\t\n\t# Flash between red and yellow if status is 4\n\tif status in [3,4]:\n\t    return {\n\t        \"fill\": color_map.get(status, \"#AAAAAA\") if flash else \"#FFFFFF\",\n\t        \"transition\": \"fill 0.3s ease-in-out\"\n\t    }\n\n\t# Static fill + transition\n\treturn {\n\t    \"fill\": color_map.get(status, \"#AAAAAA\"),\n\t    \"transition\": \"fill 0.3s ease-in-out\"\n\t}",
+                  "type": "script"
+                }
+              ],
+              "type": "expr-struct"
+            }
+          },
+          "props.elements[0].elements[0].elements[0].elements[1].style": {
+            "binding": {
+              "config": {
+                "struct": {
+                  "status": "{this.custom.chute_status}"
+                },
+                "waitOnAll": true
+              },
+              "transforms": [
+                {
+                  "code": "\n\tstatus \u003d value[\u0027status\u0027]\n\t\n\tcolor_map \u003d {\n\t    7: \"#FFFFFF\",\t#Chute Releasing\n\t   }\n\t\n\t# Flash between red and yellow if status is 4\n\t\n\t# Static fill + transition\n\treturn {\n\t\t\"fill\":color_map.get(status, \"#000000\"),\n\t    \"stroke\": \"#000000\",\n\t    \"strokeWidth\":.5,\n\t    \"transition\": \"fill 0.3s ease-in-out\"\n\t}",
+                  "type": "script"
+                }
+              ],
+              "type": "expr-struct"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "elements": [
+                        {
+                          "height": "175.55",
+                          "name": "rect",
+                          "type": "rect",
+                          "width": "32.28",
+                          "x": ".5",
+                          "y": ".5"
+                        },
+                        {
+                          "height": "17.99",
+                          "name": "rect",
+                          "type": "rect",
+                          "width": "32.28",
+                          "x": ".5",
+                          "y": "158.72"
+                        }
+                      ],
+                      "id": "Chute",
+                      "name": "Chute",
+                      "type": "group"
+                    },
+                    {
+                      "elements": [
+                        {
+                          "name": "tspan",
+                          "text": "DSt-0001-1-1-A",
+                          "type": "tspan",
+                          "x": "0",
+                          "y": "0"
+                        }
+                      ],
+                      "name": "text",
+                      "style": {
+                        "classes": ""
+                      },
+                      "transform": "translate(12.96 22.31) rotate(90) scale(1 1)",
+                      "type": "text"
+                    }
+                  ],
+                  "name": "group",
+                  "type": "group"
+                }
+              ],
+              "id": "Layer_1-2",
+              "name": "Layer_1-2",
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "1 1 33.28 177.2"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

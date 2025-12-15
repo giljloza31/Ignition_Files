@@ -1,0 +1,9 @@
+from database.core import db_select_record
+
+
+
+def runMongo():
+	pconsol_orders_results = db_select_record('HSL_info',{'orderNbr': '083120541'})
+	for issue in pconsol_issues_results:
+			print issue
+		

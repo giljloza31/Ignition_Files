@@ -1,0 +1,120 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 132,
+      "width": 384
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "UserName"
+        },
+        "position": {
+          "height": 32,
+          "width": 171,
+          "x": 147,
+          "y": 26
+        },
+        "props": {
+          "placeholder": "Enter Name",
+          "spellcheck": false
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "name"
+        },
+        "position": {
+          "height": 32,
+          "width": 68,
+          "x": 66,
+          "y": 26
+        },
+        "props": {
+          "text": "Name:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tname \u003d self.getSibling(\"UserName\").props.text\n\tdate \u003d system.date.now()\n\terrorMessage \u003d \u0027Name cannot be empty\u0027\n\tif name \u003d\u003d \u0027\u0027:\n\t\tsystem.perspective.openPopup(\u0027Scan1errorpopup\u0027, \u0027Popups/Scan1/Error\u0027,params \u003d {\u0027ErrorMessage\u0027:errorMessage})\n\telse:\n\t\n\t\ttagPaths \u003d [\n\t\t\u0027[Dev]Development/Calibration/Calibration/User/User\u0027,\n\t\t\u0027[Dev]Development/Calibration/Calibration/User/date\u0027\n\t\t]\n\t\tvalues \u003d [\n\t\tname,\n\t\tdate\n\t\t]\n\t\tsystem.tag.writeBlocking(tagPaths, values)\n\t\t\n\t\tself.getSibling(\"UserName\").props.text \u003d \u0027\u0027\n\t\t\t\n\t\t\n\t\tsystem.perspective.closePopup(\u0027Scan1 Calibration input\u0027)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "50% 25%"
+          },
+          "width": 80,
+          "x": 100,
+          "y": 76
+        },
+        "props": {
+          "text": "OK"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Scan1 Calibration input",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "close",
+                "viewPath": "Popups/Scan1/Calibration_Username",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 34,
+          "rotate": {
+            "anchor": "38% 35%"
+          },
+          "width": 80,
+          "x": 202,
+          "y": 76
+        },
+        "props": {
+          "primary": false,
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

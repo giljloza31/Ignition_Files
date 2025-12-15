@@ -1,0 +1,435 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 902,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Sorter Calibration"
+        },
+        "position": {
+          "height": 52,
+          "width": 296,
+          "x": 812,
+          "y": 20.390625
+        },
+        "props": {
+          "text": "Lane Calibration",
+          "textStyle": {
+            "classes": "FontStyles/TitleText_Ver2-Italics",
+            "fontSize": 36,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "CalibratedBy_Title"
+        },
+        "position": {
+          "height": 44,
+          "width": 139,
+          "x": 1603.11,
+          "y": 61.240246469116215
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 16
+          },
+          "text": "Calibrated by:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "USER"
+        },
+        "position": {
+          "height": 44,
+          "width": 139,
+          "x": 1706.11,
+          "y": 61.3512
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Calibration_User/Name"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 14
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "LastCalibration_Title"
+        },
+        "position": {
+          "height": 44,
+          "width": 159,
+          "x": 1605.11,
+          "y": 19.22964646911621
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 16
+          },
+          "text": "Last Calibration:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "DATE-TIME"
+        },
+        "position": {
+          "height": 44,
+          "width": 170,
+          "x": 1730.11,
+          "y": 19.23
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Calibration_User/TimeStamp"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "FontStyles/BodyText",
+            "fontSize": 14
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "FlexRepeater"
+        },
+        "position": {
+          "height": 644,
+          "width": 1908,
+          "x": 7,
+          "y": 253.89
+        },
+        "propConfig": {
+          "props.instances[0].LanePos": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/DivertPostion-17"
+              },
+              "type": "tag"
+            }
+          },
+          "props.instances[0].LastPos": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/Last_DivertPostion-17"
+              },
+              "type": "tag"
+            }
+          },
+          "props.instances[1].LanePos": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/DivertPostion-18"
+              },
+              "type": "tag"
+            }
+          },
+          "props.instances[1].LastPos": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/Last_DivertPostion-18"
+              },
+              "type": "tag"
+            }
+          },
+          "props.instances[2].LanePos": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/DivertPostion-19"
+              },
+              "type": "tag"
+            }
+          },
+          "props.instances[2].LastPos": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/Last_DivertPostion-19"
+              },
+              "type": "tag"
+            }
+          },
+          "props.instances[3].LanePos": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/DivertPostion-20"
+              },
+              "type": "tag"
+            }
+          },
+          "props.instances[3].LastPos": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/Last_DivertPostion-20"
+              },
+              "type": "tag"
+            }
+          },
+          "props.instances[4].LanePos": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/DivertPostion-21"
+              },
+              "type": "tag"
+            }
+          },
+          "props.instances[4].LastPos": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Positions/Last_DivertPostion-21"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "alignContent": "center",
+          "alignItems": "center",
+          "direction": "column",
+          "instances": [
+            {
+              "LaneNum": 17,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "LaneNum": 18,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "LaneNum": 19,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "LaneNum": 20,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            },
+            {
+              "LaneNum": 21,
+              "instancePosition": {},
+              "instanceStyle": {
+                "classes": ""
+              }
+            }
+          ],
+          "path": "_Templates_V5/Templates_OnScreen/Calibration/lane_calibration"
+        },
+        "type": "ia.display.flex-repeater"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "Confirm",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "type": "open",
+                "viewParams": {
+                  "TagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower"
+                },
+                "viewPath": "Mouser/Popups/Yellow/NE_Receiving/Confirmation",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Calibrate-Button"
+        },
+        "position": {
+          "height": 51,
+          "width": 115,
+          "x": 12.4,
+          "y": 10.02
+        },
+        "propConfig": {
+          "custom.Calibrating": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Calibrate"
+              },
+              "type": "tag"
+            },
+            "onChange": {
+              "enabled": null,
+              "script": "\tif not self.custom.Calibrating and self.custom.action:\n\t\tsystem.perspective.openPopup(\u0027Calibrate Complete\u0027, \u0027-Templates_new/Calibration_Input\u0027,params \u003d {\u0027path\u0027:\u0027[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/Calibration_User\u0027})\n\t\tself.custom.action \u003d False"
+            }
+          },
+          "custom.action": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser/Yellow/NE_Receiving/Divert_Status/Divert_Calibration_Lower/action"
+              },
+              "type": "tag"
+            }
+          },
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "this.custom.Calibrating"
+              },
+              "transforms": [
+                {
+                  "fallback": "ButtonStyles/Calibrate/Calibrate_On",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": false,
+                      "output": "ButtonStyles/Calibrate/Calibrate_Off"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "this.custom.Calibrating"
+              },
+              "transforms": [
+                {
+                  "fallback": "Calibrate",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": false,
+                      "output": "Calibrate"
+                    },
+                    {
+                      "input": true,
+                      "output": "Calibrating"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {},
+          "textStyle": {
+            "classes": "FontStyles/BodyText",
+            "color": "#fafafa",
+            "fontSize": 20
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "LedDisplay"
+        },
+        "position": {
+          "height": 51,
+          "width": 133,
+          "x": 130.39,
+          "y": 10.39
+        },
+        "props": {
+          "numberFormat": "0"
+        },
+        "type": "ia.display.led-display"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": -121,
+      "y": 61
+    },
+    "type": "ia.container.coord"
+  }
+}

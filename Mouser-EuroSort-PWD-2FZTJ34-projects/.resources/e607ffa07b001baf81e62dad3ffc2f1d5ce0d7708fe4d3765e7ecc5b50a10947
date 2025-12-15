@@ -1,0 +1,50 @@
+from time import sleep
+from random import random
+from datetime import datetime
+from pymongo import MongoClient
+
+
+from pymongo import *
+
+
+
+	
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+		
+client = MongoClient(uri)
+db=client.ignition
+
+def cursorToList(cursor, limit=2):
+	return [entry for ix,entry in enumerate(cursor) if ix <= limit]
+	
+
+def LoginUser(payload):
+	db.qp_sortation_log_info.insert(payload)
+	return
+	
+def LogoutUser(payload):
+
+	sessionIndex = payload['sessionIndex']
+	userCount = payload['userCount']
+	userRate = payload['userRate']
+	turnincnt = payload['turnincnt']
+	timeout = datetime.utcnow()
+	reasonout = payload['reasonout']
+	scanData = payload['convert']
+	
+	userSearch = db.qp_sortation_log_info.find({{'_id':sessionIndex}})
+	userResults = cursorToList(userSearch)
+	userSearch.close()
+	
+	if userResults >= 1:
+	
+		db.qp_sortation_log_info.update({'_id':sessionIndex},{'$set':{'totalCount':userCount,'totalTurnIn': turnincnt,'reasonStr': reasonout,'rate': userRate,'timeOut': timeout,'ZoneCount':scanData}})				
+	else:
+
+		payload.update({
+			'timeIn':datetime.utcnow()
+			})
+		db.qp_sortation_log_info.insert(payload)
+	return
+
+

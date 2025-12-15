@@ -1,0 +1,741 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 543,
+      "width": 441
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label_2"
+        },
+        "position": {
+          "height": 331,
+          "width": 418,
+          "x": 7,
+          "y": 196.5
+        },
+        "props": {
+          "alignVertical": "top",
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "text": "Tote Settings",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1"
+        },
+        "position": {
+          "height": 197,
+          "width": 420,
+          "x": 6,
+          "y": -0.5
+        },
+        "props": {
+          "alignVertical": "top",
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "text": "Chute Settings",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 261.5,
+          "y": 21
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/ReleaseSettings/SetOpenTimer"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "format": "0,0",
+          "inputBounds": {
+            "maximum": 60,
+            "minimum": 1
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 19.5,
+          "y": 21
+        },
+        "props": {
+          "text": "Chute Open Timer:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 262.5,
+          "y": 55
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Release/ReleaseSettings/SetDelayTimer"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "format": "0,0",
+          "inputBounds": {
+            "maximum": 60,
+            "minimum": 1
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 20.81,
+          "y": 55
+        },
+        "props": {
+          "text": "Delay Between Chutes Timer:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer_1"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 258,
+          "y": 297
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Width"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "maximum": 60,
+            "minimum": 1
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_3"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 16.31,
+          "y": 297
+        },
+        "props": {
+          "text": "Width:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer_2"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 257,
+          "y": 263
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Length"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "maximum": 60,
+            "minimum": 1
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_4"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 15,
+          "y": 263
+        },
+        "props": {
+          "text": "Length:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer_3"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 258,
+          "y": 333
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Height"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "maximum": 60,
+            "minimum": 1
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_5"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 16.31,
+          "y": 333
+        },
+        "props": {
+          "text": "Height:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer_4"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 259,
+          "y": 367
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Fill_Percent"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "format": "0,0",
+          "inputBounds": {
+            "maximum": 100,
+            "minimum": 1
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_6"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 17.31,
+          "y": 367
+        },
+        "props": {
+          "text": "Fill %:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer_5"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 260,
+          "y": 402
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Min_Percent_Left"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "format": "0,0",
+          "inputBounds": {
+            "maximum": 60,
+            "minimum": 1
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_7"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 18.31,
+          "y": 402
+        },
+        "props": {
+          "text": "Minimum % Volume Left:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer_6"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 260,
+          "y": 438
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Volume_Actual"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "##.##",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "maximum": 60,
+            "minimum": 1
+          },
+          "mode": "protected",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_8"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 18.31,
+          "y": 438
+        },
+        "props": {
+          "text": "Actual Volume:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer_7"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 261,
+          "y": 474
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Volume_Use"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "##.##",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "maximum": 60,
+            "minimum": 1
+          },
+          "mode": "protected",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_9"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 19.31,
+          "y": 474
+        },
+        "props": {
+          "text": "Useable Volume",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "OpenTimer_8"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 257,
+          "y": 229
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/SafetyBuffer"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "inputBounds": {
+            "maximum": 60,
+            "minimum": 1
+          },
+          "mode": "button",
+          "spinner": {
+            "enabled": false
+          }
+        },
+        "type": "ia.input.numeric-entry-field"
+      },
+      {
+        "meta": {
+          "name": "Label_10"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 15,
+          "y": 229
+        },
+        "props": {
+          "text": "Package Volume Buffer %:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Dropdown"
+        },
+        "position": {
+          "height": 36,
+          "width": 118,
+          "x": 267.487,
+          "y": 87
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/GroupFunction"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "options": [
+            {
+              "label": "Zone",
+              "value": 0
+            },
+            {
+              "label": "GroupID",
+              "value": 1
+            },
+            {
+              "label": "Zone,GroupID",
+              "value": 2
+            }
+          ]
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "Label_11"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 28.7969,
+          "y": 91
+        },
+        "props": {
+          "text": "Group By:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Dropdown_0"
+        },
+        "position": {
+          "height": 36,
+          "width": 118,
+          "x": 267.69,
+          "y": 123
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/GroupFunction"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "options": [
+            {
+              "label": "Lane",
+              "value": 1
+            },
+            {
+              "label": "Cascading",
+              "value": 2
+            }
+          ]
+        },
+        "type": "ia.input.dropdown"
+      },
+      {
+        "meta": {
+          "name": "Label_12"
+        },
+        "position": {
+          "height": 32,
+          "width": 235.69,
+          "x": 29,
+          "y": 127
+        },
+        "props": {
+          "text": "Sort By:",
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "right"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "position": {
+      "x": -34,
+      "y": -42.5
+    },
+    "type": "ia.container.coord"
+  }
+}

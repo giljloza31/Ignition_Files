@@ -1,0 +1,266 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 2124
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "System_KPI_HSL"
+        },
+        "position": {
+          "height": 295,
+          "width": 600
+        },
+        "props": {
+          "params": {
+            "Alarms": 0,
+            "AreaName": "High Speed Line",
+            "AreaStatus": 0,
+            "Estops": 0,
+            "FaultTime": 0,
+            "Full": 0,
+            "Jams": 0,
+            "LPN1": {
+              "Failed": 0,
+              "Prints": 0
+            },
+            "LPN2": {
+              "Failed": 0,
+              "Prints": 0
+            },
+            "LPN3": {
+              "Failed": 0,
+              "Prints": 0
+            },
+            "Location": "HSL",
+            "OffTime": 0,
+            "OnTime": 0,
+            "RunTime": 0,
+            "Scan1": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scan2": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scan3": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "SystemStarts": 0
+          },
+          "path": "_Templates_V3/Templates_OnScreen/KPI/System_KPI_HSL"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "System_KPI_LPN_Single"
+        },
+        "position": {
+          "height": 249,
+          "width": 680,
+          "x": 609,
+          "y": 8
+        },
+        "props": {
+          "params": {
+            "Alarms": 0,
+            "AreaName": "7in Ipack",
+            "AreaStatus": 0,
+            "Estops": 0,
+            "FaultTime": 0,
+            "Full": 0,
+            "Jams": 0,
+            "LPN1": {
+              "Doubles": 0,
+              "GoodPrint": 0,
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Location": "HSL",
+            "NoRead": 0,
+            "OffTime": 0,
+            "OnTime": 0,
+            "Recirc": 0,
+            "RunTime": 0,
+            "Scans": 0,
+            "SystemStarts": 0
+          },
+          "path": "_Templates_V3/Templates_OnScreen/KPI/System_KPI_LPN_Single"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "System_KPI_Triple"
+        },
+        "position": {
+          "height": 292,
+          "width": 590,
+          "x": 19,
+          "y": 302
+        },
+        "props": {
+          "params": {
+            "Alarms": 0,
+            "AreaName": "High Speed Line",
+            "AreaStatus": 0,
+            "Estops": 0,
+            "FaultTime": 0,
+            "Full": 0,
+            "Jams": 0,
+            "Location": "HSL",
+            "NoRead": 0,
+            "OffTime": 0,
+            "OnTime": 0,
+            "Recirc": 0,
+            "RunTime": 0,
+            "Scan1": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scan2": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scan3": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scans": 0,
+            "SystemStarts": 0
+          },
+          "path": "_Templates_V3/Templates_OnScreen/KPI/System_KPI_Triple"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "System_KPI_Dual"
+        },
+        "position": {
+          "height": 265,
+          "width": 590,
+          "x": 631,
+          "y": 302
+        },
+        "props": {
+          "params": {
+            "Alarms": 0,
+            "AreaName": "High Speed Line",
+            "AreaStatus": 0,
+            "Estops": 0,
+            "FaultTime": 0,
+            "Full": 0,
+            "Jams": 0,
+            "Location": "HSL",
+            "NoRead": 0,
+            "OffTime": 0,
+            "OnTime": 0,
+            "Recirc": 0,
+            "RunTime": 0,
+            "Scan1": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scan2": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scans": 0,
+            "SystemStarts": 0
+          },
+          "path": "_Templates_V3/Templates_OnScreen/KPI/System_KPI_Dual"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "System_KPI_Single"
+        },
+        "position": {
+          "height": 243,
+          "width": 590,
+          "x": 1299,
+          "y": 11
+        },
+        "props": {
+          "params": {
+            "Alarms": 0,
+            "AreaName": "High Speed Line",
+            "AreaStatus": 0,
+            "Estops": 0,
+            "FaultTime": 0,
+            "Full": 0,
+            "Jams": 0,
+            "Location": "HSL",
+            "NoRead": 0,
+            "OffTime": 0,
+            "OnTime": 0,
+            "Recirc": 0,
+            "RunTime": 0,
+            "Scan1": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scans": 0,
+            "SystemStarts": 0
+          },
+          "path": "_Templates_V3/Templates_OnScreen/KPI/System_KPI_Single"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "System_KPI_Dual_0"
+        },
+        "position": {
+          "height": 265,
+          "width": 590,
+          "x": 1244,
+          "y": 302
+        },
+        "props": {
+          "params": {
+            "Alarms": 0,
+            "AreaName": "High Speed Line",
+            "AreaStatus": 0,
+            "Estops": 0,
+            "FaultTime": 0,
+            "Full": 0,
+            "Jams": 0,
+            "Location": "HSL",
+            "NoRead": 0,
+            "OffTime": 0,
+            "OnTime": 0,
+            "Recirc": 0,
+            "RunTime": 0,
+            "Scan1": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scan2": {
+              "Noread": 0,
+              "Scans": 0
+            },
+            "Scans": 0,
+            "SystemStarts": 0
+          },
+          "path": "_Templates_V3/Templates_OnScreen/KPI/System_KPI_Dual"
+        },
+        "type": "ia.display.view"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

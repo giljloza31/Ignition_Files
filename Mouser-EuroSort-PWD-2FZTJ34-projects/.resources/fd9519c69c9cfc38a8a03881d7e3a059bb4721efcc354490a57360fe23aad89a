@@ -1,0 +1,174 @@
+{
+  "custom": {},
+  "params": {
+    "chuteNum": "value",
+    "groupID": "value",
+    "side": "value",
+    "zone": "value"
+  },
+  "propConfig": {
+    "params.chuteNum": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.groupID": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.side": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.zone": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 131,
+      "width": 315
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 228,
+          "x": 44,
+          "y": 6
+        },
+        "props": {
+          "text": "Are you sure?",
+          "textStyle": {
+            "fontSize": 24,
+            "fontWeight": "bolder",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "confirm_rel",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "title": "Confirmation",
+                "type": "close",
+                "viewPath": "Mouser_2/Main/Popups/Eurosort/Section/Confirm_Release",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 179,
+          "y": 60
+        },
+        "props": {
+          "text": "Cancel"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "FilteredPath": "[Mouser]Mouser2/Receiving/Eurosort/Filtered/Filtered",
+          "FolderPath": "[Mouser]Mouser2/Receiving/Eurosort/",
+          "MongoDB": "MongoDBLocal",
+          "Process": 1,
+          "countPath": "[Mouser]Mouser2/Receiving/Eurosort/Got_Data/Count/SortedCount"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom shared.pwd.Eurosort.EuroSortChuteManager import EuroSortChuteManager \n\tesm \u003d EuroSortChuteManager()\n\tzone \u003d self.view.params.zone\n\tgroupID \u003d self.view.params.groupID\n\tside \u003d self.view.params.side\n\tchuteNum \u003d self.view.params.chuteNum\n\tcollection \u003d self.custom.Collection\n\tconnector \u003d \u0027MongoWCS\u0027\n\tfilteredPath \u003d self.custom.FilteredPath\n\tpath_prefix \u003d \u0027[Mouser]Mouser2/Receiving/Eurosort/Chutes/\u0027\n\tsystem.perspective.closePopup(\u0027release\u0027)\n\tesm.release_all_chutes(zone, groupID, chuteNum, side, path_prefix, filteredPath)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_1"
+        },
+        "position": {
+          "height": 34,
+          "width": 111,
+          "x": 47.34,
+          "y": 60.260000000000005
+        },
+        "propConfig": {
+          "custom.DelayTimer": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Filtered/ReleaseSettings/SetDelayTimer"
+              },
+              "type": "tag"
+            }
+          },
+          "custom.OpenDuration": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Filtered/ReleaseSettings/SetOpenTimer"
+              },
+              "type": "tag"
+            }
+          },
+          "custom.sortedCount": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Got_Data/Count/SortedCount"
+              },
+              "type": "tag"
+            }
+          },
+          "custom.volUse": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Got_Data/ToteSize/Volume_Use"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "primary": false,
+          "text": "Release"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,182 @@
+"""
+	A core set of base classes to set the tone for what's expected
+	of the various context extraction bits.
+
+"""
+
+from collections import defaultdict
+
+
+
+
+class Context(object):
+	__slots__=  ['scope', 'signature']
+	__signature_type__ = tuple
+	
+	def __init__(self, scope, signature):
+		self.scope = scope
+		self.signature = signature
+
+
+
+class DedupeSignatureValuesMixin(Context):
+	"""Lookup for signatures to further deduplicate entries"""
+	__signature_lookup__ = {}
+	__signature_rev_lookup__ = {}
+
+	__slots__=  ['scope', '_signature']
+	
+	@classmethod
+	def _clear_signature_lookup(cls):
+		__signature_lookup__ = {}
+		__signature_rev_lookup__ = {}
+	
+	@classmethod
+	def _lookup_signature_index(cls, value):
+		if not value in cls.__signature_lookup__:
+			cls.__signature_lookup__[value] = len(cls.__signature_lookup__)
+			cls.__signature_rev_lookup__[cls.__signature_lookup__[value]] = value
+		return cls.__signature_lookup__[value]
+
+	@classmethod
+	def _lookup_signature_value(cls, index):
+		return cls.__signature_rev_lookup__[index]
+	
+	@classmethod
+	def encode_signature(cls, *values):
+		return cls.__signature_type__(cls._lookup_signature_index(value) for value in values)
+	
+	@classmethod
+	def decode_signature(cls, *indexes):
+		return cls.__signature_type__(cls._lookup_signature_value(index) for index in indexes)
+		
+	
+	@property
+	def signature(self):
+		return self.__signature_type__(self._lookup_signature_value(ix) for ix in self._signature)
+
+	@signature.setter
+	def signature(self, new_sig):
+		self._signature = self.__signature_type__(self._lookup_signature_index(value) for value in new_sig)
+
+
+
+class CountDedupeSignaturesMixin(DedupeSignatureValuesMixin):
+	_signature_counts = defaultdict(int)
+
+	@property
+	def signature(self):
+		return self.__signature_type__(self._lookup_signature_value(ix) for ix in self._signature)
+		
+	@signature.setter
+	def signature(self, new_sig):
+		deduped_sig = self.__signature_type__(self._lookup_signature_index(value) for value in new_sig)
+		self._signature_counts[deduped_sig] += 1
+		self._signature = deduped_sig
+
+
+
+class MetaContextProbe(type):
+	
+	@property
+	def extractors(cls):
+		try:
+			for extractor in cls.__extractors__:
+				yield extractor
+		# allow for lazy initialization
+		except TypeError:
+			cls.__extractors__ = tuple(
+				(attr[9:], getattr(cls, attr))
+				for attr in sorted(dir(cls))
+				if attr.startswith('_extract_')
+				)
+			for extractor in cls.__extractors__:
+				yield extractor
+
+
+
+class ContextProbe(object):
+	"""Core context extraction class. Each context has a scope and signature.
+	
+	The signatures do not need to be namespaced to just the scope. Rather,
+	the scope gives the option for allowing for what are otherwise identical 
+	signatures to be differentiated in different contexts.
+	"""
+	__metaclass__ = MetaContextProbe
+	
+	__slots__ = ['contexts']
+	__context_type__ = Context
+	
+	__extractors__ = None
+	
+	def __init__(self, situation):
+		if situation is not None:
+			self.contexts = dict(
+				(context.scope, context.signature)
+				for context 
+				in self.extract(situation)
+			)
+		else:
+			self.contexts = {}
+	
+	@classmethod
+	def extract(cls, situation):
+		if situation is None:
+			return
+		for scope, extractor in cls.extractors:
+			try:
+				# signature should be a tuple or list, but so long as it's
+				# compatible with whatever normalizes it, it's fine
+				signature = extractor(situation)
+			except Exception as error:
+				# print '  ERR:', error
+				continue
+			yield cls.__context_type__(*cls.normalize(scope, signature))
+	
+	@classmethod
+	def normalize(cls, scope, signature):
+		return scope, signature
+	
+	def __len__(self):
+		return len(self.contexts)
+	
+	def __iter__(self):
+		for key_value in self.contexts.items():
+			yield key_value
+	
+	def __getitem__(self, scope):
+		return self.contexts.get(scope, None)
+	
+	def __repr__(self):
+		return '<%s: %d scopes>' % (type(self).__name__, len(self.contexts))
+
+
+	
+#	# demo of an extractor: a thing goes in, an iterable comes out
+#	@classmethod
+#	def _extract_example(cls, context):
+#		v1 = context['value']
+#		return (v1, v1 + 3,)
+
+
+
+class StackTrace_FilteringMixin(object):
+	"""Help cut down on the spam. NOP by unconfigured default when mixed in a class."""
+	_ignore_filters = [
+		[],
+	]
+	
+	def filter_entries(self):
+		self.entries = [entry 
+			for entry 
+			in self.entries
+			if not any( # any pattern
+				all( # all attributes match in pattern
+					pattern.match(str(entry[attr]))
+					for attr, pattern
+					in filter_patterns
+				)
+				for filter_patterns 
+				in self._ignore_filters
+			)
+		]

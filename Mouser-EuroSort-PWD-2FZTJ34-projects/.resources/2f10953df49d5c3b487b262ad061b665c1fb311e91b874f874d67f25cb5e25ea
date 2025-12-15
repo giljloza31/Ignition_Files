@@ -1,0 +1,2 @@
+SELECT Route_Code
+From Catchbox_Divert_Table

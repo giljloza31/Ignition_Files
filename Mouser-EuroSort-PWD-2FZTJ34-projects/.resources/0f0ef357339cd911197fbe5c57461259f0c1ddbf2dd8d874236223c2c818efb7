@@ -1,0 +1,439 @@
+from pymongo import MongoClient
+from datetime import datetime
+from system.net import httpClient
+
+import re
+# Production uri
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+
+# Development uri
+#uri = 'mongodb://PWD:PWDllc123!@localhost:27017/'
+MongoDB = MongoClient(uri)
+db = MongoDB.ignition
+
+
+#logger for Marriage
+logger = system.util.getLogger('Marriage')
+
+
+# Barcode separator constant (define it properly)
+BARCODE_SEPARATOR = ','  # Modify based on actual usage
+client = httpClient()
+
+
+MAN_PAYLOAD_PATTERN = re.compile(r"""
+	^
+	(?P<indexid>\d{3})						# indexID 101-399
+	\|										# pipe seperator
+	(?P<lpn>.*)								# LPN
+	\|										# pipe seperator
+	(?P<weight>.*)							# weight
+	\|										# pipe seperator
+	(?P<ibn>.*)								# lpns (needs to be comma-delimited)
+	$
+	""", re.VERBOSE)
+	
+
+	
+# Marriage/Manifest Errors
+MAN_ERROR_LIST = {
+	1: {'Error':'No Error','Message':'Success'},
+	2: {'Error':'Incorrect Payload','Message':'Received incorrect payload'},
+	3: {'Error':'No Weight','Message':'Received no weight'},
+	4: {'Error':'LPN No Read','Message':'Found No LPN'},
+	5: {'Error':'Multiple LPN','Message':'Found Multiple LPNs'},
+	6: {'Error':'IBN No Read','Message':'Found No IBN'},
+	7: {'Error':'Found no Valid IBN','Message':'Found No valid IBN'},
+	8: {'Error':'Failed Marriage API','Message':'API Failed- Failed to connect'},
+	9: {'Error':'Failed Manifest API','Message':'API Failed- Failed to connect'},
+	10: {'Error':'No Label Returned','Message':'No Label Returned'},
+	11: {'Error':'Decode','Message':'Could not decode'},
+	14: {'Error':'Error','Message':'Error'},
+	20: {'Error':'Unexplained Error','Message':'Unexplained Error'},
+}
+class MarriageProcess:
+	
+	def get_next_index(self,name):
+		pipeline = [
+		    {'$match': {'area': name}},
+		    {'$group': {'_id': "$area", 'max_seq': {'$max': "$seq"}}},
+		    {'$project': {'_id': 0, 'seq': {'$add': ["$max_seq", 1]}}}
+		]
+		
+		result = list(db.counter.aggregate(pipeline))
+		if result:
+			new_seq = result[0]['seq']
+		else:
+			new_seq = 1
+		
+		# Update the document with the new sequence
+		db.counter.update({'area': name}, {'$set': {'seq': new_seq}}, upsert=True)
+		
+		return new_seq
+	
+
+		
+	# Check payload if correctly formatted 
+	def check_payload(self,payload,data):
+		
+		status = False
+		try:
+			
+			payload_data_match = MAN_PAYLOAD_PATTERN.match(payload)
+			
+			# If not matched return error
+			if not payload_data_match:
+				
+				data.update({
+					'induct_LPN': 'No LPN',
+					'induct_weight' : 'No Weight',
+					'induct_IBN':'No IBN',
+					'reason_num':2,
+					'reason':MAN_ERROR_LIST[2]['Error'],
+					'message':MAN_ERROR_LIST[2]['Message'],
+					'payload_check_time_ms':(datetime.now()-data['induct_start_time']).total_seconds() * 1000,
+					'check_payload_status':status
+					})
+				return data,status
+			
+			# If match group into correct identifiers
+			payload_data = payload_data_match.groupdict()
+			
+			status = True	
+			# Stored into dictionary 
+			data.update({
+				'induct_indexId': payload_data['indexid'],
+				'induct_LPN': payload_data['lpn'],
+				'induct_weight' : payload_data['weight'],
+				'induct_IBN':payload_data['ibn'],
+				'reason_num':1,
+				'reason':MAN_ERROR_LIST[1]['Error'],
+				'message':MAN_ERROR_LIST[1]['Message'],
+				'check_payload_status':status
+				})
+				
+		# Catch all in the event of an unexplained error
+		except:
+			data.update({
+				'induct_LPN': 'No LPN',
+				'induct_weight' : 'No Weight',
+				'induct_IBN':'No IBN',
+				'reason_num':20,
+				'reason':MAN_ERROR_LIST[20]['Error'],
+				'message':MAN_ERROR_LIST[20]['Message'],
+				'check_payload_status':status
+				})
+				
+		# Time it took to check the payload from induct
+		data.update({
+			'payload_check_time_ms':(datetime.now()-data['induct_start_time']).total_seconds() * 1000
+			})
+		
+		return data,status
+			
+			
+	def check_ibn(self, ibn_string,data):
+		status = False
+		
+		try:
+			# Use dict.fromkeys() to remove duplicates while preserving order
+			IBN_list = list(dict.fromkeys(ibn_string.split(BARCODE_SEPARATOR)))
+			
+			# Use list comprehension to filter valid LPNs
+			IBN_list = [ibn for ibn in IBN_list if re.match('^[A-Z0-9]{6}$', ibn)]
+		
+			
+			if 'NOREAD' in IBN_list:
+#				status = True
+				data.update({
+					'induct_IBN':'NOREAD',
+					'induct_ibn_list':[],
+					'reason_num':6,
+					'reason':MAN_ERROR_LIST[6]['Error'],
+					'message':MAN_ERROR_LIST[6]['Message'],
+					'ibn_check_time_ms':(datetime.now()-data['induct_start_time']).total_seconds() * 1000,
+					'check_ibn_status':status,
+					'PrintLabel':'',
+					'printer_results':2
+					
+					})
+				return data,status
+				
+		
+			
+			filter_query = {"_id": {"$in": IBN_list}}
+			project={'_id': 1}
+			IBNQuery = db.outbound_scan_sort_ibn.find(filter_query,project)
+			IBNresults = list(IBNQuery)  
+			
+			
+			
+			if not IBNresults:
+#				status = True
+				data.update({
+					'induct_IBN':'InvaildIBN',
+					'induct_ibn_list':[],
+					'reason_num':7,
+					'reason':MAN_ERROR_LIST[7]['Error'],
+					'message':MAN_ERROR_LIST[7]['Message'],
+					'ibn_check_time_ms':(datetime.now()-data['induct_start_time']).total_seconds() * 1000,
+					'check_ibn_status':status,
+					'printer_results':2,
+					'PrintLabel':''
+					})
+					
+				return data,status
+				
+			IBN_list = []
+			for result in IBNresults:
+				for key, value in result.items():
+					IBN_list.append(value)
+			
+			status = True
+			data.update({
+				'reason_num':1,
+				'reason':MAN_ERROR_LIST[1]['Error'],
+				'message':MAN_ERROR_LIST[1]['Message'],
+				'induct_ibn':','.join(IBN_list),
+				'induct_ibn_list':IBN_list,
+				'check_ibn_status':status
+				})
+				
+			
+			
+		except:
+			data.update({
+				'reason_num':20,
+				'reason':MAN_ERROR_LIST[20]['Error'],
+				'message':MAN_ERROR_LIST[20]['Message'],
+				'check_ibn_status':status,
+				'induct_ibn_list':[],
+				'PrintLabel':'',
+				'printer_results':2
+				})
+			
+		data.update({
+			'ibn_check_time_ms':(datetime.now()-data['induct_start_time']).total_seconds() * 1000
+			})
+		return data,status
+
+	def check_weight(self,weight,data):
+		
+		status = False
+		
+		if weight in ['NODATA','NOWEIGHT']:
+			data.update({
+				'induct_weight':0,
+				'reason_num':3,
+				'reason':MAN_ERROR_LIST[3]['Error'],
+				'message':MAN_ERROR_LIST[3]['Message'],
+				'check_weight_status':status,
+				'printer_results':2,
+				'PrintLabel':'',
+				'has_label':False
+			})
+#			status = True
+			return data,status
+		
+		weight = float(weight)
+		
+		if weight <= 0:
+			data.update({
+				'induct_weight':0,
+				'reason_num':3,
+				'reason':MAN_ERROR_LIST[3]['Error'],
+				'message':MAN_ERROR_LIST[3]['Message'],
+				'check_weight_status':status,
+				'PrintLabel':'',
+				'printer_results':2,
+				'has_label':False
+			})
+#			status = True
+			return data,status			
+		status = True
+		data.update({
+			'induct_weight': weight,
+			'reason_num':1,
+			'reason':MAN_ERROR_LIST[1]['Error'],
+			'message':MAN_ERROR_LIST[1]['Message'],
+			'check_weight_status':status,
+			'printer_results':1,
+			'has_label':True
+			})
+		
+		return data,status
+		
+	# Check to ensure one unqiue LPN 
+	def check_lpn(self,lpn_string,data):
+		status = False
+		
+		try:
+			
+			# Use dict.fromkeys() to remove duplicates while preserving order
+			LPN_list = list(dict.fromkeys(lpn_string.split(BARCODE_SEPARATOR)))
+			# Check if No read is part of the string
+			if 'NOREAD' in LPN_list:
+				
+				data.update({
+					'induct_LPN':'NOREAD',
+					'induct_lpn_list':'NOREAD',
+					'reason_num':4,
+					'reason':MAN_ERROR_LIST[4]['Error'],
+					'message':MAN_ERROR_LIST[4]['Message'],
+					'lpn_check_time_ms':(datetime.now()-data['induct_start_time']).total_seconds() * 1000,
+					'check_lpn_status':status,
+					'printer_results':2,
+					'PrintLabel':'',
+					'has_label':False	
+					})
+					
+				return data,status
+			# Use list comprehension to filter valid LPNs
+			LPN_list = [lpn for lpn in LPN_list if re.match('^H0\d{6}$', lpn)]
+			
+			# If LPN list is empty raise error
+			if not LPN_list:
+				data.update({
+					'induct_lpn_list':lpn_string,
+					'reason_num':7,
+					'reason':MAN_ERROR_LIST[7]['Error'],
+					'message':MAN_ERROR_LIST[7]['Message'],
+					'lpn_check_time_ms':(datetime.now()-data['induct_start_time']).total_seconds() * 1000,
+					'check_lpn_status':status,
+					'printer_results':2,
+					'PrintLabel':'',
+					'has_label':False
+					})
+					
+				return data,status	
+			
+			# Update Dictionary for history
+			data.update({
+				'induct_lpn_list':','.join(LPN_list)
+				})
+
+			
+	
+			# If len of LPN is greater than 1 
+			if len(LPN_list)>1:
+				data.update({
+					'induct_lpn_list':lpn_string,
+					'reason_num':5,
+					'reason':MAN_ERROR_LIST[5]['Error'],
+					'lpn_check_time':(datetime.now()-data['induct_start_time']).total_seconds() * 1000,
+					'check_lpn_status':status,
+					'printer_results':2,
+					'PrintLabel':'',
+					'has_label':False
+					})
+					
+				return data,status
+			status = True
+			# If all good return 1 
+			data.update({
+				'induct_LPN':','.join(LPN_list),# This should only return itself
+				'induct_lpn_list':LPN_list,
+				'reason_num':1,
+				'reason':MAN_ERROR_LIST[1]['Error'],
+				'message':MAN_ERROR_LIST[1]['Message'],
+				'check_lpn_status':status,
+				'printer_results':1,
+				'has_label':True
+			})
+			
+		
+		# Catch all for unexplained errors
+		except:
+			
+			data.update({
+				'induct_lpn_list':lpn_string,
+				'reason_num':20,
+				'reason':MAN_ERROR_LIST[20]['Error'],
+				'message':MAN_ERROR_LIST[20]['Message'],
+				'check_lpn_status':status,
+				'printer_results':2,
+				'PrintLabel':'',
+				'has_label':False
+				})
+				
+				
+		
+		data.update({
+			'lpn_check_time_ms':(datetime.now()-data['induct_start_time']).total_seconds() * 1000
+			})
+		
+		return data,status
+			
+	
+	def marry_process(self,data):
+		api_payload = {}
+		api_payload['ibns']= data['induct_ibn_list']
+		api_payload['deviceId'] = 9
+		marryprocess = MarriageProcess()
+		status = False
+		
+		try:
+		# Production Enpoint
+			ENDPOINT = 'http://wcs01:8085/ws/v1/lpns/%s' % data['induct_LPN']
+			
+			
+			response = client.post(ENDPOINT,data=api_payload)
+			results = response.json
+#			logger.info("Marry results: %s"%results)
+			if int(results['statusCode']) not in [0,282,259]:
+				
+				
+				data.update({
+					'marriage_results_json':results,
+					'marriage_statusCode':results['statusCode'],
+					'marriage_results':results['status'],
+					'marriage_desc':results['desc'],
+					'reason':MAN_ERROR_LIST[8]['Error'],
+					'reason_num':8,
+					'message':MAN_ERROR_LIST[8]['Message'],
+					'marry_process_status':status,
+					'PrintLabel':'',
+					'printer_results':2,
+					'has_label':False
+				})
+				
+				return data,status
+			status = True	
+			data.update({
+				'marriage_results_json':results,
+				'marriage_statusCode':results['statusCode'],
+				'marriage_results':results['status'],
+				'marriage_desc': 'Success',
+				'reason': MAN_ERROR_LIST[1]['Error'],
+				'reason_num': 1,
+				'message':MAN_ERROR_LIST[1]['Message'],
+				'marry_process_status':status,
+				'printer_results':1,
+				'has_label':False
+				})
+			
+				
+		except:
+			data.update({
+				'marriage_results_json':[],
+				'marriage_statusCode':500,
+				'marriage_results':False,
+				'marriage_desc':'Failed to Connect',
+				'reason':MAN_ERROR_LIST[8]['Error'],
+				'reason_num':8,
+				'message':MAN_ERROR_LIST[8]['Message'],
+				'marry_process_status':status,
+				'printer_results':2,
+				'PrintLabel':'',
+				'has_label':False
+				
+			})
+		
+		data.update({
+			'marry_check_time':(datetime.now()-data['induct_start_time']).total_seconds() * 1000
+			})
+			
+	
+
+		return data,status
+		

@@ -1,0 +1,72 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.sorterdata.base import SorterDataBase
+
+
+
+class SorterDataDimensions(SorterDataBase):
+
+
+	@property
+	def weight(self):
+		x = self._javaObject.weight
+		return round(float(x),2)
+
+	@weight.setter
+	def weight(self, new_weight):
+		assert new_weight >= 0, "Can't have a negative weight. That's silly."
+		self.weight = round(float(new_weight),2)
+
+
+	DIMENSION_DELIMITER = 'x'
+
+	@property
+	def dimensions(self):
+		"""A 3-tuple of inches; string Format is L.LLxW.WWxH.HH"""
+		if self._javaObject.dimensions == '0.0.0': return None
+		return (self.length, self.width, self.height)
+
+	@dimensions.setter
+	def dimensions(self, l_w_h):
+		assert len(l_w_h) == 3
+		self._javaObject.dimensions = self.DIMENSION_DELIMITER.join('%0.2f' % x for x in l_w_h)
+
+
+	@property
+	def length(self):
+		if self._javaObject.dimensions == '0.0.0': return 0.0
+		x = self._javaObject.dimensions.partition(self.DIMENSION_DELIMITER)[0]
+		return round(float(x),2)
+
+	@length.setter
+	def length(self, new_length):
+		assert new_length >= 0, "Can't have a negative dimension. That's silly."
+		self.dimensions = (new_length, self.width, self.height)
+
+
+	@property
+	def width(self):
+		if self._javaObject.dimensions == '0.0.0': return 0.0
+		x = self._javaObject.dimensions.split(self.DIMENSION_DELIMITER)[1]
+		return round(float(x),2)
+
+	@width.setter
+	def width(self, new_width):
+		assert new_width >= 0, "Can't be thinner than nothing."
+		self.dimensions = (self.length, new_width, self.height)
+
+
+	@property
+	def height(self):
+		if self._javaObject.dimensions == '0.0.0': return 0.0
+		x = self._javaObject.dimensions.partition('x')[2]
+		return round(float(x),2)
+
+	@height.setter
+	def height(self, new_height):
+		assert new_height >= 0, "Can't be shorter than floor"
+		self.dimensions = (self.length, self.width, new_height)

@@ -1,0 +1,22 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 1080,
+      "width": 1920
+    }
+  },
+  "root": {
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "borderStyle": "dashed",
+        "stroke": "#000000"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,22 @@
+"""
+	Mapping messages to tags
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.service import EuroSorterService
+from eurosort.state import 
+
+
+class PollGates(EuroSorterService):
+
+
+	def __init__(self, name, endpoint_address=None, **config_overrides):
+		self._tagpaths_gates = []
+		
+		super(EuroSorter, self).__init__(name, endpoint_address=None, **config_overrides)
+
+
+	def wait(self):
+		
+		super(PollGates, self).wait()

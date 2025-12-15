@@ -1,0 +1,94 @@
+"""
+	
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+__all__ = """
+	abspathjoin
+	head_split javafy
+	WrappedConsumer
+""".split()
+
+
+from java.util.function import Consumer
+import os
+import datetime
+from java.util import Date
+
+
+
+def now(offset_seconds=None):
+	if offset_seconds:
+		return (datetime.datetime.now() + datetime.timedelta(seconds=offset_seconds)).isoformat(' ')
+	else:
+		return datetime.datetime.now().isoformat(' ')
+
+
+def seconds_since(timestamp):
+	if timestamp in (None, 0):
+		return 0
+	if isinstance(timestamp, Date):
+		return int((Date().getTime() - timestamp.getTime())/1000.0)
+		#timestamp = str(timestamp.toInstant())[:21]
+	try: # just effing coerce it
+		timestamp = timestamp.isoformat(' ')
+	except:
+		pass
+	assert isinstance(timestamp, (str, unicode)), 'working with iso8601: %r' % (timestamp,)
+	timestamp = timestamp.replace('T', ' ')
+	dtts = datetime.datetime.strptime(timestamp[:19], '%Y-%m-%d %H:%M:%S')
+	return (datetime.datetime.now() - dtts).total_seconds()
+
+
+
+
+def abspathjoin(*parts):
+	"""Render all paths absolute"""
+	return os.path.abspath(os.path.join(*parts))
+apj = abspathjoin
+
+
+
+def head_split(*parts):
+	if not parts:
+		return tuple(), tuple()
+	return parts[0], parts[1:]
+
+
+
+def javafy(snake_case):
+	snake_head, snake_body = head_split(*snake_case.split('_'))
+	return snake_head + ''.join(part.capitalize() for part in snake_body)
+
+
+class WrappedConsumer(Consumer):
+	def __init__(self, function):
+		self.accept = function
+
+#class WrappedConsumer(Consumer):
+#	def __init__(self, function):
+#		self.wrapped_function = function
+#		self.accept = function
+#		
+#		Logger().warn('consumer __init__ {function}')
+#
+#	def __call__(self, *args, **kwargs):
+#		"""Not strictly needed, but this adds moly guards in case of weirdness"""
+#		Logger().warn('consumer __call__ {self} {function} {args!r} {kwargs!r}', function=self.accept)
+#		
+#		assert (len(args) == 1 and len(kwargs) == 0) or (len(args) == 0 and len(kwargs) == 1), 'Consumer functions can only take one argument. Got %r %r' % (args, kwargs)
+#		if args:
+#			self.wrapped_function(args[0])
+#		else:
+#			arg = list(kwargs.values())[0]
+#			self.wrapped_function(arg)
+
+
+#def consumer(function):
+#	"""Wraps a function so it matches the Consumer design
+#	See https://stackoverflow.com/a/45452473/11902188
+#	"""
+#	wrapped_function = WrappedConsumer(function)
+#	return wrapped_function
+		

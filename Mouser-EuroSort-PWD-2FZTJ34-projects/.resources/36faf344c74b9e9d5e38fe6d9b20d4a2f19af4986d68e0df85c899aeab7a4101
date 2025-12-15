@@ -1,0 +1,455 @@
+{
+  "custom": {
+    "States": {}
+  },
+  "params": {
+    "ControlName": "Motor Name",
+    "ControlTag": "[default]Motor control/Push Button",
+    "IndicatorTags": {
+      "Intermediate": "[default]Motor control/Intermediate State",
+      "Off": "[default]Motor control/Off State",
+      "On": "[default]Motor control/On State"
+    }
+  },
+  "propConfig": {
+    "custom.StateEnum": {
+      "binding": {
+        "config": {
+          "expression": "try(\r\n    // Rank the states so they fail through smoothly\r\n    // (which is, oddly, opposite the order encoded \u003d/)\r\n\tif({view.custom.States.Intermediate}, 2\r\n,\tif({view.custom.States.On}          , 1\r\n,\tif({view.custom.States.Off}         , 0\r\n\t\t\t\t\t\t\t\t\t\t, -1)))\r\n// binEnum isn\u0027t quite what we want here, since first non-zero value\r\n//   overrides the rest.\r\n//\tbinEnum(\r\n//\t\t{view.custom.States.Off}\r\n//\t,\t{view.custom.States.On}\r\n//\t,\t{view.custom.States.Intermediate}\t\r\n//\t) - 1 // zero index, \"off\" should be zero\r\n// error value\r\n,   -1\r\n)"
+        },
+        "type": "expr"
+      }
+    },
+    "custom.States": {
+      "persistent": true
+    },
+    "custom.States.Intermediate": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "Intermediate": "{view.params.IndicatorTags.Intermediate}"
+          },
+          "tagPath": "{Intermediate}"
+        },
+        "type": "tag"
+      }
+    },
+    "custom.States.Off": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "Off": "{view.params.IndicatorTags.Off}"
+          },
+          "tagPath": "{Off}"
+        },
+        "type": "tag"
+      }
+    },
+    "custom.States.On": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "On": "{view.params.IndicatorTags.On}"
+          },
+          "tagPath": "{On}"
+        },
+        "type": "tag"
+      }
+    },
+    "custom.key": {
+      "persistent": true
+    },
+    "params.ControlName": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.ControlTag": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.IndicatorTags": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.IndicatorTags.Intermediate": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.IndicatorTags.Off": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.IndicatorTags.On": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 372,
+      "width": 848
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": true,
+                "id": "ZcSpjVMr",
+                "modal": false,
+                "overlayDismiss": false,
+                "resizable": true,
+                "showCloseIcon": true,
+                "title": "Confirmation",
+                "type": "open",
+                "viewParams": {
+                  "ControlName": "{view.params.ControlName}",
+                  "ControlTag": "{view.params.ControlTag}",
+                  "Status": "{view.custom.StateEnum}"
+                },
+                "viewPath": "Popups/Confirmation/Toggle"
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "basis": "100px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.elements[0].elements[0].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "view.custom.StateEnum"
+              },
+              "transforms": [
+                {
+                  "expression": "// flash the intermediate state\nif( {value} \u003d 2 // intermediate \n,  if(  toMillis(now(250)) // update rate (250ms)\n\t\t% 1500            // period (1.5 seconds)\n\t\t\u003c 500            // duty cycle fraction (first third) \n\t,\t1  // flash this color\n\t,\t2  // remainder of duty cycle\n)\n,  {value}\n)",
+                  "type": "expression"
+                },
+                {
+                  "fallback": "#D5D5D5",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#D5D5D5"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#D5D5D5"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#FFFFCC"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[1].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "view.custom.StateEnum"
+              },
+              "transforms": [
+                {
+                  "fallback": "#00FFFF",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#FF8A8A"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#00FF00"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#FFFF8A"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[2].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "view.custom.StateEnum"
+              },
+              "transforms": [
+                {
+                  "fallback": "#00D9D9",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#FF0000"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#00AC00"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#FFFF00"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[4].fill.paint": {
+            "binding": {
+              "config": {
+                "path": "view.custom.StateEnum"
+              },
+              "transforms": [
+                {
+                  "fallback": "#00D9D9",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#FF0000"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#00AC00"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#FFFF00"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[4].stroke.paint": {
+            "binding": {
+              "config": {
+                "path": "view.custom.StateEnum"
+              },
+              "transforms": [
+                {
+                  "fallback": "#00D9D9",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#FF0000"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#00AC00"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#D9D900"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[4].text": {
+            "binding": {
+              "config": {
+                "path": "view.custom.StateEnum"
+              },
+              "transforms": [
+                {
+                  "fallback": "\u003c ? \u003e",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 2,
+                      "output": "\u003d \u003d \u003d"
+                    },
+                    {
+                      "input": 1,
+                      "output": "On"
+                    },
+                    {
+                      "input": 0,
+                      "output": "Off"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.elements[0].elements[5].text": {
+            "binding": {
+              "config": {
+                "path": "view.params.ControlName"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M 29.093877,21.820408 H 86.47347 c 7.38742,0 13.334694,5.947273 13.334694,13.334694 v 15.759182 c 0,7.38742 -5.947274,13.334694 -13.334694,13.334694 H 29.093877 c -7.387421,0 -13.334694,-5.947274 -13.334694,-13.334694 V 35.155102 c 0,-7.387421 5.947273,-13.334694 13.334694,-13.334694 z",
+                  "fill": {
+                    "rule": "evenodd"
+                  },
+                  "name": "BaseButtonShape",
+                  "stroke": {
+                    "dasharray": "none",
+                    "miterlimit": "4",
+                    "opacity": "1",
+                    "paint": "#000000",
+                    "width": 0.265
+                  },
+                  "style": {},
+                  "type": "path"
+                },
+                {
+                  "cx": "34.721645",
+                  "cy": "47.102398",
+                  "fill": {
+                    "rule": "evenodd"
+                  },
+                  "name": "PowerSymbol_circle",
+                  "r": "10.362907",
+                  "stroke": {
+                    "dasharray": "none",
+                    "miterlimit": "4",
+                    "opacity": "1",
+                    "paint": "#000000",
+                    "width": 1.5
+                  },
+                  "style": {},
+                  "type": "circle"
+                },
+                {
+                  "fill": {
+                    "rule": "evenodd"
+                  },
+                  "height": "5.469666",
+                  "name": "PowerSymbol_tip",
+                  "ry": "0.54696661",
+                  "stroke": {
+                    "dasharray": "none",
+                    "miterlimit": "4",
+                    "opacity": "1",
+                    "paint": "#000000",
+                    "width": 0.530334
+                  },
+                  "style": {},
+                  "transform": "scale(-1,1)",
+                  "type": "rect",
+                  "width": "1.4651891",
+                  "x": "-35.35704",
+                  "y": "40.490376"
+                },
+                {
+                  "d": "m -14.581607,54.901043 a 5.6774282,6.0227962 0 0 1 -4.098187,5.785103 5.6774282,6.0227962 0 0 1 -6.378102,-2.566719 5.6774282,6.0227962 0 0 1 0.549904,-7.213026 5.6774282,6.0227962 0 0 1 6.684026,-1.446053",
+                  "fill": {
+                    "paint": "#00000000"
+                  },
+                  "name": "PowerSymbol_innerCircle",
+                  "stroke": {
+                    "dasharray": "none",
+                    "linecap": "round",
+                    "miterlimit": "4",
+                    "opacity": "1",
+                    "paint": "#000000",
+                    "width": 0.889
+                  },
+                  "style": {},
+                  "transform": "matrix(0.55608414,-0.831126,0.8336378,0.55231152,0,0)",
+                  "type": "path"
+                },
+                {
+                  "fill": {
+                    "opacity": "1"
+                  },
+                  "name": "IndicatorText",
+                  "stroke": {
+                    "width": 0.5
+                  },
+                  "style": {
+                    "fontFamily": "sans-serif",
+                    "fontSize": "13.8314px",
+                    "fontStyle": "normal",
+                    "fontWeight": "normal",
+                    "lineHeight": "1.25"
+                  },
+                  "transform": "scale(0.95876349,1.0430101)",
+                  "type": "text",
+                  "x": 60,
+                  "y": 50
+                },
+                {
+                  "name": "ToggleLabel",
+                  "style": {
+                    "fontFamily": "sans-serif",
+                    "fontSize": "8px",
+                    "lineHeight": "1.25",
+                    "text-anchor": "middle"
+                  },
+                  "type": "text",
+                  "x": "67%",
+                  "y": 34
+                }
+              ],
+              "name": "ButtonShape",
+              "transform": "translate(-15.626683,-21.687908)",
+              "type": "group"
+            }
+          ],
+          "viewBox": "0 0 84.31398 42.693569"
+        },
+        "type": "ia.shapes.svg"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

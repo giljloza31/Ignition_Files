@@ -1,0 +1,198 @@
+"""
+	Base gate control mechanics
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from eurosort.config            import EuroSorterConfig
+from eurosort.service           import EuroSorterService
+from eurosort.tracking.wcs      import EuroSorterAccessWCS
+from eurosort.tracking.contents import EuroSorterContentTracking, Destination, Dests
+
+from eurosort.utility import now
+
+from functools import partial
+
+
+
+class EuroSorterGateMechanics(
+		EuroSorterService,
+		EuroSorterConfig,
+	):
+
+	GATE_TRANSITION_DWELL_TIME = 24 #8 # seconds
+
+
+	@property
+	def _gate_dwell_time(self):
+		return (
+			system.tag.readBlocking([
+					self.CONTROL_TAG_PATH + '/Gate down dwell seconds'
+				])[0].value
+			or self.GATE_TRANSITION_DWELL_TIME)
+
+	def _gate_tag_path(self, destination):
+		"""Generate the expected tag path for the destination
+		Example tag path: 
+			[EuroSort]EuroSort/Opex/Control/Gates/DST-0085-2-G-B/Request Open
+		"""
+		destination = Destination.parse(destination)
+		gate_tag_path = '{root}/{sorter}/Control/Gates/DST-{station}-{chute}-G-{side}'.format(
+				root    = self.ROOT_SORTER_TAG_PATH,
+				sorter  = self.name,
+				station = destination.station,
+				chute   = destination.chute,
+				side    = destination.side,
+			)
+		return gate_tag_path
+
+	# OPEN command
+	def open_gate(self, destination, callback=None):
+		self.logger.debug('Opening gate at {destination}')
+		system.tag.writeAsync([self._gate_tag_path(destination)+'/Request Open'], 
+							  [True], 
+							  partial(self._await_gate_open, destination=destination, on_complete=callback))
+
+	# OPEN verify
+	def _await_gate_open(self, tag_write_results, destination, on_complete=None):
+		self._safe_wait(self._gate_dwell_time)
+	
+		if not system.tag.readBlocking([self._gate_tag_path(destination) + '/Open'])[0]:
+			self.logger.warn('Timeout: Gate not open in time (%d seconds): %s' % (
+				self._gate_dwell_time, gate_tag_path))
+	
+		if on_complete:
+			on_complete()
+
+	# CLOSE command
+	def close_gate(self, destination, callback=None):
+		self.logger.debug('Closing gate at {destination}')
+		system.tag.writeAsync([self._gate_tag_path(destination)+'/Request Open'], 
+							  [False], 
+							  partial(self._await_gate_closed, destination=destination, on_complete=callback))
+
+	# CLOSE verify
+	def _await_gate_closed(self, tag_write_results, destination, on_complete=None):
+		self._safe_wait(self._gate_dwell_time)
+	
+		if not system.tag.readBlocking([self._gate_tag_path(destination) + '/Closed'])[0]:
+			self.logger.warn('Timeout: Gate not closed in time (%d seconds): %s' % (
+				self._gate_dwell_time, gate_tag_path))
+	
+		if on_complete:
+			on_complete()
+
+	def pulse_gate_open(self, destination):
+		"""Pulse the gate open by holding the 'Request Open' tag for a set time.
+		During the open time, the stuff should transfer from Dests.REAR to Dests.FRONT
+		"""
+		self.logger.debug('Pulsing gate open at {destination}')
+		# pulse is the default mechanical transition time to wait before verifying
+		self.open_gate(destination, partial(self.close_gate, destination=destination))
+
+	def is_gate_closed(self, destination):
+		gate_closed_pe = system.tag.readBlocking([
+				self._gate_tag_path(destination) + '/Closed'
+			])[0].value
+		return gate_closed_pe_state
+		
+
+
+
+class EuroSorterChuteDestRelease(
+
+		EuroSorterContentTracking,
+		EuroSorterGateMechanics,
+		EuroSorterAccessWCS,
+
+	):
+
+	def _make_available(self, destination, force_release=False):
+		chute_info = self[destination]
+	
+		# INTERLOCK - if front is occupied then releasing forward shoul dbe forced, otherwise skip until checked again
+		if chute_info.available and not force_release:
+			# allow the back to consolidate forward if the front is the same thing
+			if set(chute_info.consolidating).issubset(set(chute_info.available)):
+				pass
+			else:
+				return # let the next polling attempt to do this
+	
+		self.logger.debug('Making {destination} available (forced: {force_release})')
+	
+		#self.pulse_gate_open(destination)
+	
+		chute_info = self[destination]
+	
+		self._mark_destination_occupied(chute_info.destination, is_occupied=True, dest=Dests.FRONT)
+	
+		chute_info.available.update(chute_info.consolidating._asdict())
+		chute_info.consolidating = {}
+		chute_info.available_timestamp = now()
+	
+		self._mark_destination_occupied(chute_info.destination, is_occupied=False, dest=Dests.REAR)
+	
+#		def move_after_open(self=self, destination=destination,):
+#			self.logger.debug('Making {destination} available for QP.')
+#			chute_info = self[destination]
+#		
+##			self._mark_destination_occupied(chute_info.destination, is_occupied=True, dest=Dests.FRONT)
+##		
+##			chute_info.available.update(chute_info.consolidating._asdict())
+##			chute_info.consolidating = {}
+##			chute_info.available_timestamp = now()
+##		
+##			self._mark_destination_occupied(chute_info.destination, is_occupied=False, dest=Dests.REAR)
+#		
+#			self.reevaluate_group_light_indicators(destination)
+	
+		self.open_gate(destination) #, callback=move_after_open)         # TODO: FOR TESTING ONLY to hold the gate open until cleared
+
+
+	def _clear_available(self, destination):
+		self.logger.debug('Clearing {destination} to free up (after closing gate).')
+		chute_info = self[destination]
+		
+		chute_info.available = {}
+		chute_info.available_timestamp = None
+	
+#		def clear_after_closed(self=self, destination=destination):
+#			self.logger.debug('Clearing {destination} to free up (after closing gate).')
+#			chute_info = self[destination]
+#		
+#			chute_info.available = {}
+#			chute_info.available_timestamp = None
+#		
+#			self.reevaluate_group_light_indicators(destination)
+	
+		self.close_gate(destination) #, callback=clear_after_closed)         # TODO: FOR TESTING ONLY to hold the gate open until cleared
+
+
+
+#chute_name = {
+#	2: 'Upper',
+#	1: 'Lower',
+#}
+#
+#
+#base_tag_folder_path = '[EuroSort]EuroSort/Opex/Control/Gates'
+#
+#tags_to_configure = []
+#for station in range(1, 86):
+#	for chute in (1,2):
+#		for side in ('A', 'B'):
+#			tags_to_configure.append({
+#				'name': 'DST-%04d-%d-G-%s' % (station, chute, side,),
+#				'parameters': {
+#					'Chute': chute_name[chute],
+#					'Side': side,
+#					'Station': station,
+#					'PLC_Station_Array_Group': station // 32,
+#					'PLC_Station_Array_Modulus': station % 32,
+#				},
+#				'tagType': 'UdtInstance',
+#				'typeId': 'Gate',
+#			})
+#
+#results = system.tag.configure(base_tag_folder_path, tags_to_configure)
+

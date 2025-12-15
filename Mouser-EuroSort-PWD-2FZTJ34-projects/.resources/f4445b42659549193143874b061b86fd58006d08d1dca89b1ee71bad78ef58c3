@@ -1,0 +1,271 @@
+# shared/es_platform/commands/command_helper.py
+
+from shared.foundation.time import clock
+from shared.es_platform.commands import tagmap
+from shared.es_platform.commands.command_queue import CommandQueue
+from shared.es_platform.commands.permissions import CommandAuthorizer, PermissionDenied, default_rules
+from shared.es_platform.commands.receipt_store import ReceiptStore
+
+
+class CommandHelper(object):
+	"""
+	High-level command helper for operator tools.
+
+	Adds:
+	- Permission guard (context["roles"] or user roles)
+	- Optional queue (throttle + dedupe)
+	- Command receipts persisted to Mongo
+	- Dry-run support (no tag writes, still receipts)
+	- Mongo breadcrumbs via StateStore (chute_mark_event / carrier upsert)
+	"""
+
+	def __init__(self,
+			systemCode,
+			state_store,
+			tag_writer=None,
+			site_tz_id="UTC",
+			dry_run=False,
+			logger=None,
+			receipt_store=None,
+			use_queue=False,
+			queue=None,
+			authorizer=None,
+			auth_rules=None,
+			default_allow=False,
+			default_timeout_ms=5000):
+
+		self.systemCode = str(systemCode)
+		self.store = state_store
+		self.tag_writer = tag_writer or IgnitionTagWriter()
+		self.site_tz_id = str(site_tz_id or "UTC")
+		self.dry_run = bool(dry_run)
+		self.logger = logger
+
+		# Receipts
+		self.receipts = receipt_store or ReceiptStore(self.store.mongo, site_tz_id=self.site_tz_id)
+
+		# Queue
+		self.use_queue = bool(use_queue)
+		self.queue = queue or CommandQueue(logger=logger, site_tz_id=self.site_tz_id)
+
+		# Permissions
+		if authorizer:
+			self.authorizer = authorizer
+		else:
+			rules = auth_rules if auth_rules is not None else default_rules()
+			self.authorizer = CommandAuthorizer(rules=rules, default_allow=bool(default_allow))
+
+		self.default_timeout_ms = int(default_timeout_ms or 5000)
+
+	def _log(self, msg, payload=None, level="info"):
+		if self.logger:
+			try:
+				fn = getattr(self.logger, level, None)
+				if fn:
+					fn(msg, payload)
+					return
+			except:
+				pass
+		try:
+			print("%s %s" % (msg, payload if payload is not None else ""))
+		except:
+			pass
+
+	def _authorize(self, eventType, userId=None, context=None):
+		self.authorizer.require(eventType, userId=userId, context=context)
+
+	def _record(self, chuteId=None, carrierId=None, eventType="CMD", details=None, userId=None, eventId=None, context=None):
+		d = dict(details or {})
+
+		if isinstance(context, dict):
+			if context.get("authUser"):
+				d["authUser"] = context.get("authUser")
+			if context.get("authSource"):
+				d["authSource"] = context.get("authSource")
+
+		if chuteId is not None:
+			self.store.chute_mark_event(str(chuteId), eventType, details=d, userId=userId, eventId=eventId)
+
+		if carrierId is not None:
+			self.store.upsert_carrier(int(carrierId), fields={
+				"lastEventType": eventType,
+				"lastEventId": eventId,
+				"lastUserId": userId,
+				"lastEventDetails": d,
+			}, inc=None, on_insert={
+				"createdAt": clock.pack_timestamps(tz_id=self.site_tz_id),
+				"entityClass": "SORTER_CARRIER"
+			})
+
+	def _write_now(self, writes):
+		import system
+		paths = [w[0] for w in (writes or [])]
+		values = [w[1] for w in (writes or [])]
+		return system.tag.writeBlocking(paths, values)
+
+	def _new_receipt(self, eventType, writes, userId=None, eventId=None, context=None, chuteId=None, carrierId=None, dedupe_key=None):
+		commandId = self.receipts.new_command_id(self.systemCode)
+		self.receipts.create_receipt(
+			commandId=commandId,
+			systemCode=self.systemCode,
+			eventType=eventType,
+			writes=writes,
+			userId=userId,
+			eventId=eventId,
+			context=context,
+			chuteId=chuteId,
+			carrierId=carrierId,
+			dedupe_key=dedupe_key,
+			meta={"dry_run": self.dry_run}
+		)
+		return commandId
+
+	def _write_with_receipt(self, commandId, writes, timeout_ms=None):
+		# Dry run = no tag writes, but still ACK receipt
+		if self.dry_run:
+			try:
+				self.receipts.mark_ack(commandId, write_result={"dry_run": True})
+			except:
+				pass
+			return {"ok": True, "dry_run": True, "writes": writes, "commandId": commandId}
+
+		# Mark SENT
+		try:
+			self.receipts.mark_sent(commandId)
+		except:
+			pass
+
+		try:
+			res = self.tag_writer.write(writes)
+			try:
+				self.receipts.mark_ack(commandId, write_result=res)
+			except:
+				pass
+			return {"ok": True, "dry_run": False, "writes": writes, "result": res, "commandId": commandId}
+		except Exception as e:
+			try:
+				self.receipts.mark_failed(commandId, error_msg=str(e), write_result=None)
+			except:
+				pass
+			raise
+
+	def _dispatch(self, eventType, writes, userId=None, eventId=None, context=None, dedupe_key=None, chuteId=None, carrierId=None, timeout_ms=None):
+		self._authorize(eventType, userId=userId, context=context)
+
+		to_ms = int(timeout_ms) if timeout_ms is not None else self.default_timeout_ms
+
+		commandId = self._new_receipt(eventType, writes, userId=userId, eventId=eventId, context=context, chuteId=chuteId, carrierId=carrierId, dedupe_key=dedupe_key)
+
+		self._record(chuteId=chuteId, carrierId=carrierId, eventType=eventType, details={
+			"writes": writes,
+			"commandId": commandId,
+			"timeout_ms": to_ms,
+			"queued": bool(self.use_queue and not self.dry_run)
+		}, userId=userId, eventId=eventId, context=context)
+
+		# Queue path (only if not dry run)
+		if self.use_queue and not self.dry_run:
+			item = {
+				"commandId": commandId,
+				"systemCode": self.systemCode,
+				"eventType": eventType,
+				"eventId": eventId,
+				"writes": writes,
+				"userId": userId,
+				"context": context,
+				"dedupe_key": dedupe_key,
+				"chuteId": chuteId,
+				"carrierId": carrierId,
+				"timeout_ms": to_ms,
+			}
+			r = self.queue.enqueue(item)
+
+			# If deduped, cancel the receipt to avoid confusion
+			if r.get("deduped"):
+				try:
+					self.receipts.mark_canceled(commandId, reason="deduped")
+				except:
+					pass
+
+			r["commandId"] = commandId
+			return r
+
+		# Immediate path
+		return self._write_with_receipt(commandId, writes, timeout_ms=to_ms)
+
+	# ----------------------------
+	# Queue drain helpers
+	# ----------------------------
+
+	def drain_queue_once(self):
+		return self.queue.drain_once(self._queue_writer_fn)
+
+	def drain_queue_all(self, max_items=50):
+		return self.queue.drain_all(self._queue_writer_fn, max_items=max_items)
+
+	def _queue_writer_fn(self, item):
+		commandId = item.get("commandId")
+		eventType = item.get("eventType")
+		writes = item.get("writes") or []
+		userId = item.get("userId")
+		eventId = item.get("eventId")
+		context = item.get("context")
+		chuteId = item.get("chuteId")
+		carrierId = item.get("carrierId")
+		timeout_ms = item.get("timeout_ms")
+
+		self._record(chuteId=chuteId, carrierId=carrierId, eventType=eventType, details={
+			"writes": writes,
+			"queued": True,
+			"commandId": commandId,
+			"timeout_ms": timeout_ms
+		}, userId=userId, eventId=eventId, context=context)
+
+		return self._write_with_receipt(commandId, writes, timeout_ms=timeout_ms)
+
+	# ----------------------------
+	# Commands
+	# ----------------------------
+
+	def system_on(self, userId=None, eventId=None, context=None):
+		writes = [(tagmap.system_enable(self.systemCode), True)]
+		return self._dispatch("CMD_SYSTEM_ON", writes, userId=userId, eventId=eventId, context=context, dedupe_key="SYSTEM_ON")
+
+	def system_off(self, userId=None, eventId=None, context=None):
+		writes = [(tagmap.system_disable(self.systemCode), True)]
+		return self._dispatch("CMD_SYSTEM_OFF", writes, userId=userId, eventId=eventId, context=context, dedupe_key="SYSTEM_OFF")
+
+	def set_mode(self, mode, userId=None, eventId=None, context=None):
+		writes = [(tagmap.system_mode(self.systemCode), str(mode))]
+		return self._dispatch("CMD_SET_MODE", writes, userId=userId, eventId=eventId, context=context, dedupe_key="SYSTEM_MODE")
+
+	def open_chute_door(self, dst, userId=None, eventId=None, context=None):
+		dst = str(dst)
+		writes = [(tagmap.chute_door_open(self.systemCode, dst), True)]
+		return self._dispatch("CMD_CHUTE_OPEN", writes, userId=userId, eventId=eventId, context=context, dedupe_key="OPEN:%s" % dst, chuteId=dst)
+
+	def close_chute_door(self, dst, userId=None, eventId=None, context=None):
+		dst = str(dst)
+		writes = [(tagmap.chute_door_close(self.systemCode, dst), True)]
+		return self._dispatch("CMD_CHUTE_CLOSE", writes, userId=userId, eventId=eventId, context=context, dedupe_key="CLOSE:%s" % dst, chuteId=dst)
+
+	def set_chute_light(self, dst, on=True, userId=None, eventId=None, context=None):
+		dst = str(dst)
+		writes = [(tagmap.chute_light(self.systemCode, dst), bool(on))]
+		return self._dispatch("CMD_CHUTE_LIGHT", writes, userId=userId, eventId=eventId, context=context, dedupe_key="LIGHT:%s:%s" % (dst, "1" if on else "0"), chuteId=dst)
+
+	def force_release_carrier(self, carrierId, userId=None, eventId=None, context=None):
+		cid = int(carrierId)
+		writes = [(tagmap.carrier_force_release(self.systemCode, cid), True)]
+		return self._dispatch("CMD_CARRIER_FORCE_RELEASE", writes, userId=userId, eventId=eventId, context=context, dedupe_key="FORCE_RELEASE:%d" % cid, carrierId=cid)
+
+
+class IgnitionTagWriter(object):
+	def write(self, writes):
+		try:
+			import system
+			paths = [w[0] for w in (writes or [])]
+			values = [w[1] for w in (writes or [])]
+			return system.tag.writeBlocking(paths, values)
+		except Exception as e:
+			raise RuntimeError("Tag write failed: %s" % e)

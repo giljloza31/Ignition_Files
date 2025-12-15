@@ -1,0 +1,35 @@
+#* Intellic Integration LLC CONFIDENTIAL
+#* __________________
+#* 
+#*  [2015] - [2017] Intellic Integration LLC 
+#*  All Rights Reserved.
+#* 
+#* NOTICE:  All information contained herein is, and remains
+#* the property of Intellic Integration LLC and its suppliers,
+#* if any.  The intellectual and technical concepts contained
+#* herein are proprietary to Intellic Integration LLC
+#* and its suppliers and may be covered by U.S. and Foreign Patents,
+#* patents in process, and are protected by trade secret or copyright law.
+#* Dissemination of this information or reproduction of this material
+#* is strictly forbidden unless prior written permission is obtained
+#* from Intellic Integration LLC.
+
+#this script will be called by a tag that is tracking a barcode from the PLC
+#on each change, this script will be invoked to read the barcode value and create a .txt file
+#using the string value of the barcode
+#the customer will run a script to grab the values and clear the directory
+
+def fileCreation(tagPath, value):
+	logger = system.util.getLogger('pwd') #log info here
+	if value != '0' and len(value) > 4: #ignore when tag value is 0
+		logger.info(tagPath)
+
+		try:
+			filePath = 'C:\\Outbox\\' + value +'.txt' #build filepath using the barcode string
+			system.file.writeFile(filePath,"",0) #write to location on gateway server
+			logger.info(filePath)
+			logger.info("Successfully inserted barcode scanner file " + tagPath) #log successful write
+#			newTagPath = tagPath.replace('barcode_exp','barcode_opc') #build the tagPath to write to
+#			system.tag.write(newTagPath,'0') #clear the tag
+		except:
+			logger.error("Barcode insert failed.")

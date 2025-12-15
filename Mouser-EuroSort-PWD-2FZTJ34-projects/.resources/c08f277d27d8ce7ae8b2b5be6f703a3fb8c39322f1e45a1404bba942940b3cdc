@@ -1,0 +1,168 @@
+from functools import partial
+from time import sleep
+from datetime import datetime
+
+from java.lang import Thread
+from java.util import Date
+
+from shared.pwd.Mouser.RST.Orders import PWD_payload_Verifier
+
+# Ignition APIs assumed available: system.tag, system.util, system.net
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+
+import socket
+import re
+import os
+
+'''
+count21
+count29
+nopo
+total
+passed
+failed
+time
+maxtime
+timedifference
+
+'''
+class Level1Tracking(
+	PWD_payload_Verifier):
+	# --- Class / device defaults ---
+	base_path     = '[Mouser]Mouser/SickTunnel'
+	query_path    = base_path + '/IGN_Query'
+	controls_path = base_path + '/Controls'
+	
+	DEFAULT_SICK_IP            = '192.168.1.248'
+	RESTART_DISABLE_SLEEP_SEC  = 30   # wait after disabling device
+	RESTART_ENABLE_SLEEP_SEC   = 10   # wait after re-enabling device
+	PING_TIMEOUT_MS            = 300 # system.net.ping timeout
+	PING_ONLINE_LOG_INTERVAL   = 60  
+
+	def __init__(self, name):
+		# IMPORTANT: Jython-safe explicit base init
+		PWD_payload_Verifier.__init__(self)
+		self.name = name
+		self.label = self.name
+		self.cached_scope = 'Level1_Tracking'
+		self.pwd_tracking_payload = {
+			'imageID': None,
+			'indexID': None,
+			'seqID': None,
+			'barcodeList': [],
+			'raw_data': None,
+			'scanned_date_time': None,
+			}
+		
+		# device IP (allow override from init_config)
+		self.sick_ip = self.DEFAULT_SICK_IP
+		
+		# logger
+		self.logger = system.util.getLogger('Level1_info')
+		
+		# throttle repeated "online" logs
+		self._last_online_log_ts = 0
+		
+		# monitor state
+		self._monitor_running = False
+		self._monitor_period  = 60
+		self._monitor_thread  = None
+		
+
+	
+	def _safe_sleep(self, seconds):
+		"""Sleep helper that uses a service base if available, otherwise time.sleep."""
+		return Thread.sleep(int(seconds)*1000)
+
+	def _write_to_tags(self, tag_paths, tag_values):
+		return system.tag.writeBlocking(tag_paths, tag_values)
+
+	# ---------- Connection monitor ----------
+	def start_connection_monitor(self, period_sec=60):
+		self._monitor_running = True
+		self._monitor_period = int(period_sec)
+		def monitor_loop():
+			self.logger.info("Connection monitor started (every %s sec)." % self._monitor_period)
+			tag = self.controls_path + '/Tunnel_Active'
+			try:
+				while self._monitor_running:
+					result = self._check_scanner_connection()
+					if not result:
+						self._restart_connection()
+						
+						self._write_to_tags([tag],[False])
+					else:
+						self._write_to_tags([tag],[True])
+					self._safe_sleep(self._monitor_period)
+			finally:
+				self.logger.info("Connection monitor exited.")
+		# Launch asynchronously
+		self._monitor_thread = system.util.invokeAsynchronous(monitor_loop)
+		
+	# OPTIONAL: convenience wired to your lifecycle
+	def on_enable(self):
+		# call this from your service enable/start hook
+		self._monitor_running = True
+		self.start_connection_monitor()
+	
+	
+	def on_disable(self):
+		# call this from your service disable/stop hook
+		self._monitor_running = False
+		
+
+	# ---------- Connectivity + restart ----------
+	def _check_scanner_connection(self):
+		ip = self.sick_ip
+		return self._ping_device(ip=ip)
+		
+
+	def _ping_device(self,ip):
+		cmd = "ping -n 1 {}".format(ip)
+        
+		# Run command; 0 = success, nonzero = failure
+		exit_code = os.system(cmd)
+		if exit_code==0:
+			self.logger.info('Successful Response from {}'.format(ip))
+			return True
+		else:
+			self.logger.info('Failed Response from {}'.format(ip))
+			return False
+			
+			
+	def _restart_connection(self):
+		device_enabled_tag = '[System]Gateway/Devices/Sick_Tunnel/Enabled'
+		
+		# Disable
+		self._write_to_tags([device_enabled_tag], [False])
+		self.logger.warn("Scanner device set to disabled. Waiting %s..."%self.RESTART_DISABLE_SLEEP_SEC)
+		self._safe_sleep(self.RESTART_DISABLE_SLEEP_SEC)
+
+		# Re-enable
+		self._write_to_tags([device_enabled_tag], [True])
+		self.logger.warn("Scanner device set to re-enabled. Waiting %ss for recovery..."%self.RESTART_ENABLE_SLEEP_SEC)
+		self._safe_sleep(self.RESTART_ENABLE_SLEEP_SEC)
+		return
+
+	# ---------- Public helpers ----------
+	def level1_connect(self, status):
+		tag = self.controls_path + '/connection_active'  # adjust to your exact tag name
+		bool_status = bool(status)
+		if bool_status:
+			self.on_enable()
+		else:
+			self.on_disable()
+		self._write_to_tags([tag], [bool_status])
+		
+		self.logger.info("Set Status to %s"%( "Active" if bool(status) else "Disconnected"))
+
+	def handle_scan_data(self, payload):
+		
+		self.handle_scan(payload)
+			
+		
+
+	def handle_request_data(self, seqID, payload):
+		self.logger.trace("handle_request_data seqID=%r payload=%r"%(seqID, payload))
+		return

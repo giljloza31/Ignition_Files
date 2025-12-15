@@ -1,0 +1,19 @@
+{
+  "base": {
+    "animation": {
+      "duration": "1s",
+      "direction": "normal",
+      "iterationCount": "1",
+      "timingFunction": "ease-in",
+      "fillMode": "forwards",
+      "keyframes": {
+        "0%": {
+          "fill": "#D70606"
+        },
+        "100%": {
+          "fill": "#E5E41A"
+        }
+      }
+    }
+  }
+}

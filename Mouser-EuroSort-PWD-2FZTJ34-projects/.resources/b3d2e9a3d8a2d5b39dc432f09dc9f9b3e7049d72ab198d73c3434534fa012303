@@ -1,0 +1,362 @@
+from shared.tools.thread import async
+from shared.tools.global import ExtraGlobal
+from shared.pwd.Mouser.HSL.Marriage import MarriageProcess
+from shared.pwd.Mouser.HSL.Manifest import ManifestProcess
+from shared.pwd.Mouser.HSL.Print_Request import PrintProcess
+from shared.pwd.Mouser.HSL.Verify import VerifyProcess
+from Database import db_access
+from datetime import datetime
+
+
+import re
+
+db_name = 'MongoWCS'
+
+plcname = 'Mouser_HSL'
+lifespan_time = 60*60*24 # one day of lifespan
+cached_scope = 'PrintData'
+
+marriage_process = MarriageProcess()
+manifest_process = ManifestProcess()
+print_process = PrintProcess()
+verify_process = VerifyProcess()
+# Production uri
+
+OPCSERVER = 'Ignition OPC-UA Server'
+
+def _safe_tag_read(path, default=None):
+	"""Read a tag and coerce to a plain Python value, with a default fallback."""
+	try:
+		qv = system.tag.readBlocking([path])[0]
+		val = qv.value
+		return val if val is not None else default
+	except Exception:
+		return default
+		
+def _safe_tag_write(path,value):
+	if isinstance(path,list):
+		system.tag.writeBlocking(path, values)
+	else:
+		system.tag.writeBlocking([path], [value])
+
+def _bool_tag(path, default=False):
+	"""Convenience: read a tag and coerce to bool."""
+	val = _safe_tag_read(path, default)
+	try:
+		return bool(val)
+	except Exception:
+		return default
+		
+@async(name='HSL_Manifest_Marriage_gather_data')	
+def HSL_Induct(payload):
+	start_time = datetime.now() # Start Clock to see process times
+	
+	# Creating tag path for reading and writing path
+	Get_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	Got_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	
+	induction_counts_path = Got_dest + '/Induction_Counts'
+	marriage_enabled_path = Get_dest + '/IGN_HSLMarriage_Enabled'
+
+	raw_counts = _safe_tag_read(induction_counts_path, default={})
+	
+	counts = dict(raw_counts) if raw_counts is not None else {}
+	
+	# Marriage toggle
+	marriage_enabled = _bool_tag(marriage_enabled_path, default=False)
+
+	data = {
+		'start_time': start_time,           	# start time of received payload
+		'payload': payload,                     # raw message received 
+		'indexId': 100,							# defaulted to 100 since indexid was removed from program as parallel value for event of bad payload. all untrusted payload written to 100
+		'reason_num':  21,                      # starts off at 21 which is failed otherwise 20 Unexplained. if moved to 1 ok to 
+												# proceed to next step or passed
+		'steps': [],                            # breadcrumb trail ef the steps taken 
+	}
+
+	# ---- STEP 1: payload check ------------------------------------------------
+	data['steps'].append('check_payload')
+	data, counts = marriage_process.check_payload(payload,data, counts)
+
+	
+	# ---- STEP 2: weight check -------------------------------------------------
+	if data.get('reason_num') == 1:
+		data['steps'].append('check_weight')
+		data, counts = marriage_process.check_weight(data, counts)
+
+	# ---- STEP 3: LPN check ----------------------------------------------------
+	if data.get('reason_num') == 1:
+		data['steps'].append('check_lpn')
+		data, counts = marriage_process.check_lpn(data, counts)
+
+	# ---- STEP 4/5/6: Marriage? check IBN , Marry then Manifest -----------------------------------
+	if marriage_enabled and data.get('reason_num') == 1:
+		# IBN check only when marriage path is active
+		data['steps'].append('check_ibn')
+		data, counts = marriage_process.check_ibn(data, counts)
+
+		if data.get('reason_num') == 1:
+			data['steps'].append('marry_process')
+			data, counts = marriage_process.marry_process(data, counts)
+
+			# If marriage succeeded, proceed to manifest
+			if data.get('reason_num') == 1:
+				data['steps'].append('manifest_payload')
+				data, counts = manifest_process.manifest_payload(data, counts)
+
+# ---- STEP 6: Not Marriage? send Manifest -----------------------------------
+	elif not marriage_enabled and data.get('reason_num') == 1:
+		# Marriage disabled → manifest only
+		data['steps'].append('bypassed_ibn_check')
+		data['steps'].append('bypassed_marriage_process')
+		data['steps'].append('manifest_payload')
+		data, counts = manifest_process.manifest_payload(data, counts)
+	
+	data['steps'].append('update plc')
+		
+	plc_path = 'ns=1;s=[{0}]IGNReturnedHSLManIndexID'.format(plcname)
+	system.opc.writeValue(OPCSERVER, plc_path, int(data['indexId']))
+		
+	end_time = datetime.now()
+	proc_ms = int((end_time - start_time).total_seconds() * 1000)
+	
+	data.update({
+		'end_time': end_time,
+		'IGN_process_time': proc_ms,
+		'process': 'Induction',
+		})
+	
+	counts['IGN_process_time'] = proc_ms
+	
+	data['steps'].append('update mongo')
+			
+	db_access.insert_record(db_name,'HSL_info',data)
+	
+	Got_dest += '/'
+	
+	system.tag.writeBlocking(*zip(*[
+		(Got_dest + 'IGNReturnedHSLManIndexID', data.get('indexId')),
+		(Got_dest + 'VerificationBarcodeReturned', data.get('verification_barcode')),
+		(Got_dest + 'IGN_LPN_Returned',data.get('LPN')),
+		(Got_dest + 'IGN_Weight_Returned',data.get('weight')),
+		(Got_dest + 'IGN_IBN_Returned',data.get('IBN')),
+		(Got_dest + 'IGNHSLManifestMessage',data.get('reason')),
+		(Got_dest + 'IGNHSLManifestResult',data.get('reason_num')),
+		(Got_dest + 'Print_Results',data.get('print_results')),
+		(Got_dest + 'Induction_Counts',counts),
+	]))
+	
+
+@async(name='HSL_get_print_gather_data')
+def HSL_Print(source_path,payload,printerId):
+	
+	start_time = datetime.now()
+	"""Handles HSL print requests."""
+	Get_dest = '/'.join(source_path.split('/')[:-2] + ['Get_Data'])
+	Got_dest = '/'.join(source_path.split('/')[:-2] + ['Got_Data'])
+	
+	empty_string = ''
+	raw_payload = payload
+	itemPath = 'ns=1;s=[{0}]IGNHSLSendLabel_Prn{1}'.format(plcname,printerId)
+	system.opc.writeValue(OPCSERVER, itemPath, empty_string)
+	
+	tagPaths = '[Mouser]Mouser/HSL_New/HSL_PrintRequest/Got_Data/PA{0}'.format(printerId)
+	_safe_tag_write(tagPaths,empty_string)
+		
+	print_counts_path = Got_dest + '/Print_Counts'
+	raw_counts = _safe_tag_read(print_counts_path, default={})
+	
+	counts = dict(raw_counts) if raw_counts is not None else {}
+	
+	data = {
+		'start_time': start_time,           	# start time of received payload
+		'payload': raw_payload,                 # raw message received 
+		'printer_results': 2,					# print results defaulted to 2
+		'printerId':printerId,					# Set Printer id 
+		'indexId': 100,							# defaulted to 100 since indexid was removed from program as parallel value for event of bad payload. all untrusted payload written to 100
+		'reason_num':  21,                      # starts off at 21 which is failed otherwise 20 Unexplained. if moved to 1 ok to 
+												# proceed to next step or passed
+		'steps': [],                            # breadcrumb trail ef the steps taken 
+	}
+	
+	# ---- STEP 1: payload check ------------------------------------------------
+	data['steps'].append('check_payload')
+	data,counts = print_process.check_payload(raw_payload,data,counts)
+	
+	# ---- STEP 2: Retrieve From Cache -------------------------------------------------
+	if data.get('reason_num') == 1:
+		data['steps'].append('retrieve_cache')
+		data,counts = print_process.cache_lookup(data,counts)
+	
+	
+	else:
+		data['steps'].append('Update PLC')
+		itemPaths = [
+			'ns=1;s=[{0}]IGNReturnedHSLPrintIndexID'.format(plcname),
+			'ns=1;s=[{0}]IGNReturnedHSLPrintResult[{1}]'.format(plcname,data.get('indexId'))
+		]
+		opcValues = [data.get('indexId'), 2]
+		system.opc.writeValues(OPCSERVER, itemPaths, opcValues)	
+		
+
+	# PLC Data Read
+	dbtime_path = 'ns=1;s=[{0}]ManifestResponseTime[{1}]'.format(plcname,data.get('indexId'))
+	plcData = system.opc.readValue('Ignition OPC-UA Server', dbtime_path)
+	
+	end_time = datetime.now()
+	proc_ms = int((end_time - start_time).total_seconds() * 1000)
+	
+	data.update({
+		'end_time': end_time,
+		'IGN_process_time': proc_ms,
+		'process': 'Print',
+		'ManifestResponseTime': plcData.value
+		})
+	
+	counts['IGN_process_time'] = proc_ms
+		
+	data['steps'].append('update mongo')
+		
+	db_access.insert_record(db_name, 'HSL_info', data)
+		
+	
+	Got_dest  += '/'
+	system.tag.writeBlocking(*zip(*[
+		(Got_dest + 'IGN_LPN_Returned',data.get('LPN')),
+		(Got_dest + 'IGNHSLPrintMessage',data.get('reason')),
+		(Got_dest + 'IGNHSLPrintResult',data.get('reason_num')),
+		(Got_dest + 'IGNReturnedHSLPrintIndexID',data.get('indexId')),
+		(Got_dest + 'Print_Results',data.get('print_results')),
+		(Got_dest + 'Print_Counts', counts),
+	]))
+	
+	
+	
+@async(name='HSL_verify_gather_data')	
+def HSL_Verify(source_path,payload):
+	
+	start_time = datetime.now()
+
+
+	Get_dest = '/'.join(source_path.split('/')[:-2]+['Get_Data'])
+	Got_dest = '/'.join(source_path.split('/')[:-2]+['Got_Data'])
+	
+	verify_counts_path = Got_dest + '/Verify_Counts'
+	raw_counts = _safe_tag_read(verify_counts_path, default={})
+	
+	counts = dict(raw_counts) if raw_counts is not None else {}
+	
+	data = {
+		'start_time': start_time,           	# start time of received payload
+		'payload': payload,                 	# raw message received 
+		'indexId': 100,							# defaulted to 100 since indexid was removed from program as parallel value for event of bad payload. all untrusted payload written to 100
+		'reason_num':  22,                      # starts off at 22 which is failed otherwise 20 Unexplained. if moved to 1 ok to 
+												# proceed to next step or passed
+		'steps': [],                            # breadcrumb trail ef the steps taken 
+	}
+	
+	# ---- STEP 1: payload check ------------------------------------------------
+	data['steps'].append('check_payload')
+	data,counts = verify_process.check_payload(payload,data,counts)
+	
+	# ---- STEP 2: check side lpn ------------------------------------------------
+	if data['reason_num'] == 1:
+		data['steps'].append('check_lpn')
+		data,counts = verify_process.check_lpn(data,counts)
+		
+	# ---- STEP 3: retrieve data------------------------------------------------
+	if data['reason_num'] == 1:
+		data['steps'].append('retrieve data')
+		data,counts,verify = verify_process.check_cache(data,counts)
+	
+	# ---- STEP 4: check tracking ------------------------------------------------
+	if data['reason_num'] == 1:
+		data['steps'].append('check printed label')
+		data,counts = verify_process.check_tracking(data,counts)
+		
+		# ---- STEP 5: verify label ------------------------------------------------
+		data['steps'].append('check printed label')
+		data,counts = verify_process.verify_lookup(data,counts,verify)
+			
+	data['steps'].append('update plc')
+	OPCSERVER = 'Ignition OPC-UA Server'
+	itemPaths = [
+				'ns=1;s=[{0}]IGNHSLVerifyResult[{1}]'.format(plcname,data['indexId']),
+				'ns=1;s=[{0}]IGNReturnedHSLVerifyIndexID'.format(plcname)
+			]	
+	
+	
+	values = [data['reason_num'],data['indexId']]
+	system.opc.writeValues(OPCSERVER, itemPaths,values)
+		
+	
+	dbtime = [
+		'ns=1;s=[{0}]Program:HSL_Print_Program.VerifyResponseTime[{1}]'.format(plcname,data['indexId']),
+		'ns=1;s=[{0}]Program:HSL_Print_Program.LOTAR_History[{1}]'.format(plcname,data['indexId']),
+		'ns=1;s=[{0}]Program:HSL_Print_Program.PrintResponseTime[{1}]'.format(plcname,data['indexId']),
+	]
+	
+	plcData = system.opc.readValues('Ignition OPC-UA Server', dbtime)
+	data.update({
+		'VerifyResponseTime':plcData[0].value,
+		'LOTAR_History':plcData[1].value,
+		'PrintResponseTime':plcData[2].value
+	})
+	
+	if plcData[0].value > counts.get('Max_Verify_Response_Time',0) and plcData[0].value != 99999:
+		counts.update({
+			'Max_Verify_Response_Time':plcData[0].value,
+			'Verify_Response_Time':plcData[0].value
+			})
+	else:
+		counts['Verify_Response_Time'] = plcData[0].value
+	
+	if plcData[1].value > counts.get('Max_LOTAR_Response_Time',0) and plcData[1].value != 99999:
+		counts.update({
+			'Max_LOTAR_Response_Time':plcData[1].value,
+			'LOTAR_Response_Time':plcData[1].value
+			})
+		
+	else:
+		counts['LOTAR_Response_Time'] = plcData[1].value
+		
+	if plcData[2].value > counts.get('Max_Print_Response_Time',0) and plcData[2].value != 99999:
+		counts.update({
+			'Max_Print_Response_Time':plcData[2].value,
+			'Print_Response_Time':plcData[2].value
+			})
+	else:
+		counts['Print_Response_Time'] = plcData[2].value
+
+	
+	end_time = datetime.now()
+	proc_ms = int((end_time - start_time).total_seconds() * 1000)
+	
+	data.update({
+		'end_time': end_time,
+		'IGN_process_time': proc_ms,
+		'process': 'Verification',
+		})
+	
+	counts.update({
+		'IGN_process_time': proc_ms,
+		})
+		
+	
+	
+	
+	data['steps'].append('update mongo')		
+	db_access.insert_record(db_name, 'HSL_info', data)
+		
+	Got_dest += '/'
+	system.tag.writeBlocking(*zip(*[
+		(Got_dest + 'IGNReturnedHSLVerifyIndexID', int(data['indexId'])),
+		(Got_dest + 'IGNHSLVerifyResult', data['reason_num']),
+		(Got_dest + 'IGN_LPN_Returned', data['LPN']),
+		(Got_dest + 'Tracking', data['tracking']),
+		(Got_dest + 'verification_barcode', data['verification_barcode']),
+		(Got_dest + 'orderNbr', data['orderNbr']),
+		(Got_dest + 'Verify_Counts', counts),
+		]))			
+
+

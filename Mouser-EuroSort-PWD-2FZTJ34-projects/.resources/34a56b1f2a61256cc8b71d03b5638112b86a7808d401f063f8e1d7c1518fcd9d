@@ -1,0 +1,6 @@
+# shared/es_platform/commands/__init__.py
+# Convenience exports
+
+from shared.es_platform.commands.command_helper import CommandHelper
+from shared.es_platform.commands.command_queue import CommandQueue
+from shared.es_platform.commands.permissions import CommandAuthorizer, PermissionDenied

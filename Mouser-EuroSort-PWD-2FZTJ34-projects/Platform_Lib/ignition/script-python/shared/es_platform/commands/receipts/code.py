@@ -1,0 +1,170 @@
+# shared/es_platform/commands/receipts.py
+
+from shared.foundation.time import clock
+
+
+COLLECTION_COMMANDS = "es_platform_commands"
+
+STATUS_QUEUED = "QUEUED"
+STATUS_SENT = "SENT"
+STATUS_ACK = "ACK"
+STATUS_FAILED = "FAILED"
+STATUS_TIMEOUT = "TIMEOUT"
+STATUS_CANCELED = "CANCELED"
+
+
+class ReceiptStore(object):
+	"""
+	Persists command receipts to Mongo.
+
+	Doc lifecycle:
+	QUEUED -> SENT -> (ACK | FAILED | TIMEOUT | CANCELED)
+
+	Notes:
+	- ReceiptStore does NOT depend on StateStore.
+	- Use for operator command audit + troubleshooting.
+	"""
+
+	def __init__(self, mongo, site_tz_id="UTC"):
+		self.mongo = mongo
+		self.site_tz_id = str(site_tz_id or "UTC")
+
+	def new_command_id(self, systemCode):
+		ts = clock.pack_timestamps(tz_id=self.site_tz_id)
+		epoch = int(ts.get("tsEpoch") or 0)
+		seq = _rand4()
+		return "%s-%d-%s" % (str(systemCode), epoch, seq)
+
+	def create_receipt(self,
+			commandId,
+			systemCode,
+			eventType,
+			writes,
+			userId=None,
+			eventId=None,
+			context=None,
+			chuteId=None,
+			carrierId=None,
+			dedupe_key=None,
+			meta=None):
+		ts = clock.pack_timestamps(tz_id=self.site_tz_id)
+
+		doc = {
+			"_id": str(commandId),
+
+			"systemCode": str(systemCode),
+			"eventType": str(eventType),
+			"eventId": eventId,
+
+			"status": STATUS_QUEUED,
+
+			"writes": writes or [],
+
+			"chuteId": chuteId,
+			"carrierId": carrierId,
+			"dedupe_key": dedupe_key,
+
+			# Who clicked (Joe)
+			"requestedBy": userId,
+
+			# Who re-authed (Supervisor/Admin), if provided
+			"authorizedBy": _ctx(context, "authUser"),
+			"authorizedSource": _ctx(context, "authSource"),
+			"authorizedRoles": _ctx(context, "roles"),
+
+			"meta": dict(meta or {}),
+
+			"createdAtUtc": ts.get("tsUtc"),
+			"createdAtLocal": ts.get("tsLocal"),
+			"createdAtEpoch": ts.get("tsEpoch"),
+			"tzId": ts.get("tzId"),
+
+			"updatedAtEpoch": ts.get("tsEpoch"),
+
+			# Lifecycle timestamps
+			"queuedAtEpoch": ts.get("tsEpoch"),
+			"sentAtEpoch": None,
+			"ackAtEpoch": None,
+
+			# Result details
+			"writeResult": None,
+			"error": None,
+			"durationMs": None,
+		}
+
+		self.mongo.update_one(COLLECTION_COMMANDS, {"_id": doc["_id"]}, {"$set": doc}, upsert=True)
+		return doc
+
+	def mark_sent(self, commandId):
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+		self.mongo.update_one(COLLECTION_COMMANDS, {"_id": str(commandId)}, {"$set": {
+			"status": STATUS_SENT,
+			"sentAtEpoch": now.get("tsEpoch"),
+			"updatedAtEpoch": now.get("tsEpoch"),
+		}}, upsert=False)
+
+	def mark_ack(self, commandId, write_result=None):
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+		doc = self.mongo.find_one(COLLECTION_COMMANDS, {"_id": str(commandId)}) or {}
+		start = int(doc.get("queuedAtEpoch") or 0)
+		end = int(now.get("tsEpoch") or 0)
+		dur = (end - start) if start and end else None
+
+		self.mongo.update_one(COLLECTION_COMMANDS, {"_id": str(commandId)}, {"$set": {
+			"status": STATUS_ACK,
+			"ackAtEpoch": now.get("tsEpoch"),
+			"updatedAtEpoch": now.get("tsEpoch"),
+			"writeResult": write_result,
+			"durationMs": dur,
+		}}, upsert=False)
+
+	def mark_failed(self, commandId, error_msg, write_result=None):
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+		doc = self.mongo.find_one(COLLECTION_COMMANDS, {"_id": str(commandId)}) or {}
+		start = int(doc.get("queuedAtEpoch") or 0)
+		end = int(now.get("tsEpoch") or 0)
+		dur = (end - start) if start and end else None
+
+		self.mongo.update_one(COLLECTION_COMMANDS, {"_id": str(commandId)}, {"$set": {
+			"status": STATUS_FAILED,
+			"updatedAtEpoch": now.get("tsEpoch"),
+			"error": str(error_msg),
+			"writeResult": write_result,
+			"durationMs": dur,
+		}}, upsert=False)
+
+	def mark_timeout(self, commandId, timeout_ms):
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+		self.mongo.update_one(COLLECTION_COMMANDS, {"_id": str(commandId)}, {"$set": {
+			"status": STATUS_TIMEOUT,
+			"updatedAtEpoch": now.get("tsEpoch"),
+			"error": "timeout_after_%dms" % int(timeout_ms),
+		}}, upsert=False)
+
+	def mark_canceled(self, commandId, reason="canceled"):
+		now = clock.pack_timestamps(tz_id=self.site_tz_id)
+		self.mongo.update_one(COLLECTION_COMMANDS, {"_id": str(commandId)}, {"$set": {
+			"status": STATUS_CANCELED,
+			"updatedAtEpoch": now.get("tsEpoch"),
+			"error": str(reason),
+		}}, upsert=False)
+
+	def find_recent(self, systemCode, limit=50, filt=None):
+		f = {"systemCode": str(systemCode)}
+		for k, v in (filt or {}).items():
+			f[k] = v
+		return self.mongo.find(COLLECTION_COMMANDS, f, sort=[("createdAtEpoch", -1)], limit=int(limit)) or []
+
+
+def _ctx(context, key):
+	if isinstance(context, dict):
+		return context.get(key)
+	return None
+
+
+def _rand4():
+	try:
+		import java.util.UUID as UUID
+		return str(UUID.randomUUID()).split("-")[0]
+	except:
+		return "0000"

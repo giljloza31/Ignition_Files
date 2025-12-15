@@ -1,0 +1,8 @@
+Select userindx as indexID,
+userID as userID,
+userPass as userpassword,
+userRole as userRole,
+lastLogin as timestamp
+
+from QPS_USERID
+Where userID =  :inVARUser

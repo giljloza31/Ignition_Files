@@ -1,0 +1,243 @@
+"""
+Project resources
+
+Many configuration and scripting resources are extracted here.
+"""
+import sys
+
+from shared.tools.snapshot.utils import encode, hashmapToDict, format_sql, filter_none
+import re
+
+
+
+def extract_project_props(client_context):
+	
+	global_props = client_context.getGlobalProps()
+	
+	configuration = {
+		'permissions': hashmapToDict(global_props.getPermissionEnabledMap()),
+		'roles': {
+			'client': dict((category, [role.strip() 
+									   for role 
+									   in role_string.split(',')
+									   if role
+									   ])
+						   for category, role_string
+						   in hashmapToDict(
+								global_props.getRequiredClientRolesMap()
+							).items()),
+			'delete'  : [role.strip() for role in global_props.getRequiredDeleteRoles()],
+			'publish' : [role.strip() for role in global_props.getRequiredPublishRoles()],
+			'resource': [role.strip() for role in global_props.getRequiredResourceRoles()],
+			'required': [role.strip() for role in global_props.getRequiredRoles()],
+			'save'    : [role.strip() for role in global_props.getRequiredSaveRoles()],
+			'view'    : [role.strip() for role in global_props.getRequiredViewRoles()],
+			},
+		'auditing': global_props.isAuditingEnabled(),
+		'legacy': global_props.isLegacyProject(),
+		'commitMessageMode': global_props.getCommitMessageMode().toString(), # enum
+		'defaultSQLTagsProviderRate': global_props.getSqltagsClientPollRate(),
+		}
+	
+	defaultable_attributes = set([
+		'auditProfileName', 
+		'authProfileName',
+		'defaultDatasourceName', 
+		'defaultSQLTagsProviderName',
+		'publishMode',
+		])
+	
+	for attribute in defaultable_attributes:
+		try: # to get the Java getter first
+			# it's slightly more reliable than the Jython auto-attribute, in general
+			getter_name = 'get' + attribute[0].upper() + attribute[1:]
+			value = getattr(global_props, getter_name)()
+		except AttributeError:
+			try: # the Jython attribute
+				value = getattr(global_props, attribute)
+			except AttributeError:
+				value = None
+		
+		if value is None:
+			continue
+		
+		configuration[attribute] = value	
+
+	return dict([
+		encode(configuration),
+		])
+
+
+def extract_gatewayevents(resource_objects):
+	assert len(resource_objects) == 1, 'Resource is expected to be contained in one root object'
+	
+	gateway_script_config = resource_objects[0]
+	
+	config = {}
+	
+	config['startup.py'] = gateway_script_config.getStartupScript()
+	config['shutdown.py'] = gateway_script_config.getShutdownScript()
+
+	config['timer'] = {}
+	timer_scripts = gateway_script_config.getTimerScripts()
+	for timer_script in timer_scripts:
+		config['timer'][timer_script.getName()] = {
+			'enabled': timer_script.isEnabled(),
+			'timing': 'delay' if timer_script.isFixedDelay() else 'rate',
+			'period': timer_script.getDelay(),
+			'threading': 'shared' if timer_script.isSharedThread() else 'dedicated',
+			'code': timer_scripts[timer_script],
+			}
+	
+	config['tag-change'] = {}
+	for tag_script in gateway_script_config.getTagChangeScripts():
+		config['tag-change'][tag_script.getName()] = {
+			'name': tag_script.getName(),
+			'tags': [tag_path for tag_path in tag_script.getPaths()],
+			'triggers': [t.toString() for t in tag_script.getChangeTypes()],
+			'enabled': tag_script.isEnabled(),
+			'code': tag_script.getScript(),
+			}
+		
+	config['message'] = {}
+	message_scripts = gateway_script_config.getMessageHandlerScripts()
+	for message_script in message_scripts:
+		config['message'][message_script.getName()] = {
+				'name': message_script.getName(),
+				'threading': str(message_script.getThreadType()),
+				'enabled': message_script.isEnabled(),
+				'code': message_scripts[message_script],
+			}
+	
+	config = filter_none(config)
+			
+	return dict([
+		encode(config)
+		])
+
+
+def extract_clientevents(resource_objects):
+	assert len(resource_objects) == 1, 'Resource is expected to be contained in one root object'
+	
+	client_script_config = resource_objects[0]
+	
+	config = {}
+	
+	config['startup'] = client_script_config.getStartupScript()
+	config['shutdown'] = client_script_config.getShutdownScript()
+	config['shutdown-intercept'] = client_script_config.getShutdownAllowedScript()
+
+	key_schema_pattern = re.compile("(\[(?P<modifiers>.*)\] )?(?P<key>.*) \((?P<action>.*)\)")
+	key_modifier_pattern = re.compile("(Button \d|\w+)")
+	
+	config['key'] = {}
+	key_scripts = client_script_config.getKeyScripts()
+	for kix, key_script in enumerate(key_scripts):
+		key_config = key_schema_pattern.match(key_script.getDisplay()).groupdict()
+		config['key'][key_script.getDisplay()] = {
+			'action': key_config['action'],
+			'key': key_config['key'].replace("'", ''),
+			'modifiers': key_modifier_pattern.findall(key_config['modifiers']) if key_config['modifiers'] else [],
+			'code': key_scripts[key_script],
+			}
+	
+	config['timer'] = {}
+	timer_scripts = client_script_config.getTimerScripts()
+	for timer_script in timer_scripts:
+		config['timer'][timer_script.getName()] = {
+			'enabled': timer_script.isEnabled(),
+			'timing': 'delay' if timer_script.isFixedDelay() else 'rate',
+			'period': timer_script.getDelay(),
+			'threading': 'shared' if timer_script.isSharedThread() else 'dedicated',
+			'code': timer_scripts[timer_script]
+			}
+
+	config['tag-change'] = {}
+	for tag_script in client_script_config.getTagChangeScripts():		
+		config['tag-change'][tag_script.getName()] = {
+			'name': tag_script.getName(),
+			'tags': [tag_path for tag_path in tag_script.getPaths()],
+			'triggers': [t.toString() for t in tag_script.getChangeTypes()],
+			'enabled': tag_script.isEnabled(),
+			'code': tag_script.getScript(),
+			}
+	
+	def traverse_menu(parent_path, menu_node, mutable_dict):
+		for mix, child in enumerate(menu_node.getChildren() or []):			
+			mutable_dict['%s/entry-%02d' % ('/'.join(parent_path), mix)] = filter_none({
+					'name': child.getName(),
+					'icon': child.getIconPath(),
+					'mnemonic': child.getMnemonic(),
+					'description': child.getDescription(),
+					'accelerator': child.getAccelerator(),
+					'code': child.getScript(),
+				})
+			traverse_menu(parent_path + [child.getName() or ('Submenu-%02d' % mix)], child, mutable_dict)
+	
+	config['menu'] = {}
+	menu_root = client_script_config.getMenuRoot()
+	traverse_menu(['menu'], menu_root, config['menu'])
+	
+	config['message'] = {}
+	message_scripts = client_script_config.getMessageHandlerScripts()
+	for message_script in message_scripts:
+		config['message'][message_script.getName()] = {
+				'name': message_script.getName(),
+				'threading': str(message_script.getThreadType()),
+				'enabled': message_script.isEnabled(),
+				'code': message_scripts[message_script],
+			}
+
+	config = filter_none(config)
+	
+	return dict([
+		encode(config)
+		])
+
+
+def extract_namedquery(resource_objects):
+	assert len(resource_objects) == 1, 'Resource is expected to be contained in one root object'
+	
+	named_query = resource_objects[0]
+	
+	info = {
+		'query': named_query.getQuery(),
+		'database': named_query.getDatabase() or '-default-',
+		'parameters': dict(
+			(param.getIdentifier(), {
+				'sql_type'    : str(param.getSqlType()),
+				'type'      : str(param.getType()),
+				'identifier': str(param.getIdentifier()),
+			}) 
+			for param 
+			in named_query.getParameters()
+		),
+		'type': named_query.getType(),
+	}
+
+	return dict([
+		('.sql', format_sql(info['query'])),
+		encode(info),
+		])
+
+
+def extract_script(resource_objects):
+
+#	print resource_objects.keys()
+
+	script = resource_objects['code.py']
+	
+	return {
+		'.py': script,
+		}
+
+
+# Ready for the dispatcher
+EXTRACTORS = {
+		 'ignition/script-python': extract_script,
+					'named-query': extract_namedquery,
+		   'client.event.scripts': extract_clientevents,
+				  'event.scripts': extract_gatewayevents,
+		        'sr.global.props': extract_project_props,
+	}
+

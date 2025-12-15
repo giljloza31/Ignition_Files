@@ -1,0 +1,31 @@
+"""
+	Extract the meaningful bits from the WebDev endpoint definitions.
+"""
+
+from shared.tools.snapshot.utils import encode, propsetToDict
+
+
+def extract_webdev(resource_objects):
+	assert len(resource_objects) == 1, 'Resource is expected to be contained in one root object'
+	
+	webdev = propsetToDict(resource_objects[0])
+	
+	config  = {
+		'methods': {}
+		}
+	
+	for attribute, value in webdev.items():
+		if attribute.startswith('do'):
+			config['methods'][attribute[2:].upper()] = value
+		else:
+			config[attribute] = value
+			
+	return dict([
+		encode(config)
+		])
+
+
+# Ready for the dispatcher
+EXTRACTORS = {
+        'webdev-resource': extract_webdev,
+	}

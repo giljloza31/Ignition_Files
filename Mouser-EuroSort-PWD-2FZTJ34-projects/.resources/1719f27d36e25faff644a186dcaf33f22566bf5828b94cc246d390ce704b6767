@@ -1,0 +1,512 @@
+{
+  "custom": {},
+  "params": {
+    "collection": "eurosort_chutes_db",
+    "connector": "MongoWCS",
+    "folderPath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes"
+  },
+  "propConfig": {
+    "params.collection": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.connector": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.folderPath": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 270,
+      "width": 474
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes"
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom datetime import datetime\n\tuseableVol \u003d self.custom.volUse\n\tconnector \u003d self.custom.MongoServer #this will be the default connector for the mongo db need to change this to a varible tag\n\tcollection \u003d self.custom.Collection\t#this will change on final\n\t\t#this will be blank on update many, on update one set value to specific document \n\t\n\t\n\tupdates \u003d  {\u0027$set\u0027: #Action\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\u0027Occupied\u0027: False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Volume\u0027:float(useableVol),\t# Set Default Value to current set tote fill volume\n\t\t\t\t\t\t\t\"VolumeFull\":float(0.0),\n\t\t\t\t\t\t\t\u0027zone\u0027:\u0027\u0027,\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027group_id\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027Faulted\u0027:False,\n\t\t\t\t\t\t\t\u0027ToteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Queued\u0027:False,\n\t\t\t\t\t\t\t\u0027Processing\u0027:False,\n\t\t\t\t\t\t\t\u0027Chute\u0027:[],\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027IBN_List\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteCount\u0027:0,\t\t# Set Default Value to 0\n\t\t\t\t\t\t\t\u0027LastUpdated\u0027:datetime.utcnow()\t# Updated Time\n\t\t\t\t\t\t\t}}\n\t\n\tpath \u003d self.custom.folderpath\n\ttags \u003d system.tag.browse(path)\n\t\t\t\n\tfor tag in tags:\n\t\ttagPath \u003d tag[\u0027fullPath\u0027].toString()\n\t\ttagPath +\u003d \u0027/\u0027\n\t\tchute \u003d \u0027/\u0027.join(tagPath.split(\u0027/\u0027)[-1:])\n\t\tsystem.tag.writeBlocking(*zip(*[\n\t\t\t(tagPath + \u0027Occupied\u0027, False),\t\t\t\n\t\t\t(tagPath + \u0027ToteFull\u0027, False),\t\n\t\t\t(tagPath + \u0027Volume\u0027, useableVol),\t\n\t\t\t(tagPath + \u0027VolumeFull\u0027,float(0.0)),\n\t\t\t(tagPath + \u0027Zone\u0027,\u0027\u0027),\n\t\t\t(tagPath + \u0027ChuteOpen\u0027,False),\n\t\t\t(tagPath + \u0027Filtered\u0027,False),\n\t\t\t(tagPath + \u0027Faulted\u0027,False),\n\t\t\t(tagPath + \u0027Queued\u0027,False),\n\t\t\t(tagPath + \u0027ChuteFull\u0027,False),\n\t\t\t(tagPath + \u0027GroupID\u0027, \u0027\u0027),\n\t\t\t(tagPath + \u0027LastUpdated\u0027,system.date.now()),\n\t\t\t(tagPath + \u0027ChuteCount\u0027,0),\n\t\t\t(tagPath + \u0027Processing\u0027,False)\n\t\t\t]))\n\t\t\t\n\t\t\t    \n\t\tfilterID \u003d {\u0027_id\u0027:chute}\t \n\t\tsystem.mongodb.updateOne(connector, collection,filterID,updates)\n\n\tresetPath \u003d \u0027[Mouser]Mouser2/Receiving/Eurosort/Got_Data/Count\u0027\n\tresetTags \u003d [\n\t\tresetPath+ \u0027/\u0027+ \u0027SortedCount\u0027,\n\t\tresetPath + \u0027/\u0027+ \u0027TotalCount\u0027\n\t\t]\n\tsystem.tag.writeAsync(resetTags, [0,0])"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_11"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 177
+        },
+        "propConfig": {
+          "custom.volUse": {
+            "binding": {
+              "config": {
+                "bidirectional": true,
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Volume_Use"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Clear All"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "A",
+          "start": 107,
+          "stop": 230
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tuseableVol \u003d self.custom.volUse\n\tconnector \u003d self.custom.MongoServer #this will be the default connector for the mongo db need to change this to a varible tag\n\tcollection \u003d self.custom.Collection\t#this will change on final\n\t\t\n\tupdates \u003d  {\u0027$set\u0027: #Action\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\u0027Occupied\u0027: False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Volume\u0027:float(useableVol),\t# Set Default Value to current set tote fill volume\n\t\t\t\t\t\t\t\u0027VolumeFull\u0027:float(0),\n\t\t\t\t\t\t\t\u0027zone\u0027:\u0027\u0027,\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027group_id\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ToteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Queued\u0027:False,\n\t\t\t\t\t\t\t\u0027Faulted\u0027:False,\n\t\t\t\t\t\t\t\u0027Chute\u0027:[],\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027IBN_List\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteCount\u0027:0,\t\t# Set Default Value to 0\n\t\t\t\t\t\t\t\u0027LastUpdated\u0027:system.date.now()\t# Updated Time\n\t\t\t\t\t\t\t}}\n\n\n\tpath \u003d self.custom.folderpath\n\t\n\tsideBMotor \u003d [23,48,73,98,106,132,157,182,207]\n\t\n\tfor i in range(self.custom.start,(self.custom.stop+1)):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027%(num,self.custom.side)\n\t    filterID \u003d {\u0027_id\u0027:chute}\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or  self.custom.side \u003d\u003d \"A\":\n\t\t    \n\t\t    path +\u003d \u0027/\u0027\n\t\t    path +\u003d chute\n\t\t    path +\u003d \u0027/\u0027\n\t\t    \n\t\t    system.tag.writeAsync(*zip(*[\n\t\t\t\t(path + \u0027Occupied\u0027, False),\t\t\t\n\t\t\t\t(path + \u0027ToteFull\u0027, False),\t\n\t\t\t\t(path + \u0027Volume\u0027, useableVol),\t\n\t\t\t\t(path + \u0027VolumeFull\u0027,0.0),\n\t\t\t\t(path + \u0027Zone\u0027,\u0027\u0027),\t\n\t\t\t\t(path + \u0027GroupID\u0027, \u0027\u0027),\n\t\t\t\t(path + \u0027Queued\u0027,False),\n\t\t\t\t\n\t\t\t\t(path + \u0027LastUpdated\u0027,system.date.now()),\n\t\t\t\t(path + \u0027SortedCount\u0027,0),\n\t\t\t]))\n\t\t\n\t\t    \n\t\t \n\t\t    system.mongodb.updateOne(connector, collection,filterID,updates)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_14"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 133
+        },
+        "propConfig": {
+          "custom.volUse": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Got_Data/ToteSize/Volume_Use"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "#.##",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Clear Set 4"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "A",
+          "start": 107,
+          "stop": 230
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom datetime import datetime\n\tuseableVol \u003d self.custom.volUse\n\tconnector \u003d \u0027MongoWCS\u0027\n\tcollection \u003d \u0027eurosort_chutes_db\u0027\n\tsideA \u003d [1,231]\n\tsideB \u003d [1,231]\n\t\n\t\n\t#for side A\n\tfor i in range(sideA[0],sideA[1]):\n\t\tif i \u003e 107:\n\t\t\tLane \u003d 4\n\t\telse:\n\t\t\tLane \u003d 1\n\t\tnum \u003d str(i).zfill(4)\n\t\tchute \u003d \u0027DST-%s-1-1-%s\u0027%(num,\u0027A\u0027)\n\t\tdocument \u003d {\n\t    \t\"_id\": chute,\n\t    \t\"chuteName\":\u0027C%s11A\u0027%(num),\n\t    \t\"Chute\": [],\n\t    \t\"ToteFull\": False,\n\t    \t\"Occupied\": False,\n\t    \t\"enabled\": False,\n\t\t\t\"Volume\": float(useableVol),\n\t\t\t\"VolumeFull\":float(0),\n\t\t\t\"Faulted\":False,\n\t\t\t\"zone\": \"\",\n\t\t\t\"group_id\": \"\",\n\t\t\t\"ChuteFull\": False,\n\t\t\t\"IBN_List\": \"\",\n\t\t\t\"LastUpdated\": datetime.now(),\n\t\t\t\"ChuteCount\": 0,\n\t\t\t\"ChuteClosedSW\":True,\n\t\t\t\"ChuteOpen\":False,\n\t\t\t\"Queued\":False,\n\t\t\t\u0027Lane\u0027:Lane,\n\t\t\t\u0027Processing\u0027:False\n\t\t\t}\n\t\t\t\n\t\tsystem.mongodb.insertOne(connector, collection, document)\n\t\t\n\t#for side B\n\tfor i in range(sideB[0],sideB[1]):\n\t\tif i \u003e 107:\n\t\t\tLane \u003d 3\n\t\telse:\n\t\t\tLane \u003d 2\n\t\tnum \u003d str(i).zfill(4)\n\t\tchute \u003d \u0027DST-%s-1-1-%s\u0027%(num,\u0027B\u0027)\n\t\tdocument \u003d {\n\t\t    \t\"_id\": chute,\n\t\t    \t\"chuteName\":\u0027C%s11B\u0027%(num),\n\t\t    \t\"Chute\": [],\n\t\t    \t\"ToteFull\": False,\n\t\t    \t\"Occupied\": False,\n\t\t    \t\"enabled\": False,\n\t\t\t\t\"Volume\": float(useableVol),\n\t\t\t\t\"VolumeFull\":float(0),\n\t\t\t\t\"Faulted\":False,\n\t\t\t\t\"zone\": \"\",\n\t\t\t\t\"group_id\": \"\",\n\t\t\t\t\"ChuteFull\": False,\n\t\t\t\t\"IBN_List\": \"\",\n\t\t\t\t\"LastUpdated\": datetime.now(),\n\t\t\t\t\"ChuteCount\": 0,\n\t\t\t\t\"ChuteClosedSW\":True,\n\t\t\t\t\"ChuteOpen\":False,\n\t\t\t\t\"Queued\":False,\n\t\t\t\t\u0027Lane\u0027:Lane,\n\t\t\t\t\u0027Processing\u0027:False\n\t\t\t\t}\n\t\t\t\t\n\t\tsystem.mongodb.insertOne(connector, collection, document)  \n\t\t\t \n\t\t\t    "
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_20"
+        },
+        "position": {
+          "height": 34,
+          "width": 170,
+          "x": 151.5,
+          "y": 6
+        },
+        "propConfig": {
+          "custom.volUse": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/IGN_Query/Got_Data/ToteSize/Volume_Use"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "#.##",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Create Mongo Chutes"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "A",
+          "start": 107,
+          "stop": 230
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tuseableVol \u003d self.custom.volUse\n\tconnector \u003d \u0027MongoWCS\u0027\n\tcollection \u003d \u0027eurosort_chutes_db\u0027\n\t\n\tsystem.mongodb.deleteMany(connector, collection, {\u0027_id\u0027:{\"$regex\": \"DST\"}})\n\t\t\t \n\t\t\t    "
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_21"
+        },
+        "position": {
+          "height": 34,
+          "width": 201,
+          "x": 151,
+          "y": 47
+        },
+        "propConfig": {
+          "custom.volUse": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Got_Data/ToteSize/Volume_Use"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "#.##",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Clear Mongo Chute Table"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "B",
+          "start": 107,
+          "stop": 229
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tuseableVol \u003d self.custom.volUse\n\tconnector \u003d self.custom.MongoServer #this will be the default connector for the mongo db need to change this to a varible tag\n\tcollection \u003d self.custom.Collection\t#this will change on final\n\t\t\n\tupdates \u003d  {\u0027$set\u0027: #Action\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\u0027Occupied\u0027: False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Volume\u0027:float(useableVol),\t# Set Default Value to current set tote fill volume\n\t\t\t\t\t\t\t\u0027VolumeFull\u0027:float(0),\n\t\t\t\t\t\t\t\u0027zone\u0027:\u0027\u0027,\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027group_id\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ToteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Queued\u0027:False,\n\t\t\t\t\t\t\t\u0027Faulted\u0027:False,\n\t\t\t\t\t\t\t\u0027Chute\u0027:[],\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027IBN_List\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteCount\u0027:0,\t\t# Set Default Value to 0\n\t\t\t\t\t\t\t\u0027LastUpdated\u0027:system.date.now()\t# Updated Time\n\t\t\t\t\t\t\t}}\n\n\n\tpath \u003d self.custom.folderpath\n\t\n\tsideBMotor \u003d [23,48,73,98,106,132,157,182,207]\n\t\n\tfor i in range(self.custom.start,(self.custom.stop+1)):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027%(num,self.custom.side)\n\t    filterID \u003d {\u0027_id\u0027:chute}\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or  self.custom.side \u003d\u003d \"A\":\n\t\t    \n\t\t    path +\u003d \u0027/\u0027\n\t\t    path +\u003d chute\n\t\t    path +\u003d \u0027/\u0027\n\t\t    \n\t\t    system.tag.writeAsync(*zip(*[\n\t\t\t\t(path + \u0027Occupied\u0027, False),\t\t\t\n\t\t\t\t(path + \u0027ToteFull\u0027, False),\t\n\t\t\t\t(path + \u0027Volume\u0027, useableVol),\t\n\t\t\t\t(path + \u0027VolumeFull\u0027,0.0),\n\t\t\t\t(path + \u0027Zone\u0027,\u0027\u0027),\t\n\t\t\t\t(path + \u0027GroupID\u0027, \u0027\u0027),\n\t\t\t\t(path + \u0027Queued\u0027,False),\n\t\t\t\t\n\t\t\t\t(path + \u0027LastUpdated\u0027,system.date.now()),\n\t\t\t\t(path + \u0027SortedCount\u0027,0),\n\t\t\t]))\n\t\t\n\t\t    \n\t\t \n\t\t    system.mongodb.updateOne(connector, collection,filterID,updates)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_15"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 90
+        },
+        "propConfig": {
+          "custom.volUse": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Got_Data/ToteSize/Volume_Use"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "#.##",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Clear Set 3"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "B",
+          "start": 1,
+          "stop": 105
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tuseableVol \u003d self.custom.volUse\n\tconnector \u003d self.custom.MongoServer #this will be the default connector for the mongo db need to change this to a varible tag\n\tcollection \u003d self.custom.Collection\t#this will change on final\n\t\t\n\tupdates \u003d  {\u0027$set\u0027: #Action\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\u0027Occupied\u0027: False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Volume\u0027:float(useableVol),\t# Set Default Value to current set tote fill volume\n\t\t\t\t\t\t\t\u0027VolumeFull\u0027:float(0),\n\t\t\t\t\t\t\t\u0027zone\u0027:\u0027\u0027,\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027group_id\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ToteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Queued\u0027:False,\n\t\t\t\t\t\t\t\u0027Faulted\u0027:False,\n\t\t\t\t\t\t\t\u0027Chute\u0027:[],\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027IBN_List\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteCount\u0027:0,\t\t# Set Default Value to 0\n\t\t\t\t\t\t\t\u0027LastUpdated\u0027:system.date.now()\t# Updated Time\n\t\t\t\t\t\t\t}}\n\n\n\tpath \u003d self.custom.folderpath\n\t\n\tsideBMotor \u003d [23,48,73,98,106,132,157,182,207]\n\t\n\tfor i in range(self.custom.start,(self.custom.stop+1)):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027%(num,self.custom.side)\n\t    filterID \u003d {\u0027_id\u0027:chute}\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or  self.custom.side \u003d\u003d \"A\":\n\t\t    \n\t\t    path +\u003d \u0027/\u0027\n\t\t    path +\u003d chute\n\t\t    path +\u003d \u0027/\u0027\n\t\t    \n\t\t    system.tag.writeAsync(*zip(*[\n\t\t\t\t(path + \u0027Occupied\u0027, False),\t\t\t\n\t\t\t\t(path + \u0027ToteFull\u0027, False),\t\n\t\t\t\t(path + \u0027Volume\u0027, useableVol),\t\n\t\t\t\t(path + \u0027VolumeFull\u0027,0.0),\n\t\t\t\t(path + \u0027Zone\u0027,\u0027\u0027),\t\n\t\t\t\t(path + \u0027GroupID\u0027, \u0027\u0027),\n\t\t\t\t(path + \u0027Queued\u0027,False),\n\t\t\t\t\n\t\t\t\t(path + \u0027LastUpdated\u0027,system.date.now()),\n\t\t\t\t(path + \u0027SortedCount\u0027,0),\n\t\t\t]))\n\t\t\n\t\t    \n\t\t \n\t\t    system.mongodb.updateOne(connector, collection,filterID,updates)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_13"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 47
+        },
+        "propConfig": {
+          "custom.volUse": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Got_Data/ToteSize/Volume_Use"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "#.##",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Clear Set 2"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "Collection": "eurosort_chutes_db",
+          "MongoServer": "MongoWCS",
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "A",
+          "start": 1,
+          "stop": 106
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tuseableVol \u003d self.custom.volUse\n\tconnector \u003d self.custom.MongoServer #this will be the default connector for the mongo db need to change this to a varible tag\n\tcollection \u003d self.custom.Collection\t#this will change on final\n\t\t\n\tupdates \u003d  {\u0027$set\u0027: #Action\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\u0027Occupied\u0027: False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Volume\u0027:float(useableVol),\t# Set Default Value to current set tote fill volume\n\t\t\t\t\t\t\t\u0027VolumeFull\u0027:float(0),\n\t\t\t\t\t\t\t\u0027zone\u0027:\u0027\u0027,\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027group_id\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ToteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027Queued\u0027:False,\n\t\t\t\t\t\t\t\u0027Faulted\u0027:False,\n\t\t\t\t\t\t\t\u0027Chute\u0027:[],\t\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteFull\u0027:False,\t\t# Set Default Value to False\n\t\t\t\t\t\t\t\u0027IBN_List\u0027:\u0027\u0027,\t\t\t# Set Default Value to empty\n\t\t\t\t\t\t\t\u0027ChuteCount\u0027:0,\t\t# Set Default Value to 0\n\t\t\t\t\t\t\t\u0027LastUpdated\u0027:system.date.now()\t# Updated Time\n\t\t\t\t\t\t\t}}\n\n\n\tpath \u003d self.custom.folderpath\n\t\n\tsideBMotor \u003d [23,48,73,98,106,132,157,182,207]\n\t\n\tfor i in range(self.custom.start,(self.custom.stop+1)):\n\t    num \u003d str(i).zfill(4)\n\t    chute \u003d \u0027DST-%s-1-1-%s\u0027%(num,self.custom.side)\n\t    filterID \u003d {\u0027_id\u0027:chute}\n\t    if (i not in sideBMotor and self.custom.side \u003d\u003d \"B\") or  self.custom.side \u003d\u003d \"A\":\n\t\t    \n\t\t    path +\u003d \u0027/\u0027\n\t\t    path +\u003d chute\n\t\t    path +\u003d \u0027/\u0027\n\t\t    \n\t\t    system.tag.writeAsync(*zip(*[\n\t\t\t\t(path + \u0027Occupied\u0027, False),\t\t\t\n\t\t\t\t(path + \u0027ToteFull\u0027, False),\t\n\t\t\t\t(path + \u0027Volume\u0027, useableVol),\t\n\t\t\t\t(path + \u0027VolumeFull\u0027,0.0),\n\t\t\t\t(path + \u0027Zone\u0027,\u0027\u0027),\t\n\t\t\t\t(path + \u0027GroupID\u0027, \u0027\u0027),\n\t\t\t\t(path + \u0027Queued\u0027,False),\n\t\t\t\t\n\t\t\t\t(path + \u0027LastUpdated\u0027,system.date.now()),\n\t\t\t\t(path + \u0027SortedCount\u0027,0),\n\t\t\t]))\n\t\t\n\t\t    \n\t\t \n\t\t    system.mongodb.updateOne(connector, collection,filterID,updates)"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_12"
+        },
+        "position": {
+          "height": 34,
+          "width": 128,
+          "x": 7,
+          "y": 6
+        },
+        "propConfig": {
+          "custom.volUse": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Got_Data/ToteSize/Volume_Use"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "#.##",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Clear Set 1"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "custom": {
+          "folderpath": "[Mouser]Mouser2/Receiving/Eurosort/Chutes",
+          "side": "A",
+          "start": 107,
+          "stop": 230
+        },
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tuseableVol \u003d self.custom.volUse\n\tconnector \u003d \u0027MongoWCS\u0027\n\tcollection \u003d \u0027inbound_receipt_info\u0027\n\t\n\tsystem.mongodb.deleteMany(connector, collection, { \u0027_id\u0027: { \u0027$ne\u0027: \"\" } })\n\t\t\t \n\t\t\t    "
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_22"
+        },
+        "position": {
+          "height": 34,
+          "width": 252,
+          "x": 151.5,
+          "y": 90
+        },
+        "propConfig": {
+          "custom.volUse": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "direct",
+                "tagPath": "[Mouser]Mouser2/Receiving/Eurosort/Got_Data/ToteSize/Volume_Use"
+              },
+              "transforms": [
+                {
+                  "formatType": "numeric",
+                  "formatValue": "#.##",
+                  "type": "format"
+                }
+              ],
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "text": "Clear Mongo Inbound Table"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport re\n\t\n\n\tconnector \u003d self.view.params.connector\n\tcollection \u003d self.view.params.collection\n\tchuteName \u003d self.getSibling(\"TextField\").props.text\n\t\n\tfolderPath \u003d self.view.params.folderPath\n\n\tfilterID \u003d {\u0027_id\u0027:chuteName}\n\n\tupdates \u003d {\n\t\t\u0027$set\u0027:{\u0027Faulted\u0027:True}\n\t\t}\n\t\n\t# Fetch results from MongoDB\n\tresults \u003d system.mongodb.updateOne(connector, collection, filterID, updates)\n\t\n\tfolderPath +\u003d \u0027/\u0027 + chuteName \n\tfaultedPath \u003d folderPath + \u0027/Faulted\u0027\n\t\n\ttagPaths \u003d [\n\tfaultedPath\n\t]\n\tsystem.tag.writeBlocking(tagPaths, True)\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_1"
+        },
+        "position": {
+          "height": 34,
+          "width": 210,
+          "x": 156,
+          "y": 134
+        },
+        "props": {
+          "text": "Create Fault"
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "TextField"
+        },
+        "position": {
+          "height": 32,
+          "width": 272,
+          "x": 151,
+          "y": 211
+        },
+        "props": {
+          "text": "DST-0001-1-1-A"
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\timport re\n\t\n\n\tconnector \u003d self.view.params.connector\n\tcollection \u003d self.view.params.collection\n\tchuteName \u003d self.getSibling(\"TextField\").props.text\n\t\n\tfolderPath \u003d self.view.params.folderPath\n\n\tfilterID \u003d {\u0027_id\u0027:chuteName}\n\n\tupdates \u003d {\n\t\t\u0027$set\u0027:{\u0027ChuteFull\u0027:True}\n\t\t}\n\t\n\t# Fetch results from MongoDB\n\tresults \u003d system.mongodb.updateOne(connector, collection, filterID, updates)\n\t\n\tfolderPath +\u003d \u0027/\u0027 + chuteName \n\tfaultedPath \u003d folderPath + \u0027/ChuteFull\u0027\n\t\n\ttagPaths \u003d [\n\tfaultedPath\n\t]\n\tsystem.tag.writeBlocking(tagPaths, True)\n\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_2"
+        },
+        "position": {
+          "height": 34,
+          "width": 210,
+          "x": 156,
+          "y": 173
+        },
+        "props": {
+          "text": "Create Chute Full"
+        },
+        "type": "ia.input.button"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

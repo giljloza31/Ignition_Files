@@ -1,0 +1,141 @@
+from shared.tools.global import ExtraGlobal
+from shared.tools.thread import async
+from shared.tools.meta import is_redundant_active
+from functools import partial
+	
+
+	
+#	system.util.getLogger('ScanACK').info('>Sent< %s' % tagPath)
+	
+
+from time import sleep
+from random import random
+from datetime import datetime
+from pymongo import MongoClient
+
+import re
+
+import pymongo
+
+user = "ignitionUser"
+passw = 'dsfasduwefnzy3848s#'
+host = "txmongowcs1.mouser.lan"
+replicaSet = "wcsRS1"
+port = "27017"
+mongodb = "ignition"
+#uri = "mongodb://{}:{}@{}:{}/{}?authSource={}&tls=true&tlsAllowInvalidCertificates=true".format(user,passw,host,port,mongodb,mongodb)
+uri = 'mongodb://ignitionUser:dsfasduwefnzy3848s%23@txmongowcs1.mouser.lan:27017/ignition?tls=true&tlsAllowInvalidCertificates=true&replicaSet=wcsRS1&tlsCAFile=C%3A%5CMongo%5Cmouser-lan-root-ca.crt&authMechanism=DEFAULT&authSource=ignition'
+SEPATATOR_PATTERN = ','
+
+client = MongoClient(uri)
+db=client.ignition
+
+def cursorToList(cursor):
+	listcursor = []
+	for i in range(cursor.count()):
+		listcursor.append(cursor.next())
+		
+	return listcursor
+	
+@async(name="PSI-Routing-GatherData")
+def PSI_gather_data(source_path):
+	
+	dest = 0
+	destination = 'Manual'
+	timestart = datetime.now().isoformat()
+	parent_dest = '/'.join(source_path.split('/')[:-2] + ['IGN_Query'])
+	
+	
+	lpn,lane,enabled = [
+		qv.value for qv in 
+		system.tag.readBlocking([
+			parent_dest + '/' + 'LPN_Data',
+			parent_dest + '/' + 'PSI_Lane',
+			parent_dest + '/' + 'Enabled',
+		])]	
+	
+
+	#lpn_lookup =  re.sub(r"[\x00-\x20]","",lpn)
+	lpn_lookup = lpn
+	#system.util.getLogger('BAL_PSI').trace('LPN: %r' % (lpn_lookup))
+	scanData = []
+	
+	if lpn_lookup ==  '':
+		dest = 3
+		destination = 'Manual'
+		lpn = 'NOREAD'
+		lpn_lookup = 'NOREAD'
+		
+	elif lpn_lookup.count(SEPATATOR_PATTERN)>=1:
+		scanData = lpn_lookup.split(SEPATATOR_PATTERN)
+		
+		
+	else:
+		scanData.append(lpn_lookup)
+		
+		
+		
+	lane_String = 'PSI_' + str(lane)
+	if lpn == 'NOREAD':
+		dest = 3
+		destination = 'Manual'
+	else:
+	
+		filter={
+		   "_id":{'$in':scanData}
+		}
+		project={
+		    '_id': 1, 
+		   'page_count': 1
+		}
+		maxTimeMS=200
+		
+		Mongosearch = db.bulk_automation_packages.find(
+				filter=filter,
+				projection=project,
+				max_time_ms=maxTimeMS
+				)
+			
+		
+	
+		LPNresults = cursorToList(Mongosearch)
+			
+	
+		LPNcount = len(LPNresults)
+		Mongosearch.close()
+		
+		
+		if enabled:
+		
+		
+			if LPNcount == 0:
+				dest = 3
+				destination = 'Manual'
+			
+			elif LPNresults[0]['page_count']<=6:
+				dest = 1
+				destination = lane_String
+			elif LPNresults[0]['page_count']>6:
+				dest = 3
+				destination = 'Manual'
+			else:
+				dest = 3
+				destination = 'Manual'
+		else:
+			dest = 3
+			destination = 'Manual'
+			
+	#system.util.getLogger('BAL_PSI').trace('LPN: %r dest: %d' % (lpn_lookup,dest))	
+	
+	data = {
+		'Dest_Return': dest,			
+		'Dest_String_RET': destination,
+	}
+	
+	#dump_data(source_path, data)
+	parent_dest += '/'	
+	system.tag.writeAsync(*zip(*[
+		(parent_dest + 'Dest_Return', dest),			
+		(parent_dest + 'Dest_String_RET', destination),	
+	]))
+	

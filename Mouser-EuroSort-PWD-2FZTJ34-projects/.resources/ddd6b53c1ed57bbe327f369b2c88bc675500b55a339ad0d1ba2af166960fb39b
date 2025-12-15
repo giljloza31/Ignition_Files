@@ -1,0 +1,376 @@
+{
+  "custom": {
+    "System_Status": 0
+  },
+  "params": {
+    "Start_PB": 0,
+    "System_Name": "VRS",
+    "System_Status": 0
+  },
+  "propConfig": {
+    "custom.System_Status": {
+      "binding": {
+        "config": {
+          "path": "view.params.System_Status"
+        },
+        "type": "property"
+      },
+      "persistent": true
+    },
+    "params.Start_PB": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.System_Name": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.System_Status": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 151,
+      "width": 99
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "draggable": false,
+                "id": "9S8gy9_8",
+                "modal": false,
+                "overlayDismiss": false,
+                "position": {
+                  "relativeLocation": "right"
+                },
+                "positionType": "relative",
+                "resizable": false,
+                "showCloseIcon": true,
+                "type": "toggle",
+                "viewPath": "",
+                "viewportBound": false
+              },
+              "scope": "C",
+              "type": "popup"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button",
+          "tooltip": {
+            "enabled": true,
+            "text": "Button"
+          }
+        },
+        "position": {
+          "height": 118.15,
+          "width": 94.63000000000001,
+          "x": -0.01,
+          "y": 26.85
+        },
+        "props": {
+          "elements": [
+            {
+              "elements": [
+                {
+                  "d": "M722.48,308.87l1,14.34-1.13.88s.27,10.93-9.59,10.93-9.6-10.93-9.6-10.93l-1.13-.88,1-14.34Z",
+                  "name": "ButtonMount",
+                  "transform": "translate(-701.93 -308.75)",
+                  "type": "path"
+                }
+              ],
+              "name": "ButtonBackground",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "name": "ButtonMessage-2",
+                  "points": "19.51 12.53 20.45 11.99 19.66 1.28 10.85 1.28 2.04 1.28 1.25 11.99 2.2 12.53 19.51 12.53",
+                  "type": "polygon"
+                }
+              ],
+              "name": "ButtonMessage",
+              "style": {
+                "classes": "",
+                "fill": "#F0F0F0",
+                "stroke": "#000000",
+                "strokeWidth": ".255"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonBorder-2",
+                  "r": "9.73",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonBorder",
+              "style": {
+                "classes": "",
+                "fill": "#5B5B5B",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            },
+            {
+              "elements": [
+                {
+                  "cx": "10.85",
+                  "cy": "16.98",
+                  "name": "ButtonColor",
+                  "r": "8.15",
+                  "type": "circle"
+                }
+              ],
+              "name": "ButtonLight",
+              "style": {
+                "classes": "",
+                "fill": "#AAAAAA",
+                "stroke": "#000000",
+                "strokeWidth": ".25"
+              },
+              "type": "group"
+            }
+          ],
+          "preserveAspectRatio": "none",
+          "viewBox": "0 0 21.7 26.84"
+        },
+        "type": "ia.shapes.svg"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\tfrom time import sleep\n\t\n\tvalue \u003d 1\n\tself.view.params.Start_PB \u003d value\n\tsleep(1)\n\tvalue \u003d 0\n\tself.view.params.Start_PB \u003d value\t"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button_0"
+        },
+        "position": {
+          "height": 71.48000000000002,
+          "width": 72.62,
+          "x": 11.2525,
+          "y": 66.38
+        },
+        "propConfig": {
+          "props.style.backgroundColor": {
+            "binding": {
+              "config": {
+                "path": "view.custom.System_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "#000000",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "#AAAAAA"
+                    },
+                    {
+                      "input": 1,
+                      "output": "#FFFFFF"
+                    },
+                    {
+                      "input": 2,
+                      "output": "#FF0000"
+                    },
+                    {
+                      "input": 3,
+                      "output": "#FFFF00"
+                    },
+                    {
+                      "input": 5,
+                      "output": "#CCFFFF"
+                    }
+                  ],
+                  "outputType": "color",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "image": {
+            "height": 100,
+            "position": "center",
+            "width": 100
+          },
+          "style": {
+            "borderBottomLeftRadius": 60,
+            "borderBottomRightRadius": 60,
+            "borderStyle": "solid",
+            "borderTopLeftRadius": 60,
+            "borderTopRightRadius": 60
+          },
+          "text": ""
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 23.340000000000003,
+          "width": 72.62,
+          "x": 11.8,
+          "y": 34.29
+        },
+        "propConfig": {
+          "props.style.classes": {
+            "binding": {
+              "config": {
+                "path": "view.custom.System_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "Text_Styles/Black_Style",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "Text_Styles/Black_Style"
+                    },
+                    {
+                      "input": 1,
+                      "output": "Text_Styles/Black_Style"
+                    },
+                    {
+                      "input": 2,
+                      "output": "Text_Styles/Red_Style"
+                    },
+                    {
+                      "input": 3,
+                      "output": "Text_Styles/Yellow_Flashing"
+                    },
+                    {
+                      "input": 5,
+                      "output": "Text_Styles/Turq_Style"
+                    }
+                  ],
+                  "outputType": "style-list",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.custom.System_Status"
+              },
+              "transforms": [
+                {
+                  "fallback": "unknown",
+                  "inputType": "scalar",
+                  "mappings": [
+                    {
+                      "input": 0,
+                      "output": "OFF"
+                    },
+                    {
+                      "input": 1,
+                      "output": "ON"
+                    },
+                    {
+                      "input": 2,
+                      "output": "FAULTED"
+                    },
+                    {
+                      "input": 3,
+                      "output": "STARTING"
+                    },
+                    {
+                      "input": 5,
+                      "output": "SLEEP"
+                    }
+                  ],
+                  "outputType": "scalar",
+                  "type": "map"
+                }
+              ],
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "fontSize": 14,
+            "fontWeight": "bold",
+            "textAlign": "center",
+            "textTransform": "none"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0"
+        },
+        "position": {
+          "height": 23.34,
+          "width": 99.03,
+          "x": 0.06,
+          "y": 2.2
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.System_Name"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "textStyle": {
+            "color": "#000000",
+            "fontFamily": "Roboto",
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "textAlign": "center",
+            "textTransform": "uppercase"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "custom": {
+      "System_Status": 5
+    },
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

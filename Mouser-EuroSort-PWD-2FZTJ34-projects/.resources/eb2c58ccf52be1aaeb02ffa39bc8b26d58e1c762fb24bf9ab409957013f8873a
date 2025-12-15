@@ -1,0 +1,391 @@
+{
+  "custom": {},
+  "params": {
+    "DivertPaths": {
+      "DvtName1": "value",
+      "DvtName2": "value",
+      "DvtName3": "value",
+      "DvtName4": "value"
+    },
+    "Dvt_1": 0,
+    "Dvt_2": 0,
+    "Dvt_3": 0,
+    "Dvt_Straight": 0,
+    "GoodRead": 0,
+    "NoRead": 0,
+    "Rate": 0,
+    "Total": 0
+  },
+  "propConfig": {
+    "params.DivertPaths": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Dvt_1": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Dvt_2": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Dvt_3": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Dvt_Straight": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.GoodRead": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.NoRead": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Rate": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Total": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 65,
+      "width": 243
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Rate",
+          "tooltip": {
+            "text": "Rate"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 62,
+          "y": 0.08312499999999545
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "{view.params.Rate} + \u0027 %\u0027"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "textStyle": {
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Total",
+          "tooltip": {
+            "text": "Total"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 62,
+          "x": 60,
+          "y": 0.12312499999995907
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Total"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "GoodRead",
+          "tooltip": {
+            "enabled": true,
+            "text": "GoodRead_Count"
+          }
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "50% 38%"
+          },
+          "width": 62,
+          "x": 120,
+          "y": 0.12312499999995907
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.GoodRead"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "NoRead",
+          "tooltip": {
+            "enabled": true,
+            "text": "NoRead_Count"
+          }
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "50% 38%"
+          },
+          "width": 62,
+          "x": 179.67,
+          "y": 0.0031249999999545253
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.NoRead"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Divert 1",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 62,
+          "y": 30.2012
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.DivertPaths.DvtName1"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Dvt_1"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Divert 2",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "50% 38%"
+          },
+          "width": 62,
+          "x": 60,
+          "y": 30.2012
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.DivertPaths.DvtName2"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Dvt_2"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Divert 3",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "50% 38%"
+          },
+          "width": 62,
+          "x": 119.67,
+          "y": 30.0812
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.DivertPaths.DvtName3"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Dvt_3"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Divert Straight",
+          "tooltip": {
+            "enabled": true
+          }
+        },
+        "position": {
+          "height": 32,
+          "rotate": {
+            "anchor": "50% 38%"
+          },
+          "width": 62,
+          "x": 179.67,
+          "y": 30.0812
+        },
+        "propConfig": {
+          "meta.tooltip.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.DivertPaths.DvtName4"
+              },
+              "type": "property"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Dvt_Straight"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "borderStyle": "solid",
+            "borderWidth": 2
+          },
+          "textStyle": {
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

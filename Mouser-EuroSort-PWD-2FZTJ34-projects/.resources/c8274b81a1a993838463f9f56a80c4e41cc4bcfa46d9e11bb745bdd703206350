@@ -1,0 +1,97 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 341,
+      "width": 642
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "TextField"
+        },
+        "position": {
+          "height": 32,
+          "width": 150,
+          "x": 209.5,
+          "y": 9
+        },
+        "type": "ia.input.text-field"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "height": 32,
+          "width": 38,
+          "x": 171.5,
+          "y": 8.99
+        },
+        "props": {
+          "text": "LPN:"
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "script": "\t\n\tlpn \u003d self.getSibling(\"TextField\").props.text\n\t\n\tmarriage_enabled \u003d bool(system.tag.readBlocking(\u0027[Mouser]Mouser/HSL_New/HSL_Manifest/Get_Data/IGN_HSLMarriage_Enabled\u0027)[0].value)\n\tconnector \u003d \u0027MongoWCS\u0027\n\tcollection \u003d \u0027HSL_info\u0027\n\tfilter_search \u003d {\u0027induct_LPN\u0027:lpn}\n\tsort \u003d {\u0027verify_start_time\u0027:-1}\n\tprojection \u003d {}\n\ttext \u003d \u0027\u0027\n\t\n\tresults \u003d system.mongodb.find(connector, collection,filter_search,projection,sort)\n\tif not results:\n\t\ttext+\u003d \u0027No Results found \\n\u0027\n\t\ttext+\u003d \u0027%s has not been Shipped\\n\u0027%lpn\n\t\tif not marriage_enabled:\n\t\t\ttext+\u003d \u0027Place box before Scale.\u0027\n\t\telse:\n\t\t\ttext+\u003d \u0027Please Open Box \\n\u0027\n\t\t\ttext+\u003d \u0027Place box before Scale.\u0027\n\t\t\n\telse:\n\t\treason \u003d results[0][\u0027reason\u0027]\n\t\treason_num  \u003d results[0][\u0027reason_num\u0027]\n\t\ttext +\u003d \u0027%s was kicked off for %s\\n\u0027%(lpn,reason)\n\t\tif reason_num \u003d\u003d 1:\n\t\t\ttext +\u003d \u0027Please Verify and check label\\n\u0027\n\t\t\ttext +\u003d \u0027Place after divert if shipping label present\u0027\n\t\telif reason_num \u003d\u003d 3:\n\t\t\tif bool(results[0][\u0027manifest_payload_status\u0027]):\n\t\t\t\ttext+\u003d \u0027Label has been created for %s \\n\u0027%lpn\n\t\t\n\t\t\t\ttext+\u003d \u0027Place box after taper.\\n\\n\u0027\n\t\t\t\ttext+\u003d \u0027Please pause the line before placing.\u0027\n\t\t\telse:\n\t\t\t\t\t\n\t\t\t\ttext+\u003d \u0027Label has not been created for %s \\n\u0027%lpn\n\t\t\n\t\t\t\ttext+\u003d \u0027Place box Before taper to create label\u0027\t\n\t\telif reason_num \u003d\u003d 5:\n\t\t\tif bool(results[0][\u0027manifest_payload_status\u0027]):\n\t\t\t\ttext+\u003d \u0027Make sure box is sealed for lpn %s \\n\u0027%lpn\n\t\t\t\ttext+\u003d \u0027Label has been created for %s \\n\u0027%lpn\n\t\t\n\t\t\t\ttext+\u003d \u0027Place box after taper.\\n\\n\u0027\n\t\t\t\ttext+\u003d \u0027Please pause the line before placing.\u0027\n\t\t\telse:\n\t\t\n\t\t\t\ttext+\u003d \u0027Label has not been created for %s \\n\u0027%lpn\n\t\telif reason_num \u003d\u003d 11:\n\t\t\tif bool(results[0][\u0027manifest_payload_status\u0027]):\n\t\t\t\ttext+\u003d \u0027Make sure box is sealed for lpn %s \\n\u0027%lpn\n\t\t\t\ttext+\u003d \u0027Label has been created for %s \\n\u0027%lpn\n\t\t\n\t\t\t\ttext+\u003d \u0027Place box after taper.\\n\\n\u0027\n\t\t\t\ttext+\u003d \u0027Please pause the line before placing.\u0027\n\t\t\telse:\n\t\t\t\ttext+\u003d results[0][\u0027manifest_desc\u0027]\n\t\t\t\ttext+\u003d \u0027\\n\u0027\n\t\t\t\ttext+\u003d \u0027Please Open Box and\\n\u0027\n\t\t\t\ttext+\u003d \u0027Place box before Scale.\u0027\n\t\n\n\t\t\n\tself.getSibling(\"TextArea\").props.text \u003d text\n\tself.getSibling(\"TextField\").props.text \u003d \u0027\u0027"
+              },
+              "scope": "G",
+              "type": "script"
+            }
+          }
+        },
+        "meta": {
+          "name": "Button"
+        },
+        "position": {
+          "height": 34,
+          "width": 80,
+          "x": 372.5,
+          "y": 7.9976
+        },
+        "props": {
+          "image": {
+            "icon": {
+              "color": "#AAAAAA"
+            }
+          },
+          "style": {
+            "backgroundColor": "#AAAAAA"
+          },
+          "text": "Search",
+          "textStyle": {
+            "color": "#000000"
+          }
+        },
+        "type": "ia.input.button"
+      },
+      {
+        "meta": {
+          "name": "TextArea"
+        },
+        "position": {
+          "height": 270,
+          "width": 574,
+          "x": 25,
+          "y": 56
+        },
+        "props": {
+          "text": "H0918409 was kicked off for No Label expectedde\nOrder not found\nPlease Open Box and\nPlace box before Scale."
+        },
+        "type": "ia.input.text-area"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

@@ -1,0 +1,281 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 900,
+      "width": 1930
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "position": {
+                  "basis": "50px",
+                  "grow": 1
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/MobilePadding"
+                  },
+                  "text": "Motor Control - NE Picking"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer_1"
+            },
+            "position": {
+              "basis": "300px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "justify": "space-around",
+              "style": {
+                "classes": "Layout/LargeGrayHeader Text/LightText"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "NEPicking-Header"
+        },
+        "position": {
+          "basis": "50px",
+          "grow": 1,
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "flex-start",
+          "direction": "column",
+          "style": {
+            "classes": "Color/MouserDarkBlue"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "meta": {
+          "name": "NEPicking-Beacon"
+        },
+        "position": {
+          "basis": "320px"
+        },
+        "props": {
+          "params": {
+            "Blue": "[default]NE_Picking/MCP2 Beacon-Horn/MCP2 Alarm-Fault Active",
+            "Green": "[default]NE_Picking/MCP2 Beacon-Horn/MCP2 Beacon Green ",
+            "Red": "[default]NE_Picking/MCP2 Beacon-Horn/MCP2 Beacon Red",
+            "Yellow": "[default]NE_Picking/MCP2 Beacon-Horn/MCP2 Beacon Yellow"
+          },
+          "path": "Indicators/Beacon"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "NEPicking-Belt"
+        },
+        "position": {
+          "basis": "320px",
+          "grow": 1
+        },
+        "props": {
+          "params": {
+            "ControlName": "Pick Belt",
+            "ControlTag": "[default]NE_Picking/Run PBs/PickBelt_PB/Pick Belt On PB",
+            "IndicatorTags": {
+              "Intermediate": "[default]NE_Picking/Run PBs/PickBelt_PB/PickBelt_Starting",
+              "Off": "[default]NE_Picking/Run PBs/PickBelt_PB/PickBelt_OFF",
+              "On": "[default]NE_Picking/Run PBs/PickBelt_PB/PickBelt_ON"
+            }
+          },
+          "path": "Buttons/Drive-Toggle"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "NEPicking-Roller"
+        },
+        "position": {
+          "basis": "320px",
+          "grow": 1
+        },
+        "props": {
+          "params": {
+            "ControlName": "Pick Roller",
+            "ControlTag": "[default]NE_Picking/Run PBs/PickRoller_PB/Pick Roller On PB",
+            "IndicatorTags": {
+              "Intermediate": "[default]NE_Picking/Run PBs/PickRoller_PB/PickRoller_Starting",
+              "Off": "[default]NE_Picking/Run PBs/PickRoller_PB/PickRoller_OFF",
+              "On": "[default]NE_Picking/Run PBs/PickRoller_PB/PickRoller_ON"
+            }
+          },
+          "path": "Buttons/Drive-Toggle"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "NEPicking-Trash"
+        },
+        "position": {
+          "basis": "320px",
+          "grow": 1
+        },
+        "props": {
+          "params": {
+            "ControlName": "Pick Trash",
+            "ControlTag": "[default]NE_Picking/Run PBs/Trash_PB/Pick Trash On PB",
+            "IndicatorTags": {
+              "Intermediate": "[default]NE_Picking/Run PBs/Trash_PB/Trash_Starting",
+              "Off": "[default]NE_Picking/Run PBs/Trash_PB/Trash_OFF",
+              "On": "[default]NE_Picking/Run PBs/Trash_PB/Trash_ON"
+            }
+          },
+          "path": "Buttons/Drive-Toggle"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "position": {
+                  "basis": "50px",
+                  "grow": 1
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/MobilePadding"
+                  },
+                  "text": "Motor Control - NE Receiving"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "FlexContainer_1"
+            },
+            "position": {
+              "basis": "300px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "justify": "space-around",
+              "style": {
+                "classes": "Layout/LargeGrayHeader Text/LightText"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "NEReceiving-Header"
+        },
+        "position": {
+          "basis": "50px",
+          "grow": 1,
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "flex-start",
+          "direction": "column",
+          "style": {
+            "classes": "Color/MouserDarkBlue"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "meta": {
+          "name": "NEReceiving-Beacon"
+        },
+        "position": {
+          "basis": "320px"
+        },
+        "props": {
+          "params": {
+            "Blue": "[default]NE_Receiving/MCP/Beacon-Horn/Beacon Blue",
+            "Green": "[default]NE_Receiving/MCP/Beacon-Horn/Beacon Green",
+            "Red": "[default]NE_Receiving/MCP/Beacon-Horn/Beacon Red",
+            "Yellow": "[default]NE_Receiving/MCP/Beacon-Horn/Beacon Yellow"
+          },
+          "path": "Indicators/Beacon"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "NEReceiving-Conveyor"
+        },
+        "position": {
+          "basis": "320px",
+          "grow": 1
+        },
+        "props": {
+          "params": {
+            "ControlName": "Conveyor",
+            "ControlTag": "[default]NE_Receiving/MCP/ON PB",
+            "IndicatorTags": {
+              "Intermediate": "[default]NE_Receiving/MCP/MCP_Starting",
+              "Off": "[default]NE_Receiving/MCP/MCP_OFF",
+              "On": "[default]NE_Receiving/MCP/MCP_ON"
+            }
+          },
+          "path": "Buttons/Drive-Toggle",
+          "style": {
+            "overflow": "hidden"
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "NEReceiving-CorrugateConveyor"
+        },
+        "position": {
+          "basis": "320px",
+          "grow": 1
+        },
+        "props": {
+          "params": {
+            "ControlName": "Corrugate Conveyor",
+            "ControlTag": "[default]NE_Receiving/MCP Corragate/ON PB",
+            "IndicatorTags": {
+              "Intermediate": "[default]NE_Receiving/MCP Corragate/MCP_Starting",
+              "Off": "[default]NE_Receiving/MCP Corragate/MCP_OFF",
+              "On": "[default]NE_Receiving/MCP Corragate/MCP_ON"
+            }
+          },
+          "path": "Buttons/Drive-Toggle"
+        },
+        "type": "ia.display.view"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "alignContent": "flex-start",
+      "direction": "column"
+    },
+    "type": "ia.container.flex"
+  }
+}

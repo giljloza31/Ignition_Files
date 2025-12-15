@@ -1,0 +1,25 @@
+from shared.tools.global import ExtraGlobal
+from time import sleep
+from random import random
+from datetime import datetime
+from database.records.mongodb import *
+from shared.helpers.tools import *
+from shared.pwd.Mouser.Consolidation.QPS_Sorter import QPS_Router
+from shared.pwd.Mouser.Consolidation.Consol_Sorter import Consol_Router
+import re
+
+
+class Consolidation(QPS_Sortation,Consol_Router):
+
+	def user_sign_in(self,username,password):
+		return self.sign_in_request(username,password)
+	
+	
+	def user_sign_out(self,username,password,reason):
+		return self.sign_out_request(username,password,reason)
+	
+	
+	def user_scan_data(self,username,payload,station,scannerId):
+		self.scan_request(username,payload,station,scannerId)
+	
+	

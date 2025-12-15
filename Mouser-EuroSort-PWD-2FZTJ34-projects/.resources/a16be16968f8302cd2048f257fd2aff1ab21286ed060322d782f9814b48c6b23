@@ -1,0 +1,2 @@
+SELECT Route_Code
+From Divert_Table

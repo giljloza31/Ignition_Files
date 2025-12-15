@@ -1,0 +1,586 @@
+from shared.pwd.Mouser.Connection_Driver.Sort_Config import SorterConfig
+from shared.pwd.Mouser.Connection_Driver.Sort_Scheduler   import Scheduler
+from shared.pwd.Route_tables.RouteStorage import RoutingStorage
+from shared.pwd.Mouser.Consolidation.Consol_Tracking.Content_Tote_Tracking import ToteContentData
+from shared.helpers.tools import safe_tag_read, safe_tag_write, ensure_list
+from database.records.mongodb import select_record, select_records, update_record
+import system, re
+
+MONGODB = 'MongoWCS'
+
+ROUTING_COLLECTION = "routing_tables"
+ROUTING_TTL_SEC = 60*60
+ROUTING_STORE = RoutingStorage(
+	db_name=MONGODB,
+	coll_name=ROUTING_COLLECTION,
+	ttl_sec=ROUTING_TTL_SEC
+)
+
+# payload: <index_id>|<tote_id>
+# tote_id can be ST0001 or any alphanumeric; adjust pattern if you want to force STdddd only.
+SCAN_PAYLOAD_RE = re.compile(
+	r'^(?P<index_id>\d{3})\|(?P<tote_id>[A-Z0-9]+)$'
+)
+
+# error-style route codes from your scan1 route table
+ERROR_ROUTE_CODES = (
+	'NOROUTE',
+	'NODEST',
+	'NOREAD',
+	'MULTI',
+	'ERROR',
+	'NORETURN',
+	'NOPAYLOAD'
+)
+
+
+def _try_write(path, value):
+	try:
+		safe_tag_write(path, value)
+	except Exception:
+		pass
+
+
+class Scan1_Router(object):
+	
+	def __init__(self, name):
+		
+		self.name   = name
+		self.log    = system.util.getLogger("Scan1")
+		self.cfg    = SorterConfig(name)
+		self.record = {}  # working record per scan
+
+		# Scan1 route table cache (from Mongo routing_tables collection)
+		self.SCAN1_SYSTEM = "Scan1"
+		self.SCAN1_TABLE  = "scan1_route_table"
+		self.scan1_routes = {}  # {route_code: {"divert_01":bool,"divert_02":bool,"divert_03":bool,...}}
+
+		try:
+			# shared with Scan51 / Consol
+			self.totes = ToteContentData('ScanTotes')
+		except Exception as e:
+			self.log.warn('Scan1 initialization tote load failed: %s' % e)
+
+		# initial load of Scan1 route table
+		try:
+			self._reload_scan1_routes(initial=True)
+		except Exception as e:
+			self.log.warn('Scan1 initial route table load failed: %s' % e)
+
+		# metrics: per-scanner sliding window for rate/hr
+		self._scan_timestamps_by_scanner = {}  # scanner_id(str) -> [millis,...]
+		self._rate_window_sec = 300           # 5-minute window
+
+		# one scheduler = one thread
+		self.sched = Scheduler(
+			name="Sched.%s" % name,
+			tick_resolution=0.05
+		)
+		self.perm_values = {}
+
+		# register periodic jobs
+		self.sched.add(self._read_permissives, every_sec=0.25, run_immediately=True)
+		# optional: poll route table every N seconds if you want live updates
+		# self.sched.add(self._reload_scan1_routes, every_sec=60.0)
+		
+	def start(self):
+		self.log.info("Starting Scan1 router: %s" % (self.name))
+		self.sched.start()
+		
+		if not safe_tag_read("%s/Connected" % self.cfg.CONFIG_PATH):
+			safe_tag_write("%s/Connected" % self.cfg.CONFIG_PATH, True)
+	
+	def stop(self):
+		self.log.info("Stopping Scan1 router: %s" % (self.name))
+		self.sched.stop()
+		if safe_tag_read("%s/Connected" % self.cfg.CONFIG_PATH):
+			safe_tag_write("%s/Connected" % self.cfg.CONFIG_PATH, False)
+			
+			
+	# ---- permissives ----
+	def _read_permissives(self):
+		paths = {}
+		
+		if not paths:
+			return
+		try:
+			qvs = system.tag.readBlocking(paths.values())
+		except Exception as e:
+			self.log.warn('Scan1 permissive read failed: %s' % e)
+			return
+
+		for (key, path), qv in zip(paths.items(), qvs):
+			val = getattr(qv, 'value', None)
+			if hasattr(val, 'toDict'):
+				val = val.toDict()
+			old = self.perm_values.get(key)
+
+			if old != val:
+				self.log.info("Scan1 permissive %s: %s to %s" % (key, old, val))
+			self.perm_values[key] = val
+
+	def get_permissive(self, perm_name):
+		return self.perm_values.get(perm_name)
+
+	# =========================================
+	# Scan1 route table helpers (Mongo)
+	# =========================================
+	def _reload_scan1_routes(self, initial=False):
+		"""
+		Load or reload the Scan1 route table from RoutingStorage.
+		"""
+		try:
+			data = ROUTING_STORE.get_data(self.SCAN1_SYSTEM, self.SCAN1_TABLE)
+			if isinstance(data, dict):
+				self.scan1_routes = data
+				msg = "initial" if initial else "refreshed"
+				self.log.info(
+					"Scan1: %s route table %s from Mongo (%d entries)" %
+					(self.SCAN1_SYSTEM, msg, len(self.scan1_routes))
+				)
+			else:
+				self.log.warn(
+					"Scan1: scan1 route table data is not a dict (%r)" %
+					(type(data),)
+				)
+		except Exception as e:
+			self.log.warn("Scan1: failed to load scan1 route table: %s" % e)
+
+	def _ensure_scan1_routes_loaded(self):
+		"""
+		Make sure we have a usable route table before trying to use it.
+		"""
+		if not self.scan1_routes:
+			self._reload_scan1_routes(initial=False)
+
+	def _get_scan1_route_cfg(self, route_code):
+		"""
+		Return the config dict for this route_code from scan1_routes.
+		Falls back to NOROUTE if not found.
+		"""
+		rt = self.scan1_routes or {}
+		rc = str(route_code).upper() if route_code is not None else 'NOROUTE'
+		if rc in rt:
+			return rt[rc]
+		return rt.get('NOROUTE', {})
+
+	def _encode_scan1_diverts(self, route_cfg):
+		"""
+		Convert route_cfg divert flags into a bitmask and booleans.
+		"""
+		d1 = bool(route_cfg.get('divert_01'))
+		d2 = bool(route_cfg.get('divert_02'))
+		d3 = bool(route_cfg.get('divert_03'))
+
+		mask = 0
+		if d1:
+			mask |= 1  # 0001
+		if d2:
+			mask |= 2  # 0010
+		if d3:
+			mask |= 4  # 0100
+
+		return mask, d1, d2, d3
+
+	# =========================================
+	# Payload / tote plan resolution
+	# =========================================
+	def _check_payload(self, payload):
+		"""
+		Parse Scan1 payload: <index_id>|<tote_id>
+
+		On success:
+		    self.record = {
+		        "raw_payload": <str>,
+		        "index_id": <str>,
+		        "tote_id": <str>,
+		        "reason_code": 0,
+		        "reason": None
+		    }
+		"""
+		self.record = {
+			"raw_payload": payload,
+			"reason_code": 0,
+			"reason": None
+		}
+
+		pm = SCAN_PAYLOAD_RE.match(payload or "")
+		if not pm:
+			self.record.update({
+				"index_id": None,
+				"tote_id": None,
+				"reason_code": 10,
+				"reason": "Scan1: payload did not match pattern <index_id>|<tote_id>"
+			})
+			self.log.warn(self.record["reason"] + " : %r" % payload)
+			return False
+
+		gd = pm.groupdict()
+		self.record.update({
+			"index_id": gd.get("index_id"),
+			"tote_id": gd.get("tote_id")
+		})
+		return True
+
+	def _resolve_from_tote_plan(self):
+		"""
+		Read pre-planned Scan1 route from ToteContentData.
+
+		If pre-planned fields are missing but we have a zone and a scan1
+		route table, re-plan the route on the fly using scan1_route_table
+		and shove it back into ToteContentData.
+
+		If we cannot find a tote record at all, default to NOROUTE
+		(mask=0, needs_consol=True).
+		"""
+		tote_id = self.record.get("tote_id")
+		if not tote_id:
+			self.record.update({
+				"reason_code": 21,
+				"reason": "Scan1: missing tote_id in record"
+			})
+			return False
+
+		info = None
+		try:
+			info = self.totes.get_tote(tote_id, default=None)
+		except Exception as e:
+			self.log.warn("Scan1: error reading tote info for %s: %s" % (tote_id, e))
+
+		# No tote record at all – we can't infer zone, so NOROUTE
+		if not info:
+			self.record.update({
+				"reason_code": 22,
+				"reason": "Scan1: no tote record found for %s, defaulting NOROUTE" % tote_id
+			})
+			self.log.warn(self.record["reason"])
+			self.record["zone"]               = None
+			self.record["route_code"]         = "NOROUTE"
+			self.record["divert_mask"]        = 0
+			self.record["divert_01"]          = False
+			self.record["divert_02"]          = False
+			self.record["divert_03"]          = False
+			self.record["scan1_needs_consol"] = True
+			return True
+
+		zone = info.get('zone')
+		has_plan = (
+			('scan1_route_code' in info) and
+			('scan1_divert_mask' in info)
+		)
+
+		# --- Case 1: pre-planned route is present in ToteContentData ---
+		if has_plan:
+			mask  = int(info.get('scan1_divert_mask', 0) or 0)
+			d1    = bool(info.get('scan1_divert_01'))
+			d2    = bool(info.get('scan1_divert_02'))
+			d3    = bool(info.get('scan1_divert_03'))
+			rc    = info.get('scan1_route_code', "NOROUTE")
+			nc    = bool(info.get('scan1_needs_consol', mask == 0))
+
+			self.record["zone"]               = zone
+			self.record["route_code"]         = rc
+			self.record["divert_mask"]        = mask
+			self.record["divert_01"]          = d1
+			self.record["divert_02"]          = d2
+			self.record["divert_03"]          = d3
+			self.record["scan1_needs_consol"] = nc
+			return True
+
+		# --- Case 2: no plan stored, but we have zone + scan1_routes → re-plan ---
+		if zone:
+			self._ensure_scan1_routes_loaded()
+			if self.scan1_routes:
+				route_code = str(zone).upper()
+				route_cfg  = self._get_scan1_route_cfg(route_code)
+				mask, d1, d2, d3 = self._encode_scan1_diverts(route_cfg)
+				needs_consol = (mask == 0)
+
+				# push back into ToteContentData for future
+				info['scan1_route_code']   = route_code
+				info['scan1_divert_mask']  = mask
+				info['scan1_divert_01']    = d1
+				info['scan1_divert_02']    = d2
+				info['scan1_divert_03']    = d3
+				info['scan1_needs_consol'] = needs_consol
+
+				try:
+					self.totes._persist_root()
+				except Exception as e_p:
+					self.log.warn("Scan1: failed to persist re-planned route for %s: %s" %
+					              (tote_id, e_p))
+
+				self.log.info(
+					"Scan1: re-planned route for tote %s zone=%s -> route=%s mask=%d "
+					"(d1=%s,d2=%s,d3=%s,needs_consol=%s)" %
+					(tote_id, zone, route_code, mask, d1, d2, d3, needs_consol)
+				)
+
+				self.record["zone"]               = zone
+				self.record["route_code"]         = route_code
+				self.record["divert_mask"]        = mask
+				self.record["divert_01"]          = d1
+				self.record["divert_02"]          = d2
+				self.record["divert_03"]          = d3
+				self.record["scan1_needs_consol"] = needs_consol
+				return True
+
+		# --- Case 3: no plan and no zone to compute from → NOROUTE ---
+		self.record.update({
+			"reason_code": 23,
+			"reason": "Scan1: tote %s has no zone or plan, defaulting NOROUTE" % tote_id
+		})
+		self.log.warn(self.record["reason"])
+
+		self.record["zone"]               = None
+		self.record["route_code"]         = "NOROUTE"
+		self.record["divert_mask"]        = 0
+		self.record["divert_01"]          = False
+		self.record["divert_02"]          = False
+		self.record["divert_03"]          = False
+		self.record["scan1_needs_consol"] = True
+		return True
+
+	# =========================================
+	# Apply route to PLC / tags
+	# =========================================
+	def _apply_route(self):
+		"""
+		Use pre-planned mask + divert bits from self.record to drive PLC.
+		"""
+		mask = int(self.record.get("divert_mask", 0) or 0)
+		d1   = bool(self.record.get("divert_01"))
+		d2   = bool(self.record.get("divert_02"))
+		d3   = bool(self.record.get("divert_03"))
+
+		base_path = self.cfg.MAIN_PATH  # e.g. "[Mouser]Mouser/Scan1/Main"
+
+		tag_mask = "%s/RouteMask"           % base_path
+		tag_d1   = "%s/Divert_01"           % base_path
+		tag_d2   = "%s/Divert_02"           % base_path
+		tag_d3   = "%s/Divert_03"           % base_path
+		tag_resp = "%s/Scan_Response.value" % base_path
+
+		# 1) OPC config via SorterConfig
+		try:
+			opc_server = self.cfg.readMain("Scan_Response.OpcServer")
+			opc_item   = self.cfg.readMain("Scan_Response.OpcItemPath")
+		except Exception as e_cfg:
+			self.log.warn("Scan1: Failed reading OPC config via cfg.readMain: %s" % e_cfg)
+			opc_server = None
+			opc_item   = None
+
+		# 2) OPC write: send mask out to PLC
+		try:
+			if opc_server and opc_item:
+				system.opc.writeValue(opc_server, opc_item, mask)
+			else:
+				self.log.warn("Scan1: OPC server/item missing; skipping OPC write")
+		except Exception as e_opc:
+			self.log.warn("Scan1: OPC write failed (server=%r item=%r): %s" %
+			              (opc_server, opc_item, e_opc))
+
+		# 3) Local tags
+		try:
+			system.tag.writeBlocking(
+				[tag_mask, tag_d1, tag_d2, tag_d3, tag_resp],
+				[mask, d1, d2, d3, mask]
+			)
+		except Exception as e_w:
+			self.log.warn("Scan1: failed to write local route tags: %s" % e_w)
+
+		self.log.info(
+			"Scan1: tote=%s zone=%s route=%s -> mask=%d (d1=%s,d2=%s,d3=%s,needs_consol=%s)" %
+			(self.record.get("tote_id"),
+			 self.record.get("zone"),
+			 self.record.get("route_code"),
+			 mask, d1, d2, d3,
+			 self.record.get("scan1_needs_consol"))
+		)
+		return True
+
+	# =========================================
+	# Metrics per scanner (your model)
+	# =========================================
+	def _update_metrics(self, scanner_id):
+		"""
+		Update metrics for a specific scanner (index_id).
+
+		Tag pattern:
+		    {MAIN_PATH}/Scanners/<scanner_id>/Metrics/<MetricName>
+
+		Metrics:
+		    Cycle_Count
+		    Divert_Straight_Good
+		    Divert_01_Count
+		    Divert_02_Count
+		    Divert_03_Count
+		    Error_<ROUTECODE>  (for each error-style route)
+		    RatePerHour_Current
+		    RatePerHour_Min
+		    RatePerHour_Max
+		    Last_Scan_Timestamp
+		"""
+		if not scanner_id:
+			return
+
+		sid_str = str(scanner_id).zfill(3)
+		base = "%s/Scanners/%s/Metrics" % (self.cfg.MAIN_PATH, sid_str)
+		now  = system.date.now()
+		now_ms = system.date.toMillis(now)
+
+		# init timestamp window list
+		ts_list = self._scan_timestamps_by_scanner.get(sid_str)
+		if ts_list is None:
+			ts_list = []
+			self._scan_timestamps_by_scanner[sid_str] = ts_list
+
+		# figure out what happened on this scan
+		route_code = (self.record.get("route_code") or "NOROUTE").upper()
+		mask       = int(self.record.get("divert_mask", 0) or 0)
+
+		# classify for counters
+		is_error_route = (route_code in ERROR_ROUTE_CODES)
+
+		# diverted flags
+		div1 = bool(mask & 1)
+		div2 = bool(mask & 2)
+		div3 = bool(mask & 4)
+
+		# straight good = mask == 0 and NOT an error route
+		is_straight_good = (mask == 0 and not is_error_route)
+
+		# -------- read existing metrics --------
+		metric_paths = [
+			base + "/Cycle_Count",
+			base + "/Divert_Straight_Good",
+			base + "/Divert_01_Count",
+			base + "/Divert_02_Count",
+			base + "/Divert_03_Count",
+			base + "/RatePerHour_Min",
+			base + "/RatePerHour_Max"
+		]
+
+		# error counters for each route code
+		error_paths = []
+		for ec in ERROR_ROUTE_CODES:
+			error_paths.append(base + "/Error_%s" % ec)
+
+		all_paths = metric_paths + error_paths
+
+		try:
+			qvs = system.tag.readBlocking(all_paths)
+		except Exception as e:
+			self.log.warn("Scan1: metrics read failed for scanner %s: %s" % (sid_str, e))
+			return
+
+		# unpack base metrics
+		cycle_count        = int(qvs[0].value or 0)
+		div_straight_good  = int(qvs[1].value or 0)
+		div1_count         = int(qvs[2].value or 0)
+		div2_count         = int(qvs[3].value or 0)
+		div3_count         = int(qvs[4].value or 0)
+		rate_min           = float(qvs[5].value or 0.0)
+		rate_max           = float(qvs[6].value or 0.0)
+
+		# unpack error counters
+		error_vals = {}
+		idx = len(metric_paths)
+		for i, ec in enumerate(ERROR_ROUTE_CODES):
+			val = int(qvs[idx + i].value or 0)
+			error_vals[ec] = val
+
+		# -------- update counters --------
+		cycle_count += 1
+
+		if is_straight_good:
+			div_straight_good += 1
+
+		if div1:
+			div1_count += 1
+		if div2:
+			div2_count += 1
+		if div3:
+			div3_count += 1
+
+		if is_error_route:
+			error_vals[route_code] = error_vals.get(route_code, 0) + 1
+
+		# -------- rate per hour (sliding window) --------
+		window_ms = self._rate_window_sec * 1000
+		ts_list.append(now_ms)
+		ts_list[:] = [ts for ts in ts_list if (now_ms - ts) <= window_ms]
+		count_window = len(ts_list)
+
+		if count_window > 0:
+			rate_current = (float(count_window) / float(self._rate_window_sec)) * 3600.0
+		else:
+			rate_current = 0.0
+
+		if rate_min == 0.0 and rate_current > 0.0:
+			rate_min = rate_current
+		elif rate_current > 0.0:
+			rate_min = min(rate_min, rate_current)
+
+		rate_max = max(rate_max, rate_current)
+
+		# -------- write back metrics --------
+		write_paths = [
+			base + "/Cycle_Count",
+			base + "/Divert_Straight_Good",
+			base + "/Divert_01_Count",
+			base + "/Divert_02_Count",
+			base + "/Divert_03_Count",
+			base + "/RatePerHour_Current",
+			base + "/RatePerHour_Min",
+			base + "/RatePerHour_Max",
+			base + "/Last_Scan_Timestamp"
+		]
+
+		write_vals = [
+			cycle_count,
+			div_straight_good,
+			div1_count,
+			div2_count,
+			div3_count,
+			rate_current,
+			rate_min,
+			rate_max,
+			now
+		]
+
+		# append error metric paths/values
+		for ec in ERROR_ROUTE_CODES:
+			write_paths.append(base + "/Error_%s" % ec)
+			write_vals.append(error_vals.get(ec, 0))
+
+		try:
+			system.tag.writeBlocking(write_paths, write_vals)
+		except Exception as e:
+			self.log.warn("Scan1: metrics write failed for scanner %s: %s" % (sid_str, e))
+
+	# =========================================
+	# Public entrypoint
+	# =========================================
+	def scan_request(self, payload):
+		"""
+		Main entrypoint for a Scan1 payload.
+		Returns:
+		    (success_bool, record_dict)
+		"""
+		if not self._check_payload(payload):
+			success = False
+		elif not self._resolve_from_tote_plan():
+			success = False
+		elif not self._apply_route():
+			success = False
+		else:
+			success = True
+
+		# metrics per scanner (index_id)
+		try:
+			self._update_metrics(self.record.get("index_id"))
+		except Exception as e:
+			self.log.warn("Scan1: metrics update failed: %s" % e)
+
+		return success, dict(self.record)

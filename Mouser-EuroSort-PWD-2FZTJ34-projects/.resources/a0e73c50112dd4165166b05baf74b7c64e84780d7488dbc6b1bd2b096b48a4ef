@@ -1,0 +1,353 @@
+{
+  "custom": {},
+  "params": {
+    "Dest": "DST-0001--1-1-A",
+    "GroupID": -1,
+    "IBN": 123456,
+    "SortedCount": 3,
+    "TotalCount": 0,
+    "Zone": "AA"
+  },
+  "propConfig": {
+    "params.Dest": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.GroupID": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.IBN": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.SortedCount": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.TotalCount": {
+      "paramDirection": "inout",
+      "persistent": true
+    },
+    "params.Zone": {
+      "paramDirection": "inout",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 100,
+      "width": 254
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label",
+          "tooltip": {
+            "enabled": true,
+            "text": "IBN"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 83,
+          "x": 0.5800000000000001
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.IBN"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_0",
+          "tooltip": {
+            "enabled": true,
+            "text": "Zone"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 83,
+          "x": 83.158125
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Zone"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#8AFFFF",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_1",
+          "tooltip": {
+            "enabled": true,
+            "text": "GroupID"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 83,
+          "x": 166.31625
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.GroupID"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#8A8AFF",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_2",
+          "tooltip": {
+            "enabled": true,
+            "text": "Chute"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 248,
+          "x": 0.9,
+          "y": 32
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.Dest"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#8A8AFF",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_3",
+          "tooltip": {
+            "enabled": true,
+            "text": "Daily Count"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 83,
+          "x": 0.8981249999999932,
+          "y": 64
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.TotalCount"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#FFCA8A",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_4",
+          "tooltip": {
+            "enabled": true,
+            "text": "Count In Sorter"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 83,
+          "x": 83.478125,
+          "y": 64
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "collection": "eurosort_chutes_db",
+                "connector": "MongoWCS",
+                "enableValueCache": true,
+                "polling": {
+                  "enabled": true,
+                  "rate": "1"
+                },
+                "struct": {
+                  "collation": {},
+                  "filter": {
+                    "Occupied": "True"
+                  },
+                  "limit": 500,
+                  "projection": {},
+                  "skip": 0,
+                  "sort": {}
+                },
+                "type": "Find"
+              },
+              "transforms": [
+                {
+                  "code": "\tcount \u003d 0 \n\tfor row in list(value):\n\t\tcount +\u003d row[\u0027ChuteCount\u0027]\n\treturn count",
+                  "type": "script"
+                }
+              ],
+              "type": "connectorMongoDb.query"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#B2AFAB",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Label_5",
+          "tooltip": {
+            "enabled": true,
+            "text": "Num Chutes Occupied"
+          }
+        },
+        "position": {
+          "height": 32,
+          "width": 83,
+          "x": 165.636,
+          "y": 64
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "collection": "eurosort_chutes_db",
+                "connector": "MongoWCS",
+                "enableValueCache": false,
+                "polling": {
+                  "enabled": true,
+                  "rate": "1"
+                },
+                "struct": {
+                  "collation": {},
+                  "filter": {
+                    "Occupied": "True"
+                  },
+                  "limit": 500,
+                  "projection": {},
+                  "skip": 0,
+                  "sort": {}
+                },
+                "type": "Find"
+              },
+              "transforms": [
+                {
+                  "code": "\treturn len(value)",
+                  "type": "script"
+                }
+              ],
+              "type": "connectorMongoDb.query"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "backgroundColor": "#B2AFAB",
+            "borderStyle": "solid",
+            "borderWidth": 1
+          },
+          "textStyle": {
+            "fontWeight": "bold",
+            "textAlign": "center"
+          }
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

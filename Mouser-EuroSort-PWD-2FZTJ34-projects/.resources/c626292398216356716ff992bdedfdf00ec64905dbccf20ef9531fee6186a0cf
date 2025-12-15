@@ -1,0 +1,161 @@
+from shared.pwd.Mouser.Connection_Driver.Sort_Config import SorterConfig
+from shared.pwd.Mouser.Connection_Driver.Sort_Scheduler   import Scheduler
+from shared.pwd.Mouser.Consolidation.Consol_Tracking.Content_Zone_Tracking import SortZoneData
+from shared.pwd.Route_tables.RouteStorage import RoutingStorage
+from shared.helpers.tools import safe_tag_read,safe_tag_write, ensure_list
+from database.records.mongodb import select_record, select_records, update_record
+import system, re
+MONGODB     = 'MongoWCS'
+TIMEOUT_MIN = 10
+ROUTING_COLLECTION = "routing_tables"
+ROUTING_TTL_SEC = 60*60
+ROUTING_STORE = RoutingStorage(
+	db_name=MONGODB,
+	coll_name=ROUTING_COLLECTION,
+	ttl_sec=ROUTING_TTL_SEC
+)
+SCAN_PAYLOAD_RE = re.compile(r'^(?P<indexid>\d{3})\|(?P<ibns>[^|]+)$')
+
+def _try_write(path, value):
+	try: safe_tag_write(path, value)
+	except Exception: pass
+	
+class QPS_Router(object):
+	
+	def __init__(self, name):
+		
+		self.name = name
+		self.log = system.util.getLogger("QPS")
+		self.cfg = SorterConfig(name)
+		self._initialize_stations()
+		try:
+			self.zones = SortZoneData(self.name)
+			self.zones._initialize_zone_data(self.name)
+		except Exception as e:
+			self.log.warn('SortZoneData load failed: %s' % e)
+		# one scheduler = one thread
+		self.sched = Scheduler(
+			name="Sched.%s" % name,
+			tick_resolution=0.05   # loop sleep time; can be tighter if needed
+		)
+		self.perm_values = {}
+		# register periodic jobs (examples)
+		self.sched.add(self._read_permissives, every_sec=0.25, run_immediately=True)
+		self.sched.add(self._timeout_task, every_sec=5.0)
+		
+		
+	def start(self):
+		self.log.info("Starting QPS router: %s"%(self.name))
+		self.sched.start()
+		
+		if not safe_tag_read("%s/Connected" % self.cfg.CONFIG_PATH):
+			safe_tag_write("%s/Connected" % self.cfg.CONFIG_PATH, True)
+	
+	def stop(self):
+		self.log.info("Stopping QPS router: %s"%(self.name))
+		self.sched.stop()
+		if safe_tag_read("%s/Connected" % self.cfg.CONFIG_PATH):
+			safe_tag_write("%s/Connected" % self.cfg.CONFIG_PATH, False)
+			
+			
+	# ---- jobs ----
+	def _read_permissives(self):
+		paths = {
+			'station_groups': self.cfg.CONTROL_PATH + '/station_groups',
+			'timeout_min':    self.cfg.CONTROL_PATH + '/timeout_min',
+		}
+		try:
+			qvs = system.tag.readBlocking(paths.values())
+		except Exception as e:
+			self.log.warn('Permissive read failed: %s'%e)
+			return
+
+		for (key, path), qv in zip(paths.items(), qvs):
+			val = getattr(qv, 'value', None)
+			if hasattr(val, 'toDict'):
+				val = val.toDict()
+			old = self.perm_values.get(key)
+			if old != val:
+				self.log.info("Permissive %s: %s to %s" %
+		              	(key, old,val))
+			
+			self.perm_values[key] = val	
+	
+	def get_permissive(self,perm_name):
+		return self.perm_values.get(perm_name)
+	
+
+	def _timeout_task(self):
+		limit_ms = int(self.get_permissive('timeout_min')) * 60 * 1000
+		now_dt   = system.date.now()
+
+		rows = select_records('qps_stations',
+			{"username": {"$nin": [None, ""]}},
+			target_database=MONGODB,
+			**{"sort": {"station": 1}}
+		) or []
+
+		for row in rows:
+			last = row.get('last_scanned_time')
+			if not last: continue
+			delta = system.date.millisBetween(last, now_dt)
+			if delta >= limit_ms:
+				self._force_sign_out(row['username'])
+
+	# ---------- helpers ----------
+	def _initialize_stations(self):
+		try:
+			rows = select_records('qps_stations', {}, target_database=MONGODB, **{"sort": {"station": 1}}) or []
+			self.log.info('QPS: loaded %s stations' % len(rows))
+		except Exception as e:
+			self.log.warn('Initialize stations failed: %s' % e)
+
+	def _force_sign_out(self, username, reason='timeout'):
+		st_doc = select_record('qps_stations', {"username": username}, target_database=MONGODB)
+		if not st_doc: return
+		station, scannerId = st_doc['station'], st_doc['scannerId']
+		self._set_scanner_defaults(station, scannerId, username='')
+		self.log.info('%s forced sign-out @ station %s' % (username, station))
+
+	def _set_scanner_defaults(self, station, scannerId, username=''):
+		doc = {
+			"station": station, "scannerId": scannerId, "username": username,
+			"occupied": bool(username), "scan_count": 0, "total_count": 0,
+			"last_scanned_time": None, "totes_turned_in": 0, "rate_of_scan": 0,
+			"logged_in_time": system.date.now() if username else None,
+			"run_time": "00:00:00.000", "scanner_online": True, "station_enabled": True
+		}
+		update_record('qps_stations', doc, {"station": station, "scannerId": scannerId}, target_database=MONGODB)
+
+	# ---------- example of a request path ----------
+	def scan_request(self, username, payload, station, scannerId):
+		m = SCAN_PAYLOAD_RE.match((payload or '').strip())
+		if not m:
+			return {"ok": False, "reason": "Invalid payload format"}
+
+		indexId = m.group('indexid')
+		ibns = [s.strip() for s in ensure_list(m.group('ibns').split(',')) if s and s.strip()]
+		if not ibns:
+			return {"ok": False, "reason": "No valid IBNs in payload"}
+
+		docs = select_records('outbound_scan_sort_ibn', {"_id": {"$in": ibns}}, target_database=MONGODB,
+		                      projection={"insert_time": 0}) or []
+		if not docs:
+			return {"ok": False, "reason": "No matching IBN docs"}
+
+		if self.zones and hasattr(self.zones, 'add_issue_to_current_zone'):
+			for doc in docs:
+				self.zones.add_issue_to_current_zone(station, {"_id": doc['_id'], "zone": doc.get('zone')})
+
+		st_doc = select_record('qps_stations', {"station": station, "scannerId": scannerId}, target_database=MONGODB) or {}
+		incr = len(ibns)
+		new_scan_count  = int(st_doc.get('scan_count', 0)) + incr
+		new_total_count = int(st_doc.get('total_count', 0)) + incr
+
+		update_record('qps_stations', {
+			"station": station, "scannerId": scannerId, "username": username,
+			"scan_count": new_scan_count, "total_count": new_total_count,
+			"last_scanned_time": system.date.now()
+		}, {"station": station, "scannerId": scannerId}, target_database=MONGODB)
+
+		return {"ok": True, "indexId": indexId, "count": len(ibns)}

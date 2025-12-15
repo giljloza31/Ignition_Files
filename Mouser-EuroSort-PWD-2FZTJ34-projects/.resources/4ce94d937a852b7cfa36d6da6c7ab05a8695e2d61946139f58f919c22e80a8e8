@@ -1,0 +1,48 @@
+"""
+
+
+"""
+from shared.tools.logging import Logger; Logger().trace('Compiling module')
+
+from shared.tools.route import WebDevEndpointRegistry
+
+#from database.core import insert_record, upsert_record
+
+from java.lang import Exception as JavaException
+
+
+__all__ = [
+	'LoggedEndpoint',
+
+]
+
+
+
+
+class LoggedEndpoint(WebDevEndpointRegistry):
+	
+	@classmethod
+	def route_request(cls, method, route, payload=None, params=None):
+		try:
+			response = super(LoggedEndpoint, cls).route_request(method, route, payload, params)
+			
+			# echo for now
+			if not response:
+				response = "{method} on {route}\n\n{payload!r}\n\n{params!r}".format(**locals())
+			
+			return response
+		except (Exception, JavaException) as error:
+			response = error
+			raise error # throw up the super chain to be passed along as expected
+		finally:
+			Logger().trace(
+				{
+					'endpoint'         : route,
+					'method'           : method,
+					'query_parameters' : cls.serialize_json(params),
+					'post_data'        : cls.serialize_json(payload),
+					'response'         : cls.serialize_json(response),
+				}
+			)
+
+route_webdev = LoggedEndpoint.route_webdev

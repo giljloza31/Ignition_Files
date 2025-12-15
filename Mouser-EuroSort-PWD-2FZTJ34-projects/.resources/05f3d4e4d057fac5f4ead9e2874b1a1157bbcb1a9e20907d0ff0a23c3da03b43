@@ -1,0 +1,318 @@
+# shared/es_platform/commands/permissions.py
+# Jython / Ignition-friendly permission + re-auth utilities (AD + Ignition fallback)
+
+from shared.foundation.time import clock
+
+
+class PermissionDenied(Exception):
+	"""
+	Raised when a command is not permitted.
+	payload is safe to show on-screen (Perspective) for operator feedback.
+	"""
+	def __init__(self, message, payload=None):
+		Exception.__init__(self, message)
+		self.payload = payload or {}
+
+
+def default_rules():
+	"""
+	Edit these to match your site. Keep eventType strings stable.
+	"""
+	return {
+		# System-level
+		"CMD_SYSTEM_ON":		{"allow": True},  # anyone can start (optional)
+		"CMD_SYSTEM_OFF":	{"roles_any": ["Supervisor", "Admin", "Engineering", "Maintenance"]},
+		"CMD_SET_MODE":		{"roles_any": ["Supervisor", "Admin", "Engineering", "Maintenance"]},
+
+		# Chute-level
+		"CMD_CHUTE_OPEN":	{"roles_any": ["Supervisor", "Admin", "Engineering", "Maintenance"]},
+		"CMD_CHUTE_CLOSE":	{"roles_any": ["Supervisor", "Admin", "Engineering", "Maintenance"]},
+		"CMD_CHUTE_LIGHT":	{"allow": True},  # operators can toggle lights
+
+		# Carrier-level
+		"CMD_CARRIER_FORCE_RELEASE": {"roles_any": ["Supervisor", "Admin", "Engineering", "Maintenance"]},
+	}
+
+
+class CommandAuthorizer(object):
+	"""
+	Permission guard used by CommandHelper.
+
+	Authorization sources:
+	1) context["roles"] (re-auth / supervisor override)
+	2) userId roles (Ignition user sources)
+	3) default_allow fallback
+	"""
+
+	def __init__(self, rules=None, default_allow=False, user_sources=None, site_tz_id="UTC", logger=None):
+		self.rules = rules or {}
+		self.default_allow = bool(default_allow)
+		self.user_sources = list(user_sources) if user_sources else ["Active Directory", "Ignition"]
+		self.site_tz_id = str(site_tz_id or "UTC")
+		self.logger = logger
+
+	def _log(self, msg, payload=None, level="info"):
+		if self.logger:
+			try:
+				fn = getattr(self.logger, level, None)
+				if fn:
+					fn(msg, payload)
+					return
+			except:
+				pass
+		try:
+			print("%s %s" % (msg, payload if payload is not None else ""))
+		except:
+			pass
+
+	def require(self, eventType, userId=None, context=None):
+		"""
+		Raises PermissionDenied if not permitted.
+		Returns dict with who authorized and which roles were used.
+		"""
+		etype = str(eventType)
+
+		rule = self.rules.get(etype)
+		if rule is None:
+			# No rule => default_allow decides
+			if self.default_allow:
+				return {"ok": True, "authorizedBy": userId, "roles": [], "rule": None}
+			raise PermissionDenied("Permission denied: no rule for %s" % etype, {
+				"eventType": etype,
+				"userId": userId,
+				"reason": "no_rule",
+			})
+
+		# Rule can be:
+		# - {"allow": True/False}
+		# - {"roles_any": [..]}
+		# - callable(store/context/userId)->bool (keep simple, but supported)
+		if callable(rule):
+			try:
+				ok = bool(rule(userId=userId, context=context))
+			except Exception as e:
+				raise PermissionDenied("Permission rule error for %s: %s" % (etype, e), {
+					"eventType": etype,
+					"userId": userId,
+					"reason": "rule_exception",
+				})
+			if ok:
+				return {"ok": True, "authorizedBy": userId, "roles": [], "rule": "callable"}
+			raise PermissionDenied("Permission denied for %s" % etype, {
+				"eventType": etype,
+				"userId": userId,
+				"reason": "callable_false",
+			})
+
+		if isinstance(rule, dict) and rule.get("allow") is True:
+			return {
+				"ok": True,
+				"authorizedBy": _ctx(context, "authUser") or userId,
+				"roles": _ctx(context, "roles") or _resolve_roles(userId, self.user_sources, logger=self.logger) or [],
+				"rule": rule
+			}
+
+		if isinstance(rule, dict) and rule.get("allow") is False:
+			raise PermissionDenied("Permission denied for %s" % etype, {
+				"eventType": etype,
+				"userId": userId,
+				"reason": "explicit_deny",
+			})
+
+		required_any = []
+		if isinstance(rule, dict):
+			required_any = list(rule.get("roles_any") or [])
+
+		# 1) Prefer re-auth context roles (supervisor override) if provided
+		auth_user = _ctx(context, "authUser")
+		auth_roles = _ctx(context, "roles")
+		auth_source = _ctx(context, "authSource")
+
+		if auth_user and isinstance(auth_roles, (list, tuple)):
+			if _roles_match_any(auth_roles, required_any):
+				return {
+					"ok": True,
+					"authorizedBy": auth_user,
+					"authorizedSource": auth_source,
+					"roles": list(auth_roles),
+					"rule": rule
+				}
+
+		# 2) Else fall back to the operator’s roles (Joe stays logged in)
+		roles = _resolve_roles(userId, self.user_sources, logger=self.logger) or []
+		if _roles_match_any(roles, required_any):
+			return {
+				"ok": True,
+				"authorizedBy": userId,
+				"authorizedSource": None,
+				"roles": roles,
+				"rule": rule
+			}
+
+		# 3) Deny
+		raise PermissionDenied("Permission denied for %s" % etype, {
+			"eventType": etype,
+			"userId": userId,
+			"required_any": required_any,
+			"roles": roles,
+			"authUser": auth_user,
+			"authRoles": auth_roles,
+			"reason": "missing_role",
+		})
+
+
+# ----------------------------
+# Re-auth (AD + Ignition fallback)
+# ----------------------------
+
+def build_auth_context(username, password, user_sources=None, site_tz_id="UTC", logger=None):
+	"""
+	Validates username/password against user sources WITHOUT changing the currently logged-in session user.
+	Returns:
+	{
+		"authUser": "...",
+		"authSource": "...",
+		"roles": [...],
+		"ts": {...}
+	}
+
+	Use this in a Perspective popup:
+	- operator enters supervisor creds
+	- you pass context into CommandHelper methods
+	"""
+	u = (username or "").strip()
+	p = (password or "")
+
+	if not u or not p:
+		raise PermissionDenied("Missing username/password", {"reason": "missing_credentials"})
+
+	sources = list(user_sources) if user_sources else ["Active Directory", "Ignition"]
+
+	ok_source = None
+	for src in sources:
+		if _authenticate(u, p, src, logger=logger):
+			ok_source = src
+			break
+
+	if not ok_source:
+		raise PermissionDenied("Invalid credentials", {"reason": "auth_failed", "user": u})
+
+	roles = _resolve_roles(u, [ok_source], logger=logger) or []
+
+	return {
+		"authUser": u,
+		"authSource": ok_source,
+		"roles": roles,
+		"ts": clock.pack_timestamps(tz_id=str(site_tz_id or "UTC"))
+	}
+
+
+# ----------------------------
+# Internals (Ignition-safe)
+# ----------------------------
+
+def _ctx(context, key):
+	if isinstance(context, dict):
+		return context.get(key)
+	return None
+
+
+def _roles_match_any(roles, required_any):
+	if not required_any:
+		# if a rule specifies roles_any=[], treat it as deny unless default_allow handled elsewhere
+		return False
+	role_set = set([str(r).strip() for r in (roles or []) if r is not None])
+	for req in (required_any or []):
+		if str(req).strip() in role_set:
+			return True
+	return False
+
+
+def _authenticate(username, password, user_source, logger=None):
+	"""
+	Try multiple Ignition APIs depending on scope/version.
+	Returns True/False.
+	"""
+	try:
+		import system
+	except:
+		return False
+
+	us = str(user_source or "")
+
+	# 1) Preferred (Ignition 8+): system.security.authenticate(username, password, userSource)
+	try:
+		if hasattr(system, "security") and hasattr(system.security, "authenticate"):
+			return bool(system.security.authenticate(str(username), str(password), us))
+	except Exception as e:
+		_try_log(logger, "authenticate.security.authenticate_failed", {"err": str(e), "userSource": us})
+
+	# 2) Legacy: system.user.authenticate(userSource, username, password)
+	try:
+		if hasattr(system, "user") and hasattr(system.user, "authenticate"):
+			return bool(system.user.authenticate(us, str(username), str(password)))
+	except Exception as e:
+		_try_log(logger, "authenticate.system.user.authenticate_failed", {"err": str(e), "userSource": us})
+
+	return False
+
+
+def _resolve_roles(userId, user_sources, logger=None):
+	"""
+	Resolve roles for userId by probing user sources.
+	Returns list[str].
+	"""
+	if not userId:
+		return []
+
+	try:
+		import system
+	except:
+		return []
+
+	u = str(userId)
+
+	for src in (user_sources or []):
+		us = str(src or "")
+
+		# 1) system.user.getUser(userSource, username).getRoles()
+		try:
+			if hasattr(system, "user") and hasattr(system.user, "getUser"):
+				user_obj = system.user.getUser(us, u)
+				if user_obj:
+					try:
+						roles = user_obj.getRoles()
+						if roles is not None:
+							return [str(r) for r in roles]
+					except:
+						pass
+		except Exception as e:
+			_try_log(logger, "roles.getUser_failed", {"err": str(e), "userSource": us, "user": u})
+
+		# 2) system.security.getRoles(userSource, username) (if available)
+		try:
+			if hasattr(system, "security") and hasattr(system.security, "getRoles"):
+				roles = system.security.getRoles(us, u)
+				if roles is not None:
+					return [str(r) for r in roles]
+		except Exception as e:
+			_try_log(logger, "roles.security.getRoles_failed", {"err": str(e), "userSource": us, "user": u})
+
+		# 3) system.user.getRoles(userSource, username) (some installs)
+		try:
+			if hasattr(system, "user") and hasattr(system.user, "getRoles"):
+				roles = system.user.getRoles(us, u)
+				if roles is not None:
+					return [str(r) for r in roles]
+		except Exception as e:
+			_try_log(logger, "roles.user.getRoles_failed", {"err": str(e), "userSource": us, "user": u})
+
+	return []
+
+
+def _try_log(logger, msg, payload):
+	if logger:
+		try:
+			logger.warn(msg, payload)
+		except:
+			pass
