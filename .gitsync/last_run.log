@@ -1,0 +1,289 @@
+﻿[2025-12-15 11:18:39] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:18:39] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:18:39] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:18:39] Robocopy start
+[2025-12-15 11:18:39] Robocopy exitcode=1
+[2025-12-15 11:18:39] git checkout -B gw/mouser-eurosort-pwd-2fztj34
+git.exe : fatal: detected dubious ownership in repository at 'C:/Ignition_Files'
+At C:\IgnitionTools\sync_commit.ps1:92 char:1
++ & $GitExe checkout -B $branch 2>&1 | Out-File -Append -Encoding UTF8  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: detected...Ignition_Files':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+'C:/Ignition_Files' is owned by:
+	AzureAD/GilLozaPWDUS (S-1-12-1-1935586503-1212675454-498662804-2073094920)
+but the current user is:
+	NT AUTHORITY/SYSTEM (S-1-5-18)
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/Ignition_Files
+[2025-12-15 11:18:39] checkout exitcode=128
+[2025-12-15 11:18:39] FAIL git checkout
+[2025-12-15 11:21:26] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:21:26] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:21:26] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:21:26] Robocopy start
+[2025-12-15 11:21:26] Robocopy exitcode=0
+[2025-12-15 11:21:26] git checkout -B gw/mouser-eurosort-pwd-2fztj34
+git.exe : fatal: detected dubious ownership in repository at 'C:/Ignition_Files'
+At C:\IgnitionTools\sync_commit.ps1:92 char:1
++ & $GitExe checkout -B $branch 2>&1 | Out-File -Append -Encoding UTF8  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: detected...Ignition_Files':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+'C:/Ignition_Files' is owned by:
+	AzureAD/GilLozaPWDUS (S-1-12-1-1935586503-1212675454-498662804-2073094920)
+but the current user is:
+	NT AUTHORITY/SYSTEM (S-1-5-18)
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/Ignition_Files
+[2025-12-15 11:21:26] checkout exitcode=128
+[2025-12-15 11:21:26] FAIL git checkout
+[2025-12-15 11:27:56] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:27:56] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:27:56] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:27:56] Robocopy start
+[2025-12-15 11:27:56] Robocopy exitcode=0
+[2025-12-15 11:27:56] git checkout -B gw/mouser-eurosort-pwd-2fztj34
+git.exe : fatal: detected dubious ownership in repository at 'C:/Ignition_Files'
+At C:\IgnitionTools\sync_commit.ps1:92 char:1
++ & $GitExe checkout -B $branch 2>&1 | Out-File -Append -Encoding UTF8  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: detected...Ignition_Files':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+'C:/Ignition_Files' is owned by:
+	AzureAD/GilLozaPWDUS (S-1-12-1-1935586503-1212675454-498662804-2073094920)
+but the current user is:
+	NT AUTHORITY/SYSTEM (S-1-5-18)
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/Ignition_Files
+[2025-12-15 11:27:56] checkout exitcode=128
+[2025-12-15 11:27:56] FAIL git checkout
+[2025-12-15 11:29:18] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:29:18] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:29:18] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:29:18] Robocopy start
+[2025-12-15 11:29:18] Robocopy exitcode=0
+[2025-12-15 11:29:18] git checkout -B gw/mouser-eurosort-pwd-2fztj34
+git.exe : fatal: detected dubious ownership in repository at 'C:/Ignition_Files'
+At C:\IgnitionTools\sync_commit.ps1:92 char:1
++ & $GitExe checkout -B $branch 2>&1 | Out-File -Append -Encoding UTF8  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: detected...Ignition_Files':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+'C:/Ignition_Files' is owned by:
+	AzureAD/GilLozaPWDUS (S-1-12-1-1935586503-1212675454-498662804-2073094920)
+but the current user is:
+	NT AUTHORITY/SYSTEM (S-1-5-18)
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/Ignition_Files
+[2025-12-15 11:29:18] checkout exitcode=128
+[2025-12-15 11:29:18] FAIL git checkout
+git.exe : fatal: detected dubious ownership in repository at 'C:/Ignition_Files'
+At C:\IgnitionTools\sync_commit.ps1:100 char:1
++ & $GitExe add $folderName 2>&1 | Out-File -Append -Encoding UTF8 $log ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: detected...Ignition_Files':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+'C:/Ignition_Files' is owned by:
+	AzureAD/GilLozaPWDUS (S-1-12-1-1935586503-1212675454-498662804-2073094920)
+but the current user is:
+	NT AUTHORITY/SYSTEM (S-1-5-18)
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/Ignition_Files
+[2025-12-15 11:29:29] add exitcode=128
+[2025-12-15 11:29:29] FAIL git add
+[2025-12-15 11:38:02] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:38:02] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:38:02] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:38:02] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:38:02] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:38:02] Robocopy start
+[2025-12-15 11:38:02] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:38:02] Robocopy start
+[2025-12-15 11:38:02] Robocopy exitcode=0
+[2025-12-15 11:38:02] git checkout -B gw/mouser-eurosort-pwd-2fztj34
+git.exe : fatal: detected dubious ownership in repository at 'C:/Ignition_Files'
+At C:\IgnitionTools\sync_commit.ps1:92 char:1
++ & $GitExe checkout -B $branch 2>&1 | Out-File -Append -Encoding UTF8  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: detected...Ignition_Files':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+'C:/Ignition_Files' is owned by:
+	AzureAD/GilLozaPWDUS (S-1-12-1-1935586503-1212675454-498662804-2073094920)
+but the current user is:
+	NT AUTHORITY/SYSTEM (S-1-5-18)
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/Ignition_Files
+[2025-12-15 11:38:02] checkout exitcode=128
+[2025-12-15 11:38:02] FAIL git checkout
+[2025-12-15 11:38:02] git commit -m <msg>
+git.exe : fatal: detected dubious ownership in repository at 'C:/Ignition_Files'
+At C:\IgnitionTools\sync_commit.ps1:124 char:1
++ & $GitExe commit -m $msg 2>&1 | Out-File -Append -Encoding UTF8 $logF ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: detected...Ignition_Files':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+'C:/Ignition_Files' is owned by:
+	AzureAD/GilLozaPWDUS (S-1-12-1-1935586503-1212675454-498662804-2073094920)
+but the current user is:
+	NT AUTHORITY/SYSTEM (S-1-5-18)
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/Ignition_Files
+[2025-12-15 11:38:02] commit exitcode=128
+[2025-12-15 11:38:02] FAIL git commit
+[2025-12-15 11:42:32] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:42:32] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:42:32] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:42:32] Robocopy start
+[2025-12-15 11:42:32] Robocopy exitcode=0
+[2025-12-15 11:42:32] git checkout -B gw/mouser-eurosort-pwd-2fztj34
+git.exe : fatal: detected dubious ownership in repository at 'C:/Ignition_Files'
+At C:\IgnitionTools\sync_commit.ps1:92 char:1
++ & $GitExe checkout -B $branch 2>&1 | Out-File -Append -Encoding UTF8  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: detected...Ignition_Files':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+'C:/Ignition_Files' is owned by:
+	AzureAD/GilLozaPWDUS (S-1-12-1-1935586503-1212675454-498662804-2073094920)
+but the current user is:
+	NT AUTHORITY/SYSTEM (S-1-5-18)
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/Ignition_Files
+[2025-12-15 11:42:32] checkout exitcode=128
+[2025-12-15 11:42:32] FAIL git checkout
+[2025-12-15 11:44:34] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:44:34] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:44:34] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:44:34] Robocopy start
+[2025-12-15 11:44:34] Robocopy exitcode=0
+[2025-12-15 11:44:34] git checkout -B gw/mouser-eurosort-pwd-2fztj34
+git.exe : fatal: detected dubious ownership in repository at 'C:/Ignition_Files'
+At C:\IgnitionTools\sync_commit.ps1:92 char:1
++ & $GitExe checkout -B $branch 2>&1 | Out-File -Append -Encoding UTF8  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: detected...Ignition_Files':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+'C:/Ignition_Files' is owned by:
+	AzureAD/GilLozaPWDUS (S-1-12-1-1935586503-1212675454-498662804-2073094920)
+but the current user is:
+	NT AUTHORITY/SYSTEM (S-1-5-18)
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory C:/Ignition_Files
+[2025-12-15 11:44:34] checkout exitcode=128
+[2025-12-15 11:44:34] FAIL git checkout
+[2025-12-15 11:46:32] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:46:32] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:46:32] SafeRepo=C:/Ignition_Files
+[2025-12-15 11:46:32] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:46:32] Robocopy start
+[2025-12-15 11:46:32] Robocopy exitcode=0
+[2025-12-15 11:46:32] git checkout -B gw/mouser-eurosort-pwd-2fztj34
+M	Mouser-EuroSort-PWD-2FZTJ34-projects/Platform_Lib/ignition/script-python/shared/gitsync/code.py
+M	Mouser-EuroSort-PWD-2FZTJ34-projects/Platform_Lib/ignition/script-python/shared/gitsync/resource.json
+git.exe : Switched to a new branch 'gw/mouser-eurosort-pwd-2fztj34'
+At C:\IgnitionTools\sync_commit.ps1:60 char:3
++   & $GitExe @("-c", "safe.directory=$SafeRepo") @Args 2>&1 | Out-File ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Switched to a n...rt-pwd-2fztj34':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[2025-12-15 11:46:32] checkout exitcode=0
+[2025-12-15 11:46:32] git add Mouser-EuroSort-PWD-2FZTJ34-projects
+git.exe : warning: in the working copy of 
+'Mouser-EuroSort-PWD-2FZTJ34-projects/Platform_Lib/ignition/script-python/shared/gitsync/code.py', LF will be replaced 
+by CRLF the next time Git touches it
+At C:\IgnitionTools\sync_commit.ps1:60 char:3
++   & $GitExe @("-c", "safe.directory=$SafeRepo") @Args 2>&1 | Out-File ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 
+'Mouser-EuroSort-PWD-2FZTJ34-projects/Platform_Lib/ignition/script-python/shared/gitsync/resource.json', LF will be 
+replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/03f7b0c02faf8031ffa6ff557cd6e2d5a05806c893432f8f5b46354dcf2f02b9', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/34105c33c94f79eab2822c2f4c26af877dfb09421bbbb8a5cc5853d2f903dc49', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/d50946b12c51ffe0db3b677d64aac633785d98555db981d60d2f4c7dd70d6d3e', LF 
+will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 
+'Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/f27e9f38f25201d67eccea4310e71d895775bd605cac01f4cd28dc378ab47eaf', LF 
+will be replaced by CRLF the next time Git touches it
+[2025-12-15 11:46:32] add exitcode=0
+[2025-12-15 11:46:32] git commit -m <msg>
+git.exe : Author identity unknown
+At C:\IgnitionTools\sync_commit.ps1:60 char:3
++   & $GitExe @("-c", "safe.directory=$SafeRepo") @Args 2>&1 | Out-File ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Author identity unknown:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'SYSTEM@PWD-2FZTJ34.(none)')
+[2025-12-15 11:46:32] commit exitcode=128
+[2025-12-15 11:46:32] FAIL git commit
+[2025-12-15 11:49:16] START action=snapshot customer=Mouser system=EuroSort gateway=PWD-2FZTJ34 project=Platform_Lib repoRoot=C:\Ignition_Files source=C:\Program Files\Inductive Automation\Ignition\data\projects push=True forcePush=False
+[2025-12-15 11:49:16] Using git=C:\Program Files\Git\bin\git.exe
+[2025-12-15 11:49:16] SafeRepo=C:/Ignition_Files
+[2025-12-15 11:49:16] AuthorName=Ignition GitSync (PWD-2FZTJ34) AuthorEmail=ignition-gitsync@PWD-2FZTJ34.local
+[2025-12-15 11:49:16] Dest=C:\Ignition_Files\Mouser-EuroSort-PWD-2FZTJ34-projects Branch=gw/mouser-eurosort-pwd-2fztj34
+[2025-12-15 11:49:16] Robocopy start
+[2025-12-15 11:49:16] Robocopy exitcode=0
+[2025-12-15 11:49:16] git checkout -B gw/mouser-eurosort-pwd-2fztj34
+A	Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/03f7b0c02faf8031ffa6ff557cd6e2d5a05806c893432f8f5b46354dcf2f02b9
+A	Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/34105c33c94f79eab2822c2f4c26af877dfb09421bbbb8a5cc5853d2f903dc49
+A	Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/d50946b12c51ffe0db3b677d64aac633785d98555db981d60d2f4c7dd70d6d3e
+A	Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/f27e9f38f25201d67eccea4310e71d895775bd605cac01f4cd28dc378ab47eaf
+M	Mouser-EuroSort-PWD-2FZTJ34-projects/Platform_Lib/ignition/script-python/shared/gitsync/code.py
+M	Mouser-EuroSort-PWD-2FZTJ34-projects/Platform_Lib/ignition/script-python/shared/gitsync/resource.json
+git.exe : Reset branch 'gw/mouser-eurosort-pwd-2fztj34'
+At C:\IgnitionTools\sync_commit.ps1:75 char:3
++   & $GitExe @prefix @Args 2>&1 | Out-File -Append -Encoding UTF8 $log ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Reset branch 'g...rt-pwd-2fztj34':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[2025-12-15 11:49:17] checkout exitcode=0
+[2025-12-15 11:49:17] git add Mouser-EuroSort-PWD-2FZTJ34-projects
+[2025-12-15 11:49:17] add exitcode=0
+[2025-12-15 11:49:17] git commit -m <msg>
+[gw/mouser-eurosort-pwd-2fztj34 773a5ba] IGN | Mouser/EuroSort | PWD-2FZTJ34 | Platform_Lib | snapshot | gateway | 2025-12-15 11:49:17 | Updating
+ 6 files changed, 875 insertions(+), 31 deletions(-)
+ create mode 100644 Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/03f7b0c02faf8031ffa6ff557cd6e2d5a05806c893432f8f5b46354dcf2f02b9
+ create mode 100644 Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/34105c33c94f79eab2822c2f4c26af877dfb09421bbbb8a5cc5853d2f903dc49
+ create mode 100644 Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/d50946b12c51ffe0db3b677d64aac633785d98555db981d60d2f4c7dd70d6d3e
+ create mode 100644 Mouser-EuroSort-PWD-2FZTJ34-projects/.resources/f27e9f38f25201d67eccea4310e71d895775bd605cac01f4cd28dc378ab47eaf
+[2025-12-15 11:49:17] commit exitcode=0
+[2025-12-15 11:49:17] git push
