@@ -21,6 +21,7 @@ def _log():
 
 def _read_tag(path, default=None):
 	try:
+		val = system.tag.readBlocking([path])[0].value
 		if val is None:
 			return default
 		return val
