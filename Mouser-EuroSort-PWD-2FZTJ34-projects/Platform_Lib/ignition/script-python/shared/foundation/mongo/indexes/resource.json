@@ -7,11 +7,11 @@
     "code.py"
   ],
   "attributes": {
+    "hintScope": 2,
+    "lastModificationSignature": "766df51160045a05375a5e63b7920a300a00c84500ec2bdca7e4057ae9545b1b",
     "lastModification": {
       "actor": "factory",
       "timestamp": "2025-12-14T04:57:24Z"
-    },
-    "hintScope": 2,
-    "lastModificationSignature": "766df51160045a05375a5e63b7920a300a00c84500ec2bdca7e4057ae9545b1b"
+    }
   }
 }
